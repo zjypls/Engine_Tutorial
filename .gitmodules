@@ -1,0 +1,15 @@
+[submodule "Engine/Include/imgui"]
+	path = Engine/Include/imgui
+	url = https://github.com/zjypls/imgui.git
+[submodule "Engine/Include/glfw"]
+	path = Engine/Include/glfw
+	url = https://github.com/zjypls/glfw.git
+[submodule "Engine/Include/spdlog"]
+	path = Engine/Include/spdlog
+	url = https://github.com/gabime/spdlog.git
+[submodule "Engine/Include/stb"]
+	path = Engine/Include/stb
+	url = https://github.com/nothings/stb.git
+[submodule "Engine/Include/glm"]
+	path = Engine/Include/glm
+	url = https://github.com/Groovounet/glm.git
