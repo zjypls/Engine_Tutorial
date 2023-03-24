@@ -3,7 +3,7 @@
 //
 #include "ZEditor.h"
 #include "Z/Core/Entry.h"
-#include "glm/ext/matrix_transform.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 extern "C"
 {

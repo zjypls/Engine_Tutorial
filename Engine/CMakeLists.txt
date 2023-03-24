@@ -29,4 +29,4 @@ target_link_libraries(Z PUBLIC GLFW glad ImGui)
 
 
 target_compile_definitions(Z PUBLIC Z_PLATFORM_WIN32
-        GLFW_INCLUDE_NONE)
+        GLFW_INCLUDE_NONE Z_SOURCE_DIR)

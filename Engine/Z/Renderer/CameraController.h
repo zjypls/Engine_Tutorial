@@ -14,7 +14,7 @@ namespace Z {
 		float zoomLevel = 1.0f;
 		bool enableRotation,MouseCtrl=false;
 		Ref<OrithGraphicCamera> camera;
-		glm::vec3 cameraPosition = {0.0f, 0.0f, 0.0f};
+		glm::vec3 cameraPosition = glm::vec3{0.0f, 0.0f, 0.0f};
 		float cameraRotation = 0.0f;
 		float MoveSpeed=1.f, RotateSpeed=1.f;
 	protected:

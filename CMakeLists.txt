@@ -21,7 +21,7 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin-C)
 link_directories(${CMAKE_SOURCE_DIR}/Lib)
 
-add_compile_definitions(Z_PLATFORM_WIN32)
+add_compile_definitions(Z_PLATFORM_WIN32 Z_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 include_directories(${CMAKE_SOURCE_DIR}/Engine/Include/spdlog/include
         ${CMAKE_SOURCE_DIR}/Engine/ ${CMAKE_SOURCE_DIR}/Engine/Include/glm
         ${CMAKE_SOURCE_DIR}/Engine/Include

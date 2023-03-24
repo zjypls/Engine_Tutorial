@@ -36,7 +36,7 @@ namespace Z{
 
 	void Particle::OnRender() {
 		for(int i=0;i<ParticlePoolIndex;i++) {
-			Z::Renderer2D::DrawQuad(ParticlePool[i].position, {ParticlePool[i].size,ParticlePool[i].size}, ParticlePool[i].color);
+			Z::Renderer2D::DrawQuad(ParticlePool[i].position, glm::vec2{ParticlePool[i].size,ParticlePool[i].size}, ParticlePool[i].color);
 		}
 	}
 
@@ -87,7 +87,7 @@ namespace Z_Test{
 			int a=0;
 		for(auto it=ParticlePool.begin();it!=ParticlePool.end();++it) {
 			//Z::Renderer2D::DrawQuad(it->position, {it->size,it->size}, it->color);
-			Z::Renderer2D::DrawQuadRotated(it->position, {it->size,it->size},Z::Random::Float(), it->color);
+			Z::Renderer2D::DrawQuadRotated(it->position, glm::vec2{it->size,it->size},Z::Random::Float(), it->color);
 		}
 	}
 

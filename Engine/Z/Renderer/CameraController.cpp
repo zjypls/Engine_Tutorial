@@ -71,7 +71,7 @@ namespace Z {
 			                                       zoomLevel)) {}
 
 	glm::vec2 CameraController::GetSize() const {
-		return {aspectRatio * zoomLevel, zoomLevel};
+		return glm::vec2{aspectRatio * zoomLevel, zoomLevel};
 	}
 
 	bool CameraController::OnMouseButtonPressed(MouseButtonPressedEvent &event) {

@@ -52,10 +52,10 @@ namespace Z {
 				1, 3, 2
 		};
 		vertexArray = VertexArray::Create();
-		texture[0] = Texture2D::CreateTexture("../Assets/Textures/Colum.png");
-		texture[1] = Texture2D::CreateTexture("../Assets/Textures/Layla.jpg");
-		texture[2] = Texture2D::CreateTexture("../Assets/Textures/Nahida.png");
-		texture[3] = Texture2D::CreateTexture("../Assets/Sprites/rpgSheet.png");
+		texture[0] = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR)+"/Assets/Textures/Colum.png");
+		texture[1] = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR)+"/Assets/Textures/Layla.jpg");
+		texture[2] = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR)+"/Assets/Textures/Nahida.png");
+		texture[3] = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR)+"/Assets/Sprites/rpgSheet.png");
 		subTex = SubTex2D::Create(texture[3], glm::vec2{10, 10}, glm::vec2{128, 128}, {3, 3});
 		textureMap['W'] = SubTex2D::Create(texture[3], glm::vec2{11, 11}, glm::vec2{128, 128}, {1, 1});
 		textureMap['D'] = SubTex2D::Create(texture[3], glm::vec2{6, 11}, glm::vec2{128, 128}, {1, 1});
@@ -70,10 +70,10 @@ namespace Z {
 		auto indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 		vertexArray->SetIndexBuffer(indexBuffer);
 		vertexArray->Unbind();
-		shader = Shader::CreateShader("../Shaders/One.glsl");
+		shader = Shader::CreateShader(std::string(Z_SOURCE_DIR)+"/Shaders/One.glsl");
 		shader->Bind();
 		shader->UnBind();
-		grid = Shader::CreateShader("Grid", "../Shaders/vert.vert", "../Shaders/grid.frag", true);
+		grid = Shader::CreateShader("Grid", std::string(Z_SOURCE_DIR) + "/Shaders/vert.vert", std::string(Z_SOURCE_DIR)+"/Shaders/grid.frag", true);
 		frameBuffer = FrameBuffer::Create({1200, 800});
 	}
 

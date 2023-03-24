@@ -15,7 +15,7 @@ namespace Z {
 	public:
 		SubTex2D(const Ref<Texture2D> &tex, glm::vec2 &leftDown, const glm::vec2 &rightUp);
 
-		static Ref<SubTex2D> Create(const Ref<Texture2D> &tex, const glm::vec2 &index, const glm::vec2 &SpriteSize,const glm::vec2 &SpriteCount={1.f,1.f});
+		static Ref<SubTex2D> Create(const Ref<Texture2D> &tex, const glm::vec2 &index, const glm::vec2 &SpriteSize,const glm::vec2 &SpriteCount=glm::vec2{1.f,1.f});
 
 		inline const glm::vec2 *GetCords() const { return texCords; }
 

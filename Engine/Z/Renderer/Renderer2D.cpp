@@ -42,16 +42,16 @@ namespace Z {
 		data->quadVertexArray->SetIndexBuffer(indexBuffer);
 		delete[] indices;
 		data->quadVertexArray->Unbind();
-		data->UShader = Shader::CreateShader("../Shaders/defaultU.glsl");
+		data->UShader = Shader::CreateShader(std::string(Z_SOURCE_DIR)+"/Shaders/defaultU.glsl");
 		data->whiteTexture = Texture2D::CreateTexture(1, 1);
 		uint32_t whiteTextureData = 0xffffffff;
 		data->whiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
 		data->textureSlots[0] = data->whiteTexture;
 		data->textureSlotIndex = 1;
-		data->quadVertexPositions[0] = {-0.5f, -0.5f, 0.0f, 1.0f};
-		data->quadVertexPositions[1] = {0.5f, -0.5f, 0.0f, 1.0f};
-		data->quadVertexPositions[2] = {0.5f, 0.5f, 0.0f, 1.0f};
-		data->quadVertexPositions[3] = {-0.5f, 0.5f, 0.0f, 1.0f};
+		data->quadVertexPositions[0] = glm::vec4{-0.5f, -0.5f, 0.0f, 1.0f};
+		data->quadVertexPositions[1] = glm::vec4{0.5f, -0.5f, 0.0f, 1.0f};
+		data->quadVertexPositions[2] = glm::vec4{0.5f, 0.5f, 0.0f, 1.0f};
+		data->quadVertexPositions[3] = glm::vec4{-0.5f, 0.5f, 0.0f, 1.0f};
 	}
 
 	void Renderer2D::Shutdown() {
@@ -75,22 +75,22 @@ namespace Z {
 	}
 
 	void Renderer2D::DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color) {
-		DrawQuad({position.x, position.y, 0.0f}, size, color);
+		DrawQuad(glm::vec3{position.x, position.y, 0.0f}, size, color);
 	}
 
 	void Renderer2D::DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const Ref<Texture2D> &texture,
 	                          float tilingFactor, glm::vec4 tintCol) {
-		DrawQuad({position.x, position.y, 0.0f}, size, texture, tilingFactor);
+		DrawQuad(glm::vec3{position.x, position.y, 0.0f}, size, texture, tilingFactor);
 	}
 
 	void Renderer2D::DrawQuadRotated(const glm::vec2 &position, const glm::vec2 &size, float rotation,
 	                                 const glm::vec4 &color) {
-		DrawQuadRotated({position.x, position.y, 0.0f}, size, rotation, color);
+		DrawQuadRotated(glm::vec3{position.x, position.y, 0.0f}, size, rotation, color);
 	}
 
 	void Renderer2D::DrawQuadRotated(const glm::vec2 &position, const glm::vec2 &size, float rotation,
 	                                 const Ref<Texture2D> &texture, float tilingFactor, glm::vec4 tintCol) {
-		DrawQuadRotated({position.x, position.y, 0.0f}, size, rotation, texture, tilingFactor);
+		DrawQuadRotated(glm::vec3{position.x, position.y, 0.0f}, size, rotation, texture, tilingFactor);
 	}
 
 
@@ -136,9 +136,9 @@ namespace Z {
 			data->textureSlots[textureIndex] = texture;
 			stats->TextureCount++;
 		}
-		glm::vec3 pos[]={position, {position.x + size.x, position.y, position.z},
-		                 {position.x + size.x, position.y + size.y, position.z},
-		                 {position.x, position.y + size.y, position.z}};
+		glm::vec3 pos[]={position, glm::vec3{position.x + size.x, position.y, position.z},
+		                 glm::vec3{position.x + size.x, position.y + size.y, position.z},
+		                 glm::vec3{position.x, position.y + size.y, position.z}};
 		glm::vec2 TexCords[]={glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec2(1.0f, 1.0f),
 		                      glm::vec2(0.0f, 1.0f)};
 		for (int i=0;i<4;i++   ) {
@@ -162,13 +162,13 @@ namespace Z {
 		if (data->quadIndexCount >= data->MaxIndexCount) {
 			EndScene();
 		}
-		auto model = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f})
-		             * glm::rotate(glm::mat4(1.0f), rotation, {0.0f, 0.0f, 1.0f});
+		auto model = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), glm::vec3{size.x, size.y, 1.0f})
+		             * glm::rotate(glm::mat4(1.0f), rotation, glm::vec3{0.0f, 0.0f, 1.0f});
 
 		constexpr float tilingFactor = 1.0f;
-		glm::vec2 texCords[]={{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f}};
+		glm::vec2 texCords[]={glm::vec2{0.0f, 0.0f}, glm::vec2{1.0f, 0.0f}, glm::vec2{1.0f, 1.0f}, glm::vec2{0.0f, 1.0f}};
 		for(int i = 0; i < 4; i++){
-			data->quadVertexBufferPtr->position = model * data->quadVertexPositions[i];
+			data->quadVertexBufferPtr->position = glm::vec3(model * data->quadVertexPositions[i]);
 			data->quadVertexBufferPtr->color = color;
 			data->quadVertexBufferPtr->texCoord = texCords[i];
 			data->quadVertexBufferPtr->texIndex = 0;
@@ -188,8 +188,8 @@ namespace Z {
 			//Z_CORE_WARN("Max index count reached,Begin New Batch");
 			EndScene();
 		}
-		auto model = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f})
-		             * glm::rotate(glm::mat4(1.0f), rotation, {0.0f, 0.0f, 1.0f});
+		auto model = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), glm::vec3{size.x, size.y, 1.0f})
+		             * glm::rotate(glm::mat4(1.0f), rotation, glm::vec3{0.0f, 0.0f, 1.0f});
 
 		float textureIndex = 0.0f;
 		for (int i = 0; i < data->textureSlotIndex; ++i) {
@@ -205,9 +205,9 @@ namespace Z {
 		}
 
 		glm::vec2 texCords[]={glm::vec2(0.0f,0.0f),glm::vec2(1.0f,0.0f),glm::vec2(1.0f,1.0f),glm::vec2(0.0f,1.0f)};
-		constexpr auto color = glm::vec4(1.0f);
+		const auto color = glm::vec4(1.0f,1.f,1.f,1.f);
 		for(int i = 0; i < 4; i++){
-			data->quadVertexBufferPtr->position = model * data->quadVertexPositions[i];
+			data->quadVertexBufferPtr->position = glm::vec3(model * data->quadVertexPositions[i]);
 			data->quadVertexBufferPtr->color = tintCol;
 			data->quadVertexBufferPtr->texCoord = texCords[i];
 			data->quadVertexBufferPtr->texIndex = textureIndex;
@@ -231,7 +231,7 @@ namespace Z {
 
 	void Renderer2D::DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const Ref<SubTex2D> &texture,
 	                          float tilingFactor, glm::vec4 tintCol) {
-		DrawQuad({position.x, position.y, 0.0f}, size, texture, tilingFactor, tintCol);
+		DrawQuad(glm::vec3{position.x, position.y, 0.0f}, size, texture, tilingFactor, tintCol);
 	}
 
 	void Renderer2D::DrawQuad(const glm::vec3 &position, const glm::vec2 &size, const Ref<SubTex2D> &texture,
@@ -273,7 +273,7 @@ namespace Z {
 
 	void Renderer2D::DrawQuadRotated(const glm::vec2 &position, const glm::vec2 &size, float rotation,
 	                                 const Ref<SubTex2D> &texture, float tilingFactor, glm::vec4 tintCol) {
-		DrawQuadRotated({position.x, position.y, 0.0f}, size, rotation, texture, tilingFactor, tintCol);
+		DrawQuadRotated(glm::vec3{position.x, position.y, 0.0f}, size, rotation, texture, tilingFactor, tintCol);
 	}
 
 	void Renderer2D::DrawQuadRotated(const glm::vec3 &position, const glm::vec2 &size, float rotation,
@@ -300,7 +300,7 @@ namespace Z {
 									*glm::scale(glm::mat4(1.0f),glm::vec3(size,1.0f));
 
 		for(int i=0;i<4;i++){
-			data->quadVertexBufferPtr->position =model*data->quadVertexPositions[i];
+			data->quadVertexBufferPtr->position = glm::vec3(model * data->quadVertexPositions[i]);
 			data->quadVertexBufferPtr->color = tintCol;
 			data->quadVertexBufferPtr->texCoord = texCords[i];
 			data->quadVertexBufferPtr->texIndex = textureIndex;
