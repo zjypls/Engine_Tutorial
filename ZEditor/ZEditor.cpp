@@ -56,9 +56,9 @@ namespace Z {
 		texture[1] = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR)+"/Assets/Textures/Layla.jpg");
 		texture[2] = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR)+"/Assets/Textures/Nahida.png");
 		texture[3] = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR)+"/Assets/Sprites/rpgSheet.png");
-		subTex = SubTex2D::Create(texture[3], glm::vec2{10, 10}, glm::vec2{128, 128}, {3, 3});
-		textureMap['W'] = SubTex2D::Create(texture[3], glm::vec2{11, 11}, glm::vec2{128, 128}, {1, 1});
-		textureMap['D'] = SubTex2D::Create(texture[3], glm::vec2{6, 11}, glm::vec2{128, 128}, {1, 1});
+		subTex = SubTex2D::Create(texture[3], glm::vec2{10, 10}, glm::vec2{128, 128}, glm::vec2{3, 3});
+		textureMap['W'] = SubTex2D::Create(texture[3], glm::vec2{11, 11}, glm::vec2{128, 128}, glm::vec2{1, 1});
+		textureMap['D'] = SubTex2D::Create(texture[3], glm::vec2{6, 11}, glm::vec2{128, 128}, glm::vec2{1, 1});
 		auto vertexBuffer = VertexBuffer::Create(vertices, sizeof(vertices));
 		{
 			auto layout = CreateScope<BufferLayout>(BufferLayout{
@@ -94,9 +94,9 @@ namespace Z {
 			for (int j = 0; j < mapHeight; j++) {
 				auto c = maps[j * mapWidth + i];
 				if (textureMap.count(c)) {
-					Renderer2D::DrawQuad({i - mapWidth / 2, mapHeight / 2 - j}, {1, 1}, textureMap[c]);
+					Renderer2D::DrawQuad(glm::vec2{i - mapWidth / 2, mapHeight / 2 - j}, glm::vec2{1, 1}, textureMap[c]);
 				} else {
-					Renderer2D::DrawQuad({i - mapWidth / 2, mapHeight / 2 - j}, {1, 1}, subTex);
+					Renderer2D::DrawQuad(glm::vec2{i - mapWidth / 2, mapHeight / 2 - j}, glm::vec2{1, 1}, subTex);
 				}
 			}
 		}
@@ -107,8 +107,8 @@ namespace Z {
 			auto pos = controller.GetCamera()->GetPosition();
 			auto pos2 =(glm::vec2{CursorPos.x,CursorPos.y} + (Random::RandVec2() * .2f - .1f))*size;
 			Z_Test::Particle::AddToPool({glm::vec3(pos2, 0.f)+pos,
-			                             glm::vec3{Random::Float() / 3.f, 0.1, 0.}*glm::vec3{ size,0.f }, {0, 0, 0},
-			                             {Random::RandVec3() * glm::vec3{1.f, 0.5f, 0.6f}, 1.}, 0.03f*controller.GetSize().y,
+			                             glm::vec3{Random::Float() / 3.f, 0.1, 0.}*glm::vec3{ size,0.f }, glm::vec3{0, 0, 0},
+			                             glm::vec4{Random::RandVec3() * glm::vec3{1.f, 0.5f, 0.6f}, 1.}, 0.03f*controller.GetSize().y,
 			                             0., (Random::Float() + 0.5f)});
 		}
 		Z_Test::Particle::OnUpdate(Time::DeltaTime());
@@ -184,7 +184,7 @@ namespace Z {
 			auto TextPos=ImGui::GetWindowPos();
 			cursorPos=cursorPos-TextPos;
 			cursorPos=cursorPos/ImGui::GetWindowSize();
-			CursorPos = {cursorPos.x-0.5f, 0.5f-cursorPos.y};
+			CursorPos = glm::vec2{cursorPos.x-0.5f, 0.5f-cursorPos.y};
 			CursorPos*=2.f;
 		}
 		Application::Get().GetImGuiLayer()->SetBlockEvents(!IsViewportFocused || !IsViewportHovered);
