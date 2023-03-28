@@ -7,25 +7,29 @@ set(DynamicLink OFF)
 set(gladPath ${CMAKE_SOURCE_DIR}/Engine/Include/glad)
 set(GLFWPath ${CMAKE_SOURCE_DIR}/Engine/Include/GLFW)
 set(ImGuiPath ${CMAKE_SOURCE_DIR}/Engine/Include/imgui)
+set(enttPath ${CMAKE_SOURCE_DIR}/Engine/Include/entt/include)
 
 message("CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
 message("CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 message("gladPath: ${gladPath}")
 message("GLFWPath: ${GLFWPath}")
 message("ImGuiPath: ${ImGuiPath}")
+message("enttPath: ${enttPath}")
 
 set(CMAKE_CXX_STANDARD 17)
 
 message(${CMAKE_CXX_COMPILER_ID})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin-C)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin-C/${CMAKE_CXX_COMPILER_ID})
 link_directories(${CMAKE_SOURCE_DIR}/Lib)
 
-add_compile_definitions(Z_PLATFORM_WIN32 Z_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+add_compile_definitions(Z_PLATFORM_WIN32)
+add_compile_definitions(Z_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 include_directories(${CMAKE_SOURCE_DIR}/Engine/Include/spdlog/include
         ${CMAKE_SOURCE_DIR}/Engine/ ${CMAKE_SOURCE_DIR}/Engine/Include/glm
         ${CMAKE_SOURCE_DIR}/Engine/Include
         ${ImGuiPath}
+        ${enttPath}
         depends)
 add_subdirectory(Engine/Include/GLFW)
 add_subdirectory(Engine/Include/glad)

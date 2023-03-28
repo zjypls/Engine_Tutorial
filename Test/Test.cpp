@@ -16,7 +16,7 @@ public:
 		Z_TRACE("ExampleLayer Build");
 
 		vertexArray = Z::VertexArray::Create();
-		texture=Z::Texture2D::CreateTexture("../Assets/Textures/Colum.png");
+		texture=Z::Texture2D::CreateTexture(std::string(Z_SOURCE_DIR)+"/Assets/Textures/Colum.png");
 
 		float vertices[] = {
 				-.5f, -.5f, .0f, 0, 0,
@@ -45,12 +45,12 @@ public:
 		vertexArray->SetIndexBuffer(indexBuffer);
 
 		vertexArray->Unbind();
-		auto shader= shaderLibrary.Load("../Shaders/One.glsl");
+		auto shader= shaderLibrary.Load(std::string(Z_SOURCE_DIR)+"/Shaders/One.glsl");
 
 		shader->Bind();
 		texture->Bind();
 		shader->UnBind();
-		auto grid=shaderLibrary.Add(Z::Shader::CreateShader("Grid","../Shaders/vert.vert","../Shaders/grid.frag",true));
+		auto grid=shaderLibrary.Add(Z::Shader::CreateShader("Grid",std::string(Z_SOURCE_DIR)+"/Shaders/vert.vert",std::string(Z_SOURCE_DIR)+"/Shaders/grid.frag",true));
 
 //		auto Test=Z::Shader::CreateShader("Grid");
 	}
@@ -58,7 +58,7 @@ public:
 	virtual void OnUpdate() override {
 
 		controller.OnUpdate(Z::Time::DeltaTime());
-		static auto shader=shaderLibrary.Get("../Shaders/One");
+		static auto shader=shaderLibrary.Get(std::string(Z_SOURCE_DIR)+"/Shaders/One");
 		static auto grid=shaderLibrary.Get("Grid");
 		Z::RenderCommand::SetClearValue({0.1f, 0.1f, 0.1f, 1.0f});
 		Z::RenderCommand::Clear();

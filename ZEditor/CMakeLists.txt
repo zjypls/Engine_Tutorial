@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.22)
 project(ZEditor)
 
 
-file(GLOB src CONFIGURE_DEPENDS *.cpp *.h)
+file(GLOB_RECURSE src CONFIGURE_DEPENDS *.cpp *.h)
 
 add_executable(${PROJECT_NAME} ${src})
 target_include_directories(${PROJECT_NAME} PUBLIC depends ${ImGuiPath}/backends/)

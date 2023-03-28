@@ -45,10 +45,10 @@ void SanBox2D::OnAttach() {
 			1, 3, 2
 	};
 	vertexArray = Z::VertexArray::Create();
-	texture[0] = Z::Texture2D::CreateTexture("../Assets/Textures/Colum.png");
-	texture[1] = Z::Texture2D::CreateTexture("../Assets/Textures/Layla.jpg");
-	texture[2] = Z::Texture2D::CreateTexture("../Assets/Textures/Nahida.png");
-	texture[3] = Z::Texture2D::CreateTexture("../Assets/Sprites/rpgSheet.png");
+	texture[0] = Z::Texture2D::CreateTexture(std::string(Z_SOURCE_DIR)+"/Assets/Textures/Colum.png");
+	texture[1] = Z::Texture2D::CreateTexture(std::string(Z_SOURCE_DIR)+"/Assets/Textures/Layla.jpg");
+	texture[2] = Z::Texture2D::CreateTexture(std::string(Z_SOURCE_DIR)+"/Assets/Textures/Nahida.png");
+	texture[3] = Z::Texture2D::CreateTexture(std::string(Z_SOURCE_DIR)+"/Assets/Sprites/rpgSheet.png");
 	subTex = Z::SubTex2D::Create(texture[3], glm::vec2{10, 10}, glm::vec2{128, 128}, {3, 3});
 	textureMap['W'] = Z::SubTex2D::Create(texture[3], glm::vec2{11, 11}, glm::vec2{128, 128}, {1, 1});
 	textureMap['D'] = Z::SubTex2D::Create(texture[3], glm::vec2{6, 11}, glm::vec2{128, 128}, {1, 1});
@@ -63,10 +63,10 @@ void SanBox2D::OnAttach() {
 	auto indexBuffer = Z::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 	vertexArray->SetIndexBuffer(indexBuffer);
 	vertexArray->Unbind();
-	shader = Z::Shader::CreateShader("../Shaders/One.glsl");
+	shader = Z::Shader::CreateShader(std::string(Z_SOURCE_DIR)+"/Shaders/One.glsl");
 	shader->Bind();
 	shader->UnBind();
-	grid = Z::Shader::CreateShader("Grid", "../Shaders/vert.vert", "../Shaders/grid.frag", true);
+	grid = Z::Shader::CreateShader("Grid", std::string(Z_SOURCE_DIR)+"/Shaders/vert.vert", std::string(Z_SOURCE_DIR)+"/Shaders/grid.frag", true);
 }
 
 void SanBox2D::OnDetach() {

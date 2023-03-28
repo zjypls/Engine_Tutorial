@@ -5,10 +5,12 @@
 #ifndef ENGINE_TUTORIAL_RENDERER2D_H
 #define ENGINE_TUTORIAL_RENDERER2D_H
 #include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #include"Z/Renderer/Texture.h"
 #include"Z/Renderer/VertexArray.h"
 #include "Z/Renderer/Shader.h"
 #include "Z/Renderer/OrithGraphicCamera.h"
+#include "Z/Renderer/Camera.h"
 #include "SubTex2D.h"
 
 namespace Z {
@@ -58,21 +60,54 @@ namespace Z {
 		static void Init();
 		static void Shutdown();
 		static void BeginScene(const Ref<OrithGraphicCamera> &camera);
+		static void BeginScene(const Camera&camera,const glm::mat4 &transform);
 		static void Flush();
 		static void EndScene();
-		static void DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color);
-		static void DrawQuad(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color);
-		static void DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const Ref<Texture2D> &texture,float tilingFactor=1.f,glm::vec4 tintCol=glm::vec4 {1.f});
-		static void DrawQuad(const glm::vec3 &position, const glm::vec2 &size, const Ref<Texture2D> &texture,float tilingFactor=1.f,glm::vec4 tintCol=glm::vec4 {1.f});
-		static void DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const Ref<SubTex2D> &texture,float tilingFactor=1.f,glm::vec4 tintCol=glm::vec4 {1.f});
-		static void DrawQuad(const glm::vec3 &position, const glm::vec2 &size, const Ref<SubTex2D> &texture,float tilingFactor=1.f,glm::vec4 tintCol=glm::vec4 {1.f});
-		static void DrawQuadRotated(const glm::vec2 &position, const glm::vec2 &size, float rotation, const glm::vec4 &color);
-		static void DrawQuadRotated(const glm::vec3 &position, const glm::vec2 &size, float rotation, const glm::vec4 &color);
-		static void DrawQuadRotated(const glm::vec2 &position, const glm::vec2 &size, float rotation, const Ref<Texture2D> &texture,float tilingFactor=1.f,glm::vec4 tintCol=glm::vec4 {1.f});
-		static void DrawQuadRotated(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Ref<Texture2D> &texture,float tilingFactor=1.f,glm::vec4 tintCol=glm::vec4 {1.f});
-		static void DrawQuadRotated(const glm::vec2 &position, const glm::vec2 &size, float rotation, const Ref<SubTex2D> &texture,float tilingFactor=1.f,glm::vec4 tintCol=glm::vec4 {1.f});
-		static void DrawQuadRotated(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Ref<SubTex2D> &texture,float tilingFactor=1.f,glm::vec4 tintCol=glm::vec4 {1.f});
-
+		inline static void DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color){
+			DrawQuad(glm::vec3{position.x,position.y,0.f},size,color);
+		}
+		inline static void DrawQuad(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &color){
+			auto transform=glm::translate(glm::mat4{1.f},position)*glm::scale(glm::mat4{1.f},glm::vec3{size,1.f});
+			DrawQuad(transform,color);
+		}
+		inline static void DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const Ref<Texture2D> &texture,float tilingFactor=1.f,const glm::vec4& tintCol=glm::vec4 {1.f}){
+			DrawQuad(glm::vec3{position.x,position.y,0.f},size,texture,tilingFactor,tintCol);
+		}
+		inline static void DrawQuad(const glm::vec3 &position, const glm::vec2 &size, const Ref<Texture2D> &texture,float tilingFactor=1.f,const glm::vec4& tintCol=glm::vec4 {1.f}){
+			auto transform=glm::translate(glm::mat4{1.f},position)*glm::scale(glm::mat4{1.f},glm::vec3{size,1.f});
+			DrawQuad(transform,texture,tilingFactor,tintCol);
+		}
+		inline static void DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const Ref<SubTex2D> &texture,float tilingFactor=1.f,const glm::vec4& tintCol=glm::vec4 {1.f}){
+			DrawQuad(glm::vec3{position.x,position.y,0.f},size,texture,tilingFactor,tintCol);
+		}
+		inline static void DrawQuad(const glm::vec3 &position, const glm::vec2 &size, const Ref<SubTex2D> &texture,float tilingFactor=1.f,const glm::vec4& tintCol=glm::vec4 {1.f}){
+			auto transform=glm::translate(glm::mat4{1.f},position)*glm::scale(glm::mat4{1.f},glm::vec3{size,1.f});
+			DrawQuad(transform,texture,tilingFactor,tintCol);
+		}
+		inline static void DrawQuadRotated(const glm::vec2 &position, const glm::vec2 &size, float rotation, const glm::vec4 &color){
+			DrawQuadRotated(glm::vec3{position.x,position.y,0.f},size,rotation,color);
+		}
+		inline static void DrawQuadRotated(const glm::vec3 &position, const glm::vec2 &size, float rotation, const glm::vec4 &color){
+			auto transform=glm::translate(glm::mat4{1.f},position)*glm::rotate(glm::mat4{1.f},rotation,glm::vec3{0.f,0.f,1.f})*glm::scale(glm::mat4{1.f},glm::vec3{size,1.f});
+			DrawQuad(transform,color);
+		}
+		inline static void DrawQuadRotated(const glm::vec2 &position, const glm::vec2 &size, float rotation, const Ref<Texture2D> &texture,float tilingFactor=1.f,const glm::vec4& tintCol=glm::vec4 {1.f}){
+			DrawQuadRotated(glm::vec3{position.x,position.y,0.f},size,rotation,texture,tilingFactor,tintCol);
+		}
+		inline static void DrawQuadRotated(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Ref<Texture2D> &texture,float tilingFactor=1.f,const glm::vec4& tintCol=glm::vec4 {1.f}){
+			auto transform=glm::translate(glm::mat4{1.f},position)*glm::rotate(glm::mat4{1.f},rotation,glm::vec3{0.f,0.f,1.f})*glm::scale(glm::mat4{1.f},glm::vec3{size,1.f});
+			DrawQuad(transform,texture,tilingFactor,tintCol);
+		}
+		inline static void DrawQuadRotated(const glm::vec2 &position, const glm::vec2 &size, float rotation, const Ref<SubTex2D> &texture,float tilingFactor=1.f,const glm::vec4& tintCol=glm::vec4 {1.f}){
+			DrawQuadRotated(glm::vec3{position.x,position.y,0.f},size,rotation,texture,tilingFactor,tintCol);
+		}
+		inline static void DrawQuadRotated(const glm::vec3 &position, const glm::vec2 &size, float rotation, const Ref<SubTex2D> &texture,float tilingFactor=1.f,const glm::vec4& tintCol=glm::vec4 {1.f}){
+			auto transform=glm::translate(glm::mat4{1.f},position)*glm::rotate(glm::mat4{1.f},rotation,glm::vec3{0.f,0.f,1.f})*glm::scale(glm::mat4{1.f},glm::vec3{size,1.f});
+			DrawQuad(transform,texture,tilingFactor,tintCol);
+		}
+		static void DrawQuad(const glm::mat4 &transform, const glm::vec4 &color);
+		static void DrawQuad(const glm::mat4 &transform, const Ref<Texture2D> &texture,float tilingFactor=1.f,const glm::vec4& tintCol=glm::vec4 {1.f});
+		static void DrawQuad(const glm::mat4 &transform, const Ref<SubTex2D> &texture,float tilingFactor=1.f,const glm::vec4& tintCol=glm::vec4 {1.f});
 	};
 
 }

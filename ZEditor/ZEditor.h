@@ -6,6 +6,7 @@
 #define ENGINE_TUTORIAL_ZEDITOR_H
 
 #include "z.h"
+#include"SceneHierarchy/SceneHierarchyPlane.h"
 #include<unordered_map>
 
 namespace Z {
@@ -24,8 +25,12 @@ namespace Z {
 		glm::ivec2 index{9, 4}, size{2, 3};
 		std::unordered_map<char, Ref<SubTex2D>> textureMap;
 		Ref<FrameBuffer> frameBuffer;
-		glm::vec2 viewportSize = glm::vec2{1200, 800};
+		glm::vec2 viewportSize {1200, 800};
 		glm::vec2 CursorPos{0, 0};
+		Ref<Scene> scene;
+		Entity entity;
+		Entity cameraEntity,SecondCamera;
+		Ref<SceneHierarchyPlane> sceneHierarchyPlane;
 
 	public:
 		EditorLayer();

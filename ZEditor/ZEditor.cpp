@@ -4,23 +4,10 @@
 
 #include "ZEditor.h"
 #include"glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include <chrono>
-#include <random>
 
-constexpr int mapWidth = 24;
 
-constexpr const char *maps = {
-		"WWWWWWWWWWWWWWWWWWWWWWWW"
-		"WWWWWWWWWWWWWWWWWWWWWWWW"
-		"WWWWWDWWWWWWWWWWWWWWWWWW"
-		"WWWWDWDWWWWWWWWDWWWWWWWW"
-		"WWWWWDWWWWWWDDWDWWWWWWWW"
-		"WWWWWWWWWWWWWDDWWWWWWWWW"
-		"WWWWWWWWWWWWWWWWWWWWWWWW"
-		"WWWWWWWWWWWWWWWWWWWWWWWW"
-		"WWWWWWWWWWWWWWWWWWWWWWWW"
-};
-int mapHeight = strlen(maps) / mapWidth;
 
 ImVec2 operator-(const ImVec2 &lhs, const ImVec2 &rhs) {
 	return {lhs.x - rhs.x, lhs.y - rhs.y};
@@ -41,16 +28,9 @@ namespace Z {
 	void EditorLayer::OnAttach() {
 		Z_CORE_INFO("Layer:{0} Attach!", GetName());
 		float vertices[] = {
-				-.5f, -.5f, .0f, 0, 0,
-				.5f, -.5f, .0f, 1, 0,
-				-.5f, .5f, .0f, 0, 1,
-				.5f, .5f, .0f, 1, 1
-		};
-
-		uint32_t indices[] = {
-				0, 1, 2,
-				1, 3, 2
-		};
+				-.5f, -.5f, .0f, 0, 0,.5f, -.5f, .0f, 1, 0,
+				-.5f, .5f, .0f, 0, 1,.5f, .5f, .0f, 1, 1};
+		uint32_t indices[] = {0, 1, 2,1, 3, 2};
 		vertexArray = VertexArray::Create();
 		texture[0] = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR)+"/Assets/Textures/Colum.png");
 		texture[1] = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR)+"/Assets/Textures/Layla.jpg");
@@ -73,8 +53,48 @@ namespace Z {
 		shader = Shader::CreateShader(std::string(Z_SOURCE_DIR)+"/Shaders/One.glsl");
 		shader->Bind();
 		shader->UnBind();
-		grid = Shader::CreateShader("Grid", std::string(Z_SOURCE_DIR) + "/Shaders/vert.vert", std::string(Z_SOURCE_DIR)+"/Shaders/grid.frag", true);
+		grid = Shader::CreateShader("Grid", std::string(Z_SOURCE_DIR)+"/Shaders/vert.vert", std::string(Z_SOURCE_DIR)+"/Shaders/grid.frag", true);
 		frameBuffer = FrameBuffer::Create({1200, 800});
+		scene=CreateRef<Scene>();
+		cameraEntity=scene->CreateEntity("Camera");
+		cameraEntity.AddComponent<CameraComponent>(glm::ortho(-16.f, 16.f, -9.f, 9.f, -1.f, 1.f));
+		SecondCamera=scene->CreateEntity("SecondCamera");
+		SecondCamera.AddComponent<CameraComponent>(glm::ortho(-1.f, 1.f, -1.f, 1.f, -1.f, 1.f));
+		SecondCamera.GetComponent<CameraComponent>().primary=false;
+		entity=scene->CreateEntity("Square");
+		entity.AddComponent<SpriteRendererComponent>(glm::vec4{1,0,0,1});
+
+
+		class CameraCtrl:public ScriptEntity{
+			public:
+				void OnCreate() {
+					Z_CORE_INFO("{0}:CameraCtrl OnCreate",entity.GetComponent<TagComponent>().tag.c_str());
+				}
+				void OnDestroy()  {
+					Z_CORE_INFO("CameraCtrl OnDestroy");
+				}
+				void OnUpdate(float deltaTime)  {
+					auto pri=entity.GetComponent<CameraComponent>().primary;
+					if(!pri)
+						return;
+					auto& transform=entity.GetComponent<TransformComponent>().transform;
+					constexpr float speed=6.f;
+					if(Input::IsKeyPressed(KeyCode::W))
+						transform[3][1]+=speed*deltaTime;
+					else if(Input::IsKeyPressed(KeyCode::S))
+						transform[3][1]-=speed*deltaTime;
+					if(Input::IsKeyPressed(KeyCode::A))
+						transform[3][0]-=speed*deltaTime;
+					else if(Input::IsKeyPressed(KeyCode::D))
+						transform[3][0]+=speed*deltaTime;
+				}
+			};
+
+		cameraEntity.AddComponent<ScriptComponent>().Bind<CameraCtrl>();
+		SecondCamera.AddComponent<ScriptComponent>().Bind<CameraCtrl>();
+
+		sceneHierarchyPlane=CreateRef<SceneHierarchyPlane>(scene);
+
 	}
 
 	void EditorLayer::OnDetach() {
@@ -87,21 +107,9 @@ namespace Z {
 		RenderCommand::SetClearValue(clearValue);
 		RenderCommand::Clear();
 
+		scene->OnUpdate(Time::DeltaTime());
+
 		Renderer2D::BeginScene(controller.GetCamera());
-
-
-		for (int i = 0; i < mapWidth; i++) {
-			for (int j = 0; j < mapHeight; j++) {
-				auto c = maps[j * mapWidth + i];
-				if (textureMap.count(c)) {
-					Renderer2D::DrawQuad(glm::vec2{i - mapWidth / 2, mapHeight / 2 - j}, glm::vec2{1, 1}, textureMap[c]);
-				} else {
-					Renderer2D::DrawQuad(glm::vec2{i - mapWidth / 2, mapHeight / 2 - j}, glm::vec2{1, 1}, subTex);
-				}
-			}
-		}
-
-
 		if (IsViewportHovered&&IsViewportFocused&&Input::IsMouseButtonPressed(Z_MOUSE_BUTTON_4)) {
 			auto size = controller.GetSize();
 			auto pos = controller.GetCamera()->GetPosition();
@@ -164,16 +172,18 @@ namespace Z {
 			ImGui::EndMenuBar();
 		}
 
-		ImGui::Begin("Settings");
+		ImGui::Begin("Statics");
 
 		auto stats = Renderer2D::GetStats();
-		ImGui::Text("Camera Pos: %f,%f", controller.GetCamera()->GetPosition().x, controller.GetCamera()->GetPosition().y);
 		ImGui::Text("Renderer2D Stats:");
 		ImGui::Text("Draw Calls: %u", stats->DrawCalls);
 		ImGui::Text("Quads: %u", stats->QuadCount);
 		ImGui::Text("Vertices: %u", stats->GetTotalVertexCount());
 		ImGui::Text("Indices: %u", stats->GetTotalIndexCount());
 		stats->Reset();
+
+		sceneHierarchyPlane->OnImGuiRender();
+
 		ImGui::End();
 		ImGui::Begin("ViewPort");
 		IsViewportFocused = ImGui::IsWindowFocused();
@@ -192,6 +202,7 @@ namespace Z {
 		if (viewportSize != *(glm::vec2 *) &viewSize) {
 			viewportSize = glm::vec2{viewSize.x, viewSize.y};
 			frameBuffer->Resize(viewportSize.x, viewportSize.y);
+			scene->OnViewportResize(viewportSize.x, viewportSize.y);
 			controller.OnResize(viewportSize.x, viewportSize.y);
 		}
 		uint32_t textureID = frameBuffer->GetColorID();
@@ -204,6 +215,12 @@ namespace Z {
 
 	void EditorLayer::OnEvent(Event &event) {
 		controller.OnEvent(event);
+		EventDispatcher dispatcher(event);
+		dispatcher.Handle<KeyPressEvent>([&](KeyPressEvent &e) {
+			if(KeyCode(e.GetKey())==Key::Escape)
+				Application::Get().Close();
+			return false;
+		});
 	}
 
 }

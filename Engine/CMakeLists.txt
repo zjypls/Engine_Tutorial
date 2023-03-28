@@ -17,7 +17,8 @@ file(GLOB src CONFIGURE_DEPENDS
         Z/ImGui/*.cpp
         Z/Renderer/*.h
         Z/Renderer/*.cpp
-        Z/Debug/*.h Z/Debug/*.cpp)
+        Z/Debug/*.h Z/Debug/*.cpp
+        Z/Scene/*.h Z/Scene/*.cpp)
 
 
 add_library(Z STATIC ${src})
@@ -28,5 +29,4 @@ target_link_libraries(Z PUBLIC GLFW glad ImGui)
 
 
 
-target_compile_definitions(Z PUBLIC Z_PLATFORM_WIN32
-        GLFW_INCLUDE_NONE Z_SOURCE_DIR)
+target_compile_definitions(Z PUBLIC Z_PLATFORM_WIN32 GLFW_INCLUDE_NONE Z_SOURCE_DIR)
