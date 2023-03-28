@@ -24,14 +24,14 @@ namespace Z {
 		              registry.group<CameraComponent,TransformComponent>().end(), [&](const auto &item) {
 					if(registry.get<CameraComponent>(item).primary){
 						mainCamera = &registry.get<CameraComponent>(item).camera;
-						cameraTransform = registry.get<TransformComponent>(item).transform;
+						cameraTransform = registry.get<TransformComponent>(item).GetTransform();
 					}
 				});
 		if(!mainCamera)return;
 		Renderer2D::BeginScene(*mainCamera, cameraTransform);
 		std::for_each(registry.view<TransformComponent, SpriteRendererComponent>().begin(),
 		              registry.view<TransformComponent, SpriteRendererComponent>().end(), [&](const auto &item) {
-					Renderer2D::DrawQuad(registry.get<TransformComponent>(item).transform,
+					Renderer2D::DrawQuad(registry.get<TransformComponent>(item).GetTransform(),
 					                     registry.get<SpriteRendererComponent>(item).color);});
 		Renderer2D::EndScene();
 	}

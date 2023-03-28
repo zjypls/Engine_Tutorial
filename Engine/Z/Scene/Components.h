@@ -6,18 +6,28 @@
 #define ENGINE_TUTORIAL_COMPONENTS_H
 
 #include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #include "SceneCamera.h"
 #include "ScriptEntity.h"
 
 namespace Z {
 	struct TransformComponent {
-		glm::mat4 transform{1.f};
+		glm::vec3 translation{0.f};
+		glm::vec3 rotation{0.f};
+		glm::vec3 scale{1.f};
 
-		TransformComponent(const glm::mat4 &transform = glm::mat4(1.f)) : transform(transform) {}
+		TransformComponent(const glm::vec3& position=glm::vec3{0.f},const glm::vec3& rotation=glm::vec3{0.f},
+			const glm::vec3&scale=glm::vec3{1.f})
+			: translation(position), rotation(rotation), scale(scale) {}
 
-		inline glm::mat4 &operator()() { return transform; }
-
-		inline const glm::mat4 &operator()() const { return transform; }
+		glm::mat4& GetTransform() {
+			glm::mat4 transform = glm::translate(glm::mat4(1.f), translation);
+			transform *= glm::rotate(glm::mat4(1.f), rotation.x, glm::vec3{1.f, 0.f, 0.f});
+			transform *= glm::rotate(glm::mat4(1.f), rotation.y, glm::vec3{0.f, 1.f, 0.f});
+			transform *= glm::rotate(glm::mat4(1.f), rotation.z, glm::vec3{0.f, 0.f, 1.f});
+			transform *= glm::scale(glm::mat4(1.f), scale);
+			return transform;
+		}
 	};
 
 	struct SpriteRendererComponent {

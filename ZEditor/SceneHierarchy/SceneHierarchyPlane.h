@@ -14,6 +14,8 @@ namespace Z {
 		Entity selectedEntity;
 		void DrawEntity(Entity entity);
 		void DrawComponents(Entity entity);
+		template<typename _Ty>
+		void DrawComponent(Entity entity, void (*drawFunc)(Entity,_Ty&));
 	public:
 		SceneHierarchyPlane() = default;
 		SceneHierarchyPlane(const Ref<Scene>& context) : context(context) {}
