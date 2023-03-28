@@ -16,7 +16,7 @@ namespace Z {
 	WindowsWindow::WindowsWindow(const WindowProps &props) {
 		//ToDo:init zOpenGLContext
 		Random::Init();
-		Z_Test::Particle::Init();
+		Z::Particle::Init();
 		Init(props);
 	}
 

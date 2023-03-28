@@ -6,6 +6,7 @@
 #include"Renderer2D.h"
 #include "Z/Core/Random.h"
 
+/*
 namespace Z{
 
 	std::vector<ParticleProp> Particle::ParticlePool;
@@ -53,8 +54,9 @@ namespace Z{
 		ParticlePoolIndex = (ParticlePoolIndex + 1) % MaxParticles;
 	}
 }
+*/
 
-namespace Z_Test{
+namespace Z{
 
 	std::list<ParticleProp> Particle::ParticlePool;
 	unsigned int Particle::ParticlePoolIndex,Particle::MaxParticles;

@@ -63,6 +63,8 @@ namespace Z {
 		SecondCamera.GetComponent<CameraComponent>().primary=false;
 		entity=scene->CreateEntity("Square");
 		entity.AddComponent<SpriteRendererComponent>(glm::vec4{1,0,0,1});
+		auto newSquare=scene->CreateEntity("NewSquare");
+		newSquare.AddComponent<SpriteRendererComponent>(glm::vec4{0,1,0,1});
 
 
 		class CameraCtrl:public ScriptEntity{
@@ -77,16 +79,16 @@ namespace Z {
 					auto pri=entity.GetComponent<CameraComponent>().primary;
 					if(!pri)
 						return;
-					auto& transform=entity.GetComponent<TransformComponent>().transform;
+					auto& transform=entity.GetComponent<TransformComponent>().translation;
 					constexpr float speed=6.f;
 					if(Input::IsKeyPressed(KeyCode::W))
-						transform[3][1]+=speed*deltaTime;
+						transform[1]+=speed*deltaTime;
 					else if(Input::IsKeyPressed(KeyCode::S))
-						transform[3][1]-=speed*deltaTime;
+						transform[1]-=speed*deltaTime;
 					if(Input::IsKeyPressed(KeyCode::A))
-						transform[3][0]-=speed*deltaTime;
+						transform[0]-=speed*deltaTime;
 					else if(Input::IsKeyPressed(KeyCode::D))
-						transform[3][0]+=speed*deltaTime;
+						transform[0]+=speed*deltaTime;
 				}
 			};
 
@@ -114,14 +116,14 @@ namespace Z {
 			auto size = controller.GetSize();
 			auto pos = controller.GetCamera()->GetPosition();
 			auto pos2 =(glm::vec2{CursorPos.x,CursorPos.y} + (Random::RandVec2() * .2f - .1f))*size;
-			Z_Test::Particle::AddToPool({glm::vec3(pos2, 0.f)+pos,
+			Z::Particle::AddToPool({glm::vec3(pos2, 0.f)+pos,
 			                             glm::vec3{Random::Float() / 3.f, 0.1, 0.}*glm::vec3{ size,0.f }, glm::vec3{0, 0, 0},
 			                             glm::vec4{Random::RandVec3() * glm::vec3{1.f, 0.5f, 0.6f}, 1.}, 0.03f*controller.GetSize().y,
 			                             0., (Random::Float() + 0.5f)});
 		}
-		Z_Test::Particle::OnUpdate(Time::DeltaTime());
-		Z_Test::Particle::OnRender();
+		Z::Particle::OnRender();
 		Renderer2D::EndScene();
+		Z::Particle::OnUpdate(Time::DeltaTime());
 		frameBuffer->UnBind();
 	}
 

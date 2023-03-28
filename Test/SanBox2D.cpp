@@ -102,13 +102,13 @@ void SanBox2D::OnUpdate() {
 		x = (x / w * 2 - 1) * size.x, y = ((h - y) / h * 2 - 1) * size.y;
 
 		auto pos2 = glm::vec2(x + pos.x, y + pos.y) + Z::Random::RandVec2() * .2f - .1f;
-		Z_Test::Particle::AddToPool({glm::vec3(pos2, 0.f),
+		Z::Particle::AddToPool({glm::vec3(pos2, 0.f),
 		                             {Z::Random::Float() / 3.f, 0.1, 0.}, {0, 0, 0},
 		                             {Z::Random::RandVec3() * glm::vec3{1.f, 0.5f, 0.6f}, 1.}, 0.03f,
 		                             0., (Z::Random::Float() + 0.5f)});
 	}
-	Z_Test::Particle::OnUpdate(Z::Time::DeltaTime());
-	Z_Test::Particle::OnRender();
+	Z::Particle::OnUpdate(Z::Time::DeltaTime());
+	Z::Particle::OnRender();
 	Z::Renderer2D::EndScene();
 }
 

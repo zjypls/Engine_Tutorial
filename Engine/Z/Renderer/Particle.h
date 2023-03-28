@@ -7,7 +7,7 @@
 #include <vector>
 #include <list>
 #include "glm/glm.hpp"
-namespace Z {
+/*namespace Z {
 	struct ParticleProp{
 		glm::vec3 position;
 		glm::vec3 velocity;
@@ -28,9 +28,9 @@ namespace Z {
 		static unsigned int GetCurrentNum(){return ParticlePoolIndex;};
 	};
 
-}
+}*/
 
-namespace Z_Test {
+namespace Z {
 	struct ParticleProp{
 		glm::vec3 position;
 		glm::vec3 velocity;
