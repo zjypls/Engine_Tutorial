@@ -21,6 +21,9 @@ namespace Z {
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;      //Necessary for docking
 
+		io.Fonts->AddFontFromFileTTF((std::string(Z_SOURCE_DIR)+"/Assets/fonts/Oxygen/Oxygen-Bold.ttf").c_str(), 18.0f);
+		io.FontDefault=io.Fonts->AddFontFromFileTTF((std::string(Z_SOURCE_DIR)+"/Assets/fonts/Oxygen/Oxygen-Regular.ttf").c_str(), 18.0f);
+
 		ImGuiStyle &style = ImGui::GetStyle();
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
 			style.WindowRounding = 0.0f;

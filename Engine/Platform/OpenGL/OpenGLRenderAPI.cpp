@@ -22,11 +22,12 @@ namespace Z {
 
 	void OpenGLRenderAPI::Init() {
 		glEnable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		Z_TRACE("Info : \nOpenGLRenderAPI::Init");
-		std::cout << glGetString(GL_VERSION) << std::endl;
-		std::cout << glGetString(GL_VENDOR) << std::endl;
-		std::cout << glGetString(GL_RENDERER) << std::endl;
+		Z_TRACE("Info : \n\tOpenGLRenderAPI::Init:");
+		std::cout << "\t\tVersion:"<<glGetString(GL_VERSION) << std::endl;
+		std::cout << "\t\tVendor:"<< glGetString(GL_VENDOR) << std::endl;
+		std::cout << "\t\tRenderer:"<< glGetString(GL_RENDERER) << std::endl;
 	}
 
 	void OpenGLRenderAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) {

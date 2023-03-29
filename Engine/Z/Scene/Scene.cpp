@@ -44,9 +44,40 @@ namespace Z {
 	}
 
 	void Scene::OnViewportResize(unsigned int width, unsigned int height) {
+		viewportWidth = width;
+		viewportHeight = height;
 		std::for_each(registry.view<CameraComponent>().begin(),
 		              registry.view<CameraComponent>().end(), [&](const auto &item) {
 					registry.get<CameraComponent>(item).camera.OnViewportResize(width, height);
 				});
+	}
+
+	void Scene::DestroyEntity(Entity entity) {
+		registry.destroy(entity);
+	}
+
+	template<class _Ty>
+	void Scene::OnComponentAdd(Entity entity, _Ty &component) {
+		//static_assert(false);
+	}
+	template<>
+	void Scene::OnComponentAdd<CameraComponent>(Entity entity, CameraComponent &component) {
+		component.camera.OnViewportResize(viewportWidth, viewportHeight);
+	}
+	template<>
+	void Scene::OnComponentAdd<SpriteRendererComponent>(Entity entity,SpriteRendererComponent &component) {
+
+	}
+	template<>
+	void Scene::OnComponentAdd<TagComponent>(Entity entity,TagComponent &component) {
+
+	}
+	template<>
+	void Scene::OnComponentAdd<TransformComponent>(Entity entity,TransformComponent &component) {
+
+	}
+	template<>
+	void Scene::OnComponentAdd<ScriptComponent>(Entity entity,ScriptComponent &component) {
+
 	}
 }

@@ -12,9 +12,12 @@ namespace Z {
 
 	class Scene {
 		entt::registry registry;
-
+		uint32_t viewportWidth = 0, viewportHeight = 0;
 		friend class Entity;
 		friend class SceneHierarchyPlane;
+
+		template<class _Ty>
+		void OnComponentAdd(Entity entity, _Ty &component);
 
 	public:
 		Scene() = default;
@@ -23,6 +26,7 @@ namespace Z {
 
 		inline entt::registry &GetRegistry() { return registry;}
 		void OnViewportResize(unsigned int width, unsigned int height);
+		void DestroyEntity(Entity entity);
 
 		void OnUpdate(float);
 
