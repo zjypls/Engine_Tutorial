@@ -12,7 +12,10 @@
 	url = https://github.com/nothings/stb.git
 [submodule "Engine/Include/glm"]
 	path = Engine/Include/glm
-	url = https://github.com/Groovounet/glm.git
+	url = https://github.com/g-truc/glm.git
 [submodule "Engine/Include/yaml-cpp"]
 	path = Engine/Include/yaml-cpp
 	url = https://github.com/zjypls/yaml-cpp
+[submodule "Engine/Include/ImGuizmo"]
+	path = Engine/Include/ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo.git
