@@ -9,14 +9,11 @@ set(GLFWPath ${CMAKE_SOURCE_DIR}/Engine/Include/GLFW)
 set(ImGuiPath ${CMAKE_SOURCE_DIR}/Engine/Include/imgui)
 set(enttPath ${CMAKE_SOURCE_DIR}/Engine/Include/entt/include)
 set(yamlPath ${CMAKE_SOURCE_DIR}/Engine/Include/yaml-cpp/include)
+set(ImGuizmoPath ${CMAKE_SOURCE_DIR}/Engine/Include/ImGuizmo)
 
 message("CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
 message("CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
-message("gladPath: ${gladPath}")
-message("GLFWPath: ${GLFWPath}")
-message("ImGuiPath: ${ImGuiPath}")
-message("enttPath: ${enttPath}")
-message("yamlPath: ${yamlPath}")
+
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -39,6 +36,7 @@ include_directories(${CMAKE_SOURCE_DIR}/Engine/Include/spdlog/include
         ${ImGuiPath}
         ${enttPath}
         ${yamlPath}
+        ${ImGuizmoPath}
         depends)
 add_subdirectory(Engine/Include/GLFW)
 add_subdirectory(Engine/Include/glad)

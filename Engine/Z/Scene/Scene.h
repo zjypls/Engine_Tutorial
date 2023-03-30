@@ -22,7 +22,7 @@ namespace Z {
 
 	public:
 		Scene() = default;
-
+		Entity GetMainCamera();
 		Entity CreateEntity(const std::string& name="Entity");
 
 		inline entt::registry &GetRegistry() { return registry;}

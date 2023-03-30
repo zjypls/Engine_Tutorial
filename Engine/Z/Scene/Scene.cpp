@@ -56,6 +56,17 @@ namespace Z {
 		registry.destroy(entity);
 	}
 
+	Entity Scene::GetMainCamera() {
+		auto view= registry.view<CameraComponent>();
+		for(auto entity:view){
+			auto&camera=view.get<CameraComponent>(entity);
+			if(camera.primary){
+				return Entity{entity,this};
+			}
+		}
+		return {};
+	}
+
 	template<class _Ty>
 	void Scene::OnComponentAdd(Entity entity, _Ty &component) {
 		//static_assert(false);

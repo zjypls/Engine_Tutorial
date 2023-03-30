@@ -19,7 +19,8 @@ file(GLOB src CONFIGURE_DEPENDS
         Z/Renderer/*.cpp
         Z/Debug/*.h Z/Debug/*.cpp
         Z/Scene/*.h Z/Scene/*.cpp
-        Z/Utils/*.h)
+        Z/Utils/*.h
+        ${ImGuizmoPath}/ImGuizmo.h ${ImGuizmoPath}/ImGuizmo.cpp)
 
 
 add_library(Z STATIC ${src})

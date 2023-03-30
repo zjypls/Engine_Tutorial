@@ -7,6 +7,7 @@
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtx/quaternion.hpp"
 #include "SceneCamera.h"
 #include "ScriptEntity.h"
 
@@ -20,13 +21,10 @@ namespace Z {
 			const glm::vec3&scale=glm::vec3{1.f})
 			: translation(position), rotation(rotation), scale(scale) {}
 
-		glm::mat4& GetTransform() {
-			glm::mat4 transform = glm::translate(glm::mat4(1.f), translation);
-			transform *= glm::rotate(glm::mat4(1.f), rotation.x, glm::vec3{1.f, 0.f, 0.f});
-			transform *= glm::rotate(glm::mat4(1.f), rotation.y, glm::vec3{0.f, 1.f, 0.f});
-			transform *= glm::rotate(glm::mat4(1.f), rotation.z, glm::vec3{0.f, 0.f, 1.f});
-			transform *= glm::scale(glm::mat4(1.f), scale);
-			return transform;
+		glm::mat4 GetTransform() {
+			return glm::translate(glm::mat4(1.f), translation)
+			       * glm::toMat4(glm::quat(rotation))
+			       * glm::scale(glm::mat4(1.f), scale);
 		}
 	};
 

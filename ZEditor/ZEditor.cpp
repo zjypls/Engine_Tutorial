@@ -3,11 +3,14 @@
 //
 #include "Z/Core/Core.h"
 #include "ZEditor.h"
+#define GLM_ENABLE_EXPERIMENTAL
 #include"glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "glm/gtx/matrix_operation.hpp"
 #include <chrono>
 #include "Z/Scene/SceneSerializer.h"
 #include "Z/Utils/ZUtils.h"
+#include "ImGuizmo.h"
 
 
 ImVec2 operator-(const ImVec2 &lhs, const ImVec2 &rhs) {
@@ -59,6 +62,7 @@ namespace Z {
 		                            std::string(Z_SOURCE_DIR) + "/Shaders/grid.frag", true);
 		frameBuffer = FrameBuffer::Create({1200, 800});
 		scene = CreateRef<Scene>();
+/*
 		cameraEntity = scene->CreateEntity("Camera");
 		cameraEntity.AddComponent<CameraComponent>(glm::ortho(-16.f, 16.f, -9.f, 9.f, -1.f, 1.f));
 		SecondCamera = scene->CreateEntity("SecondCamera");
@@ -99,6 +103,7 @@ namespace Z {
 
 		cameraEntity.AddComponent<ScriptComponent>().Bind<CameraCtrl>();
 		SecondCamera.AddComponent<ScriptComponent>().Bind<CameraCtrl>();
+*/
 
 		sceneHierarchyPlane = CreateRef<SceneHierarchyPlane>(scene);
 
@@ -134,6 +139,7 @@ namespace Z {
 		Z::Particle::OnUpdate(Time::DeltaTime());
 		frameBuffer->UnBind();
 	}
+
 	void EditorLayer::OnImGuiRender() {
 		static bool dockspaceOpen = true;
 		static bool opt_fullscreen_persistant = true;
@@ -166,26 +172,26 @@ namespace Z {
 			ImGui::PopStyleVar(2);
 
 		ImGuiIO &io = ImGui::GetIO();
-		auto& style = ImGui::GetStyle();
-		auto miniSize=style.WindowMinSize.x;
-		style.WindowMinSize.x=350;
+		auto &style = ImGui::GetStyle();
+		auto miniSize = style.WindowMinSize.x;
+		style.WindowMinSize.x = 350;
 		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
 			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 		}
-		style.WindowMinSize.x=miniSize;
+		style.WindowMinSize.x = miniSize;
 
 		if (ImGui::BeginMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
 
-				if(ImGui::MenuItem("New", "Ctrl+N")){
+				if (ImGui::MenuItem("New", "Ctrl+N")) {
 					NewScene();
 				}
 
-				if(ImGui::MenuItem("Save", "Ctrl+Shift+S")){
+				if (ImGui::MenuItem("Save", "Ctrl+Shift+S")) {
 					SaveScene();
 				}
-				if(ImGui::MenuItem("Load", "Ctrl+O")){
+				if (ImGui::MenuItem("Load", "Ctrl+O")) {
 					LoadScene();
 				}
 				if (ImGui::MenuItem("Exit")) Application::Get().Close();
@@ -230,6 +236,28 @@ namespace Z {
 		}
 		uint32_t textureID = frameBuffer->GetColorID();
 		ImGui::Image((void *) textureID, viewSize, ImVec2{0, 1}, ImVec2{1, 0});
+		//ImGuizmo
+		auto selectedEntity = sceneHierarchyPlane->GetSelectedEntity();
+		if (selectedEntity) {
+			auto camera = scene->GetMainCamera();
+			auto cameraComponent = camera.GetComponent<CameraComponent>();
+			ImGuizmo::SetOrthographic(false);
+			ImGuizmo::SetDrawlist();
+			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x,
+			                  ImGui::GetWindowSize().y);
+			auto cameraProjection = glm::inverse(camera.GetComponent<TransformComponent>().GetTransform());
+			auto &cameraView = cameraComponent.camera();
+			auto &selectTransform = selectedEntity.GetComponent<TransformComponent>();
+			auto Transform = selectTransform.GetTransform();
+			ImGuizmo::Manipulate(glm::value_ptr(cameraProjection), glm::value_ptr(cameraView),
+			                     ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::LOCAL,
+								 glm::value_ptr(Transform));
+			if(ImGuizmo::IsUsing()){
+				glm::vec3 translation,rotation,scale;
+				selectTransform.translation=glm::vec3(Transform[3]);
+			}
+		}
+
 		ImGui::PopStyleVar();
 		ImGui::End();
 
@@ -260,16 +288,16 @@ namespace Z {
 	}
 
 	void EditorLayer::SaveScene() {
-		auto path=Z::Utils::FileSave("*.zscene");
-		if(!path.empty()){
+		auto path = Z::Utils::FileSave("*.zscene");
+		if (!path.empty()) {
 			SceneSerializer serializer(scene);
 			serializer.Serialize(Z::Utils::FileSave("*.zscene"));
 		}
 	}
 
 	void EditorLayer::LoadScene() {
-		auto path=Z::Utils::FileOpen("*.zscene");
-		if(!path.empty()) {
+		auto path = Z::Utils::FileOpen("*.zscene");
+		if (!path.empty()) {
 			scene = CreateRef<Scene>();
 			scene->OnViewportResize(viewportSize.x, viewportSize.y);
 			sceneHierarchyPlane->SetContext(scene);
