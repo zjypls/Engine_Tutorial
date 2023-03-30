@@ -25,7 +25,7 @@ add_library(Z STATIC ${src})
 
 
 target_include_directories(Z PUBLIC depends)
-target_link_libraries(Z PUBLIC GLFW glad ImGui)
+target_link_libraries(Z PUBLIC GLFW glad ImGui yaml)
 
 
 

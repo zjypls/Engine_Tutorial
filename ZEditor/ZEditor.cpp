@@ -132,7 +132,6 @@ namespace Z {
 		Z::Particle::OnUpdate(Time::DeltaTime());
 		frameBuffer->UnBind();
 	}
-
 	void EditorLayer::OnImGuiRender() {
 		static bool dockspaceOpen = true;
 		static bool opt_fullscreen_persistant = true;
@@ -165,10 +164,14 @@ namespace Z {
 			ImGui::PopStyleVar(2);
 
 		ImGuiIO &io = ImGui::GetIO();
+		auto& style = ImGui::GetStyle();
+		auto miniSize=style.WindowMinSize.x;
+		style.WindowMinSize.x=350;
 		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
 			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 		}
+		style.WindowMinSize.x=miniSize;
 
 		if (ImGui::BeginMenuBar()) {
 			if (ImGui::BeginMenu("File")) {

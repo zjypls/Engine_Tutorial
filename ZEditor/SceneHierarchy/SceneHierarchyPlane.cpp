@@ -75,18 +75,7 @@ namespace Z {
 		if (selectedEntity) {
 			DrawComponents(selectedEntity);
 
-			if (ImGui::Button("Add Component")) {
-				ImGui::OpenPopup("AddComponent");
-			}
-			if (ImGui::BeginPopup("AddComponent")) {//Todo:Change logic
-				if (ImGui::MenuItem("Camera")) {
-					selectedEntity.AddComponent<CameraComponent>();//Todo:Change logic
-				}
-				if (ImGui::MenuItem("Sprite Renderer")) {
-					selectedEntity.AddComponent<SpriteRendererComponent>();//Todo:Change logic
-				}
-				ImGui::EndPopup();
-			}
+
 		}
 		ImGui::End();
 	}
@@ -146,14 +135,26 @@ namespace Z {
 			static char buffer[256];
 			memset(buffer, 0, 256);
 			strcpy(buffer, tag.tag.c_str());
-			ImGui::Columns(2);
-			ImGui::SetColumnWidth(0, 100);
-			ImGui::Text("Tag");
-			ImGui::NextColumn();
 			if (ImGui::InputText("##Tag", &buffer[0], 256))
 				tag = std::string(buffer);
-			ImGui::Columns(1);
 		});
+
+		ImGui::SameLine();
+		ImGui::PushItemWidth(-1);
+		if (ImGui::Button("Add Component")) {
+			ImGui::OpenPopup("AddComponent");
+		}
+		if (ImGui::BeginPopup("AddComponent")) {//Todo:Change logic
+			if (ImGui::MenuItem("Camera")) {
+				selectedEntity.AddComponent<CameraComponent>();//Todo:Change logic
+			}
+			if (ImGui::MenuItem("Sprite Renderer")) {
+				selectedEntity.AddComponent<SpriteRendererComponent>();//Todo:Change logic
+			}
+			ImGui::EndPopup();
+		}
+		ImGui::PopItemWidth();
+
 		DrawComponent<TransformComponent>("Transform", entity, [](auto &transform) {
 			MyDrawVec("Position", transform.translation);
 			MyDrawVec("Rotation", transform.rotation);

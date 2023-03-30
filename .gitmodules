@@ -13,3 +13,6 @@
 [submodule "Engine/Include/glm"]
 	path = Engine/Include/glm
 	url = https://github.com/Groovounet/glm.git
+[submodule "Engine/Include/yaml-cpp"]
+	path = Engine/Include/yaml-cpp
+	url = https://github.com/zjypls/yaml-cpp
