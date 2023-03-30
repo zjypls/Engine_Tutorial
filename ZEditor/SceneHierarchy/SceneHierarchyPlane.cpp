@@ -157,7 +157,9 @@ namespace Z {
 
 		DrawComponent<TransformComponent>("Transform", entity, [](auto &transform) {
 			MyDrawVec("Position", transform.translation);
-			MyDrawVec("Rotation", transform.rotation);
+			auto rotation = glm::degrees(transform.rotation);
+			MyDrawVec("Rotation", rotation);
+			transform.rotation = glm::radians(rotation);
 			MyDrawVec("Scale", transform.scale, 1.f);
 		});
 		DrawComponent<SpriteRendererComponent>("SpriteRenderer", entity,

@@ -3,10 +3,10 @@
 //
 #include "Z/Core/Core.h"
 #include "ZEditor.h"
-#define GLM_ENABLE_EXPERIMENTAL
+
 #include"glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
-#include "glm/gtx/matrix_operation.hpp"
+#include "glm/gtx/matrix_decompose.hpp"
 #include <chrono>
 #include "Z/Scene/SceneSerializer.h"
 #include "Z/Utils/ZUtils.h"
@@ -237,6 +237,7 @@ namespace Z {
 		uint32_t textureID = frameBuffer->GetColorID();
 		ImGui::Image((void *) textureID, viewSize, ImVec2{0, 1}, ImVec2{1, 0});
 		//ImGuizmo
+
 		auto selectedEntity = sceneHierarchyPlane->GetSelectedEntity();
 		if (selectedEntity) {
 			auto camera = scene->GetMainCamera();
@@ -250,11 +251,16 @@ namespace Z {
 			auto &selectTransform = selectedEntity.GetComponent<TransformComponent>();
 			auto Transform = selectTransform.GetTransform();
 			ImGuizmo::Manipulate(glm::value_ptr(cameraProjection), glm::value_ptr(cameraView),
-			                     ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::LOCAL,
+			                     ImGuizmo::OPERATION::ROTATE, ImGuizmo::MODE::LOCAL,
 								 glm::value_ptr(Transform));
 			if(ImGuizmo::IsUsing()){
-				glm::vec3 translation,rotation,scale;
-				selectTransform.translation=glm::vec3(Transform[3]);
+				glm::vec3 translation,scale,skew;
+				glm::quat rotation;
+				glm::vec4 perspective;
+				glm::decompose(Transform,scale,rotation,translation,skew,perspective);
+				selectTransform.translation=translation;
+				selectTransform.rotation=(glm::eulerAngles(rotation));
+				selectTransform.scale=scale;
 			}
 		}
 
