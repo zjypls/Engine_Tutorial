@@ -20,8 +20,8 @@ namespace Z {
 		SceneHierarchyPlane() = default;
 		SceneHierarchyPlane(const Ref<Scene>& context) : context(context) {}
 
-		inline void SetScene(const Ref<Scene>& context) { this->context = context; }
-		inline void SetContext(const Ref<Scene> &context) { this->context = context; }
+		inline void SetScene(const Ref<Scene>& context) { this->context = context;selectedEntity={}; }
+		inline void SetContext(const Ref<Scene> &context) { this->context = context; selectedEntity = {}; }
 
 		void OnImGuiRender();
 	};

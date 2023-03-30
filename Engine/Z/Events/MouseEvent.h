@@ -7,6 +7,7 @@
 
 #include "Event.h"
 #include <sstream>
+#include "Z/Core/MouseButtonCodes.h"
 namespace Z {
 	class MouseMovedEvent : public Event {
 		float m_X, m_Y;
@@ -44,17 +45,17 @@ namespace Z {
 
 	class MouseButtonEvent:public Event{
 	protected:
-		MouseButtonEvent(int _button):button(_button){}
-		int button;
+		MouseButtonEvent(MouseCode _button):button(_button){}
+		MouseCode button;
 
 	public:
-		inline int GetButton()const{return button;}
+		inline MouseCode GetButton()const{return button;}
 		EVENT_CLASS_CATEGORY(EventMouseButton|EventInput)
 	};
 
 	class MouseButtonPressedEvent:public MouseButtonEvent{
 	public:
-		MouseButtonPressedEvent(int _code): MouseButtonEvent(_code){}
+		MouseButtonPressedEvent(MouseCode _code): MouseButtonEvent(_code){}
 		std::string ToString()const override{
 			std::stringstream ss;
 			ss<<"MouseButtonPressed:"<<button;
@@ -66,7 +67,7 @@ namespace Z {
 
 	class MouseButtonReleasedEvent:public MouseButtonEvent{
 	public:
-		MouseButtonReleasedEvent(int _button): MouseButtonEvent(_button){}
+		MouseButtonReleasedEvent(MouseCode _button): MouseButtonEvent(_button){}
 		std::string ToString()const override{
 			std::stringstream ss;
 			ss<<"MouseButtonReleased:"<<button;

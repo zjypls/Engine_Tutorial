@@ -20,7 +20,7 @@ namespace Z {
 		void SetOrthographicSize(float size){GraphicSize=size;UpdateProjection();}
 		void SetOrthographicNearClip(float nearClip){this->nearClip=nearClip;UpdateProjection();}
 		void SetOrthographicFarClip(float farClip){this->farClip=farClip;UpdateProjection();}
-		void SetPerspectiveFOV(float fov){this->fov=glm::radians(fov);UpdateProjection();}
+		void SetPerspectiveFOV(float fov){this->fov=fov;UpdateProjection();}
 		void SetPerspectiveNearClip(float nearClip){PNearClip=nearClip;UpdateProjection();}
 		void SetPerspectiveFarClip(float farClip){PFarClip=farClip;UpdateProjection();}
 		[[nodiscard]] inline float GetOrthographicSize() const { return GraphicSize; }

@@ -15,6 +15,7 @@ namespace Z {
 		uint32_t viewportWidth = 0, viewportHeight = 0;
 		friend class Entity;
 		friend class SceneHierarchyPlane;
+		friend class SceneSerializer;
 
 		template<class _Ty>
 		void OnComponentAdd(Entity entity, _Ty &component);

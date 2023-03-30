@@ -66,17 +66,17 @@ namespace Z {
 			auto data=(WindowData*) glfwGetWindowUserPointer(win);
 			switch(action){
 				case GLFW_PRESS:{
-					KeyPressEvent e{key,0};
+					KeyPressEvent e{(KeyCode)key,0};
 					data->eventCall(e);
 					break;
 				}
 				case GLFW_RELEASE:{
-					KeyReleasedEvent e{key};
+					KeyReleasedEvent e{(KeyCode)key};
 					data->eventCall(e);
 					break;
 				}
 				case GLFW_REPEAT:{
-					KeyPressEvent e{key,1};
+					KeyPressEvent e{(KeyCode)key,1};
 					data->eventCall(e);
 					break;
 				}
@@ -87,12 +87,12 @@ namespace Z {
 			auto data=(WindowData*) glfwGetWindowUserPointer(win);
 			switch(action){
 				case GLFW_PRESS:{
-					MouseButtonPressedEvent e{button};
+					MouseButtonPressedEvent e{(MouseCode)button};
 					data->eventCall(e);
 					break;
 				}
 				case GLFW_RELEASE:{
-					MouseButtonReleasedEvent e{button};
+					MouseButtonReleasedEvent e{(MouseCode)button};
 					data->eventCall(e);
 					break;
 				}

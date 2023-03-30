@@ -7,20 +7,21 @@
 
 #include "Event.h"
 #include <sstream>
+#include "Z/Core/KeyCodes.h"
 namespace Z{
 	class KeyEvent:public Event{
 	public:
-		inline int GetKey()const{return m_KeyCode;}
+		inline KeyCode GetKey()const{return m_KeyCode;}
 		EVENT_CLASS_CATEGORY(EventKeyBoard|EventInput);
 	protected:
-		KeyEvent(int _code):m_KeyCode(_code){};
-		int m_KeyCode;
+		KeyEvent(KeyCode _code):m_KeyCode(_code){};
+		KeyCode m_KeyCode;
 	};
 
 	class KeyPressEvent:public KeyEvent{
 		int repeatNum;
 	public:
-		KeyPressEvent(int _code,int _repeatCount): KeyEvent(_code),repeatNum(_repeatCount){}
+		KeyPressEvent(KeyCode _code,int _repeatCount): KeyEvent(_code),repeatNum(_repeatCount){}
 		inline int GetRepeatCount()const{return repeatNum;}
 		std::string ToString()const {
 			std::stringstream ss;
@@ -33,7 +34,7 @@ namespace Z{
 
 	class KeyReleasedEvent:public KeyEvent{
 	public:
-		KeyReleasedEvent(int _code): KeyEvent(_code){}
+		KeyReleasedEvent(KeyCode _code): KeyEvent(_code){}
 		std::string ToString()const{
 			std::stringstream ss;
 			ss<<"KeyReleasedEvent";
@@ -43,7 +44,7 @@ namespace Z{
 	};
 	class KeyTypedEvent:public KeyEvent{
 	public:
-		KeyTypedEvent(int _code): KeyEvent(_code){}
+		KeyTypedEvent(KeyCode _code): KeyEvent(_code){}
 		std::string ToString()const{
 			std::stringstream ss;
 			ss<<"KeyTypedEvent:"<<m_KeyCode;

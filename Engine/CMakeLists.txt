@@ -18,7 +18,8 @@ file(GLOB src CONFIGURE_DEPENDS
         Z/Renderer/*.h
         Z/Renderer/*.cpp
         Z/Debug/*.h Z/Debug/*.cpp
-        Z/Scene/*.h Z/Scene/*.cpp)
+        Z/Scene/*.h Z/Scene/*.cpp
+        Z/Utils/*.h)
 
 
 add_library(Z STATIC ${src})

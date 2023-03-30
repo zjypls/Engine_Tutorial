@@ -46,6 +46,11 @@ namespace Z {
 		void OnImGuiRender() override;
 
 		void OnEvent(Event &event) override;
+	private:
+		bool OnKeyPressed(KeyPressEvent &event);
+		void SaveScene();
+		void LoadScene();
+		void NewScene();
 	};
 
 }

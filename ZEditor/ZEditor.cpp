@@ -1,11 +1,13 @@
 //
 // Created by 32725 on 2023/3/19.
 //
-
+#include "Z/Core/Core.h"
 #include "ZEditor.h"
 #include"glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include <chrono>
+#include "Z/Scene/SceneSerializer.h"
+#include "Z/Utils/ZUtils.h"
 
 
 ImVec2 operator-(const ImVec2 &lhs, const ImVec2 &rhs) {
@@ -176,6 +178,16 @@ namespace Z {
 		if (ImGui::BeginMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
 
+				if(ImGui::MenuItem("New", "Ctrl+N")){
+					NewScene();
+				}
+
+				if(ImGui::MenuItem("Save", "Ctrl+Shift+S")){
+					SaveScene();
+				}
+				if(ImGui::MenuItem("Load", "Ctrl+O")){
+					LoadScene();
+				}
 				if (ImGui::MenuItem("Exit")) Application::Get().Close();
 				ImGui::EndMenu();
 			}
@@ -227,11 +239,48 @@ namespace Z {
 	void EditorLayer::OnEvent(Event &event) {
 		controller.OnEvent(event);
 		EventDispatcher dispatcher(event);
-		dispatcher.Handle<KeyPressEvent>([&](KeyPressEvent &e) {
-			if (KeyCode(e.GetKey()) == Key::Escape)
-				Application::Get().Close();
-			return false;
-		});
+		dispatcher.Handle<KeyPressEvent>(Z_BIND_EVENT_FUNC(EditorLayer::OnKeyPressed));
+	}
+
+	bool EditorLayer::OnKeyPressed(KeyPressEvent &event) {
+		bool control = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
+		bool shift = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
+		switch (event.GetKey()) {
+			case Key::N:
+				if (control) NewScene();
+				break;
+			case Key::O:
+				if (control) LoadScene();
+				break;
+			case Key::S:
+				if (control && shift) SaveScene();
+				break;
+		}
+		return false;
+	}
+
+	void EditorLayer::SaveScene() {
+		auto path=Z::Utils::FileSave("*.zscene");
+		if(!path.empty()){
+			SceneSerializer serializer(scene);
+			serializer.Serialize(Z::Utils::FileSave("*.zscene"));
+		}
+	}
+
+	void EditorLayer::LoadScene() {
+		auto path=Z::Utils::FileOpen("*.zscene");
+		if(!path.empty()) {
+			scene = CreateRef<Scene>();
+			scene->OnViewportResize(viewportSize.x, viewportSize.y);
+			sceneHierarchyPlane->SetContext(scene);
+			SceneSerializer serializer(scene);
+			serializer.Deserialize(path);
+		}
+	}
+
+	void EditorLayer::NewScene() {
+		scene = CreateRef<Scene>();
+		sceneHierarchyPlane->SetContext(scene);
 	}
 
 }

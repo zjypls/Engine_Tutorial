@@ -182,7 +182,7 @@ namespace Z {
 			if (camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective) {
 				float verticalFOV = glm::degrees(camera.GetPerspectiveFOV());
 				if (ImGui::DragFloat("Vertical FOV", &verticalFOV)) {
-					camera.SetPerspectiveFOV(verticalFOV);
+					camera.SetPerspectiveFOV(glm::radians(verticalFOV));
 				}
 				float nearClip = camera.GetPerspectiveNearClip();
 				if (ImGui::DragFloat("Near Clip", &nearClip)) {
