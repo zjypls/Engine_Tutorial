@@ -67,6 +67,15 @@ namespace Z {
 		return {};
 	}
 
+	void Scene::OnEditorUpdate(float deltaTime,EditorCamera&camera) {
+		Renderer2D::BeginScene(camera);
+		std::for_each(registry.view<TransformComponent, SpriteRendererComponent>().begin(),
+		              registry.view<TransformComponent, SpriteRendererComponent>().end(), [&](const auto &item) {
+					Renderer2D::DrawQuad(registry.get<TransformComponent>(item).GetTransform(),
+					                     registry.get<SpriteRendererComponent>(item).color);});
+		Renderer2D::EndScene();
+	}
+
 	template<class _Ty>
 	void Scene::OnComponentAdd(Entity entity, _Ty &component) {
 		//static_assert(false);

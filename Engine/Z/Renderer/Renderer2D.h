@@ -11,6 +11,7 @@
 #include "Z/Renderer/Shader.h"
 #include "Z/Renderer/OrithGraphicCamera.h"
 #include "Z/Renderer/Camera.h"
+#include "Z/Renderer/EditorCamera.h"
 #include "SubTex2D.h"
 
 namespace Z {
@@ -61,6 +62,7 @@ namespace Z {
 		static void Shutdown();
 		static void BeginScene(const Ref<OrithGraphicCamera> &camera);
 		static void BeginScene(const Camera&camera,const glm::mat4 &transform);
+		static void BeginScene(const EditorCamera&camera);
 		static void Flush();
 		static void EndScene();
 		inline static void DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color){

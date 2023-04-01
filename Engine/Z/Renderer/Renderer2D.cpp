@@ -59,6 +59,13 @@ namespace Z {
 		delete data;
 	}
 
+	void Renderer2D::BeginScene(const EditorCamera &camera) {
+		data->UShader->Bind();
+		auto viewProject = camera.GetViewProjectionMatrix();
+		data->UShader->SetUniform("viewProject", viewProject);
+		data->quadVertexBufferPtr = data->quadVertexBufferBase;
+	}
+
 	void Renderer2D::BeginScene(const Ref<OrithGraphicCamera> &camera) {
 		data->UShader->Bind();
 		data->UShader->SetUniform("viewProject", camera->GetViewProjectionMatrix());
@@ -180,5 +187,6 @@ namespace Z {
 		stats->QuadCount++;
 		data->quadIndexCount += 6;
 	}
+
 
 }

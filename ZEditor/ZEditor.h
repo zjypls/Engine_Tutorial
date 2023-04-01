@@ -7,6 +7,8 @@
 
 #include "z.h"
 #include"SceneHierarchy/SceneHierarchyPlane.h"
+#include "ImGuizmo.h"
+#include "Z/Renderer/EditorCamera.h"
 #include<unordered_map>
 
 namespace Z {
@@ -31,6 +33,9 @@ namespace Z {
 		Entity entity;
 		Entity cameraEntity,SecondCamera;
 		Ref<SceneHierarchyPlane> sceneHierarchyPlane;
+		int currentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+		Z::EditorCamera editorCamera;
+
 
 	public:
 		EditorLayer();

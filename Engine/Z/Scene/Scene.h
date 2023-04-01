@@ -6,7 +6,7 @@
 #define ENGINE_TUTORIAL_SCENE_H
 
 #include "entt.hpp"
-
+#include "Z/Renderer/EditorCamera.h"
 
 namespace Z {
 
@@ -30,6 +30,7 @@ namespace Z {
 		void DestroyEntity(Entity entity);
 
 		void OnUpdate(float);
+		void OnEditorUpdate(float deltaTime, EditorCamera &camera);
 
 		~Scene() = default;
 	};

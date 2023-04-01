@@ -62,6 +62,7 @@ namespace Z {
 		                            std::string(Z_SOURCE_DIR) + "/Shaders/grid.frag", true);
 		frameBuffer = FrameBuffer::Create({1200, 800});
 		scene = CreateRef<Scene>();
+		editorCamera = Z::EditorCamera(45.f, 1200.f / 800.f, 0.1f, 1000.f);
 /*
 		cameraEntity = scene->CreateEntity("Camera");
 		cameraEntity.AddComponent<CameraComponent>(glm::ortho(-16.f, 16.f, -9.f, 9.f, -1.f, 1.f));
@@ -114,14 +115,16 @@ namespace Z {
 
 	void EditorLayer::OnUpdate() {
 		frameBuffer->Bind();
-		if (IsViewportFocused)
+		if (IsViewportFocused) {
 			controller.OnUpdate(Time::DeltaTime());
+			editorCamera.OnUpdate();
+		}
 		RenderCommand::SetClearValue(clearValue);
 		RenderCommand::Clear();
 
-		scene->OnUpdate(Time::DeltaTime());
+		scene->OnEditorUpdate(Time::DeltaTime(),editorCamera);
 
-		Renderer2D::BeginScene(controller.GetCamera());
+/*		Renderer2D::BeginScene(controller.GetCamera());
 		if (IsViewportHovered && IsViewportFocused && Input::IsMouseButtonPressed(Z_MOUSE_BUTTON_4)) {
 			auto size = controller.GetSize();
 			auto pos = controller.GetCamera()->GetPosition();
@@ -136,7 +139,7 @@ namespace Z {
 		Z::Particle::OnRender();
 		if (Z::Particle::GetCurrentNum() > 0)
 			Renderer2D::EndScene();
-		Z::Particle::OnUpdate(Time::DeltaTime());
+		Z::Particle::OnUpdate(Time::DeltaTime());*/
 		frameBuffer->UnBind();
 	}
 
@@ -226,12 +229,13 @@ namespace Z {
 			CursorPos = glm::vec2{cursorPos.x - 0.5f, 0.5f - cursorPos.y};
 			CursorPos *= 2.f;
 		}
-		Application::Get().GetImGuiLayer()->SetBlockEvents(!IsViewportFocused || !IsViewportHovered);
+		Application::Get().GetImGuiLayer()->SetBlockEvents(!IsViewportFocused && !IsViewportHovered);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
 		if (viewportSize != *(glm::vec2 *) &viewSize) {
 			viewportSize = glm::vec2{viewSize.x, viewSize.y};
 			frameBuffer->Resize(viewportSize.x, viewportSize.y);
 			scene->OnViewportResize(viewportSize.x, viewportSize.y);
+			editorCamera.SetViewportSize(viewportSize.x, viewportSize.y);
 			controller.OnResize(viewportSize.x, viewportSize.y);
 		}
 		uint32_t textureID = frameBuffer->GetColorID();
@@ -239,19 +243,17 @@ namespace Z {
 		//ImGuizmo
 
 		auto selectedEntity = sceneHierarchyPlane->GetSelectedEntity();
-		if (selectedEntity) {
-			auto camera = scene->GetMainCamera();
-			auto cameraComponent = camera.GetComponent<CameraComponent>();
+		if (selectedEntity&&currentGizmoOperation!=-1) {
 			ImGuizmo::SetOrthographic(false);
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x,
 			                  ImGui::GetWindowSize().y);
-			auto cameraProjection = glm::inverse(camera.GetComponent<TransformComponent>().GetTransform());
-			auto &cameraView = cameraComponent.camera();
+			auto cameraProjection = editorCamera.GetViewMatrix();
+
 			auto &selectTransform = selectedEntity.GetComponent<TransformComponent>();
 			auto Transform = selectTransform.GetTransform();
-			ImGuizmo::Manipulate(glm::value_ptr(cameraProjection), glm::value_ptr(cameraView),
-			                     ImGuizmo::OPERATION::ROTATE, ImGuizmo::MODE::LOCAL,
+			ImGuizmo::Manipulate(glm::value_ptr(cameraProjection), glm::value_ptr(editorCamera.GetProjectionMatrix()),
+			                     (ImGuizmo::OPERATION)currentGizmoOperation, ImGuizmo::MODE::LOCAL,
 								 glm::value_ptr(Transform));
 			if(ImGuizmo::IsUsing()){
 				glm::vec3 translation,scale,skew;
@@ -272,6 +274,7 @@ namespace Z {
 
 	void EditorLayer::OnEvent(Event &event) {
 		controller.OnEvent(event);
+		editorCamera.OnEvent(event);
 		EventDispatcher dispatcher(event);
 		dispatcher.Handle<KeyPressEvent>(Z_BIND_EVENT_FUNC(EditorLayer::OnKeyPressed));
 	}
@@ -288,6 +291,18 @@ namespace Z {
 				break;
 			case Key::S:
 				if (control && shift) SaveScene();
+				break;
+			case Key::Q:
+				currentGizmoOperation = -1;
+				break;
+			case Key::W:
+				currentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+				break;
+			case Key::E:
+				currentGizmoOperation = ImGuizmo::OPERATION::SCALE;
+				break;
+			case Key::R:
+				currentGizmoOperation = ImGuizmo::OPERATION::ROTATE;
 				break;
 		}
 		return false;
