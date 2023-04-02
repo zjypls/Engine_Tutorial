@@ -7,6 +7,7 @@
 
 #include "z.h"
 #include"SceneHierarchy/SceneHierarchyPlane.h"
+#include"SceneHierarchy/ContentBrowser.h"
 #include "ImGuizmo.h"
 #include "Z/Renderer/EditorCamera.h"
 #include<unordered_map>
@@ -35,6 +36,7 @@ namespace Z {
 		Ref<SceneHierarchyPlane> sceneHierarchyPlane;
 		int currentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 		Z::EditorCamera editorCamera;
+		Ref<ContentBrowser> contentBrowser;
 
 
 	public:
@@ -55,6 +57,7 @@ namespace Z {
 		bool OnKeyPressed(KeyPressEvent &event);
 		void SaveScene();
 		void LoadScene();
+		void LoadScene(const std::string &path);
 		void NewScene();
 	};
 

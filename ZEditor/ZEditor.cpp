@@ -116,6 +116,7 @@ namespace Z {
 */
 
 		sceneHierarchyPlane = CreateRef<SceneHierarchyPlane>(scene);
+		contentBrowser=CreateRef<ContentBrowser>();
 
 	}
 
@@ -184,6 +185,7 @@ namespace Z {
 		}
 		style.WindowMinSize.x = miniSize;
 
+
 		if (ImGui::BeginMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
 
@@ -217,6 +219,7 @@ namespace Z {
 		ImGui::Checkbox("Show ID", &showID);
 
 		sceneHierarchyPlane->OnImGuiRender();
+		contentBrowser->OnImGuiRender();
 
 		ImGui::End();
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
@@ -240,6 +243,7 @@ namespace Z {
 			CursorPos = glm::vec2{cursorPos.x - offset.x, McursorPos.y};
 		}
 		Application::Get().GetImGuiLayer()->SetBlockEvents(!IsViewportFocused && !IsViewportHovered);
+
 		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
 		if (viewportSize != *(glm::vec2 *) &viewSize) {
 			viewportSize = glm::vec2{viewSize.x, viewSize.y};
@@ -252,6 +256,12 @@ namespace Z {
 		ImGui::Image((void *) textureID, viewSize, ImVec2{0, 1}, ImVec2{1, 0});
 		//ImGuizmo
 
+		if(ImGui::BeginDragDropTarget()){
+			if(const ImGuiPayload* payload=ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
+				const char* path=(const char*)payload->Data;
+				LoadScene(path);
+			}
+		}
 
 		auto selectedEntity = sceneHierarchyPlane->GetSelectedEntity();
 		if (selectedEntity && currentGizmoOperation != -1) {
@@ -330,17 +340,22 @@ namespace Z {
 	void EditorLayer::LoadScene() {
 		auto path = Z::Utils::FileOpen("*.zscene");
 		if (!path.empty()) {
-			scene = CreateRef<Scene>();
-			scene->OnViewportResize(viewportSize.x, viewportSize.y);
-			sceneHierarchyPlane->SetContext(scene);
-			SceneSerializer serializer(scene);
-			serializer.Deserialize(path);
+			LoadScene(path);
 		}
+	}
+
+	void EditorLayer::LoadScene(const std::string &path) {
+		scene = CreateRef<Scene>();
+		scene->OnViewportResize(viewportSize.x, viewportSize.y);
+		sceneHierarchyPlane->SetContext(scene);
+		SceneSerializer serializer(scene);
+		serializer.Deserialize(path);
 	}
 
 	void EditorLayer::NewScene() {
 		scene = CreateRef<Scene>();
 		sceneHierarchyPlane->SetContext(scene);
 	}
+
 
 }

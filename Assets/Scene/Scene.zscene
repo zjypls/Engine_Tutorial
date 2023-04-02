@@ -4,51 +4,26 @@ Entities:
     TagComponent:
       Tag: NewSquare
     TransformComponent:
-      Translation: [0, 0, 0]
-      Rotation: [0, 0, 0]
+      Translation: [0.734870076, -0.467763543, 2.48414588]
+      Rotation: [0, -0, 0]
       Scale: [1, 1, 1]
     SpriteRendererComponent:
-      Color: [0, 1, 0, 1]
+      Color: [0, 1, 0, 0.513725519]
   - Entity: Square
     TagComponent:
       Tag: Square
     TransformComponent:
-      Translation: [0.482107848, -0.35237658, 0]
-      Rotation: [0, 0, 0]
+      Translation: [0.0619322285, -0.700250089, 1.37113869]
+      Rotation: [0, -0, 0]
       Scale: [1, 1, 1]
     SpriteRendererComponent:
-      Color: [1, 0, 0, 1]
-  - Entity: SecondCamera
+      Color: [1, 0, 0, 0.678431392]
+  - Entity: Empty Entity
     TagComponent:
-      Tag: SecondCamera
+      Tag: Empty Entity
     TransformComponent:
-      Translation: [0, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-    CameraComponent:
-      Camera:
-        ProjectionType: 1
-        PerspectiveFOV: 0.785398185
-        PerspectiveNear: 0.00999999978
-        PerspectiveFar: 1000
-        OrthographicSize: 10
-        OrthographicNear: -1
-        OrthographicFar: 1
-        Primary: false
-  - Entity: Camera
-    TagComponent:
-      Tag: Camera
-    TransformComponent:
-      Translation: [0, 0, 171.899994]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-    CameraComponent:
-      Camera:
-        ProjectionType: 0
-        PerspectiveFOV: 0.785398185
-        PerspectiveNear: 0.00999999978
-        PerspectiveFar: 1000
-        OrthographicSize: 10
-        OrthographicNear: -1
-        OrthographicFar: 1
-        Primary: true
+      Translation: [0.272954226, -0.480982035, 0.99408412]
+      Rotation: [0, -0, 0]
+      Scale: [1.29999995, 1.29999995, 1.29999995]
+    SpriteRendererComponent:
+      Color: [0, 0, 1, 0.666666687]
