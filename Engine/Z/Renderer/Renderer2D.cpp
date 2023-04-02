@@ -24,7 +24,8 @@ namespace Z {
 					{Z::ShaderDataType::Float4, "color"},
 					{Z::ShaderDataType::Float2, "texCoord"},
 					{Z::ShaderDataType::Float,  "texIndex"},
-					{Z::ShaderDataType::Float,  "tillingFactor"}});
+					{Z::ShaderDataType::Float,  "tillingFactor"},
+					{Z::ShaderDataType::Int,  "EntityID"},});
 			data->quadVertexBuffer->SetLayout(*layout);
 		}
 		data->quadVertexArray->AddVertexBuffer(data->quadVertexBuffer);
@@ -94,7 +95,7 @@ namespace Z {
 		Flush();
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4 &transform, const glm::vec4 &color) {
+	void Renderer2D::DrawQuad(const glm::mat4 &transform, const glm::vec4 &color,int EntityID) {
 		if (data->quadIndexCount >= data->MaxIndexCount) {
 			EndScene();
 		}
@@ -108,6 +109,7 @@ namespace Z {
 			data->quadVertexBufferPtr->texCoord = texCords[i];
 			data->quadVertexBufferPtr->texIndex = textureIndex;
 			data->quadVertexBufferPtr->tillingFactor = tilingFactor;
+			data->quadVertexBufferPtr->EntityID = EntityID;
 			data->quadVertexBufferPtr++;
 		}
 

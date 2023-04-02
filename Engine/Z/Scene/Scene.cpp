@@ -72,7 +72,7 @@ namespace Z {
 		std::for_each(registry.view<TransformComponent, SpriteRendererComponent>().begin(),
 		              registry.view<TransformComponent, SpriteRendererComponent>().end(), [&](const auto &item) {
 					Renderer2D::DrawQuad(registry.get<TransformComponent>(item).GetTransform(),
-					                     registry.get<SpriteRendererComponent>(item).color);});
+					                     registry.get<SpriteRendererComponent>(item).color,float(uint32_t (item)));});
 		Renderer2D::EndScene();
 	}
 

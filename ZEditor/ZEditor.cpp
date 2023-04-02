@@ -17,6 +17,10 @@ ImVec2 operator-(const ImVec2 &lhs, const ImVec2 &rhs) {
 	return {lhs.x - rhs.x, lhs.y - rhs.y};
 }
 
+ImVec2 operator+(const ImVec2 &lhs, const ImVec2 &rhs) {
+	return {lhs.x + rhs.x, lhs.y + rhs.y};
+}
+
 ImVec2 operator/(const ImVec2 &lhs, const ImVec2 &rhs) {
 	return {lhs.x / rhs.x, lhs.y / rhs.y};
 }
@@ -60,7 +64,12 @@ namespace Z {
 		shader->UnBind();
 		grid = Shader::CreateShader("Grid", std::string(Z_SOURCE_DIR) + "/Shaders/vert.vert",
 		                            std::string(Z_SOURCE_DIR) + "/Shaders/grid.frag", true);
-		frameBuffer = FrameBuffer::Create({1200, 800});
+		FrameBufferSpecification spec;
+		spec.width = 1200;
+		spec.height = 800;
+		spec.attachments = {FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::R32I,
+		                    FrameBufferTextureFormat::DEPTH};
+		frameBuffer = FrameBuffer::Create(spec);
 		scene = CreateRef<Scene>();
 		editorCamera = Z::EditorCamera(45.f, 1200.f / 800.f, 0.1f, 1000.f);
 /*
@@ -122,24 +131,15 @@ namespace Z {
 		RenderCommand::SetClearValue(clearValue);
 		RenderCommand::Clear();
 
-		scene->OnEditorUpdate(Time::DeltaTime(),editorCamera);
+		frameBuffer->ClearAttachment(1, -1);
 
-/*		Renderer2D::BeginScene(controller.GetCamera());
-		if (IsViewportHovered && IsViewportFocused && Input::IsMouseButtonPressed(Z_MOUSE_BUTTON_4)) {
-			auto size = controller.GetSize();
-			auto pos = controller.GetCamera()->GetPosition();
-			auto pos2 = (glm::vec2{CursorPos.x, CursorPos.y} + (Random::RandVec2() * .2f - .1f)) * size;
-			Z::Particle::AddToPool({glm::vec3(pos2, 0.f) + pos,
-			                        glm::vec3{Random::Float() / 3.f, 0.1, 0.} * glm::vec3{size, 0.f},
-			                        glm::vec3{0, 0, 0},
-			                        glm::vec4{Random::RandVec3() * glm::vec3{1.f, 0.5f, 0.6f}, 1.},
-			                        0.03f * controller.GetSize().y,
-			                        0., (Random::Float() + 0.5f)});
+		scene->OnEditorUpdate(Time::DeltaTime(), editorCamera);
+
+		if (IsViewportFocused && IsViewportHovered &&!ImGuizmo::IsOver()&&!Input::IsKeyPressed(KeyCode::LeftAlt)&& Input::IsMouseButtonPressed(MouseCode::ButtonLeft)) {
+			auto value = frameBuffer->GetPixel(CursorPos.x, CursorPos.y);
+			sceneHierarchyPlane->SetSelectedEntity(value);
+			//Z_CORE_WARN("Selected Entity: {0}",value);
 		}
-		Z::Particle::OnRender();
-		if (Z::Particle::GetCurrentNum() > 0)
-			Renderer2D::EndScene();
-		Z::Particle::OnUpdate(Time::DeltaTime());*/
 		frameBuffer->UnBind();
 	}
 
@@ -204,6 +204,7 @@ namespace Z {
 			ImGui::EndMenuBar();
 		}
 
+		static bool showID = false;
 		ImGui::Begin("Statics");
 
 		auto stats = Renderer2D::GetStats();
@@ -213,24 +214,33 @@ namespace Z {
 		ImGui::Text("Vertices: %u", stats->GetTotalVertexCount());
 		ImGui::Text("Indices: %u", stats->GetTotalIndexCount());
 		stats->Reset();
+		ImGui::Checkbox("Show ID", &showID);
 
 		sceneHierarchyPlane->OnImGuiRender();
 
 		ImGui::End();
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
 		ImGui::Begin("ViewPort");
 		IsViewportFocused = ImGui::IsWindowFocused();
 		IsViewportHovered = ImGui::IsWindowHovered();
 		auto viewSize = ImGui::GetContentRegionAvail();
-		if (IsViewportFocused && IsViewportHovered && viewportSize.y != 0 && viewportSize.x != 0) {
-			auto cursorPos = ImGui::GetMousePosOnOpeningCurrentPopup();
-			auto TextPos = ImGui::GetWindowPos();
-			cursorPos = cursorPos - TextPos;
-			cursorPos = cursorPos / ImGui::GetWindowSize();
-			CursorPos = glm::vec2{cursorPos.x - 0.5f, 0.5f - cursorPos.y};
-			CursorPos *= 2.f;
+		if (IsViewportFocused && IsViewportHovered && viewportSize.y != 0 && viewportSize.x != 0 &&
+		    Z::Input::IsMouseButtonPressed(Z::MouseCode::ButtonLeft)) {
+//			auto cursorPos = ImGui::GetMousePosOnOpeningCurrentPopup();
+//			auto TextPos = ImGui::GetWindowPos();
+//			cursorPos = cursorPos - TextPos;
+//			//cursorPos = cursorPos / ImGui::GetWindowSize();
+//			CursorPos = glm::vec2{cursorPos.x,viewSize.y- cursorPos.y};
+
+			auto cursorPos = ImGui::GetMousePos();
+			auto offset = ImGui::GetWindowPos();
+			auto WinSize = ImGui::GetWindowSize();
+			auto MaxSize = WinSize + offset;
+			auto McursorPos = MaxSize - cursorPos;
+			CursorPos = glm::vec2{cursorPos.x - offset.x, McursorPos.y};
 		}
 		Application::Get().GetImGuiLayer()->SetBlockEvents(!IsViewportFocused && !IsViewportHovered);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
+		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
 		if (viewportSize != *(glm::vec2 *) &viewSize) {
 			viewportSize = glm::vec2{viewSize.x, viewSize.y};
 			frameBuffer->Resize(viewportSize.x, viewportSize.y);
@@ -238,12 +248,13 @@ namespace Z {
 			editorCamera.SetViewportSize(viewportSize.x, viewportSize.y);
 			controller.OnResize(viewportSize.x, viewportSize.y);
 		}
-		uint32_t textureID = frameBuffer->GetColorID();
+		uint32_t textureID = showID ? frameBuffer->GetAttachmentID(1) : frameBuffer->GetAttachmentID(0);
 		ImGui::Image((void *) textureID, viewSize, ImVec2{0, 1}, ImVec2{1, 0});
 		//ImGuizmo
 
+
 		auto selectedEntity = sceneHierarchyPlane->GetSelectedEntity();
-		if (selectedEntity&&currentGizmoOperation!=-1) {
+		if (selectedEntity && currentGizmoOperation != -1) {
 			ImGuizmo::SetOrthographic(false);
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x,
@@ -253,16 +264,16 @@ namespace Z {
 			auto &selectTransform = selectedEntity.GetComponent<TransformComponent>();
 			auto Transform = selectTransform.GetTransform();
 			ImGuizmo::Manipulate(glm::value_ptr(cameraProjection), glm::value_ptr(editorCamera.GetProjectionMatrix()),
-			                     (ImGuizmo::OPERATION)currentGizmoOperation, ImGuizmo::MODE::LOCAL,
-								 glm::value_ptr(Transform));
-			if(ImGuizmo::IsUsing()){
-				glm::vec3 translation,scale,skew;
+			                     (ImGuizmo::OPERATION) currentGizmoOperation, ImGuizmo::MODE::LOCAL,
+			                     glm::value_ptr(Transform));
+			if (ImGuizmo::IsUsing()) {
+				glm::vec3 translation, scale, skew;
 				glm::quat rotation;
 				glm::vec4 perspective;
-				glm::decompose(Transform,scale,rotation,translation,skew,perspective);
-				selectTransform.translation=translation;
-				selectTransform.rotation=(glm::eulerAngles(rotation));
-				selectTransform.scale=scale;
+				glm::decompose(Transform, scale, rotation, translation, skew, perspective);
+				selectTransform.translation = translation;
+				selectTransform.rotation = (glm::eulerAngles(rotation));
+				selectTransform.scale = scale;
 			}
 		}
 

@@ -114,8 +114,9 @@ namespace Z {
 	void OpenGLShader::Bind() const {
 
 		auto warn = glGetError();
-		if (warn != 0)
+		if (warn != 0) {
 			Z_CORE_ERROR("{1}:{2},OpenGL ERROR {0}", warn, __FILE__, __LINE__);
+		}
 		glUseProgram(ProgramID);
 	}
 
@@ -169,7 +170,7 @@ namespace Z {
 
 	void OpenGLShader::SetUniform(const char *name, const glm::mat4 &value) {
 		glUseProgram(ProgramID);
-		glUniformMatrix4fv(glGetUniformLocation(ProgramID, name), 1, GL_FALSE, glm::value_ptr(value));
+		glUniformMatrix4fv(glGetUniformLocation(ProgramID, name) ,1, GL_FALSE, glm::value_ptr(value));
 	}
 
 
