@@ -28,7 +28,6 @@ namespace YAML {
 			rhs.z = node[2].as<float>();
 			return true;
 		}
-
 	};
 
 	template<>
