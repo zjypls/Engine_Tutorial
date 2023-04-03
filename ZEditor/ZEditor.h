@@ -14,6 +14,10 @@
 
 namespace Z {
 	class EditorLayer : public Layer {
+		struct BackData{
+			int gizmoOperation=-1;
+		};
+		BackData backData;
 		//Todo: clear the code
 		enum class SceneState{
 			Edit,Play

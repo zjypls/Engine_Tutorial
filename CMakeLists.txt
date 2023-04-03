@@ -14,10 +14,9 @@ set(ImGuizmoPath ${CMAKE_SOURCE_DIR}/Engine/Include/ImGuizmo)
 message("CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
 message("CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 
-
 set(CMAKE_CXX_STANDARD 17)
 
-message(${CMAKE_CXX_COMPILER_ID})
+message("CXX CompilerID:${CMAKE_CXX_COMPILER_ID}")
 set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Lib)
 if (${CMAKE_GENERATOR} MATCHES "Visual Studio")
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ZEditor)
@@ -26,7 +25,10 @@ if (${CMAKE_GENERATOR} MATCHES "Visual Studio")
 else ()
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin-C/${CMAKE_CXX_COMPILER_ID})
 endif ()
-link_directories(${CMAKE_SOURCE_DIR}/Lib)
+if(NOT DEFINED ENV{VK_SDK_PATH})
+    message(FATAL_ERROR "Please set VK_SDK_PATH environment variable")
+endif ()
+link_directories(${CMAKE_SOURCE_DIR}/Lib $ENV{VULKAN_SDK}/Lib)
 
 add_compile_definitions(Z_PLATFORM_WIN32)
 add_compile_definitions(Z_SOURCE_DIR="${CMAKE_SOURCE_DIR}")

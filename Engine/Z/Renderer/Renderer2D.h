@@ -13,6 +13,7 @@
 #include "Z/Renderer/Camera.h"
 #include "Z/Renderer/EditorCamera.h"
 #include "Z/Scene/Components.h"
+#include "Z/Renderer/UniformBuffer.h"
 #include "SubTex2D.h"
 
 namespace Z {
@@ -24,6 +25,9 @@ namespace Z {
 			int texIndex;
 			float tillingFactor;
 			int EntityID;
+		};
+		struct CameraData{
+			glm::mat4 ViewProjectionMatrix;
 		};
 		struct RenderData{
 
@@ -43,6 +47,8 @@ namespace Z {
 			unsigned int textureSlotIndex=1;
 
 			glm::vec4 quadVertexPositions[4];
+			CameraData cameraData;
+			Ref<UniformBuffer> cameraBuffer;
 		};
 		struct StatisticData{
 			unsigned int DrawCalls=0;

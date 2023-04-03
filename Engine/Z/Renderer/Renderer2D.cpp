@@ -4,6 +4,7 @@
 
 #include "Renderer2D.h"
 #include "glm/gtx/transform.hpp"
+#include <thread>
 #include "Z/Renderer/RenderCommand.h"
 
 namespace Z {
@@ -13,6 +14,7 @@ namespace Z {
 
 	void Renderer2D::Init() {
 		data = new RenderData();
+		data->UShader = Shader::CreateShader(std::string(Z_SOURCE_DIR)+"/Shaders/defaultU.glsl");
 		stats = new StatisticData{0, 0, 0};
 		data->quadVertexArray = VertexArray::Create();
 		data->quadVertexBufferBase = new QuadVertex[data->MaxVertexCount];
@@ -29,7 +31,7 @@ namespace Z {
 			data->quadVertexBuffer->SetLayout(*layout);
 		}
 		data->quadVertexArray->AddVertexBuffer(data->quadVertexBuffer);
-		uint32_t *indices = new uint32_t[data->MaxIndexCount];
+		auto indices = new uint32_t[data->MaxIndexCount];
 		for (int i = 0, j = 0; i < data->MaxIndexCount; i += 6) {
 			indices[i + 0] = j + 0;
 			indices[i + 1] = j + 1;
@@ -43,7 +45,6 @@ namespace Z {
 		data->quadVertexArray->SetIndexBuffer(indexBuffer);
 		delete[] indices;
 		data->quadVertexArray->Unbind();
-		data->UShader = Shader::CreateShader(std::string(Z_SOURCE_DIR)+"/Shaders/defaultU.glsl");
 		data->whiteTexture = Texture2D::CreateTexture(1, 1);
 		uint32_t whiteTextureData = 0xffffffff;
 		data->whiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
@@ -53,6 +54,8 @@ namespace Z {
 		data->quadVertexPositions[1] = glm::vec4{0.5f, -0.5f, 0.0f, 1.0f};
 		data->quadVertexPositions[2] = glm::vec4{0.5f, 0.5f, 0.0f, 1.0f};
 		data->quadVertexPositions[3] = glm::vec4{-0.5f, 0.5f, 0.0f, 1.0f};
+
+		data->cameraBuffer = UniformBuffer::Create(sizeof(CameraData), 1);
 	}
 
 	void Renderer2D::Shutdown() {
@@ -61,9 +64,8 @@ namespace Z {
 	}
 
 	void Renderer2D::BeginScene(const EditorCamera &camera) {
-		data->UShader->Bind();
-		auto viewProject = camera.GetViewProjectionMatrix();
-		data->UShader->SetUniform("viewProject", viewProject);
+		data->cameraData.ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+		data->cameraBuffer->SetData(&data->cameraData, sizeof(CameraData));
 		data->quadVertexBufferPtr = data->quadVertexBufferBase;
 	}
 
@@ -74,9 +76,8 @@ namespace Z {
 	}
 
 	void Renderer2D::BeginScene(const Camera&camera,const glm::mat4 &transform){
-		data->UShader->Bind();
-		glm::mat4 viewProject = camera() * glm::inverse(transform);
-		data->UShader->SetUniform("viewProject", viewProject);
+		data->cameraData.ViewProjectionMatrix = camera() * glm::inverse(transform);
+		data->cameraBuffer->SetData(&data->cameraData, sizeof(CameraData));
 		data->quadVertexBufferPtr = data->quadVertexBufferBase;
 	}
 
@@ -90,6 +91,7 @@ namespace Z {
 		uint32_t dataSize = (uint8_t *) data->quadVertexBufferPtr - (uint8_t *) data->quadVertexBufferBase;
 		data->quadVertexBufferPtr = data->quadVertexBufferBase;
 		data->quadVertexBuffer->SetData(data->quadVertexBufferBase, dataSize);
+		data->UShader->Bind();
 		for (int i = 0; i < data->textureSlotIndex; i++)
 			data->textureSlots[i]->Bind(i);
 		Flush();
