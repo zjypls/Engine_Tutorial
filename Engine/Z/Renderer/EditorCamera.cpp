@@ -13,7 +13,7 @@ namespace Z {
 			: Fov(glm::radians(fov)), aspectRatio(aspectRatio), nearClip(nearClip), farClip(farClip) {
 		projection = glm::perspective(Fov, aspectRatio, nearClip, farClip);
 		viewMatrix = glm::lookAt(position, focus, up);
-		UpdatePos();
+		OnUpdate();
 	}
 
 	void EditorCamera::OnEvent(Event &e) {

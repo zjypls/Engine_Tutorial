@@ -68,7 +68,7 @@ namespace Z {
 		                    FrameBufferTextureFormat::DEPTH};
 		frameBuffer = FrameBuffer::Create(spec);
 		scene = CreateRef<Scene>();
-		editorCamera = Z::EditorCamera(45.f, 1200.f / 800.f, 0.1f, 1000.f);
+		editorCamera = Z::EditorCamera(45.f, 1.f, 0.1f, 1000.f);
 		auto nahida = scene->CreateEntity("Nahida");
 		auto &tex = nahida.AddComponent<SpriteRendererComponent>();
 		tex.texture = texture[2];
@@ -259,16 +259,16 @@ namespace Z {
 		}
 		Application::Get().GetImGuiLayer()->SetBlockEvents(!IsViewportFocused && !IsViewportHovered);
 
-		if (viewportSize != *(glm::vec2 *) &viewSize) {
+		uint32_t textureID = showID ? frameBuffer->GetAttachmentID(1) : frameBuffer->GetAttachmentID(0);
+		ImGui::Image((void *) textureID, viewSize, ImVec2{0, 1}, ImVec2{1, 0});
+
+		if ((viewportSize != *(glm::vec2 *) &viewSize)&&!Input::IsMouseButtonPressed(MouseCode::ButtonLeft)) {
 			viewportSize = glm::vec2{viewSize.x, viewSize.y};
 			frameBuffer->Resize(viewportSize.x, viewportSize.y);
 			scene->OnViewportResize(viewportSize.x, viewportSize.y);
 			editorCamera.SetViewportSize(viewportSize.x, viewportSize.y);
 			controller.OnResize(viewportSize.x, viewportSize.y);
 		}
-		uint32_t textureID = showID ? frameBuffer->GetAttachmentID(1) : frameBuffer->GetAttachmentID(0);
-		ImGui::Image((void *) textureID, viewSize, ImVec2{0, 1}, ImVec2{1, 0});
-
 		if (ImGui::BeginDragDropTarget()) {
 			if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")) {
 				const char *path = (const char *) payload->Data;
