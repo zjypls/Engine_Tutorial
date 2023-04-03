@@ -42,6 +42,7 @@ add_subdirectory(Engine/Include/GLFW)
 add_subdirectory(Engine/Include/glad)
 add_subdirectory(Engine/Include/imgui)
 add_subdirectory(Engine/Include/yaml-cpp)
+add_subdirectory(Engine/Include/Box2D)
 
 add_subdirectory(Engine)
 

@@ -56,11 +56,11 @@ namespace Z {
 		auto indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 		vertexArray->SetIndexBuffer(indexBuffer);
 		vertexArray->Unbind();
-		shader = Shader::CreateShader(std::string(Z_SOURCE_DIR) + "/Shaders/One.glsl");
-		shader->Bind();
-		shader->UnBind();
-		grid = Shader::CreateShader("Grid", std::string(Z_SOURCE_DIR) + "/Shaders/vert.vert",
-		                            std::string(Z_SOURCE_DIR) + "/Shaders/grid.frag", true);
+//		shader = Shader::CreateShader(std::string(Z_SOURCE_DIR) + "/Shaders/One.glsl");
+//		shader->Bind();
+//		shader->UnBind();
+//		grid = Shader::CreateShader("Grid", std::string(Z_SOURCE_DIR) + "/Shaders/vert.vert",
+//		                            std::string(Z_SOURCE_DIR) + "/Shaders/grid.frag", true);
 		FrameBufferSpecification spec;
 		spec.width = 1200;
 		spec.height = 800;

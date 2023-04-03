@@ -6,6 +6,7 @@ include_directories(Include/GLFW/include depends)
 include_directories(Include/glm depends)
 include_directories(Include/glad/include depends)
 include_directories(${ImGuiPath}/backends depends)
+include_directories(Include/box2d/include depends)
 
 add_compile_definitions(GLFW_INCLUDE_NONE)
 file(GLOB src CONFIGURE_DEPENDS
@@ -27,7 +28,7 @@ add_library(Z STATIC ${src})
 
 
 target_include_directories(Z PUBLIC depends)
-target_link_libraries(Z PUBLIC GLFW glad ImGui yaml)
+target_link_libraries(Z PUBLIC GLFW glad ImGui yaml Box2D)
 
 
 
