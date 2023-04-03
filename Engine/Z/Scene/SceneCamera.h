@@ -7,6 +7,7 @@
 #include "Z/Renderer/Camera.h"
 
 namespace Z {
+	//Todo: Fix if set perspective for init will cause error
 	class SceneCamera :public Camera {
 	public:
 		enum class ProjectionType {Perspective = 0, Orthographic = 1} ;
@@ -30,7 +31,7 @@ namespace Z {
 		[[nodiscard]] inline float GetPerspectiveNearClip() const { return PNearClip; }
 		[[nodiscard]] inline float GetPerspectiveFarClip() const { return PFarClip; }
 	private:
-		float aspectRatio=1.f;
+		float aspectRatio=12.f/8.f;
 		float GraphicSize=10.f;
 		float nearClip=-1.f, farClip=1.f;
 		float fov=glm::radians(45.f);

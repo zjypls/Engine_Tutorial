@@ -14,6 +14,11 @@
 
 namespace Z {
 	class EditorLayer : public Layer {
+		//Todo: clear the code
+		enum class SceneState{
+			Edit,Play
+		};
+		SceneState sceneState = SceneState::Edit;
 		CameraController controller;
 		Ref<Shader> shader, grid;
 		Ref<VertexArray> vertexArray;
@@ -37,6 +42,7 @@ namespace Z {
 		int currentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 		Z::EditorCamera editorCamera;
 		Ref<ContentBrowser> contentBrowser;
+		Ref<Z::Texture2D> playButtonIcon,stopButtonIcon,currentButtonIcon;
 
 
 	public:
@@ -50,6 +56,8 @@ namespace Z {
 
 		void OnUpdate() override;
 
+		void On_UI();
+
 		void OnImGuiRender() override;
 
 		void OnEvent(Event &event) override;
@@ -59,6 +67,8 @@ namespace Z {
 		void LoadScene();
 		void LoadScene(const std::string &path);
 		void NewScene();
+		void OnPlay();
+		void OnStop();
 	};
 
 }

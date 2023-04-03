@@ -5,7 +5,7 @@
 #include "Scene.h"
 #include "Z/Renderer/Renderer2D.h"
 #include "Entity.h"
-#include "Components.h"
+
 namespace Z {
 	void Scene::OnUpdate(float deltaTime ) {
 		Camera *mainCamera = nullptr;
@@ -32,7 +32,7 @@ namespace Z {
 		std::for_each(registry.view<TransformComponent, SpriteRendererComponent>().begin(),
 		              registry.view<TransformComponent, SpriteRendererComponent>().end(), [&](const auto &item) {
 					Renderer2D::DrawQuad(registry.get<TransformComponent>(item).GetTransform(),
-					                     registry.get<SpriteRendererComponent>(item).color);});
+					                     registry.get<SpriteRendererComponent>(item),uint32_t (item));});
 		Renderer2D::EndScene();
 	}
 	Entity Scene::CreateEntity(const std::string& name) {
@@ -72,7 +72,7 @@ namespace Z {
 		std::for_each(registry.view<TransformComponent, SpriteRendererComponent>().begin(),
 		              registry.view<TransformComponent, SpriteRendererComponent>().end(), [&](const auto &item) {
 					Renderer2D::DrawQuad(registry.get<TransformComponent>(item).GetTransform(),
-					                     registry.get<SpriteRendererComponent>(item).color,float(uint32_t (item)));});
+					                     registry.get<SpriteRendererComponent>(item),uint32_t (item));});
 		Renderer2D::EndScene();
 	}
 

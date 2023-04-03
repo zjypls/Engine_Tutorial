@@ -12,6 +12,7 @@
 #include "Z/Renderer/OrithGraphicCamera.h"
 #include "Z/Renderer/Camera.h"
 #include "Z/Renderer/EditorCamera.h"
+#include "Z/Scene/Components.h"
 #include "SubTex2D.h"
 
 namespace Z {
@@ -20,7 +21,7 @@ namespace Z {
 			glm::vec3 position;
 			glm::vec4 color;
 			glm::vec2 texCoord;
-			float texIndex;
+			int texIndex;
 			float tillingFactor;
 			int EntityID;
 		};
@@ -108,7 +109,7 @@ namespace Z {
 			auto transform=glm::translate(glm::mat4{1.f},position)*glm::rotate(glm::mat4{1.f},rotation,glm::vec3{0.f,0.f,1.f})*glm::scale(glm::mat4{1.f},glm::vec3{size,1.f});
 			DrawQuad(transform,texture,tilingFactor,tintCol);
 		}
-		static void DrawQuad(const glm::mat4 &transform, const glm::vec4 &color,int EntityID=-1);
+		static void DrawQuad(const glm::mat4 &transform, const SpriteRendererComponent &sprite,int EntityID=-1);
 		static void DrawQuad(const glm::mat4 &transform, const Ref<Texture2D> &texture,float tilingFactor=1.f,const glm::vec4& tintCol=glm::vec4 {1.f});
 		static void DrawQuad(const glm::mat4 &transform, const Ref<SubTex2D> &texture,float tilingFactor=1.f,const glm::vec4& tintCol=glm::vec4 {1.f});
 	};

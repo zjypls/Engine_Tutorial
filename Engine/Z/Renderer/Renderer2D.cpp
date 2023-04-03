@@ -23,7 +23,7 @@ namespace Z {
 					{Z::ShaderDataType::Float3, "position"},
 					{Z::ShaderDataType::Float4, "color"},
 					{Z::ShaderDataType::Float2, "texCoord"},
-					{Z::ShaderDataType::Float,  "texIndex"},
+					{Z::ShaderDataType::Int,  "texIndex"},
 					{Z::ShaderDataType::Float,  "tillingFactor"},
 					{Z::ShaderDataType::Int,  "EntityID"},});
 			data->quadVertexBuffer->SetLayout(*layout);
@@ -95,17 +95,32 @@ namespace Z {
 		Flush();
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4 &transform, const glm::vec4 &color,int EntityID) {
+	void Renderer2D::DrawQuad(const glm::mat4 &transform, const SpriteRendererComponent &sprite,int EntityID) {
 		if (data->quadIndexCount >= data->MaxIndexCount) {
 			EndScene();
 		}
 		const glm::vec2 texCords[] = {glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec2(1.0f, 1.0f),
 		                                  glm::vec2(0.0f, 1.0f)};
-		constexpr float textureIndex = 0.0f;
+		int textureIndex = 0;
+
+		if(sprite.texture!= nullptr){
+			for (int i = 0; i < data->textureSlotIndex; ++i) {
+				if (*data->textureSlots[i] == *(sprite.texture)) {
+					textureIndex = i;
+					break;
+				}
+			}
+			if (textureIndex == 0) {
+				textureIndex = data->textureSlotIndex++;
+				data->textureSlots[textureIndex] = (sprite.texture);
+				stats->TextureCount++;
+			}
+		}
+
 		constexpr float tilingFactor = 1.0f;
 		for (int i = 0; i < 4; i++) {
 			data->quadVertexBufferPtr->position = glm::vec3(transform * data->quadVertexPositions[i]);
-			data->quadVertexBufferPtr->color = color;
+			data->quadVertexBufferPtr->color = sprite.color;
 			data->quadVertexBufferPtr->texCoord = texCords[i];
 			data->quadVertexBufferPtr->texIndex = textureIndex;
 			data->quadVertexBufferPtr->tillingFactor = tilingFactor;
@@ -126,15 +141,15 @@ namespace Z {
 			EndScene();
 		}
 
-		float textureIndex = 0.0f;
+		int textureIndex = 0;
 		for (int i = 0; i < data->textureSlotIndex; ++i) {
 			if (*data->textureSlots[i] == *texture) {
 				textureIndex = i;
 				break;
 			}
 		}
-		if (textureIndex == 0.0f) {
-			textureIndex = (float) data->textureSlotIndex++;
+		if (textureIndex == 0) {
+			textureIndex = data->textureSlotIndex++;
 			data->textureSlots[textureIndex] = texture;
 			stats->TextureCount++;
 		}
@@ -163,15 +178,15 @@ namespace Z {
 			EndScene();
 		}
 
-		float textureIndex = 0.0f;
+		int textureIndex = 0;
 		for (int i = 0; i < data->textureSlotIndex; ++i) {
 			if (*data->textureSlots[i] == *texture->GetTex()) {
 				textureIndex = i;
 				break;
 			}
 		}
-		if (textureIndex == 0.0f) {
-			textureIndex = (float) data->textureSlotIndex++;
+		if (textureIndex == 0) {
+			textureIndex = data->textureSlotIndex++;
 			data->textureSlots[textureIndex] = texture->GetTex();
 			stats->TextureCount++;
 		}

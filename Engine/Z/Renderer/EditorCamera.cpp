@@ -5,7 +5,7 @@
 #include "EditorCamera.h"
 #include "Z/Core/Input.h"
 #include "glm/gtx/quaternion.hpp"
-#include "Z/Core/Log.h"
+
 
 namespace Z {
 

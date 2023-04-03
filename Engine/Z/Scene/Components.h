@@ -10,6 +10,7 @@
 #include "glm/gtx/quaternion.hpp"
 #include "SceneCamera.h"
 #include "ScriptEntity.h"
+#include "Z/Renderer/Texture.h"
 
 namespace Z {
 	struct TransformComponent {
@@ -30,6 +31,7 @@ namespace Z {
 
 	struct SpriteRendererComponent {
 		glm::vec4 color{1.f};
+		Ref<Texture2D> texture = nullptr;
 
 		SpriteRendererComponent() = default;
 

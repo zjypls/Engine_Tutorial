@@ -3,11 +3,8 @@
 //
 #include "Z/Core/Core.h"
 #include "ZEditor.h"
-
-#include"glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
-#include <chrono>
 #include "Z/Scene/SceneSerializer.h"
 #include "Z/Utils/ZUtils.h"
 #include "ImGuizmo.h"
@@ -72,6 +69,18 @@ namespace Z {
 		frameBuffer = FrameBuffer::Create(spec);
 		scene = CreateRef<Scene>();
 		editorCamera = Z::EditorCamera(45.f, 1200.f / 800.f, 0.1f, 1000.f);
+		auto nahida = scene->CreateEntity("Nahida");
+		auto &tex = nahida.AddComponent<SpriteRendererComponent>();
+		tex.texture = texture[2];
+		auto _sceneCamera = scene->CreateEntity("SceneCamera");
+		auto &_camera = _sceneCamera.AddComponent<CameraComponent>();
+		_camera.camera.OnViewportResize(1200, 800);
+		_camera.camera.SetProjectionType(SceneCamera::ProjectionType::Perspective);
+		auto&_Transform=_sceneCamera.GetComponent<TransformComponent>();
+		_Transform.translation={0,0,3};
+		playButtonIcon = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR) + "/Assets/Icons/PlayButton.png");
+		stopButtonIcon = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR) + "/Assets/Icons/StopButton.png");
+		currentButtonIcon = playButtonIcon;
 /*
 		cameraEntity = scene->CreateEntity("Camera");
 		cameraEntity.AddComponent<CameraComponent>(glm::ortho(-16.f, 16.f, -9.f, 9.f, -1.f, 1.f));
@@ -116,7 +125,7 @@ namespace Z {
 */
 
 		sceneHierarchyPlane = CreateRef<SceneHierarchyPlane>(scene);
-		contentBrowser=CreateRef<ContentBrowser>();
+		contentBrowser = CreateRef<ContentBrowser>();
 
 	}
 
@@ -125,21 +134,32 @@ namespace Z {
 
 	void EditorLayer::OnUpdate() {
 		frameBuffer->Bind();
-		if (IsViewportFocused) {
-			controller.OnUpdate(Time::DeltaTime());
-			editorCamera.OnUpdate();
-		}
+
 		RenderCommand::SetClearValue(clearValue);
 		RenderCommand::Clear();
 
 		frameBuffer->ClearAttachment(1, -1);
 
-		scene->OnEditorUpdate(Time::DeltaTime(), editorCamera);
+		switch (sceneState) {
+			case SceneState::Edit:{
+				if (IsViewportFocused) {
+					controller.OnUpdate(Time::DeltaTime());
+					editorCamera.OnUpdate();
+				}
+				scene->OnEditorUpdate(Time::DeltaTime(), editorCamera);
+				break;
+			}
+			case SceneState::Play:{
+				scene->OnUpdate(Time::DeltaTime());
+				break;
+			}
+		}
 
-		if (IsViewportFocused && IsViewportHovered &&!ImGuizmo::IsOver()&&!Input::IsKeyPressed(KeyCode::LeftAlt)&& Input::IsMouseButtonPressed(MouseCode::ButtonLeft)) {
+
+		if (IsViewportFocused && IsViewportHovered && !ImGuizmo::IsOver() && !Input::IsKeyPressed(KeyCode::LeftAlt) &&
+		    Input::IsMouseButtonPressed(MouseCode::ButtonLeft)) {
 			auto value = frameBuffer->GetPixel(CursorPos.x, CursorPos.y);
 			sceneHierarchyPlane->SetSelectedEntity(value);
-			//Z_CORE_WARN("Selected Entity: {0}",value);
 		}
 		frameBuffer->UnBind();
 	}
@@ -229,11 +249,6 @@ namespace Z {
 		auto viewSize = ImGui::GetContentRegionAvail();
 		if (IsViewportFocused && IsViewportHovered && viewportSize.y != 0 && viewportSize.x != 0 &&
 		    Z::Input::IsMouseButtonPressed(Z::MouseCode::ButtonLeft)) {
-//			auto cursorPos = ImGui::GetMousePosOnOpeningCurrentPopup();
-//			auto TextPos = ImGui::GetWindowPos();
-//			cursorPos = cursorPos - TextPos;
-//			//cursorPos = cursorPos / ImGui::GetWindowSize();
-//			CursorPos = glm::vec2{cursorPos.x,viewSize.y- cursorPos.y};
 
 			auto cursorPos = ImGui::GetMousePos();
 			auto offset = ImGui::GetWindowPos();
@@ -244,7 +259,6 @@ namespace Z {
 		}
 		Application::Get().GetImGuiLayer()->SetBlockEvents(!IsViewportFocused && !IsViewportHovered);
 
-		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
 		if (viewportSize != *(glm::vec2 *) &viewSize) {
 			viewportSize = glm::vec2{viewSize.x, viewSize.y};
 			frameBuffer->Resize(viewportSize.x, viewportSize.y);
@@ -254,11 +268,10 @@ namespace Z {
 		}
 		uint32_t textureID = showID ? frameBuffer->GetAttachmentID(1) : frameBuffer->GetAttachmentID(0);
 		ImGui::Image((void *) textureID, viewSize, ImVec2{0, 1}, ImVec2{1, 0});
-		//ImGuizmo
 
-		if(ImGui::BeginDragDropTarget()){
-			if(const ImGuiPayload* payload=ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
-				const char* path=(const char*)payload->Data;
+		if (ImGui::BeginDragDropTarget()) {
+			if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")) {
+				const char *path = (const char *) payload->Data;
 				LoadScene(path);
 			}
 		}
@@ -289,13 +302,16 @@ namespace Z {
 
 		ImGui::PopStyleVar();
 		ImGui::End();
+		On_UI();
 
 		ImGui::End();
 	}
 
 	void EditorLayer::OnEvent(Event &event) {
 		controller.OnEvent(event);
-		editorCamera.OnEvent(event);
+		if (IsViewportHovered) {
+			editorCamera.OnEvent(event);
+		}
 		EventDispatcher dispatcher(event);
 		dispatcher.Handle<KeyPressEvent>(Z_BIND_EVENT_FUNC(EditorLayer::OnKeyPressed));
 	}
@@ -355,6 +371,39 @@ namespace Z {
 	void EditorLayer::NewScene() {
 		scene = CreateRef<Scene>();
 		sceneHierarchyPlane->SetContext(scene);
+	}
+
+	void EditorLayer::On_UI() {
+		ImGui::Begin("##tools", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar |
+		                                   ImGuiWindowFlags_NoScrollWithMouse);
+		float size=ImGui::GetWindowHeight()-4;
+		ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x/2-ImGui::GetWindowHeight()/2);
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{0, 0});
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{0, 2});
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0, 0, 0, 0});
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.3, 0.3, 0.3, 0.5});
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0, 0, 0, 0});
+		if (ImGui::ImageButton((ImTextureID) currentButtonIcon->GetRendererID(), ImVec2{size, size}, ImVec2{0, 1},
+		                       ImVec2{1, 0})) {
+			if (sceneState == SceneState::Edit) {
+				OnPlay();
+			}else if(sceneState == SceneState::Play){
+				OnStop();
+			}
+		}
+		ImGui::PopStyleColor(3);
+		ImGui::PopStyleVar(2);
+		ImGui::End();
+	}
+
+	void EditorLayer::OnPlay() {
+		sceneState = SceneState::Play;
+		currentButtonIcon = stopButtonIcon;
+	}
+
+	void EditorLayer::OnStop() {
+		sceneState = SceneState::Edit;
+		currentButtonIcon = playButtonIcon;
 	}
 
 

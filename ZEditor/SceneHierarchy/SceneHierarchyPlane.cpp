@@ -4,6 +4,7 @@
 
 #include "SceneHierarchyPlane.h"
 #include "Z/Scene/Components.h"
+#include <filesystem>
 #include "imgui/imgui.h"
 #include "imgui_internal.h"
 
@@ -165,6 +166,17 @@ namespace Z {
 		DrawComponent<SpriteRendererComponent>("SpriteRenderer", entity,
 		                                       [](SpriteRendererComponent &spriteRenderer) {
 			                                       ImGui::ColorEdit4("Color", &spriteRenderer.color[0]);
+												   ImGui::Image(spriteRenderer.texture.get()== nullptr ? nullptr :
+														   (void *) spriteRenderer.texture->GetRendererID(),
+																ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
+												   if(ImGui::BeginDragDropTarget()){
+													   if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
+														   const char* path = (const char*)payload->Data;
+														   Z_CORE_ASSERT(std::filesystem::exists(path), "Path does not exist!");
+														   spriteRenderer.texture = Texture2D::CreateTexture(path);
+													   }
+													   ImGui::EndDragDropTarget();
+												   }
 		                                       });
 		DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent &component) {
 			auto &camera = component.camera;

@@ -32,5 +32,4 @@
 #include"Z/Scene/Scene.h"
 #include"Z/Scene/Entity.h"
 #include"Z/Scene/ScriptEntity.h"
-#include"Z/Scene/Components.h"
 #endif //ENGINE_TUTORIAL_Z_H

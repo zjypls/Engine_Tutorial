@@ -54,7 +54,6 @@ namespace Z {
 		glTextureParameteri(ID,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 		glTextureParameteri(ID,GL_TEXTURE_WRAP_S,GL_REPEAT);
 		glTextureParameteri(ID,GL_TEXTURE_WRAP_T,GL_REPEAT);
-
 	}
 
 	void OpenGLTexture2D::SetData(void *data, unsigned int size) {
