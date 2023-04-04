@@ -8,7 +8,6 @@ include_directories(Include/glad/include depends)
 include_directories(${ImGuiPath}/backends depends)
 
 include_directories($ENV{VK_SDK_PATH}/Include depends)
-=======
 include_directories(Include/box2d/include depends)
 
 
