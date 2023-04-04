@@ -6,7 +6,12 @@ include_directories(Include/GLFW/include depends)
 include_directories(Include/glm depends)
 include_directories(Include/glad/include depends)
 include_directories(${ImGuiPath}/backends depends)
+
 include_directories($ENV{VK_SDK_PATH}/Include depends)
+=======
+include_directories(Include/box2d/include depends)
+
+
 add_compile_definitions(GLFW_INCLUDE_NONE)
 file(GLOB src CONFIGURE_DEPENDS
         Z/Core/*.h Z/Core/*.cpp
@@ -27,7 +32,9 @@ add_library(Z STATIC ${src})
 
 
 target_include_directories(Z PUBLIC depends)
+
 target_link_libraries(Z PUBLIC GLFW glad ImGui yaml shaderc_sharedd spirv-cross-cored spirv-cross-glsld)
+
 
 
 target_compile_definitions(Z PUBLIC Z_PLATFORM_WIN32 GLFW_INCLUDE_NONE Z_SOURCE_DIR)

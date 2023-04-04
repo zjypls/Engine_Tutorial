@@ -19,3 +19,6 @@
 [submodule "Engine/Include/ImGuizmo"]
 	path = Engine/Include/ImGuizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo.git
+[submodule "Engine/Include/box2d"]
+	path = Engine/Include/box2d
+	url = https://github.com/zjypls/box2d.git
