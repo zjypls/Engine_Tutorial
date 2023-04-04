@@ -7,7 +7,6 @@
 
 #include "Z/Core/Core.h"
 #include "Z/Scene/Entity.h"
-#include"Z/Scene/Scene.h"
 
 namespace Z {
 	class SceneHierarchyPlane {

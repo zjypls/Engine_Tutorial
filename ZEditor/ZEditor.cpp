@@ -76,8 +76,8 @@ namespace Z {
 		auto &_camera = _sceneCamera.AddComponent<CameraComponent>();
 		_camera.camera.OnViewportResize(1200, 800);
 		_camera.camera.SetProjectionType(SceneCamera::ProjectionType::Perspective);
-		auto&_Transform=_sceneCamera.GetComponent<TransformComponent>();
-		_Transform.translation={0,0,3};
+		auto &_Transform = _sceneCamera.GetComponent<TransformComponent>();
+		_Transform.translation = {0, 0, 3};
 		playButtonIcon = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR) + "/Assets/Icons/PlayButton.png");
 		stopButtonIcon = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR) + "/Assets/Icons/StopButton.png");
 		currentButtonIcon = playButtonIcon;
@@ -141,7 +141,7 @@ namespace Z {
 		frameBuffer->ClearAttachment(1, -1);
 
 		switch (sceneState) {
-			case SceneState::Edit:{
+			case SceneState::Edit: {
 				if (IsViewportFocused) {
 					controller.OnUpdate(Time::DeltaTime());
 					editorCamera.OnUpdate();
@@ -149,7 +149,7 @@ namespace Z {
 				scene->OnEditorUpdate(Time::DeltaTime(), editorCamera);
 				break;
 			}
-			case SceneState::Play:{
+			case SceneState::Play: {
 				scene->OnUpdate(Time::DeltaTime());
 				break;
 			}
@@ -262,7 +262,7 @@ namespace Z {
 		uint32_t textureID = showID ? frameBuffer->GetAttachmentID(1) : frameBuffer->GetAttachmentID(0);
 		ImGui::Image((void *) textureID, viewSize, ImVec2{0, 1}, ImVec2{1, 0});
 
-		if ((viewportSize != *(glm::vec2 *) &viewSize)&&!Input::IsMouseButtonPressed(MouseCode::ButtonLeft)) {
+		if ((viewportSize != *(glm::vec2 *) &viewSize) && !Input::IsMouseButtonPressed(MouseCode::ButtonLeft)) {
 			viewportSize = glm::vec2{viewSize.x, viewSize.y};
 			frameBuffer->Resize(viewportSize.x, viewportSize.y);
 			scene->OnViewportResize(viewportSize.x, viewportSize.y);
@@ -309,12 +309,116 @@ namespace Z {
 
 	void EditorLayer::OnEvent(Event &event) {
 		controller.OnEvent(event);
-		if (IsViewportHovered) {
+		if (IsViewportHovered&&IsViewportFocused) {
 			editorCamera.OnEvent(event);
 		}
 		EventDispatcher dispatcher(event);
 		dispatcher.Handle<KeyPressEvent>(Z_BIND_EVENT_FUNC(EditorLayer::OnKeyPressed));
 	}
+
+	void EditorLayer::SaveScene() {
+		auto path = Z::Utils::FileSave("*.zscene");
+		if (!path.empty()) {
+			InnerSave(path);
+		}
+	}
+
+
+	void EditorLayer::SaveHotKey() {
+		if (sceneState == SceneState::Edit && !WorkPath.empty()) {
+			InnerSave(WorkPath.string());
+		} else {
+			SaveScene();
+		}
+	}
+
+	void EditorLayer::InnerSave(const std::string &path) {
+		SceneSerializer serializer(scene);
+		serializer.Serialize(path);
+	}
+
+	void EditorLayer::LoadScene() {
+		auto path = Z::Utils::FileOpen("*.zscene");
+		if (!path.empty()) {
+			LoadScene(path);
+		}
+	}
+
+	void EditorLayer::LoadScene(const std::string &path) {
+		if (sceneState != SceneState::Edit) {
+			OnStop();
+		}
+		scene = CreateRef<Scene>();
+		scene->OnViewportResize(viewportSize.x, viewportSize.y);
+		sceneHierarchyPlane->SetContext(scene);
+		SceneSerializer serializer(scene);
+		if (serializer.Deserialize(path)) {
+			WorkPath = path;
+		}
+	}
+
+	void EditorLayer::NewScene() {
+		scene = CreateRef<Scene>();
+		sceneHierarchyPlane->SetContext(scene);
+		WorkPath = std::filesystem::path();
+	}
+
+	void EditorLayer::On_UI() {
+		ImGui::Begin("##tools");
+		float size = ImGui::GetWindowHeight();
+		ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x / 2 - ImGui::GetWindowHeight() / 2);
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{0, 0});
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{0, 0});
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0, 0, 0, 0});
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.3, 0.3, 0.3, 0.5});
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0, 0, 0, 0});
+		if (ImGui::ImageButton((ImTextureID) currentButtonIcon->GetRendererID(), ImVec2{size, size}, ImVec2{0, 1},
+		                       ImVec2{1, 0})) {
+			if (sceneState == SceneState::Edit) {
+				OnPlay();
+			} else if (sceneState == SceneState::Play) {
+				OnStop();
+			}
+		}
+		ImGui::PopStyleColor(3);
+		ImGui::PopStyleVar(3);
+		ImGui::End();
+	}
+
+	void EditorLayer::OnPlay() {
+		sceneState = SceneState::Play;
+		currentButtonIcon = stopButtonIcon;
+		BackScene = scene;
+		scene = Scene::Copy(BackScene);
+		scene->OnViewportResize(viewportSize.x, viewportSize.y);
+		sceneHierarchyPlane->SetContext(scene);
+		scene->OnRuntimeStart();
+		return;
+		scene->OnRuntimeStart();
+		SceneSerializer serializer(scene);
+		serializer.SerializeRuntime(data);
+	}
+
+	void EditorLayer::OnStop() {
+		sceneState = SceneState::Edit;
+		currentButtonIcon = playButtonIcon;
+		scene->OnRuntimeStop();
+		scene = BackScene;
+		sceneHierarchyPlane->SetContext(scene);
+		scene->OnViewportResize(viewportSize.x, viewportSize.y);
+
+
+		return;
+		scene->OnRuntimeStop();
+		scene = CreateRef<Scene>();
+		sceneHierarchyPlane->SetContext(scene);
+		scene->OnViewportResize(viewportSize.x, viewportSize.y);
+		SceneSerializer serializer(scene);
+		serializer.DeserializeRuntime(data);
+		data.str("");
+	}
+
 
 	bool EditorLayer::OnKeyPressed(KeyPressEvent &event) {
 		bool control = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
@@ -327,7 +431,15 @@ namespace Z {
 				if (control) LoadScene();
 				break;
 			case Key::S:
-				if (control && shift) SaveScene();
+				if (control)
+					if (shift) {
+						if (WorkPath.empty()) {
+							Z_CORE_WARN("WorkPath is empty Save to ./Untitled.zscene");
+							WorkPath = "./Untitled.zscene";
+						}
+						InnerSave(WorkPath.string());
+					} else
+						SaveHotKey();
 				break;
 			case Key::Q:
 				currentGizmoOperation = -1;
@@ -341,73 +453,14 @@ namespace Z {
 			case Key::R:
 				currentGizmoOperation = ImGuizmo::OPERATION::ROTATE;
 				break;
+			case Key::D:
+				if (sceneState == SceneState::Edit)
+					if (auto et = sceneHierarchyPlane->GetSelectedEntity();shift && et) {
+						scene->CopyEntity(et);
+					}
+				break;
 		}
 		return false;
 	}
-
-	void EditorLayer::SaveScene() {
-		auto path = Z::Utils::FileSave("*.zscene");
-		if (!path.empty()) {
-			SceneSerializer serializer(scene);
-			serializer.Serialize(Z::Utils::FileSave("*.zscene"));
-		}
-	}
-
-	void EditorLayer::LoadScene() {
-		auto path = Z::Utils::FileOpen("*.zscene");
-		if (!path.empty()) {
-			LoadScene(path);
-		}
-	}
-
-	void EditorLayer::LoadScene(const std::string &path) {
-		scene = CreateRef<Scene>();
-		scene->OnViewportResize(viewportSize.x, viewportSize.y);
-		sceneHierarchyPlane->SetContext(scene);
-		SceneSerializer serializer(scene);
-		serializer.Deserialize(path);
-	}
-
-	void EditorLayer::NewScene() {
-		scene = CreateRef<Scene>();
-		sceneHierarchyPlane->SetContext(scene);
-	}
-
-	void EditorLayer::On_UI() {
-		ImGui::Begin("##tools", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar |
-		                                   ImGuiWindowFlags_NoScrollWithMouse);
-		float size=ImGui::GetWindowHeight()-4;
-		ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x/2-ImGui::GetWindowHeight()/2);
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{0, 0});
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{0, 2});
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0, 0, 0, 0});
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.3, 0.3, 0.3, 0.5});
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0, 0, 0, 0});
-		if (ImGui::ImageButton((ImTextureID) currentButtonIcon->GetRendererID(), ImVec2{size, size}, ImVec2{0, 1},
-		                       ImVec2{1, 0})) {
-			if (sceneState == SceneState::Edit) {
-				OnPlay();
-			}else if(sceneState == SceneState::Play){
-				OnStop();
-			}
-		}
-		ImGui::PopStyleColor(3);
-		ImGui::PopStyleVar(2);
-		ImGui::End();
-	}
-
-	void EditorLayer::OnPlay() {
-		sceneState = SceneState::Play;
-		currentButtonIcon = stopButtonIcon;
-		backData.gizmoOperation = currentGizmoOperation;
-		currentGizmoOperation = -1;
-	}
-
-	void EditorLayer::OnStop() {
-		sceneState = SceneState::Edit;
-		currentButtonIcon = playButtonIcon;
-		currentGizmoOperation = backData.gizmoOperation;
-	}
-
 
 }

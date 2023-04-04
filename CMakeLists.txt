@@ -48,7 +48,7 @@ add_subdirectory(Engine/Include/Box2D)
 
 add_subdirectory(Engine)
 
-add_dependencies(Z glad GLFW ImGui)
+add_dependencies(Z glad GLFW ImGui Box2D)
 #add_subdirectory(Test)
 
 add_subdirectory(ZEditor)

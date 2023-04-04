@@ -13,9 +13,9 @@ namespace Z {
 		SceneSerializer(const Ref<Scene>& scene);
 
 		void Serialize(const std::string& filepath);
-		void SerializeRuntime(const std::string& filepath);
+		void SerializeRuntime(std::stringstream& filepath);
 		bool Deserialize(const std::string& filepath);
-		bool DeserializeRuntime(const std::string& filepath);
+		bool DeserializeRuntime(std::stringstream& filepath);
 	private:
 		Ref<Scene> scene;
 	};

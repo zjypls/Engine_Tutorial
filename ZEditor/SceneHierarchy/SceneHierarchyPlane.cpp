@@ -1,9 +1,8 @@
 //
 // Created by 32725 on 2023/3/28.
 //
-
-#include "SceneHierarchyPlane.h"
 #include "Z/Scene/Components.h"
+#include "SceneHierarchyPlane.h"
 #include <filesystem>
 #include "imgui/imgui.h"
 #include "imgui_internal.h"
@@ -146,11 +145,21 @@ namespace Z {
 			ImGui::OpenPopup("AddComponent");
 		}
 		if (ImGui::BeginPopup("AddComponent")) {//Todo:Change logic
-			if (ImGui::MenuItem("Camera")) {
+			if (!entity.HasComponent<CameraComponent>()&&ImGui::MenuItem("Camera")) {
 				selectedEntity.AddComponent<CameraComponent>();//Todo:Change logic
 			}
-			if (ImGui::MenuItem("Sprite Renderer")) {
+			if (!entity.HasComponent<SpriteRendererComponent>()&&ImGui::MenuItem("Sprite Renderer")) {
 				selectedEntity.AddComponent<SpriteRendererComponent>();//Todo:Change logic
+			}
+			if (!entity.HasComponent<CircleRendererComponent>()&&ImGui::MenuItem("Circle Renderer")) {
+				selectedEntity.AddComponent<CircleRendererComponent>();//Todo:Change logic
+			}
+			if (!entity.HasComponent<RigidBody2DComponent>()&&ImGui::MenuItem("RigidBody2D")) {
+				selectedEntity.AddComponent<RigidBody2DComponent>();//Todo:Change logic
+			}
+			if (!entity.HasComponent<BoxCollider2DComponent>()&&ImGui::MenuItem("BoxCollider2D")) {
+				if(!entity.HasComponent<RigidBody2DComponent>()){ selectedEntity.AddComponent<RigidBody2DComponent>(); }
+				selectedEntity.AddComponent<BoxCollider2DComponent>();//Todo:Change logic
 			}
 			ImGui::EndPopup();
 		}
@@ -178,6 +187,10 @@ namespace Z {
 													   ImGui::EndDragDropTarget();
 												   }
 		                                       });
+		DrawComponent<CircleRendererComponent>("CircleRenderer", entity, [](CircleRendererComponent &component) {
+			ImGui::ColorEdit4("Color", &component.color[0]);
+			ImGui::DragFloat("thick", &component.thickness);
+		});
 		DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent &component) {
 			auto &camera = component.camera;
 			if (ImGui::Checkbox("Primary", &component.primary)) {
@@ -220,6 +233,19 @@ namespace Z {
 					camera.SetOrthographicFarClip(farClip);
 				}
 			}
+		});
+		DrawComponent<RigidBody2DComponent>("RigidBody2D", entity, [](RigidBody2DComponent &component) {
+			ImGui::Checkbox("Fixed Rotation", &component.fixedRotation);
+			if(int i=(int)component.bodyType;ImGui::Combo("Body Type", &i, "Static\0Dynamic\0Kinematic\0\0"))component.bodyType=(RigidBody2DComponent::BodyType)i;
+		});
+		DrawComponent<BoxCollider2DComponent>("BoxCollider2D", entity, [](BoxCollider2DComponent &component) {
+			ImGui::Checkbox("Is Trigger", &component.isTrigger);
+			ImGui::DragFloat2("Size", &component.size.x);
+			ImGui::DragFloat2("Offset", &component.offset.x);
+			ImGui::DragFloat("Density", &component.density,.1f);
+			ImGui::DragFloat("Friction", &component.friction,.05f);
+			ImGui::DragFloat("Restitution", &component.restitution,.05f);
+			ImGui::DragFloat("MinRestitution", &component.MinRestitution,.05f);
 		});
 	}
 

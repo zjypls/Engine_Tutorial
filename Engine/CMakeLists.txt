@@ -32,7 +32,7 @@ add_library(Z STATIC ${src})
 
 target_include_directories(Z PUBLIC depends)
 
-target_link_libraries(Z PUBLIC GLFW glad ImGui yaml shaderc_sharedd spirv-cross-cored spirv-cross-glsld)
+target_link_libraries(Z PUBLIC GLFW glad ImGui yaml Box2D shaderc_sharedd spirv-cross-cored spirv-cross-glsld)
 
 
 

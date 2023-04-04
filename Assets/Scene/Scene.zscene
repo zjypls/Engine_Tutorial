@@ -1,29 +1,79 @@
 Scene: Untitled
 Entities:
-  - Entity: NewSquare
+  - Entity: 3588056353811798452
     TagComponent:
-      Tag: NewSquare
+      Tag: SceneCamera
     TransformComponent:
-      Translation: [0.734870076, -0.467763543, 2.48414588]
-      Rotation: [0, -0, 0]
+      Translation: [0, -1, 14.3000002]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 0.785398185
+        PerspectiveNear: 0.00999999978
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+        Primary: true
+  - Entity: 17886974942966071623
+    TagComponent:
+      Tag: Nahida
+    TransformComponent:
+      Translation: [1.32897925, -2.72237921, -0.0579972938]
+      Rotation: [0.00333901308, 0.0553032421, 0.473389983]
+      Scale: [7.33801079, 0.999999642, 0.999999762]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+    RigidBody2DComponent:
+      bodyType: Static
+      fixedRotation: false
+    BoxCollider2DComponent:
+      size: [1, 1]
+      offset: [0, 0]
+      IsTrigger: false
+      Density: 1
+      Friction: 0.100000001
+      Restitution: 0.5
+      MinRestitution: 0.100000001
+  - Entity: 9734649343298125907
+    TagComponent:
+      Tag: Nahida
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
     SpriteRendererComponent:
-      Color: [0, 1, 0, 0.513725519]
-  - Entity: Square
+      Color: [1, 1, 1, 1]
+    RigidBody2DComponent:
+      bodyType: Dynamic
+      fixedRotation: false
+    BoxCollider2DComponent:
+      size: [1, 1]
+      offset: [0, 0]
+      IsTrigger: false
+      Density: 1
+      Friction: 0.100000001
+      Restitution: 0.5
+      MinRestitution: 0.100000001
+  - Entity: 17292583723439473738
     TagComponent:
-      Tag: Square
+      Tag: Nahida
     TransformComponent:
-      Translation: [0.0619322285, -0.700250089, 1.37113869]
-      Rotation: [0, -0, 0]
-      Scale: [1, 1, 1]
+      Translation: [-3.50077534, -5.51965618, 0.0142794205]
+      Rotation: [0.0203376617, 0.0895320997, 0.799272299]
+      Scale: [0.99999994, 10.7176638, 1]
     SpriteRendererComponent:
-      Color: [1, 0, 0, 0.678431392]
-  - Entity: Empty Entity
-    TagComponent:
-      Tag: Empty Entity
-    TransformComponent:
-      Translation: [0.272954226, -0.480982035, 0.99408412]
-      Rotation: [0, -0, 0]
-      Scale: [1.29999995, 1.29999995, 1.29999995]
-    SpriteRendererComponent:
-      Color: [0, 0, 1, 0.666666687]
+      Color: [1, 1, 1, 1]
+    RigidBody2DComponent:
+      bodyType: Static
+      fixedRotation: false
+    BoxCollider2DComponent:
+      size: [1, 1]
+      offset: [0, 0]
+      IsTrigger: false
+      Density: 1
+      Friction: 0.100000001
+      Restitution: 0.5
+      MinRestitution: 0.100000001

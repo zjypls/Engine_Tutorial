@@ -29,35 +29,44 @@ namespace Z {
 
 		bool operator!=(const Entity &other) const { return !(*this == other); }
 
-		template<class _Ty>
-		_Ty &GetComponent() {
-			Z_CORE_ASSERT(HasComponent<_Ty>(), "Entity does not have component!");
-			return scene->registry.get<_Ty>(handle);
+		template<class Ty>
+		Ty &GetComponent() const{
+			Z_CORE_ASSERT(HasComponent<Ty>(), "Entity does not have component!");
+			return scene->registry.get<Ty>(handle);
 		}
 
-		template<class _Ty>
-		bool HasComponent() {
-			return scene->registry.any_of<_Ty>(handle);
+		unsigned long long GetUID();
+		const std::string& GetName() const ;
+
+		template<class Ty>
+		bool HasComponent() const{
+			return scene->registry.any_of<Ty>(handle);
 		}
 
-		template<class _Ty, class ...Args>
-		_Ty &AddComponent(Args &&... args) {
-			if (!HasComponent<_Ty>()) {
-				auto& component= scene->registry.emplace<_Ty>(handle, std::forward<Args>(args)...);
-				scene->OnComponentAdd<_Ty>(*this, component);
+		template<class Ty, class ...Args>
+		Ty &AddComponent(Args &&... args) {
+			if (!HasComponent<Ty>()) {
+				auto& component= scene->registry.emplace<Ty>(handle, std::forward<Args>(args)...);
+				scene->OnComponentAdd<Ty>(*this, component);
 				return component;
 			}
 			else{
-				Z_CORE_WARN("Entity already has component:{0}!", typeid(_Ty).name());
-				return GetComponent<_Ty>();
+				Z_CORE_WARN("Entity already has component:{0}!", typeid(Ty).name());
+				return GetComponent<Ty>();
 			}
-
 		}
 
-		template<class _Ty>
+		template<class Ty,class ...Args>
+		Ty& AddOrReplaceComponent(Args&&... args){
+			auto&component= scene->registry.emplace_or_replace<Ty>(handle, std::forward<Args>(args)...);
+			scene->OnComponentAdd<Ty>(*this, component);
+			return component;
+		}
+
+		template<class Ty>
 		void RemoveComponent() {
-			Z_CORE_ASSERT(HasComponent<_Ty>(), "Entity does not have component!");
-			scene->registry.remove<_Ty>(handle);
+			Z_CORE_ASSERT(HasComponent<Ty>(), "Entity does not have component!");
+			scene->registry.remove<Ty>(handle);
 		}
 
 	};

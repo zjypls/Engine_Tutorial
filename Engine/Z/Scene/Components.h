@@ -4,15 +4,21 @@
 
 #ifndef ENGINE_TUTORIAL_COMPENENTS_H
 #define ENGINE_TUTORIAL_COMPONENTS_H
-
+#include "Z/Core/GUID.h"
+#include "SceneCamera.h"
+#include "Z/Renderer/Texture.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/quaternion.hpp"
-#include "SceneCamera.h"
-#include "ScriptEntity.h"
-#include "Z/Renderer/Texture.h"
 
 namespace Z {
+
+	struct IDComponent{
+		GUID ID{};
+		IDComponent()=default;
+		IDComponent(const GUID& id):ID(id){}
+	};
+
 	struct TransformComponent {
 		glm::vec3 translation{0.f};
 		glm::vec3 rotation{0.f};
@@ -36,6 +42,19 @@ namespace Z {
 		SpriteRendererComponent() = default;
 
 		SpriteRendererComponent(const glm::vec4 &color) : color(color) {}
+
+		inline glm::vec4 &operator()() { return color; }
+
+		inline const glm::vec4 &operator()() const { return color; }
+	};
+
+	struct CircleRendererComponent {
+		glm::vec4 color{1.f};
+		float thickness = 1.f;
+
+		CircleRendererComponent() = default;
+
+		CircleRendererComponent(const glm::vec4 &color) : color(color) {}
 
 		inline glm::vec4 &operator()() { return color; }
 
@@ -68,7 +87,7 @@ namespace Z {
 
 		inline const Camera &operator()() const { return camera; }
 	};
-
+	class ScriptEntity;
 	struct ScriptComponent {
 		ScriptEntity* instance;
 		ScriptEntity* (*onConstruct)();
@@ -79,6 +98,37 @@ namespace Z {
 			onConstruct=[]()->ScriptEntity*{auto res=(new _Ty());return res;};
 			onDestruct=[](ScriptEntity* ins){delete (_Ty*)ins;ins= nullptr;};
 		}
+	};
+
+
+
+	struct RigidBody2DComponent{
+		enum class BodyType{
+			Static,
+			Dynamic,
+			Kinematic
+		};
+		BodyType bodyType{BodyType::Static};
+		bool fixedRotation{false};
+
+		//Todo : change
+		void* ptr= nullptr;
+		RigidBody2DComponent()=default;
+
+	};
+
+	struct BoxCollider2DComponent{
+		glm::vec2 offset{0.f,0.f};
+		glm::vec2 size{1.f,1.f};
+		bool isTrigger{false};
+		//Todo : change
+		void* ptr= nullptr;
+
+		float density{0.5f};
+		float friction{0.5f};
+		float restitution{0.f};
+		float MinRestitution{0.5f};
+		BoxCollider2DComponent()=default;
 	};
 
 }

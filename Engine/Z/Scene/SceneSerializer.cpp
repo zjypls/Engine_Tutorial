@@ -8,6 +8,7 @@
 #include "Entity.h"
 #include "Components.h"
 
+
 namespace YAML {
 	template<>
 	struct convert<glm::vec3> {
@@ -28,6 +29,26 @@ namespace YAML {
 			rhs.z = node[2].as<float>();
 			return true;
 		}
+	};
+
+	template<>
+	struct convert<glm::vec2> {
+		static Node encode(const glm::vec2 &rhs) {
+			Node node;
+			node.push_back(rhs.x);
+			node.push_back(rhs.y);
+			return node;
+		}
+
+		static bool decode(const Node &node, glm::vec2 &rhs) {
+			if (!node.IsSequence() || node.size() != 2) {
+				return false;
+			}
+			rhs.x = node[0].as<float>();
+			rhs.y = node[1].as<float>();
+			return true;
+		}
+
 	};
 
 	template<>
@@ -58,6 +79,38 @@ namespace YAML {
 
 namespace Z {
 
+	inline std::string ToString(RigidBody2DComponent::BodyType type) {
+		switch (type) {
+			case RigidBody2DComponent::BodyType::Static:
+				return "Static";
+			case RigidBody2DComponent::BodyType::Dynamic:
+				return "Dynamic";
+			case RigidBody2DComponent::BodyType::Kinematic:
+				return "Kinematic";
+		}
+		Z_CORE_ASSERT(false, "Unknown RigidBody2DComponent::BodyType!");
+		return "Unknown";
+	}
+
+	inline RigidBody2DComponent::BodyType ToBodyType(const std::string &type) {
+		if (type == "Static") {
+			return RigidBody2DComponent::BodyType::Static;
+		}
+		if (type == "Dynamic") {
+			return RigidBody2DComponent::BodyType::Dynamic;
+		}
+		if (type == "Kinematic") {
+			return RigidBody2DComponent::BodyType::Kinematic;
+		}
+		Z_CORE_ASSERT(false, "Unknown RigidBody2DComponent::BodyType!");
+		return RigidBody2DComponent::BodyType::Static;
+	}
+
+	YAML::Emitter &operator<<(YAML::Emitter &out, const glm::vec2 &vec) {
+		out << YAML::Flow << YAML::BeginSeq << vec.x << vec.y << YAML::EndSeq;
+		return out;
+	}
+
 	YAML::Emitter &operator<<(YAML::Emitter &out, const glm::vec3 &vec) {
 		out << YAML::Flow << YAML::BeginSeq << vec.x << vec.y << vec.z << YAML::EndSeq;
 		return out;
@@ -68,13 +121,17 @@ namespace Z {
 		return out;
 	}
 
+	YAML::Emitter &operator<<(YAML::Emitter &out, RigidBody2DComponent::BodyType type) {
+		return out << YAML::Flow << ToString(type);
+	}
+
 	SceneSerializer::SceneSerializer(const Ref<Scene> &scene) : scene(scene) {
 
 	}
 
 	static void SerializerEntity(YAML::Emitter &out, Entity entity) {
 		out << YAML::BeginMap;
-		out << YAML::Key << "Entity" << YAML::Value << entity.GetComponent<TagComponent>().tag;
+		out << YAML::Key << "Entity" << YAML::Value << entity.GetUID();
 		auto &tag = entity.GetComponent<TagComponent>();
 		{
 			out << YAML::Key << "TagComponent";
@@ -82,7 +139,7 @@ namespace Z {
 			out << YAML::Key << "Tag" << YAML::Value << tag.tag;
 			out << YAML::EndMap;
 		}
-
+		//
 		{
 			out << YAML::Key << "TransformComponent";
 			out << YAML::BeginMap;
@@ -117,6 +174,27 @@ namespace Z {
 			out << YAML::Key << "Color" << YAML::Value << sprite.color;
 			out << YAML::EndMap;
 		}
+		if (entity.HasComponent<RigidBody2DComponent>()) {
+			out << YAML::Key << "RigidBody2DComponent";
+			out << YAML::BeginMap;
+			auto &rigid2D = entity.GetComponent<RigidBody2DComponent>();
+			out << YAML::Key << "bodyType" << YAML::Value << rigid2D.bodyType;
+			out << YAML::Key << "fixedRotation" << YAML::Value << rigid2D.fixedRotation;
+			out << YAML::EndMap;
+		}
+		if (entity.HasComponent<BoxCollider2DComponent>()) {
+			out << YAML::Key << "BoxCollider2DComponent";
+			out << YAML::BeginMap;
+			auto &Collider2D = entity.GetComponent<BoxCollider2DComponent>();
+			out << YAML::Key << "size" << YAML::Value << Collider2D.size;
+			out << YAML::Key << "offset" << YAML::Value << Collider2D.offset;
+			out << YAML::Key << "IsTrigger" << YAML::Value << Collider2D.isTrigger;
+			out << YAML::Key << "Density" << YAML::Value << Collider2D.density;
+			out << YAML::Key << "Friction" << YAML::Value << Collider2D.friction;
+			out << YAML::Key << "Restitution" << YAML::Value << Collider2D.restitution;
+			out << YAML::Key << "MinRestitution" << YAML::Value << Collider2D.MinRestitution;
+			out << YAML::EndMap;
+		}
 		out << YAML::EndMap;
 	}
 
@@ -139,8 +217,20 @@ namespace Z {
 		Z_CORE_INFO("Scene saved to {0}", filepath);
 	}
 
-	void SceneSerializer::SerializeRuntime(const std::string &filepath) {
-
+	void SceneSerializer::SerializeRuntime(std::stringstream &data) {
+		YAML::Emitter out;
+		out << YAML::BeginMap;
+		out << YAML::Key << "Scene" << YAML::Value << "Untitled";
+		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
+		scene->registry.each([&](auto ID) {
+			Entity entity(ID, scene.get());
+			if (!entity)
+				return;
+			SerializerEntity(out, entity);
+		});
+		out << YAML::EndSeq;
+		out << YAML::EndMap;
+		data << out.c_str();
 	}
 
 	bool SceneSerializer::Deserialize(const std::string &filepath) {
@@ -155,19 +245,18 @@ namespace Z {
 		Z_CORE_INFO("Deserializing scene {0}", sceneName);
 		auto Entities = data["Entities"];
 		for (auto Entity: Entities) {
+			auto id = Entity["Entity"].as<uint64_t>();
 			std::string name;
 			auto tagComponent = Entity["TagComponent"];
-			if (tagComponent)
-				name = tagComponent["Tag"].as<std::string>();
+			name = tagComponent["Tag"].as<std::string>();
 			Z_CORE_INFO("Deserializing entity with name {0}", name);
-			auto entity = scene->CreateEntity(name);
+			auto entity = scene->CreateEntityWithGuid(id, name);
 			auto transformComponent = Entity["TransformComponent"];
-			if (transformComponent) {
-				auto &transform = entity.GetComponent<TransformComponent>();
-				transform.translation = transformComponent["Translation"].as<glm::vec3>();
-				transform.rotation = transformComponent["Rotation"].as<glm::vec3>();
-				transform.scale = transformComponent["Scale"].as<glm::vec3>();
-			}
+			auto &transform = entity.GetComponent<TransformComponent>();
+			transform.translation = transformComponent["Translation"].as<glm::vec3>();
+			transform.rotation = transformComponent["Rotation"].as<glm::vec3>();
+			transform.scale = transformComponent["Scale"].as<glm::vec3>();
+
 			auto cameraComponent = Entity["CameraComponent"];
 			if (cameraComponent) {
 				auto &camera = entity.AddComponent<CameraComponent>();
@@ -186,11 +275,83 @@ namespace Z {
 				auto &sprite = entity.AddComponent<SpriteRendererComponent>();
 				sprite.color = spriteRendererComponent["Color"].as<glm::vec4>();
 			}
+			auto rigidBody2DComponent = Entity["RigidBody2DComponent"];
+			if (rigidBody2DComponent) {
+				auto &rigid2D = entity.AddComponent<RigidBody2DComponent>();
+				rigid2D.bodyType = ToBodyType(rigidBody2DComponent["bodyType"].as<std::string>());
+				rigid2D.fixedRotation = rigidBody2DComponent["fixedRotation"].as<bool>();
+			}
+			auto boxCollider2DComponent = Entity["BoxCollider2DComponent"];
+			if (boxCollider2DComponent) {
+				auto &Collider2D = entity.AddComponent<BoxCollider2DComponent>();
+				Collider2D.size = boxCollider2DComponent["size"].as<glm::vec2>();
+				Collider2D.offset = boxCollider2DComponent["offset"].as<glm::vec2>();
+				Collider2D.isTrigger = boxCollider2DComponent["IsTrigger"].as<bool>();
+				Collider2D.density = boxCollider2DComponent["Density"].as<float>();
+				Collider2D.friction = boxCollider2DComponent["Friction"].as<float>();
+				Collider2D.restitution = boxCollider2DComponent["Restitution"].as<float>();
+				Collider2D.MinRestitution = boxCollider2DComponent["MinRestitution"].as<float>();
+			}
 		}
 		return true;
 	}
 
-	bool SceneSerializer::DeserializeRuntime(const std::string &filepath) {
-		return false;
+	bool SceneSerializer::DeserializeRuntime(std::stringstream &data) {
+		YAML::Node root = YAML::Load(data.str());
+		if (!root["Scene"])
+			return false;
+		auto sceneName = root["Scene"].as<std::string>();
+		Z_CORE_INFO("Deserializing scene {0}", sceneName);
+		auto Entities = root["Entities"];
+		for (auto Entity: Entities) {
+			auto id= Entity["Entity"].as<uint64_t>();
+			std::string name;
+			auto tagComponent = Entity["TagComponent"];
+			name = tagComponent["Tag"].as<std::string>();
+			Z_CORE_INFO("Deserializing entity with name {0}", name);
+			auto entity = scene->CreateEntityWithGuid(id,name);
+			auto transformComponent = Entity["TransformComponent"];
+			auto &transform = entity.GetComponent<TransformComponent>();
+			transform.translation = transformComponent["Translation"].as<glm::vec3>();
+			transform.rotation = transformComponent["Rotation"].as<glm::vec3>();
+			transform.scale = transformComponent["Scale"].as<glm::vec3>();
+
+			auto cameraComponent = Entity["CameraComponent"];
+			if (cameraComponent) {
+				auto &camera = entity.AddComponent<CameraComponent>();
+				auto cameraProps = cameraComponent["Camera"];
+				camera.camera.SetProjectionType((SceneCamera::ProjectionType) cameraProps["ProjectionType"].as<int>());
+				camera.camera.SetPerspectiveFOV(cameraProps["PerspectiveFOV"].as<float>());
+				camera.camera.SetPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
+				camera.camera.SetPerspectiveFarClip(cameraProps["PerspectiveFar"].as<float>());
+				camera.camera.SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
+				camera.camera.SetOrthographicNearClip(cameraProps["OrthographicNear"].as<float>());
+				camera.camera.SetOrthographicFarClip(cameraProps["OrthographicFar"].as<float>());
+				camera.primary = cameraProps["Primary"].as<bool>();
+			}
+			auto spriteRendererComponent = Entity["SpriteRendererComponent"];
+			if (spriteRendererComponent) {
+				auto &sprite = entity.AddComponent<SpriteRendererComponent>();
+				sprite.color = spriteRendererComponent["Color"].as<glm::vec4>();
+			}
+			auto rigidBody2DComponent = Entity["RigidBody2DComponent"];
+			if (rigidBody2DComponent) {
+				auto &rigid2D = entity.AddComponent<RigidBody2DComponent>();
+				rigid2D.bodyType = ToBodyType(rigidBody2DComponent["bodyType"].as<std::string>());
+				rigid2D.fixedRotation = rigidBody2DComponent["fixedRotation"].as<bool>();
+			}
+			auto boxCollider2DComponent = Entity["BoxCollider2DComponent"];
+			if (boxCollider2DComponent) {
+				auto &Collider2D = entity.AddComponent<BoxCollider2DComponent>();
+				Collider2D.size = boxCollider2DComponent["size"].as<glm::vec2>();
+				Collider2D.offset = boxCollider2DComponent["offset"].as<glm::vec2>();
+				Collider2D.isTrigger = boxCollider2DComponent["IsTrigger"].as<bool>();
+				Collider2D.density = boxCollider2DComponent["Density"].as<float>();
+				Collider2D.friction = boxCollider2DComponent["Friction"].as<float>();
+				Collider2D.restitution = boxCollider2DComponent["Restitution"].as<float>();
+				Collider2D.MinRestitution = boxCollider2DComponent["MinRestitution"].as<float>();
+			}
+		}
+		return true;
 	}
 }

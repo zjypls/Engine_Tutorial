@@ -40,6 +40,7 @@ namespace Z {
 		glm::vec2 viewportSize {1200, 800};
 		glm::vec2 CursorPos{0, 0};
 		Ref<Scene> scene;
+		Ref<Scene> BackScene;
 		Entity entity;
 		Entity cameraEntity,SecondCamera;
 		Ref<SceneHierarchyPlane> sceneHierarchyPlane;
@@ -47,7 +48,11 @@ namespace Z {
 		Z::EditorCamera editorCamera;
 		Ref<ContentBrowser> contentBrowser;
 		Ref<Z::Texture2D> playButtonIcon,stopButtonIcon,currentButtonIcon;
+		std::stringstream data;
+		std::filesystem::path WorkPath{};
 
+		void InnerSave(const std::string &path);
+		void SaveHotKey();
 
 	public:
 		EditorLayer();
