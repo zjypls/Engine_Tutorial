@@ -399,11 +399,14 @@ namespace Z {
 	void EditorLayer::OnPlay() {
 		sceneState = SceneState::Play;
 		currentButtonIcon = stopButtonIcon;
+		backData.gizmoOperation = currentGizmoOperation;
+		currentGizmoOperation = -1;
 	}
 
 	void EditorLayer::OnStop() {
 		sceneState = SceneState::Edit;
 		currentButtonIcon = playButtonIcon;
+		currentGizmoOperation = backData.gizmoOperation;
 	}
 
 
