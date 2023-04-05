@@ -19,7 +19,10 @@ namespace Z{
 		virtual void SetClearValue(const glm::vec4&)=0;
 		virtual void Clear()=0;
 		virtual void GetError()=0;
-		virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray,unsigned int count=0)=0;
+		virtual void SetLineWidth(float width=0.f)=0;
+		virtual void DrawIndexed(const Ref<VertexArray>& vertexArray,unsigned int count=0)=0;
+		virtual void DrawLine(const Ref<VertexArray>& vertexArray,unsigned int count)=0;
+
 		virtual void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)=0;
 		inline static API GetAPI() { return api; }
 	private:

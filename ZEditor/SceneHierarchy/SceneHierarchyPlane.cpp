@@ -161,6 +161,10 @@ namespace Z {
 				if(!entity.HasComponent<RigidBody2DComponent>()){ selectedEntity.AddComponent<RigidBody2DComponent>(); }
 				selectedEntity.AddComponent<BoxCollider2DComponent>();//Todo:Change logic
 			}
+			if (!entity.HasComponent<CircleCollider2DComponent>()&&ImGui::MenuItem("CircleCollider2D")) {
+				if(!entity.HasComponent<RigidBody2DComponent>()){ selectedEntity.AddComponent<RigidBody2DComponent>(); }
+				selectedEntity.AddComponent<CircleCollider2DComponent>();//Todo:Change logic
+			}
 			ImGui::EndPopup();
 		}
 		ImGui::PopItemWidth();
@@ -182,18 +186,23 @@ namespace Z {
 													   if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
 														   const char* path = (const char*)payload->Data;
 														   Z_CORE_ASSERT(std::filesystem::exists(path), "Path does not exist!");
-														   spriteRenderer.texture = Texture2D::CreateTexture(path);
+														   auto temp = Texture2D::CreateTexture(path);
+														   if(temp->GetWidth()>2600||temp->GetHeight()>2600){
+															   MessageBoxA(nullptr, "Texture is too large!", "Error", MB_OK);
+														   }else
+															   spriteRenderer.texture = temp;
 													   }
 													   ImGui::EndDragDropTarget();
 												   }
 		                                       });
 		DrawComponent<CircleRendererComponent>("CircleRenderer", entity, [](CircleRendererComponent &component) {
 			ImGui::ColorEdit4("Color", &component.color[0]);
-			ImGui::DragFloat("thick", &component.thickness);
+			ImGui::DragFloat("thick", &component.thickness,.05f,0.f,1.f);
+			ImGui::DragFloat("Fade",&component.fade,.05f,0.f,1.f);
 		});
 		DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent &component) {
 			auto &camera = component.camera;
-			if (ImGui::Checkbox("Primary", &component.primary)) {
+			if (ImGui::Checkbox("Primary", &component.primary)) {//Todo:Change logic
 //				context->registry.view<CameraComponent>().each([&](auto entity, auto &cameraComponent) {
 //					if (entity != entity)cameraComponent.primary = !component.primary;
 //				});
@@ -240,7 +249,18 @@ namespace Z {
 		});
 		DrawComponent<BoxCollider2DComponent>("BoxCollider2D", entity, [](BoxCollider2DComponent &component) {
 			ImGui::Checkbox("Is Trigger", &component.isTrigger);
+			ImGui::Checkbox("Visualize", &component.visualize);
 			ImGui::DragFloat2("Size", &component.size.x);
+			ImGui::DragFloat2("Offset", &component.offset.x);
+			ImGui::DragFloat("Density", &component.density,.1f);
+			ImGui::DragFloat("Friction", &component.friction,.05f);
+			ImGui::DragFloat("Restitution", &component.restitution,.05f);
+			ImGui::DragFloat("MinRestitution", &component.MinRestitution,.05f);
+		});
+		DrawComponent<CircleCollider2DComponent>("CircleCollider2D", entity, [](CircleCollider2DComponent &component) {
+			ImGui::Checkbox("Is Trigger", &component.isTrigger);
+			ImGui::Checkbox("Visualize", &component.visualize);
+			ImGui::DragFloat("Radius", &component.radius);
 			ImGui::DragFloat2("Offset", &component.offset.x);
 			ImGui::DragFloat("Density", &component.density,.1f);
 			ImGui::DragFloat("Friction", &component.friction,.05f);

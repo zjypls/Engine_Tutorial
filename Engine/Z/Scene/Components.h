@@ -50,7 +50,7 @@ namespace Z {
 
 	struct CircleRendererComponent {
 		glm::vec4 color{1.f};
-		float thickness = 1.f;
+		float thickness = 1.f,fade=.005f;
 
 		CircleRendererComponent() = default;
 
@@ -120,7 +120,7 @@ namespace Z {
 	struct BoxCollider2DComponent{
 		glm::vec2 offset{0.f,0.f};
 		glm::vec2 size{1.f,1.f};
-		bool isTrigger{false};
+		bool isTrigger{false},visualize{false};
 		//Todo : change
 		void* ptr= nullptr;
 
@@ -129,6 +129,20 @@ namespace Z {
 		float restitution{0.f};
 		float MinRestitution{0.5f};
 		BoxCollider2DComponent()=default;
+	};
+
+	struct CircleCollider2DComponent{
+		glm::vec2 offset{0.f,0.f};
+		float radius{1.f};
+		bool isTrigger{false},visualize{false};
+		//Todo : change
+		void* ptr= nullptr;
+
+		float density{0.5f};
+		float friction{0.5f};
+		float restitution{0.f};
+		float MinRestitution{0.5f};
+		CircleCollider2DComponent()=default;
 	};
 
 }

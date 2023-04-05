@@ -56,11 +56,7 @@ namespace Z {
 		auto indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 		vertexArray->SetIndexBuffer(indexBuffer);
 		vertexArray->Unbind();
-//		shader = Shader::CreateShader(std::string(Z_SOURCE_DIR) + "/Shaders/One.glsl");
-//		shader->Bind();
-//		shader->UnBind();
-//		grid = Shader::CreateShader("Grid", std::string(Z_SOURCE_DIR) + "/Shaders/vert.vert",
-//		                            std::string(Z_SOURCE_DIR) + "/Shaders/grid.frag", true);
+
 		FrameBufferSpecification spec;
 		spec.width = 1200;
 		spec.height = 800;
@@ -146,11 +142,11 @@ namespace Z {
 					controller.OnUpdate(Time::DeltaTime());
 					editorCamera.OnUpdate();
 				}
-				scene->OnEditorUpdate(Time::DeltaTime(), editorCamera);
+				scene->OnEditorUpdate(Time::DeltaTime(), editorCamera,EditorVisualizeCollider);
 				break;
 			}
 			case SceneState::Play: {
-				scene->OnUpdate(Time::DeltaTime());
+				scene->OnUpdate(Time::DeltaTime(),RunTimeVisualizeCollider);
 				break;
 			}
 		}
@@ -226,7 +222,6 @@ namespace Z {
 			ImGui::EndMenuBar();
 		}
 
-		static bool showID = false;
 		ImGui::Begin("Statics");
 
 		auto stats = Renderer2D::GetStats();
@@ -236,7 +231,8 @@ namespace Z {
 		ImGui::Text("Vertices: %u", stats->GetTotalVertexCount());
 		ImGui::Text("Indices: %u", stats->GetTotalIndexCount());
 		stats->Reset();
-		ImGui::Checkbox("Show ID", &showID);
+		ImGui::Checkbox("Editor Visualize Collider", &EditorVisualizeCollider);
+		ImGui::Checkbox("RunTime Visualize Collider", &RunTimeVisualizeCollider);
 
 		sceneHierarchyPlane->OnImGuiRender();
 		contentBrowser->OnImGuiRender();
@@ -259,7 +255,7 @@ namespace Z {
 		}
 		Application::Get().GetImGuiLayer()->SetBlockEvents(!IsViewportFocused && !IsViewportHovered);
 
-		uint32_t textureID = showID ? frameBuffer->GetAttachmentID(1) : frameBuffer->GetAttachmentID(0);
+		uint32_t textureID = frameBuffer->GetAttachmentID(0);
 		ImGui::Image((void *) textureID, viewSize, ImVec2{0, 1}, ImVec2{1, 0});
 
 		if ((viewportSize != *(glm::vec2 *) &viewSize) && !Input::IsMouseButtonPressed(MouseCode::ButtonLeft)) {
@@ -319,13 +315,20 @@ namespace Z {
 	void EditorLayer::SaveScene() {
 		auto path = Z::Utils::FileSave("*.zscene");
 		if (!path.empty()) {
-			InnerSave(path);
+			WorkPath = path;
+			if(WorkPath.extension()!= ".zscene")
+				WorkPath.replace_extension(".zscene");
+			InnerSave(WorkPath.string());
 		}
 	}
 
 
 	void EditorLayer::SaveHotKey() {
-		if (sceneState == SceneState::Edit && !WorkPath.empty()) {
+		if (sceneState != SceneState::Edit) {
+			Z_CORE_WARN("Try to Save Scene not in Edit Mode");
+			return;
+		}
+		if (!WorkPath.empty()) {
 			InnerSave(WorkPath.string());
 		} else {
 			SaveScene();

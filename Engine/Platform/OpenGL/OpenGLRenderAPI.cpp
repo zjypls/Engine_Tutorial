@@ -15,7 +15,8 @@ namespace Z {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	void OpenGLRenderAPI::DrawIndexed(const std::shared_ptr<VertexArray> &vertexArray,unsigned int count) {
+	void OpenGLRenderAPI::DrawIndexed(const Ref<VertexArray> &vertexArray,unsigned int count) {
+		vertexArray->Bind();
 		//count = (count == 0) ? vertexArray->GetIndexBuffer()->GetCount() : count;
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
@@ -23,6 +24,7 @@ namespace Z {
 	void OpenGLRenderAPI::Init() {
 		glEnable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_LINE_SMOOTH);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		Z_TRACE("Info : \n\tOpenGLRenderAPI::Init:");
 		std::cout << "\t\tVersion:"<<glGetString(GL_VERSION) << std::endl;
@@ -38,6 +40,15 @@ namespace Z {
 		auto warn = glGetError();
 		if (warn != 0)
 			Z_CORE_ERROR("{1}:{2},OpenGL ERROR {0}", warn, __FILE__, __LINE__);
+	}
+
+	void OpenGLRenderAPI::DrawLine(const Ref<VertexArray> &vertexArray, unsigned int count) {
+		vertexArray->Bind();
+		glDrawArrays(GL_LINES, 0, count);
+	}
+
+	void OpenGLRenderAPI::SetLineWidth(float width) {
+		glLineWidth(width);
 	}
 
 }

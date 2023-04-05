@@ -14,6 +14,12 @@ namespace Z {
 		stbi_uc* pixels= stbi_load(path.c_str(), &wid, &hig, &canal, 0);
 		Z_CORE_ASSERT(pixels, "Failed to load image!");
 		width=wid,height=hig;
+		if(wid>2600||hig>2600) {
+			Z_CORE_WARN("Texture size is too large! (width:{0},height:{1})", wid, hig);
+			ID=0;
+			stbi_image_free(pixels);
+			return;
+		}
 		GLenum iFormat=0,dFormat=0;
 		if(canal==4){
 			iFormat=GL_RGBA8;

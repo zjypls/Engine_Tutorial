@@ -42,7 +42,7 @@ namespace Z {
 		for (const auto &vertexBuffer: m_VertexBuffers) {
 			vertexBuffer->Bind();
 		}
-		m_IndexBuffers->Bind();
+		m_IndexBuffers->Bind();//Fixme:这里有问题
 	}
 
 	void OpenGLVertexArray::Unbind() const {

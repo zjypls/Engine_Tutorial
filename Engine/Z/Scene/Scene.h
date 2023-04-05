@@ -38,8 +38,8 @@ namespace Z {
 		void DestroyEntity(Entity entity);
 		void CopyEntity(Entity entity);
 
-		void OnUpdate(float);
-		void OnEditorUpdate(float deltaTime, EditorCamera &camera);
+		void OnUpdate(float,bool VisualizeCollider=false);
+		void OnEditorUpdate(float deltaTime, EditorCamera &camera,bool VisualizeCollider=false);
 
 		~Scene();
 	};

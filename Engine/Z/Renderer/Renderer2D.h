@@ -26,6 +26,19 @@ namespace Z {
 			float tillingFactor;
 			int EntityID;
 		};
+		struct CircleVertex{
+			glm::vec3 WorldPosition;
+			glm::vec3 LocalPosition;
+			glm::vec4 color;
+			float thickness;
+			float fade;
+			int EntityID;
+		};
+		struct LineVertex{
+			glm::vec3 Position;
+			glm::vec4 color;
+			int EntityID;
+		};
 		struct CameraData{
 			glm::mat4 ViewProjectionMatrix;
 		};
@@ -38,11 +51,23 @@ namespace Z {
 
 			Ref<VertexArray> quadVertexArray;
 			Ref<VertexBuffer> quadVertexBuffer;
-			Ref<Shader> UShader;
+			Ref<VertexArray> circleVertexArray;
+			Ref<VertexBuffer> circleVertexBuffer;
+			Ref<VertexArray> lineVertexArray;
+			Ref<VertexBuffer> lineVertexBuffer;
+			Ref<Shader> QuadShader;
+			Ref<Shader> CircleShader;
+			Ref<Shader> LineShader;
 			Ref<Texture2D> whiteTexture;
 			unsigned int quadIndexCount=0;
 			QuadVertex *quadVertexBufferBase=nullptr;
 			QuadVertex *quadVertexBufferPtr=nullptr;
+			unsigned int circleIndexCount=0;
+			CircleVertex *circleVertexBufferBase=nullptr;
+			CircleVertex *circleVertexBufferPtr=nullptr;
+			unsigned int lineIndexCount=0;
+			LineVertex *lineVertexBufferBase=nullptr;
+			LineVertex *lineVertexBufferPtr=nullptr;
 			std::array<Ref<Texture2D>,MaxTextureSlot> textureSlots;
 			unsigned int textureSlotIndex=1;
 
@@ -115,6 +140,18 @@ namespace Z {
 			auto transform=glm::translate(glm::mat4{1.f},position)*glm::rotate(glm::mat4{1.f},rotation,glm::vec3{0.f,0.f,1.f})*glm::scale(glm::mat4{1.f},glm::vec3{size,1.f});
 			DrawQuad(transform,texture,tilingFactor,tintCol);
 		}
+		static void DrawLine(const glm::vec3& v0,const glm::vec3& v1,const glm::vec4& color,int entityID=-1);
+		static void DrawLine(const glm::mat4& transform,const glm::vec3& center,const glm::vec3& size,const glm::vec4& color,int entityID=-1);
+		inline static void DrawRect(const glm::mat4& transform,const glm::vec2& size,const glm::vec4& color,int entityID=-1){
+			DrawRect(transform,glm::vec3{size,0.f},color,entityID);
+		}
+		static void DrawRect(const glm::mat4& transform,const glm::vec3& size,const glm::vec4& color,int entityID=-1);
+		[[deprecated]]
+		static void DrawRect(const  glm::vec3&leftBottom,const glm::vec3&rightTop,const glm::vec4& color,int entityID=-1);
+		inline static void DrawLine(const glm::vec2& v0,const glm::vec2& v1,const glm::vec4& color,int entityID=-1){
+			DrawLine(glm::vec3{v0.x,v0.y,0.f},glm::vec3{v1.x,v1.y,0.f},color,entityID);
+		}
+		static void DrawCircle(const glm::mat4&transform,const CircleRendererComponent&circle,int EntityID=-1);
 		static void DrawQuad(const glm::mat4 &transform, const SpriteRendererComponent &sprite,int EntityID=-1);
 		static void DrawQuad(const glm::mat4 &transform, const Ref<Texture2D> &texture,float tilingFactor=1.f,const glm::vec4& tintCol=glm::vec4 {1.f});
 		static void DrawQuad(const glm::mat4 &transform, const Ref<SubTex2D> &texture,float tilingFactor=1.f,const glm::vec4& tintCol=glm::vec4 {1.f});

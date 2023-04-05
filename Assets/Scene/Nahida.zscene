@@ -1,0 +1,152 @@
+Scene: Untitled
+Entities:
+  - Entity: 3461289287262062511
+    TagComponent:
+      Tag: Nahida
+    TransformComponent:
+      Translation: [0.776155889, 1.9302727, 0]
+      Rotation: [0, -0, 0]
+      Scale: [0.999999523, 0.999999762, 0.999999881]
+    RigidBody2DComponent:
+      bodyType: Dynamic
+      fixedRotation: false
+    BoxCollider2DComponent:
+      size: [1, 1]
+      offset: [0, 0]
+      IsTrigger: false
+      visualize: true
+      Density: 1
+      Friction: 0.100000001
+      Restitution: 0.899999976
+      MinRestitution: 0.100000001
+  - Entity: 10851899755096082215
+    TagComponent:
+      Tag: SceneCamera
+    TransformComponent:
+      Translation: [0, 1.10000002, 6.5]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 1.6406095
+        PerspectiveNear: 0.00999999978
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+        Primary: true
+  - Entity: 704800038312441548
+    TagComponent:
+      Tag: Nahida
+    TransformComponent:
+      Translation: [0, 3.24061012, 0]
+      Rotation: [0, -0, 0]
+      Scale: [0.999999523, 0.999999762, 0.999999881]
+    RigidBody2DComponent:
+      bodyType: Dynamic
+      fixedRotation: false
+    BoxCollider2DComponent:
+      size: [1, 1]
+      offset: [0, 0]
+      IsTrigger: false
+      visualize: true
+      Density: 1.20000005
+      Friction: 0.5
+      Restitution: 0.800000012
+      MinRestitution: 0.100000001
+  - Entity: 13154956672401408934
+    TagComponent:
+      Tag: Empty Entity
+    TransformComponent:
+      Translation: [-4.96272898, 2.0734849, 0]
+      Rotation: [0, 0, -1.59595788]
+      Scale: [9.38780403, 1.00000012, 1]
+    RigidBody2DComponent:
+      bodyType: Static
+      fixedRotation: false
+    BoxCollider2DComponent:
+      size: [1, 1]
+      offset: [0, 0]
+      IsTrigger: false
+      visualize: true
+      Density: 0.5
+      Friction: 0.5
+      Restitution: 0.850000024
+      MinRestitution: 0.100000001
+  - Entity: 277638330891630569
+    TagComponent:
+      Tag: Empty Entity
+    TransformComponent:
+      Translation: [-3.23941517, -2.40192175, 0]
+      Rotation: [0, 0, -1.21944845]
+      Scale: [4.08058929, 1, 1]
+    RigidBody2DComponent:
+      bodyType: Static
+      fixedRotation: false
+    BoxCollider2DComponent:
+      size: [1, 1]
+      offset: [0, 0]
+      IsTrigger: false
+      visualize: true
+      Density: 0.800000012
+      Friction: 0.5
+      Restitution: 0.949999988
+      MinRestitution: 0.100000001
+  - Entity: 523728875933920043
+    TagComponent:
+      Tag: Empty Entity
+    TransformComponent:
+      Translation: [4.13819599, 2.02458644, 0]
+      Rotation: [0, 0, -1.54130471]
+      Scale: [9.38780785, 1, 1]
+    RigidBody2DComponent:
+      bodyType: Static
+      fixedRotation: false
+    BoxCollider2DComponent:
+      size: [1, 1]
+      offset: [0, 0]
+      IsTrigger: false
+      visualize: true
+      Density: 0.5
+      Friction: 0.5
+      Restitution: 0.850000024
+      MinRestitution: 0.100000001
+  - Entity: 15718013152389724316
+    TagComponent:
+      Tag: Empty Entity
+    TransformComponent:
+      Translation: [0, -4.38197947, 0]
+      Rotation: [0, -0, 0.223270431]
+      Scale: [10.5683022, 1, 1]
+    RigidBody2DComponent:
+      bodyType: Static
+      fixedRotation: false
+    BoxCollider2DComponent:
+      size: [1, 1]
+      offset: [0, 0]
+      IsTrigger: false
+      visualize: true
+      Density: 0.5
+      Friction: 0.5
+      Restitution: 0.899999976
+      MinRestitution: 0.100000001
+  - Entity: 4982351336056530389
+    TagComponent:
+      Tag: Nahida
+    TransformComponent:
+      Translation: [-0.795886874, 1.9302727, 0]
+      Rotation: [0, -0, 0]
+      Scale: [0.999999523, 0.999999762, 0.999999881]
+    RigidBody2DComponent:
+      bodyType: Dynamic
+      fixedRotation: false
+    BoxCollider2DComponent:
+      size: [1, 1]
+      offset: [0, 0]
+      IsTrigger: false
+      visualize: true
+      Density: 0.800000012
+      Friction: 0.5
+      Restitution: 0.699999988
+      MinRestitution: 0.100000001

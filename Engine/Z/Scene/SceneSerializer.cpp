@@ -189,10 +189,34 @@ namespace Z {
 			out << YAML::Key << "size" << YAML::Value << Collider2D.size;
 			out << YAML::Key << "offset" << YAML::Value << Collider2D.offset;
 			out << YAML::Key << "IsTrigger" << YAML::Value << Collider2D.isTrigger;
+			out << YAML::Key << "visualize" << YAML::Value << Collider2D.visualize;
 			out << YAML::Key << "Density" << YAML::Value << Collider2D.density;
 			out << YAML::Key << "Friction" << YAML::Value << Collider2D.friction;
 			out << YAML::Key << "Restitution" << YAML::Value << Collider2D.restitution;
 			out << YAML::Key << "MinRestitution" << YAML::Value << Collider2D.MinRestitution;
+			out << YAML::EndMap;
+		}
+		if (entity.HasComponent<CircleRendererComponent>()) {
+			out << YAML::Key << "CircleRendererComponent";
+			out << YAML::BeginMap;
+			auto &circle = entity.GetComponent<CircleRendererComponent>();
+			out << YAML::Key << "Color" << YAML::Value << circle.color;
+			out << YAML::Key << "thickness" << YAML::Value << circle.thickness;
+			out << YAML::Key << "fade" << YAML::Value << circle.fade;
+			out << YAML::EndMap;
+		}
+		if (entity.HasComponent<CircleCollider2DComponent>()) {
+			out << YAML::Key << "CircleCollider2DComponent";
+			out << YAML::BeginMap;
+			auto &collier = entity.GetComponent<CircleCollider2DComponent>();
+			out << YAML::Key << "IsTrigger" << YAML::Value << collier.isTrigger;
+			out << YAML::Key << "visualize" << YAML::Value << collier.visualize;
+			out << YAML::Key << "offset" << YAML::Value << collier.offset;
+			out << YAML::Key << "radius" << YAML::Value << collier.radius;
+			out << YAML::Key << "density" << YAML::Value << collier.density;
+			out << YAML::Key << "friction" << YAML::Value << collier.friction;
+			out << YAML::Key << "restitution" << YAML::Value << collier.restitution;
+			out << YAML::Key << "MinRestitution" << YAML::Value << collier.MinRestitution;
 			out << YAML::EndMap;
 		}
 		out << YAML::EndMap;
@@ -238,12 +262,16 @@ namespace Z {
 		std::stringstream buffer;
 		buffer << in.rdbuf();
 		in.close();
-		YAML::Node data = YAML::Load(buffer.str());
-		if (!data["Scene"])
+		return DeserializeRuntime(buffer);
+	}
+
+	bool SceneSerializer::DeserializeRuntime(std::stringstream &data) {
+		YAML::Node root = YAML::Load(data.str());
+		if (!root["Scene"])
 			return false;
-		auto sceneName = data["Scene"].as<std::string>();
+		auto sceneName = root["Scene"].as<std::string>();
 		Z_CORE_INFO("Deserializing scene {0}", sceneName);
-		auto Entities = data["Entities"];
+		auto Entities = root["Entities"];
 		for (auto Entity: Entities) {
 			auto id = Entity["Entity"].as<uint64_t>();
 			std::string name;
@@ -287,69 +315,30 @@ namespace Z {
 				Collider2D.size = boxCollider2DComponent["size"].as<glm::vec2>();
 				Collider2D.offset = boxCollider2DComponent["offset"].as<glm::vec2>();
 				Collider2D.isTrigger = boxCollider2DComponent["IsTrigger"].as<bool>();
+				Collider2D.visualize = boxCollider2DComponent["visualize"].as<bool>();
 				Collider2D.density = boxCollider2DComponent["Density"].as<float>();
 				Collider2D.friction = boxCollider2DComponent["Friction"].as<float>();
 				Collider2D.restitution = boxCollider2DComponent["Restitution"].as<float>();
 				Collider2D.MinRestitution = boxCollider2DComponent["MinRestitution"].as<float>();
 			}
-		}
-		return true;
-	}
-
-	bool SceneSerializer::DeserializeRuntime(std::stringstream &data) {
-		YAML::Node root = YAML::Load(data.str());
-		if (!root["Scene"])
-			return false;
-		auto sceneName = root["Scene"].as<std::string>();
-		Z_CORE_INFO("Deserializing scene {0}", sceneName);
-		auto Entities = root["Entities"];
-		for (auto Entity: Entities) {
-			auto id= Entity["Entity"].as<uint64_t>();
-			std::string name;
-			auto tagComponent = Entity["TagComponent"];
-			name = tagComponent["Tag"].as<std::string>();
-			Z_CORE_INFO("Deserializing entity with name {0}", name);
-			auto entity = scene->CreateEntityWithGuid(id,name);
-			auto transformComponent = Entity["TransformComponent"];
-			auto &transform = entity.GetComponent<TransformComponent>();
-			transform.translation = transformComponent["Translation"].as<glm::vec3>();
-			transform.rotation = transformComponent["Rotation"].as<glm::vec3>();
-			transform.scale = transformComponent["Scale"].as<glm::vec3>();
-
-			auto cameraComponent = Entity["CameraComponent"];
-			if (cameraComponent) {
-				auto &camera = entity.AddComponent<CameraComponent>();
-				auto cameraProps = cameraComponent["Camera"];
-				camera.camera.SetProjectionType((SceneCamera::ProjectionType) cameraProps["ProjectionType"].as<int>());
-				camera.camera.SetPerspectiveFOV(cameraProps["PerspectiveFOV"].as<float>());
-				camera.camera.SetPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
-				camera.camera.SetPerspectiveFarClip(cameraProps["PerspectiveFar"].as<float>());
-				camera.camera.SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
-				camera.camera.SetOrthographicNearClip(cameraProps["OrthographicNear"].as<float>());
-				camera.camera.SetOrthographicFarClip(cameraProps["OrthographicFar"].as<float>());
-				camera.primary = cameraProps["Primary"].as<bool>();
+			auto circleRender = Entity["CircleRendererComponent"];
+			if (circleRender) {
+				auto &circle = entity.AddComponent<CircleRendererComponent>();
+				circle.color = circleRender["Color"].as<glm::vec4>();
+				circle.thickness = circleRender["thickness"].as<float>();
+				circle.fade = circleRender["fade"].as<float>();
 			}
-			auto spriteRendererComponent = Entity["SpriteRendererComponent"];
-			if (spriteRendererComponent) {
-				auto &sprite = entity.AddComponent<SpriteRendererComponent>();
-				sprite.color = spriteRendererComponent["Color"].as<glm::vec4>();
-			}
-			auto rigidBody2DComponent = Entity["RigidBody2DComponent"];
-			if (rigidBody2DComponent) {
-				auto &rigid2D = entity.AddComponent<RigidBody2DComponent>();
-				rigid2D.bodyType = ToBodyType(rigidBody2DComponent["bodyType"].as<std::string>());
-				rigid2D.fixedRotation = rigidBody2DComponent["fixedRotation"].as<bool>();
-			}
-			auto boxCollider2DComponent = Entity["BoxCollider2DComponent"];
-			if (boxCollider2DComponent) {
-				auto &Collider2D = entity.AddComponent<BoxCollider2DComponent>();
-				Collider2D.size = boxCollider2DComponent["size"].as<glm::vec2>();
-				Collider2D.offset = boxCollider2DComponent["offset"].as<glm::vec2>();
-				Collider2D.isTrigger = boxCollider2DComponent["IsTrigger"].as<bool>();
-				Collider2D.density = boxCollider2DComponent["Density"].as<float>();
-				Collider2D.friction = boxCollider2DComponent["Friction"].as<float>();
-				Collider2D.restitution = boxCollider2DComponent["Restitution"].as<float>();
-				Collider2D.MinRestitution = boxCollider2DComponent["MinRestitution"].as<float>();
+			auto circleCollier = Entity["CircleCollider2DComponent"];
+			if (circleCollier) {
+				auto &collider = entity.AddComponent<CircleCollider2DComponent>();
+				collider.isTrigger = circleCollier["IsTrigger"].as<bool>();
+				collider.visualize = boxCollider2DComponent["visualize"].as<bool>();
+				collider.density = circleCollier["density"].as<float>();
+				collider.friction = circleCollier["friction"].as<float>();
+				collider.restitution = circleCollier["restitution"].as<float>();
+				collider.MinRestitution = circleCollier["MinRestitution"].as<float>();
+				collider.radius = circleCollier["radius"].as<float>();
+				collider.offset = circleCollier["offset"].as<glm::vec2>();
 			}
 		}
 		return true;
