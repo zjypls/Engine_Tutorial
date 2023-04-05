@@ -35,7 +35,7 @@ namespace Z {
 		}
 	}
 
-	void Scene::OnUpdate(float deltaTime, bool VisualizeCollider) {
+	void Scene::OnUpdate(float deltaTime) {
 		Camera *mainCamera = nullptr;
 		glm::mat4 cameraTransform;
 
@@ -79,7 +79,7 @@ namespace Z {
 					Renderer2D::DrawCircle(registry.get<TransformComponent>(item).GetTransform(),
 					                       registry.get<CircleRendererComponent>(item), uint32_t(item));
 				});
-		if (VisualizeCollider) {
+/*		if (VisualizeCollider) {
 			registry.view<TransformComponent, RigidBody2DComponent>().each(
 					[&](auto id, auto &transform, auto &rigidBody) {
 						Entity entity{id, this};
@@ -99,10 +99,9 @@ namespace Z {
 							}
 						}
 					});
-		}
+		}*/
 		Renderer2D::EndScene();
 
-		Renderer2D::EndScene();
 	}
 
 	Entity Scene::CreateEntity(const std::string &name) {
@@ -147,7 +146,7 @@ namespace Z {
 		return {};
 	}
 
-	void Scene::OnEditorUpdate(float deltaTime, EditorCamera &camera, bool VisualizeCollider) {
+	void Scene::OnEditorUpdate(float deltaTime, EditorCamera &camera) {
 		Renderer2D::BeginScene(camera);
 		std::for_each(registry.view<TransformComponent, SpriteRendererComponent>().begin(),
 		              registry.view<TransformComponent, SpriteRendererComponent>().end(), [&](const auto &item) {
@@ -161,7 +160,7 @@ namespace Z {
 					Renderer2D::DrawCircle(registry.get<TransformComponent>(item).GetTransform(),
 					                       registry.get<CircleRendererComponent>(item), uint32_t(item));
 				});
-		if (VisualizeCollider)
+/*		if (VisualizeCollider)
 			registry.view<TransformComponent, RigidBody2DComponent>().each(
 					[&](auto id, auto &transform, auto &rigidBody) {
 						Entity entity{id, this};
@@ -180,7 +179,7 @@ namespace Z {
 								Renderer2D::DrawCircle(transform.GetTransform(), color);
 							}
 						}
-					});
+					});*/
 		Renderer2D::EndScene();
 	}
 
@@ -196,14 +195,12 @@ namespace Z {
 			bodyDef.fixedRotation = rigidBody.fixedRotation;
 			b2Body *body = PhysicalWorld->CreateBody(&bodyDef);
 			rigidBody.ptr = body;
-//			if(rigidBody.bodyType==RigidBody2DComponent::BodyType::Static){
-//				return;
-//			}
+
 			if (entity.HasComponent<BoxCollider2DComponent>()) {
 				auto &collider = entity.GetComponent<BoxCollider2DComponent>();
 				b2PolygonShape box{};
 				auto size = collider.size * glm::vec2{transform.scale} / 2.f;
-				box.SetAsBox(size.x, size.y);
+				box.SetAsBox(size.x, size.y, b2Vec2{collider.offset.x, collider.offset.y}, 0);
 				b2FixtureDef fixtureDef;
 				fixtureDef.shape = &box;
 				fixtureDef.density = collider.density;
@@ -216,7 +213,8 @@ namespace Z {
 			if (entity.HasComponent<CircleCollider2DComponent>()) {
 				auto &collider = entity.GetComponent<CircleCollider2DComponent>();
 				b2CircleShape circle{};
-				circle.m_radius = collider.radius * transform.scale.x;
+				circle.m_radius = collider.radius* transform.scale.x;
+				circle.m_p.Set(collider.offset.x,collider.offset.y);
 				b2FixtureDef fixtureDef;
 				fixtureDef.shape = &circle;
 				fixtureDef.density = collider.density;

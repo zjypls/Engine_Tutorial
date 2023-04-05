@@ -142,15 +142,15 @@ namespace Z {
 					controller.OnUpdate(Time::DeltaTime());
 					editorCamera.OnUpdate();
 				}
-				scene->OnEditorUpdate(Time::DeltaTime(), editorCamera,EditorVisualizeCollider);
+				scene->OnEditorUpdate(Time::DeltaTime(), editorCamera);
 				break;
 			}
 			case SceneState::Play: {
-				scene->OnUpdate(Time::DeltaTime(),RunTimeVisualizeCollider);
+				scene->OnUpdate(Time::DeltaTime());
 				break;
 			}
 		}
-
+		OnDebugShow();
 
 		if (IsViewportFocused && IsViewportHovered && !ImGuizmo::IsOver() && !Input::IsKeyPressed(KeyCode::LeftAlt) &&
 		    Input::IsMouseButtonPressed(MouseCode::ButtonLeft)) {
@@ -273,7 +273,7 @@ namespace Z {
 		}
 
 		auto selectedEntity = sceneHierarchyPlane->GetSelectedEntity();
-		if (selectedEntity && currentGizmoOperation != -1&&sceneState==SceneState::Edit) {
+		if (selectedEntity && currentGizmoOperation != -1 && sceneState == SceneState::Edit) {
 			ImGuizmo::SetOrthographic(false);
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x,
@@ -305,7 +305,7 @@ namespace Z {
 
 	void EditorLayer::OnEvent(Event &event) {
 		controller.OnEvent(event);
-		if (IsViewportHovered&&IsViewportFocused) {
+		if (IsViewportHovered && IsViewportFocused) {
 			editorCamera.OnEvent(event);
 		}
 		EventDispatcher dispatcher(event);
@@ -316,7 +316,7 @@ namespace Z {
 		auto path = Z::Utils::FileSave("*.zscene");
 		if (!path.empty()) {
 			WorkPath = path;
-			if(WorkPath.extension()!= ".zscene")
+			if (WorkPath.extension() != ".zscene")
 				WorkPath.replace_extension(".zscene");
 			InnerSave(WorkPath.string());
 		}
@@ -464,6 +464,44 @@ namespace Z {
 				break;
 		}
 		return false;
+	}
+
+	void EditorLayer::OnDebugShow() {
+		if (sceneState == SceneState::Edit) {
+			Renderer2D::BeginScene(editorCamera);
+		} else if (sceneState == SceneState::Play) {
+			auto camera = scene->GetMainCamera();
+			if(!camera) {
+				Z_CORE_WARN("No camera in scene");
+				return;
+			}
+			Renderer2D::BeginScene(camera.GetComponent<CameraComponent>().camera,
+			                       camera.GetComponent<TransformComponent>().GetTransform());
+		}
+
+		if ((sceneState == SceneState::Edit && EditorVisualizeCollider) ||
+		    (sceneState == SceneState::Play && RunTimeVisualizeCollider)) {
+			scene->GetComponentView<BoxCollider2DComponent, TransformComponent>().each(
+					[&](auto &boxCollider2DComponent, auto &transformComponent) {
+						if (boxCollider2DComponent.visualize) {
+							auto translation = transformComponent.translation+glm::mat3(transformComponent.GetTransform())*glm::vec3(boxCollider2DComponent.offset,0.f);
+							auto size = glm::vec3(boxCollider2DComponent.size,0.f)*transformComponent.scale;
+							auto trans=glm::translate(glm::mat4(1.f),translation)*glm::rotate(glm::mat4(1.f),transformComponent.rotation.z,glm::vec3(0,0,1))*glm::scale(glm::mat4(1.f),size);
+							Renderer2D::DrawRect(trans,boxCollider2DComponent.size, glm::vec4{0.3, 0.5, 0.9, 1});
+						}
+					});
+			scene->GetComponentView<CircleCollider2DComponent, TransformComponent>().each(
+					[&](auto &circleCollider2DComponent, auto &transformComponent) {
+						if (circleCollider2DComponent.visualize) {
+							auto translation =transformComponent.translation + glm::mat3(transformComponent.GetTransform())*glm::vec3(circleCollider2DComponent.offset, 0.f);
+							auto size=transformComponent.scale*(circleCollider2DComponent.radius*2.f);
+							auto trans=glm::translate(glm::mat4(1.f),translation)*glm::scale(glm::mat4(1.f),size);
+							Renderer2D::DrawCircle(trans,glm::vec4{0.3, 0.5, 0.9, 1});
+						}
+					});
+		}
+
+		Renderer2D::EndScene();
 	}
 
 }

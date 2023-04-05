@@ -119,7 +119,7 @@ namespace Z {
 	struct BoxCollider2DComponent{
 		glm::vec2 offset{0.f,0.f};
 		glm::vec2 size{1.f,1.f};
-		bool isTrigger{false},visualize{false};
+		bool isTrigger{false},visualize{true};
 		//Todo : change
 		void* ptr= nullptr;
 
@@ -133,7 +133,7 @@ namespace Z {
 	struct CircleCollider2DComponent{
 		glm::vec2 offset{0.f,0.f};
 		float radius{.5f};
-		bool isTrigger{false},visualize{false};
+		bool isTrigger{false},visualize{true};
 		//Todo : change
 		void* ptr= nullptr;
 

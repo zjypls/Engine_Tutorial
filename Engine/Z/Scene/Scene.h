@@ -33,13 +33,18 @@ namespace Z {
 		void OnRuntimeStart();
 		void OnRuntimeStop();
 
+		template<class... T>
+		auto GetComponentView() {
+			return registry.view<T...>();
+		}
+
 		inline entt::registry &GetRegistry() { return registry;}
 		void OnViewportResize(unsigned int width, unsigned int height);
 		void DestroyEntity(Entity entity);
 		void CopyEntity(Entity entity);
 
-		void OnUpdate(float,bool VisualizeCollider=false);
-		void OnEditorUpdate(float deltaTime, EditorCamera &camera,bool VisualizeCollider=false);
+		void OnUpdate(float);
+		void OnEditorUpdate(float deltaTime, EditorCamera &camera);
 
 		~Scene();
 	};

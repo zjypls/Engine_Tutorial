@@ -67,6 +67,8 @@ namespace Z {
 
 		void On_UI();
 
+		void OnDebugShow();
+
 		void OnImGuiRender() override;
 
 		void OnEvent(Event &event) override;
