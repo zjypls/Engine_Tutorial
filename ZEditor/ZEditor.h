@@ -24,25 +24,17 @@ namespace Z {
 		};
 		SceneState sceneState = SceneState::Edit;
 		CameraController controller;
-		Ref<Shader> shader, grid;
 		Ref<VertexArray> vertexArray;
 		Ref<Texture2D> texture[4];
 		Ref<SubTex2D> subTex;
-		glm::vec4 gridColor = glm::vec4{0.2f, 0.3f, 0.8f, 1.f}, clearValue = glm::vec4{0.1f, 0.1f, 0.1f, 1.0f};
-		glm::vec3 gridPos = glm::vec3{0.0f, 0.0f, 0.0f};
-		glm::vec2 gridScale = glm::vec2{1.0f, 1.0f};
-		float gridRotate = 0.f;
-		float tillingFactor = 1.f;
+		glm::vec4 clearValue = glm::vec4{0.1f, 0.1f, 0.1f, 1.0f};
 		bool IsViewportFocused = false, IsViewportHovered = false,RunTimeVisualizeCollider=true,EditorVisualizeCollider=true;
 		glm::ivec2 index{9, 4}, size{2, 3};
 		std::unordered_map<char, Ref<SubTex2D>> textureMap;
-		Ref<FrameBuffer> frameBuffer;
+		Ref<FrameBuffer> frameBuffer,previewFrame;
 		glm::vec2 viewportSize {1200, 800};
 		glm::vec2 CursorPos{0, 0};
-		Ref<Scene> scene;
-		Ref<Scene> BackScene;
-		Entity entity;
-		Entity cameraEntity,SecondCamera;
+		Ref<Scene> scene,BackScene;
 		Ref<SceneHierarchyPlane> sceneHierarchyPlane;
 		int currentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 		Z::EditorCamera editorCamera;
@@ -50,6 +42,7 @@ namespace Z {
 		Ref<Z::Texture2D> playButtonIcon,stopButtonIcon,currentButtonIcon;
 		std::stringstream data;
 		std::filesystem::path WorkPath{};
+		Entity selectedEntity;
 
 		void InnerSave(const std::string &path);
 		void SaveHotKey();
@@ -67,7 +60,7 @@ namespace Z {
 
 		void On_UI();
 
-		void OnDebugShow();
+		void OnDebugShow(bool preview = false);
 
 		void OnImGuiRender() override;
 

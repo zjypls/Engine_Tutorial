@@ -79,27 +79,6 @@ namespace Z {
 					Renderer2D::DrawCircle(registry.get<TransformComponent>(item).GetTransform(),
 					                       registry.get<CircleRendererComponent>(item), uint32_t(item));
 				});
-/*		if (VisualizeCollider) {
-			registry.view<TransformComponent, RigidBody2DComponent>().each(
-					[&](auto id, auto &transform, auto &rigidBody) {
-						Entity entity{id, this};
-						auto color = glm::vec4(.8, .5, .3, 1);
-						if (rigidBody.bodyType == RigidBody2DComponent::BodyType::Static)
-							color = glm::vec4(.5, .3, .1, 1);
-						if (entity.HasComponent<BoxCollider2DComponent>()) {
-							auto &boxCollider = entity.GetComponent<BoxCollider2DComponent>();
-							if (boxCollider.visualize) {
-								Renderer2D::DrawRect(transform.GetTransform(), boxCollider.size, color, uint32_t(id));
-							}
-						}
-						if (entity.HasComponent<CircleCollider2DComponent>()) {
-							auto &circleCollider = entity.GetComponent<CircleCollider2DComponent>();
-							if (circleCollider.visualize) {
-								Renderer2D::DrawCircle(transform.GetTransform(), color);
-							}
-						}
-					});
-		}*/
 		Renderer2D::EndScene();
 
 	}
@@ -152,36 +131,31 @@ namespace Z {
 		              registry.view<TransformComponent, SpriteRendererComponent>().end(), [&](const auto &item) {
 					Renderer2D::DrawQuad(registry.get<TransformComponent>(item).GetTransform(),
 					                     registry.get<SpriteRendererComponent>(item), uint32_t(item));
-//					Renderer2D::DrawRect(registry.get<TransformComponent>(item).GetTransform(),glm::vec3(1),
-//					                     registry.get<SpriteRendererComponent>(item).color, uint32_t(item));
 				});
 		std::for_each(registry.view<TransformComponent, CircleRendererComponent>().begin(),
 		              registry.view<TransformComponent, CircleRendererComponent>().end(), [&](const auto &item) {
 					Renderer2D::DrawCircle(registry.get<TransformComponent>(item).GetTransform(),
 					                       registry.get<CircleRendererComponent>(item), uint32_t(item));
 				});
-/*		if (VisualizeCollider)
-			registry.view<TransformComponent, RigidBody2DComponent>().each(
-					[&](auto id, auto &transform, auto &rigidBody) {
-						Entity entity{id, this};
-						auto color = glm::vec4(.8, .5, .3, 1);
-						if (rigidBody.bodyType == RigidBody2DComponent::BodyType::Static)
-							color = glm::vec4(.5, .3, .1, 1);
-						if (entity.HasComponent<BoxCollider2DComponent>()) {
-							auto &boxCollider = entity.GetComponent<BoxCollider2DComponent>();
-							if (boxCollider.visualize) {
-								Renderer2D::DrawRect(transform.GetTransform(), boxCollider.size, color, uint32_t(id));
-							}
-						}
-						if (entity.HasComponent<CircleCollider2DComponent>()) {
-							auto &circleCollider = entity.GetComponent<CircleCollider2DComponent>();
-							if (circleCollider.visualize) {
-								Renderer2D::DrawCircle(transform.GetTransform(), color);
-							}
-						}
-					});*/
 		Renderer2D::EndScene();
 	}
+
+
+	void Scene::OnPreviewUpdate(float deltaTime, Camera &camera, glm::mat4 transform) {
+		Renderer2D::BeginScene(camera, transform);
+		std::for_each(registry.view<TransformComponent, SpriteRendererComponent>().begin(),
+		              registry.view<TransformComponent, SpriteRendererComponent>().end(), [&](const auto &item) {
+					Renderer2D::DrawQuad(registry.get<TransformComponent>(item).GetTransform(),
+					                     registry.get<SpriteRendererComponent>(item), uint32_t(item));
+				});
+		std::for_each(registry.view<TransformComponent, CircleRendererComponent>().begin(),
+		              registry.view<TransformComponent, CircleRendererComponent>().end(), [&](const auto &item) {
+					Renderer2D::DrawCircle(registry.get<TransformComponent>(item).GetTransform(),
+					                       registry.get<CircleRendererComponent>(item), uint32_t(item));
+				});
+		Renderer2D::EndScene();
+	}
+
 
 	void Scene::OnRuntimeStart() {
 		PhysicalWorld = new b2World(b2Vec2(0.0f, -9.8f));

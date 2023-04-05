@@ -123,6 +123,9 @@ namespace Z {
 		data->lineVertexBufferPtr = data->lineVertexBufferBase;
 	}
 
+	void Renderer2D::BeginScene(const SceneCamera &camera, const glm::mat4 &transform) {
+		BeginScene(Camera(camera), transform);
+	}
 	void Renderer2D::Flush() {
 		if (data->quadIndexCount > 0) {
 			data->QuadShader->Bind();
@@ -342,5 +345,6 @@ namespace Z {
 	void Renderer2D::ChangeDepthTest(RenderAPI::DepthTestState state) {
 		RenderCommand::ChangeDepthTest(state);
 	}
+
 
 }

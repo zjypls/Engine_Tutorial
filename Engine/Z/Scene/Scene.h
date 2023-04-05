@@ -45,8 +45,10 @@ namespace Z {
 
 		void OnUpdate(float);
 		void OnEditorUpdate(float deltaTime, EditorCamera &camera);
+		void OnPreviewUpdate(float deltaTime,Camera &camera,glm::mat4 transform);
 
 		~Scene();
+
 	};
 }
 

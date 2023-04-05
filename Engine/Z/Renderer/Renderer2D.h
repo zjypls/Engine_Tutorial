@@ -96,6 +96,7 @@ namespace Z {
 		static void BeginScene(const Ref<OrithGraphicCamera> &camera);
 		static void BeginScene(const Camera&camera,const glm::mat4 &transform);
 		static void BeginScene(const EditorCamera&camera);
+		static void BeginScene(const SceneCamera&camera,const glm::mat4 &transform);
 		static void Flush();
 		static void EndScene();
 		static void ChangeDepthTest(RenderAPI::DepthTestState state=RenderAPI::DepthTestState::Less);

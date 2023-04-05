@@ -28,7 +28,7 @@ namespace Z {
 			const glm::vec3&scale=glm::vec3{1.f})
 			: translation(position), rotation(rotation), scale(scale) {}
 
-		glm::mat4 GetTransform() {
+		glm::mat4 GetTransform()const {
 			return glm::translate(glm::mat4(1.f), translation)
 			       * glm::toMat4(glm::quat(rotation))
 			       * glm::scale(glm::mat4(1.f), scale);
