@@ -23,7 +23,7 @@ namespace Z {
 
 	void EditorCamera::OnUpdate() {
 		auto [x, y] = Input::GetMousePosition();
-		if (Input::IsKeyPressed(KeyCode::LeftAlt)) {
+		if (Input::IsKeyPressed(KeyCode::LeftShift)) {
 			auto offset = glm::vec2(x, y) - lastMousePosition;
 			if (Input::IsMouseButtonPressed(MouseCode::ButtonRight)) {
 				ViewRotate(offset);

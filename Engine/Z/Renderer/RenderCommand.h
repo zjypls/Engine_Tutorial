@@ -30,6 +30,9 @@ namespace Z {
 		inline static void DrawLine(const Ref<VertexArray> &vertexArray, unsigned int count) {
 			s_RenderAPI->DrawLine(vertexArray, count);
 		}
+		static void ChangeDepthTest(RenderAPI::DepthTestState state = RenderAPI::DepthTestState::Less){
+			s_RenderAPI->ChangeDepthTest(state);
+		}
 
 		inline static void GetError() { s_RenderAPI->GetError(); }
 	};

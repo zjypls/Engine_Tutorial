@@ -98,6 +98,7 @@ namespace Z {
 		static void BeginScene(const EditorCamera&camera);
 		static void Flush();
 		static void EndScene();
+		static void ChangeDepthTest(RenderAPI::DepthTestState state=RenderAPI::DepthTestState::Less);
 		inline static void DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color){
 			DrawQuad(glm::vec3{position.x,position.y,0.f},size,color);
 		}

@@ -339,4 +339,8 @@ namespace Z {
 		stats->QuadCount++;
 	}
 
+	void Renderer2D::ChangeDepthTest(RenderAPI::DepthTestState state) {
+		RenderCommand::ChangeDepthTest(state);
+	}
+
 }
