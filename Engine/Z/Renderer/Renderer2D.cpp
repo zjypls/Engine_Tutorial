@@ -279,19 +279,7 @@ namespace Z {
 	}
 
 	void Renderer2D::DrawCircle(const glm::mat4 &transform, const CircleRendererComponent &circle, int EntityID) {
-
-		for (auto quadVertexPosition: data->quadVertexPositions) {
-			data->circleVertexBufferPtr->WorldPosition = glm::vec3(transform * quadVertexPosition);
-			data->circleVertexBufferPtr->LocalPosition = glm::vec3(quadVertexPosition) * 2.f;
-			data->circleVertexBufferPtr->color = circle.color;
-			data->circleVertexBufferPtr->thickness = circle.thickness;
-			data->circleVertexBufferPtr->fade = circle.fade;
-			data->circleVertexBufferPtr->EntityID = EntityID;
-			data->circleVertexBufferPtr++;
-		}
-		data->circleIndexCount += 6;
-		stats->QuadCount++;
-
+		DrawCircle(transform,circle.color,circle.thickness,circle.fade,EntityID);
 	}
 
 	void Renderer2D::DrawLine(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec4 &color, int entityID) {
@@ -323,6 +311,7 @@ namespace Z {
 		DrawLine(v1, v2, color, entityID);
 		DrawLine(v2, v3, color, entityID);
 		DrawLine(v3, v0, color, entityID);
+		stats->QuadCount++;
 	}
 
 
@@ -332,6 +321,22 @@ namespace Z {
 		DrawLine({rightTop.x, leftBottom.y, rightTop.z}, rightTop, color, entityID);
 		DrawLine(rightTop, {leftBottom.x, rightTop.y, leftBottom.z}, color, entityID);
 		DrawLine({leftBottom.x, rightTop.y, leftBottom.z}, leftBottom, color, entityID);
+
+		stats->QuadCount++;
+	}
+
+	void Renderer2D::DrawCircle(const glm::mat4 &transform, const glm::vec4 &color, float thickness,float fade, int EntityID) {
+		for (auto quadVertexPosition: data->quadVertexPositions) {
+			data->circleVertexBufferPtr->WorldPosition = glm::vec3(transform * quadVertexPosition);
+			data->circleVertexBufferPtr->LocalPosition = glm::vec3(quadVertexPosition) * 2.f;
+			data->circleVertexBufferPtr->color = color;
+			data->circleVertexBufferPtr->thickness = thickness;
+			data->circleVertexBufferPtr->fade = fade;
+			data->circleVertexBufferPtr->EntityID = EntityID;
+			data->circleVertexBufferPtr++;
+		}
+		data->circleIndexCount += 6;
+		stats->QuadCount++;
 	}
 
 }

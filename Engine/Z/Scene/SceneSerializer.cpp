@@ -332,7 +332,7 @@ namespace Z {
 			if (circleCollier) {
 				auto &collider = entity.AddComponent<CircleCollider2DComponent>();
 				collider.isTrigger = circleCollier["IsTrigger"].as<bool>();
-				collider.visualize = boxCollider2DComponent["visualize"].as<bool>();
+				collider.visualize = circleCollier["visualize"].as<bool>();
 				collider.density = circleCollier["density"].as<float>();
 				collider.friction = circleCollier["friction"].as<float>();
 				collider.restitution = circleCollier["restitution"].as<float>();

@@ -101,7 +101,6 @@ namespace Z {
 	};
 
 
-
 	struct RigidBody2DComponent{
 		enum class BodyType{
 			Static,
@@ -133,7 +132,7 @@ namespace Z {
 
 	struct CircleCollider2DComponent{
 		glm::vec2 offset{0.f,0.f};
-		float radius{1.f};
+		float radius{.5f};
 		bool isTrigger{false},visualize{false};
 		//Todo : change
 		void* ptr= nullptr;

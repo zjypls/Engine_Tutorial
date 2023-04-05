@@ -273,7 +273,7 @@ namespace Z {
 		}
 
 		auto selectedEntity = sceneHierarchyPlane->GetSelectedEntity();
-		if (selectedEntity && currentGizmoOperation != -1) {
+		if (selectedEntity && currentGizmoOperation != -1&&sceneState==SceneState::Edit) {
 			ImGuizmo::SetOrthographic(false);
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x,

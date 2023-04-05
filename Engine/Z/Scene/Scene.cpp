@@ -79,20 +79,27 @@ namespace Z {
 					Renderer2D::DrawCircle(registry.get<TransformComponent>(item).GetTransform(),
 					                       registry.get<CircleRendererComponent>(item), uint32_t(item));
 				});
-		if (VisualizeCollider)
+		if (VisualizeCollider) {
 			registry.view<TransformComponent, RigidBody2DComponent>().each(
 					[&](auto id, auto &transform, auto &rigidBody) {
 						Entity entity{id, this};
+						auto color = glm::vec4(.8, .5, .3, 1);
+						if (rigidBody.bodyType == RigidBody2DComponent::BodyType::Static)
+							color = glm::vec4(.5, .3, .1, 1);
 						if (entity.HasComponent<BoxCollider2DComponent>()) {
-							auto color = glm::vec4(.8, .5, .3, 1);
-							if (rigidBody.bodyType == RigidBody2DComponent::BodyType::Static)
-								color = glm::vec4(.5, .3, .1, 1);
 							auto &boxCollider = entity.GetComponent<BoxCollider2DComponent>();
 							if (boxCollider.visualize) {
 								Renderer2D::DrawRect(transform.GetTransform(), boxCollider.size, color, uint32_t(id));
 							}
 						}
+						if (entity.HasComponent<CircleCollider2DComponent>()) {
+							auto &circleCollider = entity.GetComponent<CircleCollider2DComponent>();
+							if (circleCollider.visualize) {
+								Renderer2D::DrawCircle(transform.GetTransform(), color);
+							}
+						}
 					});
+		}
 		Renderer2D::EndScene();
 
 		Renderer2D::EndScene();
@@ -158,13 +165,19 @@ namespace Z {
 			registry.view<TransformComponent, RigidBody2DComponent>().each(
 					[&](auto id, auto &transform, auto &rigidBody) {
 						Entity entity{id, this};
+						auto color = glm::vec4(.8, .5, .3, 1);
+						if (rigidBody.bodyType == RigidBody2DComponent::BodyType::Static)
+							color = glm::vec4(.5, .3, .1, 1);
 						if (entity.HasComponent<BoxCollider2DComponent>()) {
-							auto color = glm::vec4(.8, .5, .3, 1);
-							if (rigidBody.bodyType == RigidBody2DComponent::BodyType::Static)
-								color = glm::vec4(.5, .3, .1, 1);
 							auto &boxCollider = entity.GetComponent<BoxCollider2DComponent>();
 							if (boxCollider.visualize) {
 								Renderer2D::DrawRect(transform.GetTransform(), boxCollider.size, color, uint32_t(id));
+							}
+						}
+						if (entity.HasComponent<CircleCollider2DComponent>()) {
+							auto &circleCollider = entity.GetComponent<CircleCollider2DComponent>();
+							if (circleCollider.visualize) {
+								Renderer2D::DrawCircle(transform.GetTransform(), color);
 							}
 						}
 					});

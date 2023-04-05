@@ -33,7 +33,7 @@ namespace Z {
 		glm::vec2 gridScale = glm::vec2{1.0f, 1.0f};
 		float gridRotate = 0.f;
 		float tillingFactor = 1.f;
-		bool IsViewportFocused = false, IsViewportHovered = false,RunTimeVisualizeCollider=false,EditorVisualizeCollider=true;
+		bool IsViewportFocused = false, IsViewportHovered = false,RunTimeVisualizeCollider=true,EditorVisualizeCollider=true;
 		glm::ivec2 index{9, 4}, size{2, 3};
 		std::unordered_map<char, Ref<SubTex2D>> textureMap;
 		Ref<FrameBuffer> frameBuffer;
