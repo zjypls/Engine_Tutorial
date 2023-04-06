@@ -27,7 +27,8 @@ namespace Z {
 		Ref<VertexArray> vertexArray;
 		Ref<Texture2D> texture[4];
 		Ref<SubTex2D> subTex;
-		glm::vec4 clearValue = glm::vec4{0.1f, 0.1f, 0.1f, 1.0f};
+		glm::vec4 clearValue{0.1f, 0.1f, 0.1f, 1.0f};
+		glm::vec4 ActiveColor{0.3f, 0.8f, 0.1f, 1.0f},InactiveColor{0.4f, 0.4f, 0.1f, 1.0f};
 		bool IsViewportFocused = false, IsViewportHovered = false, RunTimeVisualizeCollider = true, EditorVisualizeCollider = true;
 		glm::ivec2 index{9, 4}, size{2, 3};
 		std::unordered_map<char, Ref<SubTex2D>> textureMap;
@@ -35,10 +36,10 @@ namespace Z {
 		glm::vec2 viewportSize{1200, 800};
 		glm::vec2 CursorPos{0, 0};
 		Ref<Scene> scene, BackScene;
-		Ref<SceneHierarchyPlane> sceneHierarchyPlane;
+		Scope<SceneHierarchyPlane> sceneHierarchyPlane;
 		int currentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 		Z::EditorCamera editorCamera;
-		Ref<ContentBrowser> contentBrowser;
+		Scope<ContentBrowser> contentBrowser;
 		Ref<Z::Texture2D> playButtonIcon, stopButtonIcon, simulateButtonIcon, currentButtonIcon0, currentButtonIcon1;
 		std::stringstream data;
 		std::filesystem::path WorkPath{};
@@ -61,7 +62,7 @@ namespace Z {
 
 		void OnButtonUI();
 
-		void OnDebugShow(bool preview = false);
+		void OnDebugShow(bool circle2D = false);
 
 		void OnImGuiRender() override;
 

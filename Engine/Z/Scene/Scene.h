@@ -8,7 +8,7 @@
 #include "entt.hpp"
 #include "Z/Renderer/EditorCamera.h"
 
-class b2World;
+
 namespace Z {
 
 	class Scene {
@@ -17,7 +17,7 @@ namespace Z {
 		friend class Entity;
 		friend class SceneHierarchyPlane;
 		friend class SceneSerializer;
-		b2World* PhysicalWorld = nullptr;
+		void* PhysicalWorld = nullptr;
 		template<class _Ty>
 		void OnComponentAdd(Entity entity, _Ty &component);
 		void Render2D();

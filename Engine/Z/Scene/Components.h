@@ -119,9 +119,9 @@ namespace Z {
 	struct BoxCollider2DComponent{
 		glm::vec2 offset{0.f,0.f};
 		glm::vec2 size{1.f,1.f};
-		bool isTrigger{false},visualize{true};
+		bool isTrigger{false};
 		//Todo : change
-		void* ptr= nullptr;
+		void* ptr= new int{1};
 
 		float density{0.5f};
 		float friction{0.5f};
@@ -133,9 +133,9 @@ namespace Z {
 	struct CircleCollider2DComponent{
 		glm::vec2 offset{0.f,0.f};
 		float radius{.5f};
-		bool isTrigger{false},visualize{true};
+		bool isTrigger{false};
 		//Todo : change
-		void* ptr= nullptr;
+		void* ptr= new int{1};
 
 		float density{0.5f};
 		float friction{0.5f};
@@ -143,6 +143,13 @@ namespace Z {
 		float MinRestitution{0.5f};
 		CircleCollider2DComponent()=default;
 	};
+
+	template<class... T>
+	struct Type{
+	};
+
+	using AllTypes=Type<TransformComponent,SpriteRendererComponent,CircleRendererComponent,TagComponent,
+	CameraComponent,ScriptComponent,RigidBody2DComponent,BoxCollider2DComponent,CircleCollider2DComponent>;
 
 }
 

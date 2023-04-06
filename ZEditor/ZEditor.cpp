@@ -83,8 +83,8 @@ namespace Z {
 		simulateButtonIcon = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR) + "/Assets/Icons/SimulateButton.png");
 		currentButtonIcon0 = playButtonIcon;
 		currentButtonIcon1 = simulateButtonIcon;
-		//Todo: To be removed
 		/*
+		//Todo: To be removed
 		cameraEntity = scene->CreateEntity("Camera");
 		cameraEntity.AddComponent<CameraComponent>(glm::ortho(-16.f, 16.f, -9.f, 9.f, -1.f, 1.f));
 		SecondCamera = scene->CreateEntity("SecondCamera");
@@ -127,8 +127,8 @@ namespace Z {
 		SecondCamera.AddComponent<ScriptComponent>().Bind<CameraCtrl>();
 */
 
-		sceneHierarchyPlane = CreateRef<SceneHierarchyPlane>(scene);
-		contentBrowser = CreateRef<ContentBrowser>();
+		sceneHierarchyPlane = CreateScope<SceneHierarchyPlane>(scene);
+		contentBrowser = CreateScope<ContentBrowser>();
 
 	}
 
@@ -167,19 +167,21 @@ namespace Z {
 		}
 		OnDebugShow();
 
-		if (selectedEntity=sceneHierarchyPlane->GetSelectedEntity();(sceneState == SceneState::Edit && IsViewportFocused && IsViewportHovered && !ImGuizmo::IsOver()) &&
-		    ((selectedEntity && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) ||
-		     (!selectedEntity && Input::IsMouseButtonPressed(MouseCode::ButtonLeft)))) {
+		if (selectedEntity = sceneHierarchyPlane->GetSelectedEntity();
+				(sceneState == SceneState::Edit && IsViewportFocused && IsViewportHovered && !ImGuizmo::IsOver()) &&
+				((selectedEntity && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) ||
+				 (!selectedEntity && Input::IsMouseButtonPressed(MouseCode::ButtonLeft)))) {
 
 			auto value = frameBuffer->GetPixel(CursorPos.x, CursorPos.y);
 			selectedEntity = sceneHierarchyPlane->SetSelectedEntity(value);
 		}
 		frameBuffer->UnBind();
-		if((sceneState!=SceneState::Play)&&selectedEntity&&selectedEntity.HasComponent<CameraComponent>()){
+		if ((sceneState != SceneState::Play) && selectedEntity && selectedEntity.HasComponent<CameraComponent>()) {
 			previewFrame->Bind();
 			RenderCommand::SetClearValue(clearValue);
 			RenderCommand::Clear();
-			scene->OnPreviewUpdate(Time::DeltaTime(), selectedEntity.GetComponent<CameraComponent>().camera,selectedEntity.GetComponent<TransformComponent>().GetTransform());
+			scene->OnPreviewUpdate(Time::DeltaTime(), selectedEntity.GetComponent<CameraComponent>().camera,
+			                       selectedEntity.GetComponent<TransformComponent>().GetTransform());
 			OnDebugShow(true);
 			Renderer2D::EndScene();
 			previewFrame->UnBind();
@@ -257,11 +259,15 @@ namespace Z {
 		ImGui::Text("Quads: %u", stats->QuadCount);
 		ImGui::Text("Vertices: %u", stats->GetTotalVertexCount());
 		ImGui::Text("Indices: %u", stats->GetTotalIndexCount());
-		ImGui::Text("FPS: %.0f", 1.f/Time::DeltaTime());
+		ImGui::Text("FPS: %.0f", 1.f / Time::DeltaTime());
 		ImGui::Text("Frame Time: %.3f s", Time::DeltaTime());
 		stats->Reset();
+		ImGui::End();
+		ImGui::Begin("Settings");
 		ImGui::Checkbox("Editor Visualize Collider", &EditorVisualizeCollider);
 		ImGui::Checkbox("RunTime Visualize Collider", &RunTimeVisualizeCollider);
+		ImGui::DragFloat4("Collider ActiveColor", glm::value_ptr(ActiveColor), 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat4("Collider InActiveColor", glm::value_ptr(InactiveColor), 0.01f, 0.0f, 1.0f);
 
 		sceneHierarchyPlane->OnImGuiRender();
 		contentBrowser->OnImGuiRender();
@@ -305,7 +311,8 @@ namespace Z {
 				return;
 			}
 		}
-		if ((sceneState==SceneState::Edit||sceneState==SceneState::Simulate)&&selectedEntity && selectedEntity.HasComponent<CameraComponent>()) {
+		if (selectedEntity=sceneHierarchyPlane->GetSelectedEntity();(sceneState == SceneState::Edit || sceneState == SceneState::Simulate) && selectedEntity &&
+		    selectedEntity.HasComponent<CameraComponent>()) {
 			ImGui::SetNextWindowPos(ImGui::GetWindowPos() +
 			                        ImVec2(ImGui::GetWindowSize().x - ImGui::GetWindowSize().x / 4,
 			                               ImGui::GetWindowSize().y - ImGui::GetWindowSize().y / 4));
@@ -317,11 +324,13 @@ namespace Z {
 			             ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
 			             ImGuiWindowFlags_NoBackground
 			             | ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNav);
-			ImGui::Image((void *) previewFrame->GetAttachmentID(0), ImVec2{ImGui::GetWindowSize().x, ImGui::GetWindowSize().y}, ImVec2{0, 1},
+			ImGui::Image((void *) previewFrame->GetAttachmentID(0),
+			             ImVec2{ImGui::GetWindowSize().x, ImGui::GetWindowSize().y}, ImVec2{0, 1},
 			             ImVec2{1, 0});
 			ImGui::End();
 		}
-		if (selectedEntity && currentGizmoOperation != -1 && (sceneState == SceneState::Edit||sceneState == SceneState::Simulate)) {
+		if (selectedEntity && currentGizmoOperation != -1 &&
+		    (sceneState == SceneState::Edit || sceneState == SceneState::Simulate)) {
 			ImGuizmo::SetOrthographic(false);
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x,
@@ -361,10 +370,12 @@ namespace Z {
 		ImGui::Begin("##tools", nullptr,
 		             ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar |
 		             ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-		float size = ImGui::GetWindowHeight()-4;
-		ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x / 2 - ImGui::GetWindowHeight() );
+
+		ImGui::BeginDisabled(!scene);
+		float size = ImGui::GetWindowHeight() - 4;
+		ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x / 2 - ImGui::GetWindowHeight());
 		if (ImGui::ImageButton((ImTextureID) currentButtonIcon0->GetRendererID(), ImVec2{size, size}, ImVec2{0, 1},
-		                       ImVec2{1, 0})&&sceneState!=SceneState::Simulate) {
+		                       ImVec2{1, 0}) && sceneState != SceneState::Simulate) {
 			if (sceneState == SceneState::Edit) {
 				OnPlay();
 			} else if (sceneState == SceneState::Play) {
@@ -373,16 +384,18 @@ namespace Z {
 		}
 		ImGui::SameLine();
 		if (ImGui::ImageButton((ImTextureID) currentButtonIcon1->GetRendererID(), ImVec2{size, size}, ImVec2{0, 1},
-		                       ImVec2{1, 0})&&sceneState!=SceneState::Play) {
+		                       ImVec2{1, 0}) && sceneState != SceneState::Play) {
 			if (sceneState == SceneState::Edit) {
 				OnSimulate();
 			} else if (sceneState == SceneState::Simulate) {
 				OnStop();
 			}
 		}
+		ImGui::EndDisabled();
 		ImGui::PopStyleColor(3);
 		ImGui::PopStyleVar(2);
 		ImGui::End();
+
 	}
 
 	void EditorLayer::OnEvent(Event &event) {
@@ -446,8 +459,8 @@ namespace Z {
 	}
 
 	void EditorLayer::NewScene() {
-		if(!WorkPath.empty()){
-			if(sceneState!=SceneState::Edit)
+		if (!WorkPath.empty()) {
+			if (sceneState != SceneState::Edit)
 				OnStop();
 			InnerSave(WorkPath.string());
 		}
@@ -469,10 +482,10 @@ namespace Z {
 	}
 
 	void EditorLayer::OnStop() {
-		if(sceneState==SceneState::Play){
+		if (sceneState == SceneState::Play) {
 			currentButtonIcon0 = playButtonIcon;
 			scene->OnRuntimeStop();
-		}else if(sceneState==SceneState::Simulate){
+		} else if (sceneState == SceneState::Simulate) {
 			currentButtonIcon1 = simulateButtonIcon;
 			scene->OnSimulateStop();
 		}
@@ -527,14 +540,15 @@ namespace Z {
 	}
 
 	void EditorLayer::OnDebugShow(bool preview) {
-		if(preview){
-			if(selectedEntity)
-				Renderer2D::BeginScene(selectedEntity.GetComponent<CameraComponent>().camera,selectedEntity.GetComponent<TransformComponent>().GetTransform());
-			else{
+		if (preview) {
+			if (selectedEntity)
+				Renderer2D::BeginScene(selectedEntity.GetComponent<CameraComponent>().camera,
+				                       selectedEntity.GetComponent<TransformComponent>().GetTransform());
+			else {
 				Z_CORE_ERROR("No camera to preview!!!");
 				return;
 			}
-		}else if (sceneState == SceneState::Edit||sceneState==SceneState::Simulate) {
+		} else if (sceneState == SceneState::Edit || sceneState == SceneState::Simulate) {
 			Renderer2D::BeginScene(editorCamera);
 		} else if (sceneState == SceneState::Play) {
 			auto camera = scene->GetMainCamera();
@@ -546,33 +560,30 @@ namespace Z {
 			                       camera.GetComponent<TransformComponent>().GetTransform());
 		}
 
-		if (((sceneState !=SceneState::Play)&& EditorVisualizeCollider) ||
+		if (((sceneState != SceneState::Play) && EditorVisualizeCollider) ||
 		    (sceneState == SceneState::Play && RunTimeVisualizeCollider)) {
 			scene->GetComponentView<BoxCollider2DComponent, TransformComponent>().each(
-					[&](auto &boxCollider2DComponent, auto &transformComponent) {
-						if (boxCollider2DComponent.visualize) {
-							//Todo : to be optimized
-							auto translation = transformComponent.translation +
-							                   glm::mat3(transformComponent.GetTransform()) *
-							                   glm::vec3(boxCollider2DComponent.offset, 0.f);
-							auto size = glm::vec3(boxCollider2DComponent.size, 0.f) * transformComponent.scale;
-							auto trans = glm::translate(glm::mat4(1.f), translation) *
-							             glm::rotate(glm::mat4(1.f), transformComponent.rotation.z,
-							                         glm::vec3(0, 0, 1)) * glm::scale(glm::mat4(1.f), size);
-							Renderer2D::DrawRect(trans, boxCollider2DComponent.size, glm::vec4{0.3, 0.5, 0.9, 1});
-						}
+					[&](auto &box2D, auto &transformComponent) {
+						//Todo : to be optimized
+						auto translation = transformComponent.translation +
+						                   glm::mat3(transformComponent.GetTransform()) *
+						                   glm::vec3(box2D.offset, 0.f);
+						auto size = glm::vec3(box2D.size, 0.f) * transformComponent.scale;
+						auto trans = glm::translate(glm::mat4(1.f), translation) *
+						             glm::rotate(glm::mat4(1.f), transformComponent.rotation.z,
+						                         glm::vec3(0, 0, 1)) * glm::scale(glm::mat4(1.f), size);
+						Renderer2D::DrawRect(trans, box2D.size, *(int*)(box2D.ptr)?ActiveColor:InactiveColor);
+
 					});
 			scene->GetComponentView<CircleCollider2DComponent, TransformComponent>().each(
-					[&](auto &circleCollider2DComponent, auto &transformComponent) {
-						if (circleCollider2DComponent.visualize) {
-							//Todo : to be optimized
-							auto translation = transformComponent.translation +
-							                   glm::mat3(transformComponent.GetTransform()) *
-							                   glm::vec3(circleCollider2DComponent.offset, 0.f);
-							auto size = transformComponent.scale * (circleCollider2DComponent.radius * 2.f);
-							auto trans = glm::translate(glm::mat4(1.f), translation) * glm::scale(glm::mat4(1.f), size);
-							Renderer2D::DrawCircle(trans, glm::vec4{0.3, 0.5, 0.9, 1});
-						}
+					[&](auto &circle2D, auto &transformComponent) {
+						//Todo : to be optimized
+						auto translation = transformComponent.translation +
+						                   glm::mat3(transformComponent.GetTransform()) *
+						                   glm::vec3(circle2D.offset, 0.f);
+						auto size = transformComponent.scale * (circle2D.radius * 2.f);
+						auto trans = glm::translate(glm::mat4(1.f), translation) * glm::scale(glm::mat4(1.f), size);
+						Renderer2D::DrawCircle(trans, *(int*)(circle2D.ptr) ? ActiveColor : InactiveColor);
 					});
 		}
 		//Todo: To be optimized

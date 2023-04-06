@@ -33,6 +33,14 @@ namespace Z {
 				dst.AddOrReplaceComponent<T>(src.GetComponent<T>());
 			}
 		}
+
+		template<class... T>
+		static void CopyEntity(Type<T...>,Entity src,Entity dst){
+			([&](){
+				if (src.HasComponent<T>())
+					dst.AddOrReplaceComponent<T>(src.GetComponent<T>());
+			}(),...);
+		}
 	}
 
 
@@ -54,7 +62,7 @@ namespace Z {
 			bodyDef.position.Set(transform.translation.x, transform.translation.y);
 			bodyDef.angle = transform.rotation.z;
 			bodyDef.fixedRotation = rigidBody.fixedRotation;
-			b2Body *body = PhysicalWorld->CreateBody(&bodyDef);
+			b2Body *body = ((b2World*)PhysicalWorld)->CreateBody(&bodyDef);
 			rigidBody.ptr = body;
 
 			if (entity.HasComponent<BoxCollider2DComponent>()) {
@@ -69,7 +77,7 @@ namespace Z {
 				fixtureDef.restitution = collider.restitution;
 				fixtureDef.restitutionThreshold = collider.MinRestitution;
 				body->CreateFixture(&fixtureDef);
-				collider.ptr = body->GetFixtureList();
+				*(int*)collider.ptr = {body->GetType()!=b2_staticBody};
 			}
 			if (entity.HasComponent<CircleCollider2DComponent>()) {
 				auto &collider = entity.GetComponent<CircleCollider2DComponent>();
@@ -83,7 +91,8 @@ namespace Z {
 				fixtureDef.restitution = collider.restitution;
 				fixtureDef.restitutionThreshold = collider.MinRestitution;
 				body->CreateFixture(&fixtureDef);
-				collider.ptr = body->GetFixtureList();
+				//Todo: improve this
+				*(int*)collider.ptr = {body->GetType()!=b2_staticBody};
 			}
 		});
 	}
@@ -195,13 +204,28 @@ namespace Z {
 	}
 
 	void Scene::OnPhysics2DUpdate(float deltaTime) {
-		PhysicalWorld->Step(deltaTime, 8, 3);
+		((b2World*)PhysicalWorld)->Step(deltaTime, 8, 3);
 		registry.view<RigidBody2DComponent>().each([&](auto id, auto &rigidBody) {
 			if (rigidBody.bodyType != RigidBody2DComponent::BodyType::Static) {
 				Entity entity{id, this};
 				auto &transform = entity.GetComponent<TransformComponent>();
 				auto body = (b2Body *) rigidBody.ptr;
 				const auto &position = body->GetPosition();
+				if(!body->IsAwake()) {
+					if (entity.HasComponent<BoxCollider2DComponent>()) {
+						*(int*)(entity.GetComponent<BoxCollider2DComponent>().ptr)=0;
+					}
+					if(entity.HasComponent<CircleCollider2DComponent>()){
+						*(int*)(entity.GetComponent<CircleCollider2DComponent>().ptr)=0;
+					}
+				}else{
+					if (entity.HasComponent<BoxCollider2DComponent>()) {
+						*(int*)(entity.GetComponent<BoxCollider2DComponent>().ptr)=1;
+					}
+					if(entity.HasComponent<CircleCollider2DComponent>()){
+						*(int*)(entity.GetComponent<CircleCollider2DComponent>().ptr)=1;
+					}
+				}
 				transform.translation.x = position.x;
 				transform.translation.y = position.y;
 				transform.rotation.z = body->GetAngle();
@@ -218,6 +242,7 @@ namespace Z {
 	}
 
 	Scene::~Scene() {
+		delete PhysicalWorld;
 	}
 
 	Ref<Scene> Scene::Copy(Ref<Scene> src) {
@@ -232,50 +257,16 @@ namespace Z {
 			auto entity = res->CreateEntityWithGuid(idComponent.ID, srcRegistry.get<TagComponent>(id).tag);
 			auto &trans = srcEntity.GetComponent<TransformComponent>();
 			resRegistry.emplace_or_replace<TransformComponent>(entity, trans);
-			if (srcEntity.HasComponent<CameraComponent>()) {
-				auto &camera = srcEntity.GetComponent<CameraComponent>();
-				resRegistry.emplace_or_replace<CameraComponent>(entity, camera);
-			}
-			if (srcEntity.HasComponent<SpriteRendererComponent>()) {
-				auto &sprite = srcEntity.GetComponent<SpriteRendererComponent>();
-				resRegistry.emplace_or_replace<SpriteRendererComponent>(entity, sprite);
-			}
-			if (srcEntity.HasComponent<ScriptComponent>()) {
-				auto &script = srcEntity.GetComponent<ScriptComponent>();
-				resRegistry.emplace_or_replace<ScriptComponent>(entity, script);
-			}
-			if (srcEntity.HasComponent<RigidBody2DComponent>()) {
-				auto &rigidBody = srcEntity.GetComponent<RigidBody2DComponent>();
-				resRegistry.emplace_or_replace<RigidBody2DComponent>(entity, rigidBody);
-			}
-			if (srcEntity.HasComponent<BoxCollider2DComponent>()) {
-				auto &collider = srcEntity.GetComponent<BoxCollider2DComponent>();
-				resRegistry.emplace_or_replace<BoxCollider2DComponent>(entity, collider);
-			}
-			if (srcEntity.HasComponent<CircleRendererComponent>()) {
-				auto &circle = srcEntity.GetComponent<CircleRendererComponent>();
-				resRegistry.emplace_or_replace<CircleRendererComponent>(entity, circle);
-			}
-			if (srcEntity.HasComponent<CircleCollider2DComponent>()) {
-				auto &circle = srcEntity.GetComponent<CircleCollider2DComponent>();
-				resRegistry.emplace_or_replace<CircleCollider2DComponent>(entity, circle);
-			}
+			Temp::CopyEntity(AllTypes{},srcEntity,entity);
 		});
 		return res;
 	}
 
+
 	void Scene::CopyEntity(Entity entity) {
 		Entity res = CreateEntity(entity.GetName());
-		Temp::CopyComponent<TransformComponent>(res, entity);
-		Temp::CopyComponent<CameraComponent>(res, entity);
-		Temp::CopyComponent<SpriteRendererComponent>(res, entity);
-		Temp::CopyComponent<ScriptComponent>(res, entity);
-		Temp::CopyComponent<RigidBody2DComponent>(res, entity);
-		Temp::CopyComponent<CircleRendererComponent>(res, entity);
-		Temp::CopyComponent<BoxCollider2DComponent>(res, entity);
-		Temp::CopyComponent<CircleCollider2DComponent>(res, entity);
+		Temp::CopyEntity(AllTypes{},entity,res);
 	}
-
 
 
 	template<class Ty>
