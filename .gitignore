@@ -6,6 +6,7 @@ Lib/
 *.ilk
 *.pdb
 *.idb
+build/
 
 *.shaderc_glsl_vertex_shader
 *.shaderc_glsl_fragment_shader
