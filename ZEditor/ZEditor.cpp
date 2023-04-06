@@ -80,7 +80,9 @@ namespace Z {
 		_Transform.translation = {0, 0, 3};
 		playButtonIcon = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR) + "/Assets/Icons/PlayButton.png");
 		stopButtonIcon = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR) + "/Assets/Icons/StopButton.png");
-		currentButtonIcon = playButtonIcon;
+		simulateButtonIcon = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR) + "/Assets/Icons/SimulateButton.png");
+		currentButtonIcon0 = playButtonIcon;
+		currentButtonIcon1 = simulateButtonIcon;
 		//Todo: To be removed
 		/*
 		cameraEntity = scene->CreateEntity("Camera");
@@ -154,6 +156,14 @@ namespace Z {
 				scene->OnUpdate(Time::DeltaTime());
 				break;
 			}
+			case SceneState::Simulate: {
+				if (IsViewportFocused) {
+					controller.OnUpdate(Time::DeltaTime());
+					editorCamera.OnUpdate();
+				}
+				scene->OnSimulateUpdate(Time::DeltaTime(), editorCamera);
+				break;
+			}
 		}
 		OnDebugShow();
 
@@ -165,7 +175,7 @@ namespace Z {
 			selectedEntity = sceneHierarchyPlane->SetSelectedEntity(value);
 		}
 		frameBuffer->UnBind();
-		if(sceneState==SceneState::Edit&&selectedEntity&&selectedEntity.HasComponent<CameraComponent>()){
+		if((sceneState!=SceneState::Play)&&selectedEntity&&selectedEntity.HasComponent<CameraComponent>()){
 			previewFrame->Bind();
 			RenderCommand::SetClearValue(clearValue);
 			RenderCommand::Clear();
@@ -247,6 +257,8 @@ namespace Z {
 		ImGui::Text("Quads: %u", stats->QuadCount);
 		ImGui::Text("Vertices: %u", stats->GetTotalVertexCount());
 		ImGui::Text("Indices: %u", stats->GetTotalIndexCount());
+		ImGui::Text("FPS: %.0f", 1.f/Time::DeltaTime());
+		ImGui::Text("Frame Time: %.3f s", Time::DeltaTime());
 		stats->Reset();
 		ImGui::Checkbox("Editor Visualize Collider", &EditorVisualizeCollider);
 		ImGui::Checkbox("RunTime Visualize Collider", &RunTimeVisualizeCollider);
@@ -287,9 +299,13 @@ namespace Z {
 			if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")) {
 				const char *path = (const char *) payload->Data;
 				LoadScene(path);
+				ImGui::PopStyleVar();
+				ImGui::End();
+				ImGui::End();
+				return;
 			}
 		}
-		if (sceneState==SceneState::Edit&&selectedEntity && selectedEntity.HasComponent<CameraComponent>()) {
+		if ((sceneState==SceneState::Edit||sceneState==SceneState::Simulate)&&selectedEntity && selectedEntity.HasComponent<CameraComponent>()) {
 			ImGui::SetNextWindowPos(ImGui::GetWindowPos() +
 			                        ImVec2(ImGui::GetWindowSize().x - ImGui::GetWindowSize().x / 4,
 			                               ImGui::GetWindowSize().y - ImGui::GetWindowSize().y / 4));
@@ -305,7 +321,7 @@ namespace Z {
 			             ImVec2{1, 0});
 			ImGui::End();
 		}
-		if (selectedEntity && currentGizmoOperation != -1 && sceneState == SceneState::Edit) {
+		if (selectedEntity && currentGizmoOperation != -1 && (sceneState == SceneState::Edit||sceneState == SceneState::Simulate)) {
 			ImGuizmo::SetOrthographic(false);
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x,
@@ -330,28 +346,37 @@ namespace Z {
 
 		ImGui::PopStyleVar();
 		ImGui::End();
-		On_UI();
+		OnButtonUI();
 
 		ImGui::End();
 	}
 
-	void EditorLayer::On_UI() {
+	void EditorLayer::OnButtonUI() {
 		//Todo : improve button layout
-		ImGui::Begin("##tools", nullptr,
-		             ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar |
-		             ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-		float size = ImGui::GetWindowHeight();
-		ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x / 2 - ImGui::GetWindowHeight() / 2);
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2{0, 0});
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 2});
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2{0, 0});
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0, 0, 0, 0});
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.3, 0.3, 0.3, 0.5});
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0, 0, 0, 0});
-		if (ImGui::ImageButton((ImTextureID) currentButtonIcon->GetRendererID(), ImVec2{size, size}, ImVec2{0, 1},
-		                       ImVec2{1, 0})) {
+		ImGui::Begin("##tools", nullptr,
+		             ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar |
+		             ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+		float size = ImGui::GetWindowHeight()-4;
+		ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x / 2 - ImGui::GetWindowHeight() );
+		if (ImGui::ImageButton((ImTextureID) currentButtonIcon0->GetRendererID(), ImVec2{size, size}, ImVec2{0, 1},
+		                       ImVec2{1, 0})&&sceneState!=SceneState::Simulate) {
 			if (sceneState == SceneState::Edit) {
 				OnPlay();
 			} else if (sceneState == SceneState::Play) {
+				OnStop();
+			}
+		}
+		ImGui::SameLine();
+		if (ImGui::ImageButton((ImTextureID) currentButtonIcon1->GetRendererID(), ImVec2{size, size}, ImVec2{0, 1},
+		                       ImVec2{1, 0})&&sceneState!=SceneState::Play) {
+			if (sceneState == SceneState::Edit) {
+				OnSimulate();
+			} else if (sceneState == SceneState::Simulate) {
 				OnStop();
 			}
 		}
@@ -421,6 +446,11 @@ namespace Z {
 	}
 
 	void EditorLayer::NewScene() {
+		if(!WorkPath.empty()){
+			if(sceneState!=SceneState::Edit)
+				OnStop();
+			InnerSave(WorkPath.string());
+		}
 		scene = CreateRef<Scene>();
 		sceneHierarchyPlane->SetSelectedEntity(-1);
 		sceneHierarchyPlane->SetContext(scene);
@@ -430,37 +460,26 @@ namespace Z {
 
 	void EditorLayer::OnPlay() {
 		sceneState = SceneState::Play;
-		currentButtonIcon = stopButtonIcon;
+		currentButtonIcon0 = stopButtonIcon;
 		BackScene = scene;
 		scene = Scene::Copy(BackScene);
 		scene->OnViewportResize(viewportSize.x, viewportSize.y);
 		sceneHierarchyPlane->SetContext(scene);
 		scene->OnRuntimeStart();
-		return;
-		//Todo : remove this
-		scene->OnRuntimeStart();
-		SceneSerializer serializer(scene);
-		serializer.SerializeRuntime(data);
 	}
 
 	void EditorLayer::OnStop() {
+		if(sceneState==SceneState::Play){
+			currentButtonIcon0 = playButtonIcon;
+			scene->OnRuntimeStop();
+		}else if(sceneState==SceneState::Simulate){
+			currentButtonIcon1 = simulateButtonIcon;
+			scene->OnSimulateStop();
+		}
 		sceneState = SceneState::Edit;
-		currentButtonIcon = playButtonIcon;
-		scene->OnRuntimeStop();
 		scene = BackScene;
 		sceneHierarchyPlane->SetContext(scene);
 		scene->OnViewportResize(viewportSize.x, viewportSize.y);
-
-
-		return;
-		//Todo : remove this
-		scene->OnRuntimeStop();
-		scene = CreateRef<Scene>();
-		sceneHierarchyPlane->SetContext(scene);
-		scene->OnViewportResize(viewportSize.x, viewportSize.y);
-		SceneSerializer serializer(scene);
-		serializer.DeserializeRuntime(data);
-		data.str("");
 	}
 
 
@@ -515,7 +534,7 @@ namespace Z {
 				Z_CORE_ERROR("No camera to preview!!!");
 				return;
 			}
-		}else if (sceneState == SceneState::Edit) {
+		}else if (sceneState == SceneState::Edit||sceneState==SceneState::Simulate) {
 			Renderer2D::BeginScene(editorCamera);
 		} else if (sceneState == SceneState::Play) {
 			auto camera = scene->GetMainCamera();
@@ -527,7 +546,7 @@ namespace Z {
 			                       camera.GetComponent<TransformComponent>().GetTransform());
 		}
 
-		if ((sceneState == SceneState::Edit && EditorVisualizeCollider) ||
+		if (((sceneState !=SceneState::Play)&& EditorVisualizeCollider) ||
 		    (sceneState == SceneState::Play && RunTimeVisualizeCollider)) {
 			scene->GetComponentView<BoxCollider2DComponent, TransformComponent>().each(
 					[&](auto &boxCollider2DComponent, auto &transformComponent) {
@@ -560,6 +579,16 @@ namespace Z {
 		Renderer2D::ChangeDepthTest(RenderAPI::DepthTestState::Always);
 		Renderer2D::EndScene();
 		Renderer2D::ChangeDepthTest();
+	}
+
+	void EditorLayer::OnSimulate() {
+		sceneState = SceneState::Simulate;
+		currentButtonIcon1 = stopButtonIcon;
+		BackScene = scene;
+		scene = Scene::Copy(BackScene);
+		scene->OnViewportResize(viewportSize.x, viewportSize.y);
+		sceneHierarchyPlane->SetContext(scene);
+		scene->OnSimulateStart();
 	}
 
 }

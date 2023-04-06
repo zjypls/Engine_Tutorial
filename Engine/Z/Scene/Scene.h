@@ -20,6 +20,9 @@ namespace Z {
 		b2World* PhysicalWorld = nullptr;
 		template<class _Ty>
 		void OnComponentAdd(Entity entity, _Ty &component);
+		void Render2D();
+		void ScriptUpdate(float deltaTime);
+		void OnPhysics2DUpdate(float deltaTime);
 
 	public:
 		Scene() = default;
@@ -32,13 +35,16 @@ namespace Z {
 
 		void OnRuntimeStart();
 		void OnRuntimeStop();
+		void OnSimulateStart();
+		void OnSimulateStop();
 
+		void OnPhysics2DStart();
+		void OnPhysics2DStop();
 		template<class... T>
 		auto GetComponentView() {
 			return registry.view<T...>();
 		}
 
-		inline entt::registry &GetRegistry() { return registry;}
 		void OnViewportResize(unsigned int width, unsigned int height);
 		void DestroyEntity(Entity entity);
 		void CopyEntity(Entity entity);
@@ -46,6 +52,7 @@ namespace Z {
 		void OnUpdate(float);
 		void OnEditorUpdate(float deltaTime, EditorCamera &camera);
 		void OnPreviewUpdate(float deltaTime,Camera &camera,glm::mat4 transform);
+		void OnSimulateUpdate(float deltaTime,EditorCamera &camera);
 
 		~Scene();
 

@@ -14,13 +14,13 @@
 
 namespace Z {
 	class EditorLayer : public Layer {
-		struct BackData{
-			int gizmoOperation=-1;
+		struct BackData {
+			int gizmoOperation = -1;
 		};
 		BackData backData;
 		//Todo: clear the code
-		enum class SceneState{
-			Edit,Play
+		enum class SceneState {
+			Edit, Play, Simulate
 		};
 		SceneState sceneState = SceneState::Edit;
 		CameraController controller;
@@ -28,23 +28,24 @@ namespace Z {
 		Ref<Texture2D> texture[4];
 		Ref<SubTex2D> subTex;
 		glm::vec4 clearValue = glm::vec4{0.1f, 0.1f, 0.1f, 1.0f};
-		bool IsViewportFocused = false, IsViewportHovered = false,RunTimeVisualizeCollider=true,EditorVisualizeCollider=true;
+		bool IsViewportFocused = false, IsViewportHovered = false, RunTimeVisualizeCollider = true, EditorVisualizeCollider = true;
 		glm::ivec2 index{9, 4}, size{2, 3};
 		std::unordered_map<char, Ref<SubTex2D>> textureMap;
-		Ref<FrameBuffer> frameBuffer,previewFrame;
-		glm::vec2 viewportSize {1200, 800};
+		Ref<FrameBuffer> frameBuffer, previewFrame;
+		glm::vec2 viewportSize{1200, 800};
 		glm::vec2 CursorPos{0, 0};
-		Ref<Scene> scene,BackScene;
+		Ref<Scene> scene, BackScene;
 		Ref<SceneHierarchyPlane> sceneHierarchyPlane;
 		int currentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 		Z::EditorCamera editorCamera;
 		Ref<ContentBrowser> contentBrowser;
-		Ref<Z::Texture2D> playButtonIcon,stopButtonIcon,currentButtonIcon;
+		Ref<Z::Texture2D> playButtonIcon, stopButtonIcon, simulateButtonIcon, currentButtonIcon0, currentButtonIcon1;
 		std::stringstream data;
 		std::filesystem::path WorkPath{};
 		Entity selectedEntity;
 
 		void InnerSave(const std::string &path);
+
 		void SaveHotKey();
 
 	public:
@@ -58,20 +59,28 @@ namespace Z {
 
 		void OnUpdate() override;
 
-		void On_UI();
+		void OnButtonUI();
 
 		void OnDebugShow(bool preview = false);
 
 		void OnImGuiRender() override;
 
 		void OnEvent(Event &event) override;
+
 	private:
 		bool OnKeyPressed(KeyPressEvent &event);
+
 		void SaveScene();
+
 		void LoadScene();
+
 		void LoadScene(const std::string &path);
+
 		void NewScene();
+
 		void OnPlay();
+		void OnSimulate();
+
 		void OnStop();
 	};
 

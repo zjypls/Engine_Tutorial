@@ -35,129 +35,16 @@ namespace Z {
 		}
 	}
 
-	void Scene::OnUpdate(float deltaTime) {
-		Camera *mainCamera = nullptr;
-		glm::mat4 cameraTransform;
-
-		registry.view<ScriptComponent>().each([&](auto entity, auto &script) {
-			if (!script.instance) {
-				script.instance = script.onConstruct();
-				script.instance->entity = Entity{entity, this};
-				script.instance->OnCreate();
-			}
-			script.instance->OnUpdate(deltaTime);
-		});
-		PhysicalWorld->Step(deltaTime, 8, 3);
-		registry.view<RigidBody2DComponent>().each([&](auto id, auto &rigidBody) {
-			if (rigidBody.bodyType != RigidBody2DComponent::BodyType::Static) {
-				Entity entity{id, this};
-				auto &transform = entity.GetComponent<TransformComponent>();
-				auto body = (b2Body *) rigidBody.ptr;
-				const auto &position = body->GetPosition();
-				transform.translation.x = position.x;
-				transform.translation.y = position.y;
-				transform.rotation.z = body->GetAngle();
-			}
-		});
-
-		std::for_each(registry.group<CameraComponent, TransformComponent>().begin(),
-		              registry.group<CameraComponent, TransformComponent>().end(), [&](const auto &item) {
-					if (registry.get<CameraComponent>(item).primary) {
-						mainCamera = &registry.get<CameraComponent>(item).camera;
-						cameraTransform = registry.get<TransformComponent>(item).GetTransform();
-					}
-				});
-		if (!mainCamera)return;
-		Renderer2D::BeginScene(*mainCamera, cameraTransform);
-		std::for_each(registry.view<TransformComponent, SpriteRendererComponent>().begin(),
-		              registry.view<TransformComponent, SpriteRendererComponent>().end(), [&](const auto &item) {
-					Renderer2D::DrawQuad(registry.get<TransformComponent>(item).GetTransform(),
-					                     registry.get<SpriteRendererComponent>(item), uint32_t(item));
-				});
-		std::for_each(registry.view<TransformComponent, CircleRendererComponent>().begin(),
-		              registry.view<TransformComponent, CircleRendererComponent>().end(), [&](const auto &item) {
-					Renderer2D::DrawCircle(registry.get<TransformComponent>(item).GetTransform(),
-					                       registry.get<CircleRendererComponent>(item), uint32_t(item));
-				});
-		Renderer2D::EndScene();
-
-	}
-
-	Entity Scene::CreateEntity(const std::string &name) {
-		Entity entity{registry.create(), this};
-		entity.AddComponent<IDComponent>();
-		entity.AddComponent<TransformComponent>();
-		auto &tag = entity.AddComponent<TagComponent>(name);
-		if (tag.tag.empty())tag.tag = "Entity";
-		return entity;
-	}
-
-	Entity Scene::CreateEntityWithGuid(GUID guid, const std::string &name) {
-		Entity entity{registry.create(), this};
-		entity.AddComponent<IDComponent>(guid);
-		entity.AddComponent<TransformComponent>();
-		auto &tag = entity.AddComponent<TagComponent>(name);
-		if (tag.tag.empty())tag.tag = "Entity";
-		return entity;
-	}
-
-	void Scene::OnViewportResize(unsigned int width, unsigned int height) {
-		viewportWidth = width;
-		viewportHeight = height;
-		std::for_each(registry.view<CameraComponent>().begin(),
-		              registry.view<CameraComponent>().end(), [&](const auto &item) {
-					registry.get<CameraComponent>(item).camera.OnViewportResize(width, height);
-				});
-	}
-
-	void Scene::DestroyEntity(Entity entity) {
-		registry.destroy(entity);
-	}
-
-	Entity Scene::GetMainCamera() {
-		auto view = registry.view<CameraComponent>();
-		for (auto entity: view) {
-			auto &camera = view.get<CameraComponent>(entity);
-			if (camera.primary) {
-				return Entity{entity, this};
-			}
-		}
-		return {};
-	}
-
-	void Scene::OnEditorUpdate(float deltaTime, EditorCamera &camera) {
-		Renderer2D::BeginScene(camera);
-		std::for_each(registry.view<TransformComponent, SpriteRendererComponent>().begin(),
-		              registry.view<TransformComponent, SpriteRendererComponent>().end(), [&](const auto &item) {
-					Renderer2D::DrawQuad(registry.get<TransformComponent>(item).GetTransform(),
-					                     registry.get<SpriteRendererComponent>(item), uint32_t(item));
-				});
-		std::for_each(registry.view<TransformComponent, CircleRendererComponent>().begin(),
-		              registry.view<TransformComponent, CircleRendererComponent>().end(), [&](const auto &item) {
-					Renderer2D::DrawCircle(registry.get<TransformComponent>(item).GetTransform(),
-					                       registry.get<CircleRendererComponent>(item), uint32_t(item));
-				});
-		Renderer2D::EndScene();
-	}
-
-
-	void Scene::OnPreviewUpdate(float deltaTime, Camera &camera, glm::mat4 transform) {
-		Renderer2D::BeginScene(camera, transform);
-		std::for_each(registry.view<TransformComponent, SpriteRendererComponent>().begin(),
-		              registry.view<TransformComponent, SpriteRendererComponent>().end(), [&](const auto &item) {
-					Renderer2D::DrawQuad(registry.get<TransformComponent>(item).GetTransform(),
-					                     registry.get<SpriteRendererComponent>(item), uint32_t(item));
-				});
-		std::for_each(registry.view<TransformComponent, CircleRendererComponent>().begin(),
-		              registry.view<TransformComponent, CircleRendererComponent>().end(), [&](const auto &item) {
-					Renderer2D::DrawCircle(registry.get<TransformComponent>(item).GetTransform(),
-					                       registry.get<CircleRendererComponent>(item), uint32_t(item));
-				});
-		Renderer2D::EndScene();
-	}
-
 
 	void Scene::OnRuntimeStart() {
+		OnPhysics2DStart();
+	}
+
+	void Scene::OnRuntimeStop() {
+		OnPhysics2DStop();
+	}
+
+	void Scene::OnPhysics2DStart() {
 		PhysicalWorld = new b2World(b2Vec2(0.0f, -9.8f));
 		registry.view<RigidBody2DComponent>().each([&](auto id, auto &rigidBody) {
 			Entity entity{id, this};
@@ -199,12 +86,135 @@ namespace Z {
 				collider.ptr = body->GetFixtureList();
 			}
 		});
-
 	}
 
-	void Scene::OnRuntimeStop() {
+	void Scene::OnPhysics2DStop() {
 		delete PhysicalWorld;
 		PhysicalWorld = nullptr;
+	}
+
+	Entity Scene::CreateEntity(const std::string &name) {
+		Entity entity{registry.create(), this};
+		entity.AddComponent<IDComponent>();
+		entity.AddComponent<TransformComponent>();
+		auto &tag = entity.AddComponent<TagComponent>(name);
+		if (tag.tag.empty())tag.tag = "Entity";
+		return entity;
+	}
+
+	Entity Scene::CreateEntityWithGuid(GUID guid, const std::string &name) {
+		Entity entity{registry.create(), this};
+		entity.AddComponent<IDComponent>(guid);
+		entity.AddComponent<TransformComponent>();
+		auto &tag = entity.AddComponent<TagComponent>(name);
+		if (tag.tag.empty())tag.tag = "Entity";
+		return entity;
+	}
+
+	void Scene::OnViewportResize(unsigned int width, unsigned int height) {
+		viewportWidth = width;
+		viewportHeight = height;
+		std::for_each(registry.view<CameraComponent>().begin(),
+		              registry.view<CameraComponent>().end(), [&](const auto &item) {
+					registry.get<CameraComponent>(item).camera.OnViewportResize(width, height);
+				});
+	}
+
+	void Scene::DestroyEntity(Entity entity) {
+		registry.destroy(entity);
+	}
+
+	Entity Scene::GetMainCamera() {
+		auto view = registry.view<CameraComponent>();
+		//Todo: fix this
+//		registry.view<CameraComponent>().each([&](auto entity, auto &camera) {
+//			if (camera.primary) {
+//				return Entity{entity, this};
+//			}
+//		});
+		for (auto entity : view) {
+			if (view.get<CameraComponent>(entity).primary) {
+				return Entity{entity, this};
+			}
+		}
+		return {};
+	}
+
+	void Scene::OnEditorUpdate(float deltaTime, EditorCamera &camera) {
+		Renderer2D::BeginScene(camera);
+		Render2D();
+		Renderer2D::EndScene();
+	}
+
+	void Scene::OnSimulateUpdate(float deltaTime, EditorCamera &camera) {
+		OnPhysics2DUpdate(deltaTime);
+		Renderer2D::BeginScene(camera);
+		Render2D();
+		Renderer2D::EndScene();
+	}
+
+	void Scene::OnUpdate(float deltaTime) {
+		Entity mainCamera={};
+		ScriptUpdate(deltaTime);
+		OnPhysics2DUpdate(deltaTime);
+		mainCamera = GetMainCamera();
+		if (!mainCamera)return;
+		Renderer2D::BeginScene(mainCamera.GetComponent<CameraComponent>().camera, mainCamera.GetComponent<TransformComponent>().GetTransform());
+		Render2D();
+		Renderer2D::EndScene();
+	}
+
+	void Scene::OnPreviewUpdate(float deltaTime, Camera &camera, glm::mat4 transform) {
+		Renderer2D::BeginScene(camera, transform);
+		Render2D();
+		Renderer2D::EndScene();
+	}
+
+	void Scene::Render2D() {
+		std::for_each(registry.view<TransformComponent, SpriteRendererComponent>().begin(),
+		              registry.view<TransformComponent, SpriteRendererComponent>().end(), [&](const auto &item) {
+					Renderer2D::DrawQuad(registry.get<TransformComponent>(item).GetTransform(),
+					                     registry.get<SpriteRendererComponent>(item), uint32_t(item));
+				});
+		std::for_each(registry.view<TransformComponent, CircleRendererComponent>().begin(),
+		              registry.view<TransformComponent, CircleRendererComponent>().end(), [&](const auto &item) {
+					Renderer2D::DrawCircle(registry.get<TransformComponent>(item).GetTransform(),
+					                       registry.get<CircleRendererComponent>(item), uint32_t(item));
+				});
+	}
+
+	void Scene::ScriptUpdate(float deltaTime){
+		registry.view<ScriptComponent>().each([&](auto entity, auto &script) {
+			if (!script.instance) {
+				script.instance = script.onConstruct();
+				script.instance->entity = Entity{entity, this};
+				script.instance->OnCreate();
+			}
+			script.instance->OnUpdate(deltaTime);
+		});
+	}
+
+	void Scene::OnPhysics2DUpdate(float deltaTime) {
+		PhysicalWorld->Step(deltaTime, 8, 3);
+		registry.view<RigidBody2DComponent>().each([&](auto id, auto &rigidBody) {
+			if (rigidBody.bodyType != RigidBody2DComponent::BodyType::Static) {
+				Entity entity{id, this};
+				auto &transform = entity.GetComponent<TransformComponent>();
+				auto body = (b2Body *) rigidBody.ptr;
+				const auto &position = body->GetPosition();
+				transform.translation.x = position.x;
+				transform.translation.y = position.y;
+				transform.rotation.z = body->GetAngle();
+			}
+		});
+	}
+
+	void Scene::OnSimulateStart() {
+		OnPhysics2DStart();
+	}
+
+	void Scene::OnSimulateStop() {
+		OnPhysics2DStop();
 	}
 
 	Scene::~Scene() {
@@ -265,6 +275,7 @@ namespace Z {
 		Temp::CopyComponent<BoxCollider2DComponent>(res, entity);
 		Temp::CopyComponent<CircleCollider2DComponent>(res, entity);
 	}
+
 
 
 	template<class Ty>
