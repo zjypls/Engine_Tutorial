@@ -9,14 +9,18 @@
 #include "Time.h"
 #include "Z/Renderer/Renderer.h"
 #include "KeyCodes.h"
+#include <filesystem>
 
 namespace Z {
 	Application* Application::application=nullptr;
 
-	Application::Application(const std::string&name){
+	Application::Application(const ApplicationSpec&spec): Spec(spec){
 		Z_CORE_ASSERT(!application,"Application already exists!")
 		application=this;
-		window=Z::Scope<zWindow>(zWindow::Create(WindowProps(name)));
+		if(!Spec.RootPath.empty()){
+			std::filesystem::current_path(Spec.RootPath);
+		}
+		window=Z::Scope<zWindow>(zWindow::Create(WindowProps(spec.Name)));
 		window->SetEventCallFunc(Z_BIND_EVENT_FUNC(Application::EventCall));
 
 		Renderer::Init();

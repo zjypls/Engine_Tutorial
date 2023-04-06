@@ -15,7 +15,22 @@
 #include "Z/Renderer/VertexArray.h"
 #include"Z/Renderer/OrithGraphicCamera.h"
 namespace Z {
+	struct CommandArgs{
+		int Count;
+		char** Args=nullptr;
+		std::string operator[](int i){
+			Z_CORE_ASSERT(i<Count,"Index out of range");
+			return Args[i];
+		}
+	};
+	struct ApplicationSpec{
+		std::string Name;
+		CommandArgs commandArgs;
+		std::string RootPath;
+	};
     class Z_API Application {
+
+		ApplicationSpec Spec;
 		Z::Scope<zWindow> window;
 		bool Running=true;
 		bool MinSize=false;
@@ -26,7 +41,7 @@ namespace Z {
 		bool OnWindowResize(WindowResizeEvent& e);
 
     public:
-        Application(const std::string&name="Z App");
+        Application(const ApplicationSpec&spec);
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* overlay);
 		inline ImGuiLayer* GetImGuiLayer(){return imguiLayer;}
@@ -34,13 +49,14 @@ namespace Z {
 	    void Run();
         virtual ~Application();
 		inline void Close(){Running=false;}
+		inline ApplicationSpec& GetSpec(){return Spec;}
 		static Application& Get();
 		inline zWindow& GetWindow(){return *application->window;}
 	private:
 		static Application* application;
 
     };
-	Application* GetApplication();
+	Application* GetApplication(const CommandArgs&);
 
 }
 

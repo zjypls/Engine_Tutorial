@@ -38,10 +38,10 @@ namespace Z {
 				-.5f, .5f, .0f, 0, 1, .5f, .5f, .0f, 1, 1};
 		uint32_t indices[] = {0, 1, 2, 1, 3, 2};
 		vertexArray = VertexArray::Create();
-		texture[0] = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR) + "/Assets/Textures/Colum.png");
-		texture[1] = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR) + "/Assets/Textures/Layla.jpg");
-		texture[2] = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR) + "/Assets/Textures/Nahida.png");
-		texture[3] = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR) + "/Assets/Sprites/rpgSheet.png");
+		texture[0] = Texture2D::CreateTexture("Assets/Textures/Colum.png");
+		texture[1] = Texture2D::CreateTexture("Assets/Textures/Layla.jpg");
+		texture[2] = Texture2D::CreateTexture("Assets/Textures/Nahida.png");
+		texture[3] = Texture2D::CreateTexture("Assets/Sprites/rpgSheet.png");
 		subTex = SubTex2D::Create(texture[3], glm::vec2{10, 10}, glm::vec2{128, 128}, glm::vec2{3, 3});
 		textureMap['W'] = SubTex2D::Create(texture[3], glm::vec2{11, 11}, glm::vec2{128, 128}, glm::vec2{1, 1});
 		textureMap['D'] = SubTex2D::Create(texture[3], glm::vec2{6, 11}, glm::vec2{128, 128}, glm::vec2{1, 1});
@@ -78,9 +78,9 @@ namespace Z {
 		_camera.camera.SetProjectionType(SceneCamera::ProjectionType::Perspective);
 		auto &_Transform = _sceneCamera.GetComponent<TransformComponent>();
 		_Transform.translation = {0, 0, 3};
-		playButtonIcon = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR) + "/Assets/Icons/PlayButton.png");
-		stopButtonIcon = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR) + "/Assets/Icons/StopButton.png");
-		simulateButtonIcon = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR) + "/Assets/Icons/SimulateButton.png");
+		playButtonIcon = Texture2D::CreateTexture("Assets/Icons/PlayButton.png");
+		stopButtonIcon = Texture2D::CreateTexture("Assets/Icons/StopButton.png");
+		simulateButtonIcon = Texture2D::CreateTexture("Assets/Icons/SimulateButton.png");
 		currentButtonIcon0 = playButtonIcon;
 		currentButtonIcon1 = simulateButtonIcon;
 		/*
@@ -274,7 +274,11 @@ namespace Z {
 
 		ImGui::End();
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
-		ImGui::Begin("ViewPort");
+		ImGui::Begin("ViewPort", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar |
+		                                  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing |
+		                                  ImGuiWindowFlags_NoNavFocus |
+		                                  ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoNavInputs |
+		                                  ImGuiWindowFlags_NoNav);
 		IsViewportFocused = ImGui::IsWindowFocused();
 		IsViewportHovered = ImGui::IsWindowHovered();
 		auto viewSize = ImGui::GetContentRegionAvail();
@@ -311,8 +315,9 @@ namespace Z {
 				return;
 			}
 		}
-		if (selectedEntity=sceneHierarchyPlane->GetSelectedEntity();(sceneState == SceneState::Edit || sceneState == SceneState::Simulate) && selectedEntity &&
-		    selectedEntity.HasComponent<CameraComponent>()) {
+		if (selectedEntity = sceneHierarchyPlane->GetSelectedEntity();
+				(sceneState == SceneState::Edit || sceneState == SceneState::Simulate) && selectedEntity &&
+				selectedEntity.HasComponent<CameraComponent>()) {
 			ImGui::SetNextWindowPos(ImGui::GetWindowPos() +
 			                        ImVec2(ImGui::GetWindowSize().x - ImGui::GetWindowSize().x / 4,
 			                               ImGui::GetWindowSize().y - ImGui::GetWindowSize().y / 4));
@@ -572,7 +577,7 @@ namespace Z {
 						auto trans = glm::translate(glm::mat4(1.f), translation) *
 						             glm::rotate(glm::mat4(1.f), transformComponent.rotation.z,
 						                         glm::vec3(0, 0, 1)) * glm::scale(glm::mat4(1.f), size);
-						Renderer2D::DrawRect(trans, box2D.size, *(int*)(box2D.ptr)?ActiveColor:InactiveColor);
+						Renderer2D::DrawRect(trans, box2D.size, *(int *) (box2D.ptr) ? ActiveColor : InactiveColor);
 
 					});
 			scene->GetComponentView<CircleCollider2DComponent, TransformComponent>().each(
@@ -583,7 +588,7 @@ namespace Z {
 						                   glm::vec3(circle2D.offset, 0.f);
 						auto size = transformComponent.scale * (circle2D.radius * 2.f);
 						auto trans = glm::translate(glm::mat4(1.f), translation) * glm::scale(glm::mat4(1.f), size);
-						Renderer2D::DrawCircle(trans, *(int*)(circle2D.ptr) ? ActiveColor : InactiveColor);
+						Renderer2D::DrawCircle(trans, *(int *) (circle2D.ptr) ? ActiveColor : InactiveColor);
 					});
 		}
 		//Todo: To be optimized

@@ -7,11 +7,10 @@
 
 namespace Z {
 	//constexpr char *RootPath = Z_SOURCE_DIR;
-	const std::filesystem::path RootPath(Z_SOURCE_DIR);
+	const std::filesystem::path RootPath("./");
 
 	ContentBrowser::ContentBrowser() : currentPath(RootPath) {
-		loadIcons({currentPath.string() + "/Assets/Icons/DirectoryIcon.png",
-		           currentPath.string() + "/Assets/Icons/FileIcon.png"});
+		loadIcons({"Assets/Icons/DirectoryIcon.png", "Assets/Icons/FileIcon.png"});
 	}
 
 	void ContentBrowser::OnImGuiRender() {
@@ -33,12 +32,13 @@ namespace Z {
 
 		for (const auto &file: std::filesystem::directory_iterator(currentPath)) {
 			ImGui::PushID(file.path().string().c_str());
-			int index=file.is_directory()?0:1;
+			int index = file.is_directory() ? 0 : 1;
 			ImGui::ImageButton(ImTextureID(icons[index]->GetRendererID()),
-			                   ImVec2{static_cast<float>(width), static_cast<float>(width)},{0,1},{1,0});
+			                   ImVec2{static_cast<float>(width), static_cast<float>(width)}, {0, 1}, {1, 0});
 			if (ImGui::BeginDragDropSource()) {
-				const auto& filePath = file.path().string();
-				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", filePath.c_str(), filePath.size() + 1, ImGuiCond_Once);
+				const auto &filePath = file.path().string();
+				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", filePath.c_str(), filePath.size() + 1,
+				                          ImGuiCond_Once);
 				ImGui::EndDragDropSource();
 			}
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
@@ -62,6 +62,4 @@ namespace Z {
 			icons[i++] = Texture2D::CreateTexture(path);
 		}
 	}
-
-
 }

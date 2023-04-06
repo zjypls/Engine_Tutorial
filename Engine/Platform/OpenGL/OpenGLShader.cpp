@@ -16,7 +16,7 @@
 #include "spirv_cross/spirv_glsl.hpp"
 
 namespace Z {
-	const std::string ShaderCacheDir = "/Shaders/Cache/OpenGL";
+	const std::string ShaderCacheDir = "Shaders/Cache/OpenGL";
 	namespace Temp {
 
 		std::string spirvShaderTypeToString(shaderc_shader_kind type) {
@@ -46,18 +46,18 @@ namespace Z {
 		}
 
 		bool IsHaveCache(const size_t &hash, shaderc_shader_kind type) {
-			if (!std::filesystem::exists(std::string(Z_SOURCE_DIR) + ShaderCacheDir)) {
-				std::filesystem::create_directories(std::string(Z_SOURCE_DIR) + ShaderCacheDir);
+			if (!std::filesystem::exists(ShaderCacheDir)) {
+				std::filesystem::create_directories(ShaderCacheDir);
 				return false;
 			}
-			std::string path = std::string(Z_SOURCE_DIR) + ShaderCacheDir + "/" + std::to_string(hash) +"."+
+			std::string path = ShaderCacheDir + "/" + std::to_string(hash) +"."+
 			                   spirvShaderTypeToString(type);
 			return std::filesystem::exists(path);
 		}
 
 		bool GetCache(const size_t &hash, std::vector<char> &buffer, shaderc_shader_kind type) {
 			if (IsHaveCache(hash, type)) {
-				std::string path = std::string(Z_SOURCE_DIR) + ShaderCacheDir + "/" + std::to_string(hash) +"."+
+				std::string path =ShaderCacheDir + "/" + std::to_string(hash) +"."+
 				                   spirvShaderTypeToString(type);
 				std::ifstream in(path, std::ios::in | std::ios::binary | std::ios::ate);
 				if (in.is_open()) {
@@ -216,7 +216,7 @@ namespace Z {
 				Z_CORE_ASSERT(false, "Shader Compile Error");
 			}
 			std::ofstream out;
-			out.open(std::string(Z_SOURCE_DIR)+ShaderCacheDir+"/"+std::to_string(hash)+"."+Temp::spirvShaderTypeToString(spvType), std::ios::binary);
+			out.open(ShaderCacheDir+"/"+std::to_string(hash)+"."+Temp::spirvShaderTypeToString(spvType), std::ios::binary);
 			out.write((char *) module.cbegin(), (module.cend()-module.cbegin())*sizeof (unsigned int));
 			out.close();
 			spirv.resize((module.cend() - module.cbegin())*sizeof(unsigned int));

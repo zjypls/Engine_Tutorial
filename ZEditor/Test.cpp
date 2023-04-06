@@ -12,15 +12,15 @@ extern "C"
 
 class Editor : public Z::Application {
 public:
-	Editor():Application("ZEditor") {
+	Editor(const Z::ApplicationSpec&spec):Application(spec) {
 		PushLayer(new Z::EditorLayer());
 	}
 
 	~Editor() override = default;
 };
 
-Z::Application *Z::GetApplication() {
-	return new Editor{};
+Z::Application *Z::GetApplication(const Z::CommandArgs& args) {
+	return new Editor({ "ZEditor",args,Z_SOURCE_DIR});
 }
 
 

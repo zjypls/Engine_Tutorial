@@ -250,17 +250,17 @@ namespace Z {
 		});
 		DrawComponent<BoxCollider2DComponent>("BoxCollider2D", entity, [](BoxCollider2DComponent &component) {
 			ImGui::Checkbox("Is Trigger", &component.isTrigger);
-			ImGui::DragFloat2("Size", &component.size.x);
-			ImGui::DragFloat2("Offset", &component.offset.x);
-			ImGui::DragFloat("Density", &component.density, .1f);
+			ImGui::DragFloat2("Size", &component.size.x,.05f);
+			ImGui::DragFloat2("Offset", &component.offset.x,.05f);
+			ImGui::DragFloat("Density", &component.density, .05f);
 			ImGui::DragFloat("Friction", &component.friction, .05f);
 			ImGui::DragFloat("Restitution", &component.restitution, .05f);
 			ImGui::DragFloat("MinRestitution", &component.MinRestitution, .05f);
 		});
 		DrawComponent<CircleCollider2DComponent>("CircleCollider2D", entity, [](CircleCollider2DComponent &component) {
 			ImGui::Checkbox("Is Trigger", &component.isTrigger);
-			ImGui::DragFloat("Radius", &component.radius);
-			ImGui::DragFloat2("Offset", &component.offset.x);
+			ImGui::DragFloat("Radius", &component.radius,.1f);
+			ImGui::DragFloat2("Offset", &component.offset.x,.05f);
 			ImGui::DragFloat("Density", &component.density, .1f);
 			ImGui::DragFloat("Friction", &component.friction, .05f);
 			ImGui::DragFloat("Restitution", &component.restitution, .05f);
