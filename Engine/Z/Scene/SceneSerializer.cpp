@@ -319,7 +319,8 @@ namespace Z {
 				Collider2D.friction = boxCollider2DComponent["Friction"].as<float>();
 				Collider2D.restitution = boxCollider2DComponent["Restitution"].as<float>();
 				Collider2D.MinRestitution = boxCollider2DComponent["MinRestitution"].as<float>();
-				*(int*)Collider2D.ptr = boxCollider2DComponent["ptr"].as<int>();
+				//Todo: improve this
+				Collider2D.ptr = new int{boxCollider2DComponent["ptr"].as<int>()};
 			}
 			auto circleRender = Entity["CircleRendererComponent"];
 			if (circleRender) {

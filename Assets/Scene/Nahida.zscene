@@ -1,12 +1,35 @@
 Scene: Untitled
 Entities:
-  - Entity: 3461289287262062511
+  - Entity: 16256859688673543393
     TagComponent:
-      Tag: quad3
+      Tag: floor
     TransformComponent:
-      Translation: [0.776155889, 1.9302727, 0]
-      Rotation: [0, -0, 0]
-      Scale: [0.999999523, 0.999999762, 0.999999881]
+      Translation: [9.17650986, 5.68568802, 0]
+      Rotation: [0, 0, -1.57079637]
+      Scale: [17.204586, 0.999944746, 1]
+    SpriteRendererComponent:
+      Color: [1, 0.788235307, 0.392156869, 1]
+    RigidBody2DComponent:
+      bodyType: Static
+      fixedRotation: false
+    BoxCollider2DComponent:
+      size: [1, 1]
+      offset: [0, 0]
+      IsTrigger: false
+      Density: 0.699999988
+      Friction: 0.100000001
+      Restitution: 0.800000012
+      MinRestitution: 0.200000003
+      ptr: 0
+  - Entity: 4520554399786938682
+    TagComponent:
+      Tag: Nahida
+    TransformComponent:
+      Translation: [3.55432224, 8.02072048, 0]
+      Rotation: [0, 0, -0.624089837]
+      Scale: [3, 3, 1]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
     RigidBody2DComponent:
       bodyType: Dynamic
       fixedRotation: false
@@ -14,35 +37,121 @@ Entities:
       size: [1, 1]
       offset: [0, 0]
       IsTrigger: false
-      visualize: true
-      Density: 1.89999998
-      Friction: 0.100000001
-      Restitution: 0.899999976
+      Density: 0.899999976
+      Friction: 0.200000003
+      Restitution: 0.800000012
       MinRestitution: 0.100000001
-  - Entity: 10851899755096082215
+      ptr: 1
+  - Entity: 12374718653186365179
+    TagComponent:
+      Tag: Nahida
+    TransformComponent:
+      Translation: [0.239702314, 10.4075804, 0]
+      Rotation: [0, 0, -0.624089837]
+      Scale: [3, 3, 1]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+    RigidBody2DComponent:
+      bodyType: Dynamic
+      fixedRotation: false
+    BoxCollider2DComponent:
+      size: [1, 1]
+      offset: [0, 0]
+      IsTrigger: false
+      Density: 0.899999976
+      Friction: 0.200000003
+      Restitution: 0.800000012
+      MinRestitution: 0.100000001
+      ptr: 1
+  - Entity: 13509841005355587988
+    TagComponent:
+      Tag: floor
+    TransformComponent:
+      Translation: [0.0762079433, 15.0518875, 0]
+      Rotation: [0, -0, 3.14159274]
+      Scale: [17.2038307, 0.999972463, 1]
+    SpriteRendererComponent:
+      Color: [1, 0.788235307, 0.392156869, 1]
+    RigidBody2DComponent:
+      bodyType: Static
+      fixedRotation: false
+    BoxCollider2DComponent:
+      size: [1, 1]
+      offset: [0, 0]
+      IsTrigger: false
+      Density: 0.699999988
+      Friction: 0.100000001
+      Restitution: 0.800000012
+      MinRestitution: 0.200000003
+      ptr: 0
+  - Entity: 3721674711178088758
+    TagComponent:
+      Tag: floor
+    TransformComponent:
+      Translation: [0, -2.40935326, 0]
+      Rotation: [0, -0, 0]
+      Scale: [17.2063732, 1, 1]
+    SpriteRendererComponent:
+      Color: [1, 0.788235307, 0.392156869, 1]
+    RigidBody2DComponent:
+      bodyType: Static
+      fixedRotation: false
+    BoxCollider2DComponent:
+      size: [1, 1]
+      offset: [0, 0]
+      IsTrigger: false
+      Density: 0.699999988
+      Friction: 0.100000001
+      Restitution: 0.800000012
+      MinRestitution: 0.200000003
+      ptr: 0
+  - Entity: 14624291144878867602
+    TagComponent:
+      Tag: floor
+    TransformComponent:
+      Translation: [-9.19196129, 5.73139763, 0]
+      Rotation: [0, 0, -1.57079637]
+      Scale: [17.2022209, 0.999870837, 1]
+    SpriteRendererComponent:
+      Color: [1, 0.788235307, 0.392156869, 1]
+    RigidBody2DComponent:
+      bodyType: Static
+      fixedRotation: false
+    BoxCollider2DComponent:
+      size: [1, 1]
+      offset: [0, 0]
+      IsTrigger: false
+      Density: 0.699999988
+      Friction: 0.100000001
+      Restitution: 0.800000012
+      MinRestitution: 0.200000003
+      ptr: 0
+  - Entity: 1767124808639137958
     TagComponent:
       Tag: SceneCamera
     TransformComponent:
-      Translation: [0, 1.10000002, 6.5]
+      Translation: [0, -1.10000002, 5.5]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
     CameraComponent:
       Camera:
         ProjectionType: 0
-        PerspectiveFOV: 1.6406095
+        PerspectiveFOV: 0.785398185
         PerspectiveNear: 0.00999999978
         PerspectiveFar: 1000
         OrthographicSize: 10
         OrthographicNear: -1
         OrthographicFar: 1
         Primary: true
-  - Entity: 704800038312441548
+  - Entity: 13666765057558020482
     TagComponent:
-      Tag: quad2
+      Tag: Nahida
     TransformComponent:
-      Translation: [0, 3.24061012, 0]
-      Rotation: [0, -0, 0]
-      Scale: [0.999999523, 0.999999762, 0.999999881]
+      Translation: [-3.55131865, 7.99143457, 0]
+      Rotation: [0, 0, -0.624089837]
+      Scale: [3, 3, 1]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
     RigidBody2DComponent:
       bodyType: Dynamic
       fixedRotation: false
@@ -50,122 +159,8 @@ Entities:
       size: [1, 1]
       offset: [0, 0]
       IsTrigger: false
-      visualize: true
-      Density: 1.20000005
-      Friction: 0.100000001
+      Density: 0.899999976
+      Friction: 0.200000003
       Restitution: 0.800000012
       MinRestitution: 0.100000001
-  - Entity: 13154956672401408934
-    TagComponent:
-      Tag: floor_left
-    TransformComponent:
-      Translation: [-4.96272898, 2.0734849, 0]
-      Rotation: [0, 0, -1.59595788]
-      Scale: [9.38780403, 1.00000012, 1]
-    RigidBody2DComponent:
-      bodyType: Static
-      fixedRotation: false
-    BoxCollider2DComponent:
-      size: [1, 1]
-      offset: [0, 0]
-      IsTrigger: false
-      visualize: true
-      Density: 0.5
-      Friction: 0.5
-      Restitution: 0.850000024
-      MinRestitution: 0.100000001
-  - Entity: 277638330891630569
-    TagComponent:
-      Tag: floor_left_down
-    TransformComponent:
-      Translation: [-3.23941517, -2.40192175, 0]
-      Rotation: [0, 0, -1.21944845]
-      Scale: [4.08058929, 1, 1]
-    RigidBody2DComponent:
-      bodyType: Static
-      fixedRotation: false
-    BoxCollider2DComponent:
-      size: [1, 1]
-      offset: [0, 0]
-      IsTrigger: false
-      visualize: true
-      Density: 0.800000012
-      Friction: 0.5
-      Restitution: 0.949999988
-      MinRestitution: 0.100000001
-  - Entity: 523728875933920043
-    TagComponent:
-      Tag: floor_right
-    TransformComponent:
-      Translation: [4.13819599, 2.02458644, 0]
-      Rotation: [0, 0, -1.54130471]
-      Scale: [9.38780785, 1, 1]
-    RigidBody2DComponent:
-      bodyType: Static
-      fixedRotation: false
-    BoxCollider2DComponent:
-      size: [1, 1]
-      offset: [0, 0]
-      IsTrigger: false
-      visualize: true
-      Density: 0.5
-      Friction: 0.5
-      Restitution: 0.850000024
-      MinRestitution: 0.100000001
-  - Entity: 15718013152389724316
-    TagComponent:
-      Tag: floor_down
-    TransformComponent:
-      Translation: [0, -4.38197947, 0]
-      Rotation: [0, -0, 0.223270431]
-      Scale: [10.5683022, 1, 1]
-    RigidBody2DComponent:
-      bodyType: Static
-      fixedRotation: false
-    BoxCollider2DComponent:
-      size: [1, 1]
-      offset: [0, 0]
-      IsTrigger: false
-      visualize: true
-      Density: 0.5
-      Friction: 0.300000012
-      Restitution: 0.899999976
-      MinRestitution: 0.100000001
-  - Entity: 4982351336056530389
-    TagComponent:
-      Tag: quad1
-    TransformComponent:
-      Translation: [-0.795886874, 1.9302727, 0]
-      Rotation: [0, -0, 0]
-      Scale: [0.999999523, 0.999999762, 0.999999881]
-    RigidBody2DComponent:
-      bodyType: Dynamic
-      fixedRotation: false
-    BoxCollider2DComponent:
-      size: [1, 1]
-      offset: [0, 0]
-      IsTrigger: false
-      visualize: true
-      Density: 0.800000012
-      Friction: 0.5
-      Restitution: 0.699999988
-      MinRestitution: 0.100000001
-  - Entity: 16592705992816869889
-    TagComponent:
-      Tag: circle
-    TransformComponent:
-      Translation: [0, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-    RigidBody2DComponent:
-      bodyType: Dynamic
-      fixedRotation: false
-    CircleCollider2DComponent:
-      IsTrigger: false
-      visualize: true
-      offset: [0, 0]
-      radius: 0.5
-      density: 0.899999976
-      friction: 0.100000001
-      restitution: 0.800000012
-      MinRestitution: 0.100000001
+      ptr: 1
