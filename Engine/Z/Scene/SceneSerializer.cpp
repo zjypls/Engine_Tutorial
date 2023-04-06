@@ -189,11 +189,11 @@ namespace Z {
 			out << YAML::Key << "size" << YAML::Value << Collider2D.size;
 			out << YAML::Key << "offset" << YAML::Value << Collider2D.offset;
 			out << YAML::Key << "IsTrigger" << YAML::Value << Collider2D.isTrigger;
-			out << YAML::Key << "visualize" << YAML::Value << Collider2D.visualize;
 			out << YAML::Key << "Density" << YAML::Value << Collider2D.density;
 			out << YAML::Key << "Friction" << YAML::Value << Collider2D.friction;
 			out << YAML::Key << "Restitution" << YAML::Value << Collider2D.restitution;
 			out << YAML::Key << "MinRestitution" << YAML::Value << Collider2D.MinRestitution;
+			out << YAML::Key << "ptr" << YAML::Value << *(int *) Collider2D.ptr;
 			out << YAML::EndMap;
 		}
 		if (entity.HasComponent<CircleRendererComponent>()) {
@@ -210,13 +210,13 @@ namespace Z {
 			out << YAML::BeginMap;
 			auto &collier = entity.GetComponent<CircleCollider2DComponent>();
 			out << YAML::Key << "IsTrigger" << YAML::Value << collier.isTrigger;
-			out << YAML::Key << "visualize" << YAML::Value << collier.visualize;
 			out << YAML::Key << "offset" << YAML::Value << collier.offset;
 			out << YAML::Key << "radius" << YAML::Value << collier.radius;
 			out << YAML::Key << "density" << YAML::Value << collier.density;
 			out << YAML::Key << "friction" << YAML::Value << collier.friction;
 			out << YAML::Key << "restitution" << YAML::Value << collier.restitution;
 			out << YAML::Key << "MinRestitution" << YAML::Value << collier.MinRestitution;
+			out << YAML::Key << "ptr" << YAML::Value << *(int *) collier.ptr;
 			out << YAML::EndMap;
 		}
 		out << YAML::EndMap;
@@ -315,11 +315,11 @@ namespace Z {
 				Collider2D.size = boxCollider2DComponent["size"].as<glm::vec2>();
 				Collider2D.offset = boxCollider2DComponent["offset"].as<glm::vec2>();
 				Collider2D.isTrigger = boxCollider2DComponent["IsTrigger"].as<bool>();
-				Collider2D.visualize = boxCollider2DComponent["visualize"].as<bool>();
 				Collider2D.density = boxCollider2DComponent["Density"].as<float>();
 				Collider2D.friction = boxCollider2DComponent["Friction"].as<float>();
 				Collider2D.restitution = boxCollider2DComponent["Restitution"].as<float>();
 				Collider2D.MinRestitution = boxCollider2DComponent["MinRestitution"].as<float>();
+				*(int*)Collider2D.ptr = boxCollider2DComponent["ptr"].as<int>();
 			}
 			auto circleRender = Entity["CircleRendererComponent"];
 			if (circleRender) {
@@ -332,13 +332,13 @@ namespace Z {
 			if (circleCollier) {
 				auto &collider = entity.AddComponent<CircleCollider2DComponent>();
 				collider.isTrigger = circleCollier["IsTrigger"].as<bool>();
-				collider.visualize = boxCollider2DComponent["visualize"].as<bool>();
 				collider.density = circleCollier["density"].as<float>();
 				collider.friction = circleCollier["friction"].as<float>();
 				collider.restitution = circleCollier["restitution"].as<float>();
 				collider.MinRestitution = circleCollier["MinRestitution"].as<float>();
 				collider.radius = circleCollier["radius"].as<float>();
 				collider.offset = circleCollier["offset"].as<glm::vec2>();
+				collider.ptr= new int{circleCollier["ptr"].as<int>()};
 			}
 		}
 		return true;

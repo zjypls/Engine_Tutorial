@@ -63,6 +63,10 @@ namespace Z {
 		spec.attachments = {FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::R32I,
 		                    FrameBufferTextureFormat::DEPTH};
 		frameBuffer = FrameBuffer::Create(spec);
+		spec.width = spec.width / 5.f;
+		spec.height = spec.height / 5.f;
+		spec.attachments = {FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::DEPTH};
+		previewFrame = FrameBuffer::Create(spec);
 		scene = CreateRef<Scene>();
 		editorCamera = Z::EditorCamera(45.f, 1.f, 0.1f, 1000.f);
 		auto nahida = scene->CreateEntity("Nahida");
@@ -76,8 +80,11 @@ namespace Z {
 		_Transform.translation = {0, 0, 3};
 		playButtonIcon = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR) + "/Assets/Icons/PlayButton.png");
 		stopButtonIcon = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR) + "/Assets/Icons/StopButton.png");
-		currentButtonIcon = playButtonIcon;
-/*
+		simulateButtonIcon = Texture2D::CreateTexture(std::string(Z_SOURCE_DIR) + "/Assets/Icons/SimulateButton.png");
+		currentButtonIcon0 = playButtonIcon;
+		currentButtonIcon1 = simulateButtonIcon;
+		/*
+		//Todo: To be removed
 		cameraEntity = scene->CreateEntity("Camera");
 		cameraEntity.AddComponent<CameraComponent>(glm::ortho(-16.f, 16.f, -9.f, 9.f, -1.f, 1.f));
 		SecondCamera = scene->CreateEntity("SecondCamera");
@@ -120,8 +127,8 @@ namespace Z {
 		SecondCamera.AddComponent<ScriptComponent>().Bind<CameraCtrl>();
 */
 
-		sceneHierarchyPlane = CreateRef<SceneHierarchyPlane>(scene);
-		contentBrowser = CreateRef<ContentBrowser>();
+		sceneHierarchyPlane = CreateScope<SceneHierarchyPlane>(scene);
+		contentBrowser = CreateScope<ContentBrowser>();
 
 	}
 
@@ -142,24 +149,46 @@ namespace Z {
 					controller.OnUpdate(Time::DeltaTime());
 					editorCamera.OnUpdate();
 				}
-				scene->OnEditorUpdate(Time::DeltaTime(), editorCamera,EditorVisualizeCollider);
+				scene->OnEditorUpdate(Time::DeltaTime(), editorCamera);
 				break;
 			}
 			case SceneState::Play: {
-				scene->OnUpdate(Time::DeltaTime(),RunTimeVisualizeCollider);
+				scene->OnUpdate(Time::DeltaTime());
+				break;
+			}
+			case SceneState::Simulate: {
+				if (IsViewportFocused) {
+					controller.OnUpdate(Time::DeltaTime());
+					editorCamera.OnUpdate();
+				}
+				scene->OnSimulateUpdate(Time::DeltaTime(), editorCamera);
 				break;
 			}
 		}
+		OnDebugShow();
 
+		if (selectedEntity = sceneHierarchyPlane->GetSelectedEntity();
+				(sceneState == SceneState::Edit && IsViewportFocused && IsViewportHovered && !ImGuizmo::IsOver()) &&
+				((selectedEntity && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) ||
+				 (!selectedEntity && Input::IsMouseButtonPressed(MouseCode::ButtonLeft)))) {
 
-		if (IsViewportFocused && IsViewportHovered && !ImGuizmo::IsOver() && !Input::IsKeyPressed(KeyCode::LeftAlt) &&
-		    Input::IsMouseButtonPressed(MouseCode::ButtonLeft)) {
 			auto value = frameBuffer->GetPixel(CursorPos.x, CursorPos.y);
-			sceneHierarchyPlane->SetSelectedEntity(value);
+			selectedEntity = sceneHierarchyPlane->SetSelectedEntity(value);
 		}
 		frameBuffer->UnBind();
+		if ((sceneState != SceneState::Play) && selectedEntity && selectedEntity.HasComponent<CameraComponent>()) {
+			previewFrame->Bind();
+			RenderCommand::SetClearValue(clearValue);
+			RenderCommand::Clear();
+			scene->OnPreviewUpdate(Time::DeltaTime(), selectedEntity.GetComponent<CameraComponent>().camera,
+			                       selectedEntity.GetComponent<TransformComponent>().GetTransform());
+			OnDebugShow(true);
+			Renderer2D::EndScene();
+			previewFrame->UnBind();
+		}
 	}
 
+	//Todo : To be optimized
 	void EditorLayer::OnImGuiRender() {
 		static bool dockspaceOpen = true;
 		static bool opt_fullscreen_persistant = true;
@@ -230,9 +259,15 @@ namespace Z {
 		ImGui::Text("Quads: %u", stats->QuadCount);
 		ImGui::Text("Vertices: %u", stats->GetTotalVertexCount());
 		ImGui::Text("Indices: %u", stats->GetTotalIndexCount());
+		ImGui::Text("FPS: %.0f", 1.f / Time::DeltaTime());
+		ImGui::Text("Frame Time: %.3f s", Time::DeltaTime());
 		stats->Reset();
+		ImGui::End();
+		ImGui::Begin("Settings");
 		ImGui::Checkbox("Editor Visualize Collider", &EditorVisualizeCollider);
 		ImGui::Checkbox("RunTime Visualize Collider", &RunTimeVisualizeCollider);
+		ImGui::DragFloat4("Collider ActiveColor", glm::value_ptr(ActiveColor), 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat4("Collider InActiveColor", glm::value_ptr(InactiveColor), 0.01f, 0.0f, 1.0f);
 
 		sceneHierarchyPlane->OnImGuiRender();
 		contentBrowser->OnImGuiRender();
@@ -260,6 +295,7 @@ namespace Z {
 
 		if ((viewportSize != *(glm::vec2 *) &viewSize) && !Input::IsMouseButtonPressed(MouseCode::ButtonLeft)) {
 			viewportSize = glm::vec2{viewSize.x, viewSize.y};
+			previewFrame->Resize(viewportSize.x / 4.f, viewportSize.y / 4.f);
 			frameBuffer->Resize(viewportSize.x, viewportSize.y);
 			scene->OnViewportResize(viewportSize.x, viewportSize.y);
 			editorCamera.SetViewportSize(viewportSize.x, viewportSize.y);
@@ -269,11 +305,32 @@ namespace Z {
 			if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")) {
 				const char *path = (const char *) payload->Data;
 				LoadScene(path);
+				ImGui::PopStyleVar();
+				ImGui::End();
+				ImGui::End();
+				return;
 			}
 		}
-
-		auto selectedEntity = sceneHierarchyPlane->GetSelectedEntity();
-		if (selectedEntity && currentGizmoOperation != -1) {
+		if (selectedEntity=sceneHierarchyPlane->GetSelectedEntity();(sceneState == SceneState::Edit || sceneState == SceneState::Simulate) && selectedEntity &&
+		    selectedEntity.HasComponent<CameraComponent>()) {
+			ImGui::SetNextWindowPos(ImGui::GetWindowPos() +
+			                        ImVec2(ImGui::GetWindowSize().x - ImGui::GetWindowSize().x / 4,
+			                               ImGui::GetWindowSize().y - ImGui::GetWindowSize().y / 4));
+			ImGui::SetNextWindowSize(ImVec2(ImGui::GetWindowSize().x / 4, ImGui::GetWindowSize().y / 4));
+			ImGui::Begin("##Camera preview", nullptr,
+			             ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollWithMouse |
+			             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
+			             ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
+			             ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+			             ImGuiWindowFlags_NoBackground
+			             | ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNav);
+			ImGui::Image((void *) previewFrame->GetAttachmentID(0),
+			             ImVec2{ImGui::GetWindowSize().x, ImGui::GetWindowSize().y}, ImVec2{0, 1},
+			             ImVec2{1, 0});
+			ImGui::End();
+		}
+		if (selectedEntity && currentGizmoOperation != -1 &&
+		    (sceneState == SceneState::Edit || sceneState == SceneState::Simulate)) {
 			ImGuizmo::SetOrthographic(false);
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x,
@@ -298,14 +355,54 @@ namespace Z {
 
 		ImGui::PopStyleVar();
 		ImGui::End();
-		On_UI();
+		OnButtonUI();
 
 		ImGui::End();
 	}
 
+	void EditorLayer::OnButtonUI() {
+		//Todo : improve button layout
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 2});
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2{0, 0});
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0, 0, 0, 0});
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.3, 0.3, 0.3, 0.5});
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0, 0, 0, 0});
+		ImGui::Begin("##tools", nullptr,
+		             ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar |
+		             ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+		ImGui::BeginDisabled(!scene);
+		float size = ImGui::GetWindowHeight() - 4;
+		ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x / 2 - ImGui::GetWindowHeight());
+		if (ImGui::ImageButton((ImTextureID) currentButtonIcon0->GetRendererID(), ImVec2{size, size}, ImVec2{0, 1},
+		                       ImVec2{1, 0}) && sceneState != SceneState::Simulate) {
+			if (sceneState == SceneState::Edit) {
+				OnPlay();
+			} else if (sceneState == SceneState::Play) {
+				OnStop();
+			}
+		}
+		ImGui::SameLine();
+		if (ImGui::ImageButton((ImTextureID) currentButtonIcon1->GetRendererID(), ImVec2{size, size}, ImVec2{0, 1},
+		                       ImVec2{1, 0}) && sceneState != SceneState::Play) {
+			if (sceneState == SceneState::Edit) {
+				OnSimulate();
+			} else if (sceneState == SceneState::Simulate) {
+				OnStop();
+			}
+		}
+		ImGui::EndDisabled();
+		ImGui::PopStyleColor(3);
+		ImGui::PopStyleVar(2);
+		ImGui::End();
+
+	}
+
 	void EditorLayer::OnEvent(Event &event) {
-		controller.OnEvent(event);
-		if (IsViewportHovered&&IsViewportFocused) {
+		{//Todo: remove this
+			controller.OnEvent(event);
+		}
+		if (IsViewportHovered && IsViewportFocused) {
 			editorCamera.OnEvent(event);
 		}
 		EventDispatcher dispatcher(event);
@@ -316,7 +413,7 @@ namespace Z {
 		auto path = Z::Utils::FileSave("*.zscene");
 		if (!path.empty()) {
 			WorkPath = path;
-			if(WorkPath.extension()!= ".zscene")
+			if (WorkPath.extension() != ".zscene")
 				WorkPath.replace_extension(".zscene");
 			InnerSave(WorkPath.string());
 		}
@@ -353,6 +450,7 @@ namespace Z {
 		}
 		scene = CreateRef<Scene>();
 		scene->OnViewportResize(viewportSize.x, viewportSize.y);
+		sceneHierarchyPlane->SetSelectedEntity(-1);
 		sceneHierarchyPlane->SetContext(scene);
 		SceneSerializer serializer(scene);
 		if (serializer.Deserialize(path)) {
@@ -361,65 +459,40 @@ namespace Z {
 	}
 
 	void EditorLayer::NewScene() {
+		if (!WorkPath.empty()) {
+			if (sceneState != SceneState::Edit)
+				OnStop();
+			InnerSave(WorkPath.string());
+		}
 		scene = CreateRef<Scene>();
+		sceneHierarchyPlane->SetSelectedEntity(-1);
 		sceneHierarchyPlane->SetContext(scene);
 		WorkPath = std::filesystem::path();
 	}
 
-	void EditorLayer::On_UI() {
-		ImGui::Begin("##tools");
-		float size = ImGui::GetWindowHeight();
-		ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x / 2 - ImGui::GetWindowHeight() / 2);
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{0, 0});
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{0, 0});
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0, 0, 0, 0});
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.3, 0.3, 0.3, 0.5});
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0, 0, 0, 0});
-		if (ImGui::ImageButton((ImTextureID) currentButtonIcon->GetRendererID(), ImVec2{size, size}, ImVec2{0, 1},
-		                       ImVec2{1, 0})) {
-			if (sceneState == SceneState::Edit) {
-				OnPlay();
-			} else if (sceneState == SceneState::Play) {
-				OnStop();
-			}
-		}
-		ImGui::PopStyleColor(3);
-		ImGui::PopStyleVar(3);
-		ImGui::End();
-	}
 
 	void EditorLayer::OnPlay() {
 		sceneState = SceneState::Play;
-		currentButtonIcon = stopButtonIcon;
+		currentButtonIcon0 = stopButtonIcon;
 		BackScene = scene;
 		scene = Scene::Copy(BackScene);
 		scene->OnViewportResize(viewportSize.x, viewportSize.y);
 		sceneHierarchyPlane->SetContext(scene);
 		scene->OnRuntimeStart();
-		return;
-		scene->OnRuntimeStart();
-		SceneSerializer serializer(scene);
-		serializer.SerializeRuntime(data);
 	}
 
 	void EditorLayer::OnStop() {
+		if (sceneState == SceneState::Play) {
+			currentButtonIcon0 = playButtonIcon;
+			scene->OnRuntimeStop();
+		} else if (sceneState == SceneState::Simulate) {
+			currentButtonIcon1 = simulateButtonIcon;
+			scene->OnSimulateStop();
+		}
 		sceneState = SceneState::Edit;
-		currentButtonIcon = playButtonIcon;
-		scene->OnRuntimeStop();
 		scene = BackScene;
 		sceneHierarchyPlane->SetContext(scene);
 		scene->OnViewportResize(viewportSize.x, viewportSize.y);
-
-
-		return;
-		scene->OnRuntimeStop();
-		scene = CreateRef<Scene>();
-		sceneHierarchyPlane->SetContext(scene);
-		scene->OnViewportResize(viewportSize.x, viewportSize.y);
-		SceneSerializer serializer(scene);
-		serializer.DeserializeRuntime(data);
-		data.str("");
 	}
 
 
@@ -464,6 +537,69 @@ namespace Z {
 				break;
 		}
 		return false;
+	}
+
+	void EditorLayer::OnDebugShow(bool preview) {
+		if (preview) {
+			if (selectedEntity)
+				Renderer2D::BeginScene(selectedEntity.GetComponent<CameraComponent>().camera,
+				                       selectedEntity.GetComponent<TransformComponent>().GetTransform());
+			else {
+				Z_CORE_ERROR("No camera to preview!!!");
+				return;
+			}
+		} else if (sceneState == SceneState::Edit || sceneState == SceneState::Simulate) {
+			Renderer2D::BeginScene(editorCamera);
+		} else if (sceneState == SceneState::Play) {
+			auto camera = scene->GetMainCamera();
+			if (!camera) {
+				Z_CORE_WARN("No camera in scene");
+				return;
+			}
+			Renderer2D::BeginScene(camera.GetComponent<CameraComponent>().camera,
+			                       camera.GetComponent<TransformComponent>().GetTransform());
+		}
+
+		if (((sceneState != SceneState::Play) && EditorVisualizeCollider) ||
+		    (sceneState == SceneState::Play && RunTimeVisualizeCollider)) {
+			scene->GetComponentView<BoxCollider2DComponent, TransformComponent>().each(
+					[&](auto &box2D, auto &transformComponent) {
+						//Todo : to be optimized
+						auto translation = transformComponent.translation +
+						                   glm::mat3(transformComponent.GetTransform()) *
+						                   glm::vec3(box2D.offset, 0.f);
+						auto size = glm::vec3(box2D.size, 0.f) * transformComponent.scale;
+						auto trans = glm::translate(glm::mat4(1.f), translation) *
+						             glm::rotate(glm::mat4(1.f), transformComponent.rotation.z,
+						                         glm::vec3(0, 0, 1)) * glm::scale(glm::mat4(1.f), size);
+						Renderer2D::DrawRect(trans, box2D.size, *(int*)(box2D.ptr)?ActiveColor:InactiveColor);
+
+					});
+			scene->GetComponentView<CircleCollider2DComponent, TransformComponent>().each(
+					[&](auto &circle2D, auto &transformComponent) {
+						//Todo : to be optimized
+						auto translation = transformComponent.translation +
+						                   glm::mat3(transformComponent.GetTransform()) *
+						                   glm::vec3(circle2D.offset, 0.f);
+						auto size = transformComponent.scale * (circle2D.radius * 2.f);
+						auto trans = glm::translate(glm::mat4(1.f), translation) * glm::scale(glm::mat4(1.f), size);
+						Renderer2D::DrawCircle(trans, *(int*)(circle2D.ptr) ? ActiveColor : InactiveColor);
+					});
+		}
+		//Todo: To be optimized
+		Renderer2D::ChangeDepthTest(RenderAPI::DepthTestState::Always);
+		Renderer2D::EndScene();
+		Renderer2D::ChangeDepthTest();
+	}
+
+	void EditorLayer::OnSimulate() {
+		sceneState = SceneState::Simulate;
+		currentButtonIcon1 = stopButtonIcon;
+		BackScene = scene;
+		scene = Scene::Copy(BackScene);
+		scene->OnViewportResize(viewportSize.x, viewportSize.y);
+		sceneHierarchyPlane->SetContext(scene);
+		scene->OnSimulateStart();
 	}
 
 }

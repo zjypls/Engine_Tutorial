@@ -28,7 +28,7 @@ namespace Z {
 			const glm::vec3&scale=glm::vec3{1.f})
 			: translation(position), rotation(rotation), scale(scale) {}
 
-		glm::mat4 GetTransform() {
+		glm::mat4 GetTransform()const {
 			return glm::translate(glm::mat4(1.f), translation)
 			       * glm::toMat4(glm::quat(rotation))
 			       * glm::scale(glm::mat4(1.f), scale);
@@ -101,7 +101,6 @@ namespace Z {
 	};
 
 
-
 	struct RigidBody2DComponent{
 		enum class BodyType{
 			Static,
@@ -120,9 +119,9 @@ namespace Z {
 	struct BoxCollider2DComponent{
 		glm::vec2 offset{0.f,0.f};
 		glm::vec2 size{1.f,1.f};
-		bool isTrigger{false},visualize{false};
+		bool isTrigger{false};
 		//Todo : change
-		void* ptr= nullptr;
+		void* ptr= new int{1};
 
 		float density{0.5f};
 		float friction{0.5f};
@@ -133,10 +132,10 @@ namespace Z {
 
 	struct CircleCollider2DComponent{
 		glm::vec2 offset{0.f,0.f};
-		float radius{1.f};
-		bool isTrigger{false},visualize{false};
+		float radius{.5f};
+		bool isTrigger{false};
 		//Todo : change
-		void* ptr= nullptr;
+		void* ptr= new int{1};
 
 		float density{0.5f};
 		float friction{0.5f};
@@ -144,6 +143,13 @@ namespace Z {
 		float MinRestitution{0.5f};
 		CircleCollider2DComponent()=default;
 	};
+
+	template<class... T>
+	struct Type{
+	};
+
+	using AllTypes=Type<TransformComponent,SpriteRendererComponent,CircleRendererComponent,TagComponent,
+	CameraComponent,ScriptComponent,RigidBody2DComponent,BoxCollider2DComponent,CircleCollider2DComponent>;
 
 }
 

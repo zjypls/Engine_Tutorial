@@ -9,8 +9,28 @@
 
 namespace Z {
 
+	namespace Temp {
+
+		template<class T>
+		std::string GetTypeName() {
+			auto temp=std::string(typeid(T).name());
+			auto space = temp.rfind(':');
+			auto end=temp.rfind("Component");
+			return temp.substr(space + 1, end - space - 1);
+		}
+
+		template<class... T>
+		void AddComponentMenu(Type<T...>, Entity entity) {
+			([&]() {
+				if (!entity.HasComponent<T>() && ImGui::MenuItem(GetTypeName<T>().c_str())) {
+					entity.AddComponent<T>();
+				}
+			}(), ...);
+		}
+	}
+
 	static void
-	MyDrawVec(const std::string &label, glm::vec3 &value, float ResetValue = .0f, float ColumnWidth = 100.f) {
+	MyDrawVec(const std::string &label, glm::vec3 &value, const glm::vec3& ResetValue = glm::vec3{.0f}, float ColumnWidth = 100.f) {
 		ImGui::PushID(label.c_str());
 		ImGui::Columns(2);
 		ImGui::SetColumnWidth(0, ColumnWidth);
@@ -37,7 +57,7 @@ namespace Z {
 		auto &io = ImGui::GetIO();
 		ImGui::PushFont(io.Fonts->Fonts[0]);
 		for (int i = 0; i < 3; ++i) {
-			if (ImGui::Button(ButtonLabel[i], buttonSize)) { value[i] = ResetValue; }
+			if (ImGui::Button(ButtonLabel[i], buttonSize)) { value[i] = ResetValue[i]; }
 			ImGui::PopStyleColor(3);
 			ImGui::SameLine();
 			ImGui::DragFloat(DragLabel[i], &value[i], 0.1f);
@@ -74,8 +94,6 @@ namespace Z {
 
 		if (selectedEntity) {
 			DrawComponents(selectedEntity);
-
-
 		}
 		ImGui::End();
 	}
@@ -144,27 +162,8 @@ namespace Z {
 		if (ImGui::Button("Add Component")) {
 			ImGui::OpenPopup("AddComponent");
 		}
-		if (ImGui::BeginPopup("AddComponent")) {//Todo:Change logic
-			if (!entity.HasComponent<CameraComponent>()&&ImGui::MenuItem("Camera")) {
-				selectedEntity.AddComponent<CameraComponent>();//Todo:Change logic
-			}
-			if (!entity.HasComponent<SpriteRendererComponent>()&&ImGui::MenuItem("Sprite Renderer")) {
-				selectedEntity.AddComponent<SpriteRendererComponent>();//Todo:Change logic
-			}
-			if (!entity.HasComponent<CircleRendererComponent>()&&ImGui::MenuItem("Circle Renderer")) {
-				selectedEntity.AddComponent<CircleRendererComponent>();//Todo:Change logic
-			}
-			if (!entity.HasComponent<RigidBody2DComponent>()&&ImGui::MenuItem("RigidBody2D")) {
-				selectedEntity.AddComponent<RigidBody2DComponent>();//Todo:Change logic
-			}
-			if (!entity.HasComponent<BoxCollider2DComponent>()&&ImGui::MenuItem("BoxCollider2D")) {
-				if(!entity.HasComponent<RigidBody2DComponent>()){ selectedEntity.AddComponent<RigidBody2DComponent>(); }
-				selectedEntity.AddComponent<BoxCollider2DComponent>();//Todo:Change logic
-			}
-			if (!entity.HasComponent<CircleCollider2DComponent>()&&ImGui::MenuItem("CircleCollider2D")) {
-				if(!entity.HasComponent<RigidBody2DComponent>()){ selectedEntity.AddComponent<RigidBody2DComponent>(); }
-				selectedEntity.AddComponent<CircleCollider2DComponent>();//Todo:Change logic
-			}
+		if (ImGui::BeginPopup("AddComponent")) {
+			Temp::AddComponentMenu(AllTypes{},entity);
 			ImGui::EndPopup();
 		}
 		ImGui::PopItemWidth();
@@ -174,38 +173,38 @@ namespace Z {
 			auto rotation = glm::degrees(transform.rotation);
 			MyDrawVec("Rotation", rotation);
 			transform.rotation = glm::radians(rotation);
-			MyDrawVec("Scale", transform.scale, 1.f);
+			MyDrawVec("Scale", transform.scale, glm::vec3{1.f});
 		});
 		DrawComponent<SpriteRendererComponent>("SpriteRenderer", entity,
 		                                       [](SpriteRendererComponent &spriteRenderer) {
 			                                       ImGui::ColorEdit4("Color", &spriteRenderer.color[0]);
-												   ImGui::Image(spriteRenderer.texture.get()== nullptr ? nullptr :
-														   (void *) spriteRenderer.texture->GetRendererID(),
-																ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
-												   if(ImGui::BeginDragDropTarget()){
-													   if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
-														   const char* path = (const char*)payload->Data;
-														   Z_CORE_ASSERT(std::filesystem::exists(path), "Path does not exist!");
-														   auto temp = Texture2D::CreateTexture(path);
-														   if(temp->GetWidth()>2600||temp->GetHeight()>2600){
-															   MessageBoxA(nullptr, "Texture is too large!", "Error", MB_OK);
-														   }else
-															   spriteRenderer.texture = temp;
-													   }
-													   ImGui::EndDragDropTarget();
-												   }
+			                                       ImGui::Image(spriteRenderer.texture.get() == nullptr ? nullptr :
+			                                                    (void *) spriteRenderer.texture->GetRendererID(),
+			                                                    ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
+			                                       if (ImGui::BeginDragDropTarget()) {
+				                                       if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(
+						                                       "CONTENT_BROWSER_ITEM")) {
+					                                       const char *path = (const char *) payload->Data;
+					                                       Z_CORE_ASSERT(std::filesystem::exists(path),
+					                                                     "Path does not exist!");
+					                                       auto temp = Texture2D::CreateTexture(path);
+					                                       if (temp->GetWidth() > 2600 || temp->GetHeight() > 2600) {
+						                                       MessageBoxA(nullptr, "Texture is too large!", "Error",
+						                                                   MB_OK);
+					                                       } else
+						                                       spriteRenderer.texture = temp;
+				                                       }
+				                                       ImGui::EndDragDropTarget();
+			                                       }
 		                                       });
 		DrawComponent<CircleRendererComponent>("CircleRenderer", entity, [](CircleRendererComponent &component) {
 			ImGui::ColorEdit4("Color", &component.color[0]);
-			ImGui::DragFloat("thick", &component.thickness,.05f,0.f,1.f);
-			ImGui::DragFloat("Fade",&component.fade,.05f,0.f,1.f);
+			ImGui::DragFloat("thick", &component.thickness, .05f, 0.f, 1.f);
+			ImGui::DragFloat("Fade", &component.fade, .05f, 0.f, 1.f);
 		});
 		DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent &component) {
 			auto &camera = component.camera;
 			if (ImGui::Checkbox("Primary", &component.primary)) {//Todo:Change logic
-//				context->registry.view<CameraComponent>().each([&](auto entity, auto &cameraComponent) {
-//					if (entity != entity)cameraComponent.primary = !component.primary;
-//				});
 			}
 			const char *projectionTypeStrings[] = {"Perspective", "Orthographic"};
 			int projectionType = (int) camera.GetProjectionType();
@@ -245,49 +244,48 @@ namespace Z {
 		});
 		DrawComponent<RigidBody2DComponent>("RigidBody2D", entity, [](RigidBody2DComponent &component) {
 			ImGui::Checkbox("Fixed Rotation", &component.fixedRotation);
-			if(int i=(int)component.bodyType;ImGui::Combo("Body Type", &i, "Static\0Dynamic\0Kinematic\0\0"))component.bodyType=(RigidBody2DComponent::BodyType)i;
+			if (int i = (int) component.bodyType;ImGui::Combo("Body Type", &i,
+			                                                  "Static\0Dynamic\0Kinematic\0\0"))
+				component.bodyType = (RigidBody2DComponent::BodyType) i;
 		});
 		DrawComponent<BoxCollider2DComponent>("BoxCollider2D", entity, [](BoxCollider2DComponent &component) {
 			ImGui::Checkbox("Is Trigger", &component.isTrigger);
-			ImGui::Checkbox("Visualize", &component.visualize);
 			ImGui::DragFloat2("Size", &component.size.x);
 			ImGui::DragFloat2("Offset", &component.offset.x);
-			ImGui::DragFloat("Density", &component.density,.1f);
-			ImGui::DragFloat("Friction", &component.friction,.05f);
-			ImGui::DragFloat("Restitution", &component.restitution,.05f);
-			ImGui::DragFloat("MinRestitution", &component.MinRestitution,.05f);
+			ImGui::DragFloat("Density", &component.density, .1f);
+			ImGui::DragFloat("Friction", &component.friction, .05f);
+			ImGui::DragFloat("Restitution", &component.restitution, .05f);
+			ImGui::DragFloat("MinRestitution", &component.MinRestitution, .05f);
 		});
 		DrawComponent<CircleCollider2DComponent>("CircleCollider2D", entity, [](CircleCollider2DComponent &component) {
 			ImGui::Checkbox("Is Trigger", &component.isTrigger);
-			ImGui::Checkbox("Visualize", &component.visualize);
 			ImGui::DragFloat("Radius", &component.radius);
 			ImGui::DragFloat2("Offset", &component.offset.x);
-			ImGui::DragFloat("Density", &component.density,.1f);
-			ImGui::DragFloat("Friction", &component.friction,.05f);
-			ImGui::DragFloat("Restitution", &component.restitution,.05f);
-			ImGui::DragFloat("MinRestitution", &component.MinRestitution,.05f);
+			ImGui::DragFloat("Density", &component.density, .1f);
+			ImGui::DragFloat("Friction", &component.friction, .05f);
+			ImGui::DragFloat("Restitution", &component.restitution, .05f);
+			ImGui::DragFloat("MinRestitution", &component.MinRestitution, .05f);
 		});
 	}
 
-	template<typename _Ty>
-	void SceneHierarchyPlane::DrawComponent(const std::string &name, Entity entity, void (*drawFunc)(_Ty &)) {
-		if (entity.HasComponent<_Ty>()) {
+	template<typename Ty>
+	void SceneHierarchyPlane::DrawComponent(const std::string &name, Entity entity, void (*drawFunc)(Ty &)) {
+		if (entity.HasComponent<Ty>()) {
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
 			auto RegionWidth = ImGui::GetContentRegionAvail().x;
 			auto lineHeight = ImGui::GetFont()->FontSize + ImGui::GetStyle().FramePadding.y * 2.0f;
 			ImGui::Separator();
-			bool open = ImGui::TreeNodeEx((void *) typeid(_Ty).hash_code(),
+			bool open = ImGui::TreeNodeEx((void *) typeid(Ty).hash_code(),
 			                              ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed |
 			                              ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_SpanAvailWidth,
 			                              name.c_str());
 			ImGui::PopStyleVar();
 			bool remove = false;
 
-			ImGui::SameLine(RegionWidth- lineHeight * .5f);
+			ImGui::SameLine(RegionWidth - lineHeight * .5f);
 			if (ImGui::Button("+", ImVec2(lineHeight, lineHeight))) {
 				ImGui::OpenPopup("Remove Component");
 			}
-			//ImGui::PopStyleVar();
 			if (ImGui::BeginPopup("Remove Component")) {
 				if (ImGui::MenuItem("Remove Component")) {
 					remove = true;
@@ -295,12 +293,12 @@ namespace Z {
 				ImGui::EndPopup();
 			}
 			if (open) {
-				auto &component = entity.GetComponent<_Ty>();
+				auto &component = entity.GetComponent<Ty>();
 				drawFunc(component);
 				ImGui::TreePop();
 			}
 			if (remove) {
-				entity.RemoveComponent<_Ty>();
+				entity.RemoveComponent<Ty>();
 			}
 		}
 	}

@@ -96,8 +96,10 @@ namespace Z {
 		static void BeginScene(const Ref<OrithGraphicCamera> &camera);
 		static void BeginScene(const Camera&camera,const glm::mat4 &transform);
 		static void BeginScene(const EditorCamera&camera);
+		static void BeginScene(const SceneCamera&camera,const glm::mat4 &transform);
 		static void Flush();
 		static void EndScene();
+		static void ChangeDepthTest(RenderAPI::DepthTestState state=RenderAPI::DepthTestState::Less);
 		inline static void DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color){
 			DrawQuad(glm::vec3{position.x,position.y,0.f},size,color);
 		}
@@ -152,6 +154,7 @@ namespace Z {
 			DrawLine(glm::vec3{v0.x,v0.y,0.f},glm::vec3{v1.x,v1.y,0.f},color,entityID);
 		}
 		static void DrawCircle(const glm::mat4&transform,const CircleRendererComponent&circle,int EntityID=-1);
+		static void DrawCircle(const glm::mat4&transform,const glm::vec4& color,float thickness=0.02f,float fade=.005f,int EntityID=-1);
 		static void DrawQuad(const glm::mat4 &transform, const SpriteRendererComponent &sprite,int EntityID=-1);
 		static void DrawQuad(const glm::mat4 &transform, const Ref<Texture2D> &texture,float tilingFactor=1.f,const glm::vec4& tintCol=glm::vec4 {1.f});
 		static void DrawQuad(const glm::mat4 &transform, const Ref<SubTex2D> &texture,float tilingFactor=1.f,const glm::vec4& tintCol=glm::vec4 {1.f});

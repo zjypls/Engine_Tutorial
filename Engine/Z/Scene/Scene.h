@@ -8,7 +8,7 @@
 #include "entt.hpp"
 #include "Z/Renderer/EditorCamera.h"
 
-class b2World;
+
 namespace Z {
 
 	class Scene {
@@ -17,9 +17,12 @@ namespace Z {
 		friend class Entity;
 		friend class SceneHierarchyPlane;
 		friend class SceneSerializer;
-		b2World* PhysicalWorld = nullptr;
+		void* PhysicalWorld = nullptr;
 		template<class _Ty>
 		void OnComponentAdd(Entity entity, _Ty &component);
+		void Render2D();
+		void ScriptUpdate(float deltaTime);
+		void OnPhysics2DUpdate(float deltaTime);
 
 	public:
 		Scene() = default;
@@ -32,16 +35,27 @@ namespace Z {
 
 		void OnRuntimeStart();
 		void OnRuntimeStop();
+		void OnSimulateStart();
+		void OnSimulateStop();
 
-		inline entt::registry &GetRegistry() { return registry;}
+		void OnPhysics2DStart();
+		void OnPhysics2DStop();
+		template<class... T>
+		auto GetComponentView() {
+			return registry.view<T...>();
+		}
+
 		void OnViewportResize(unsigned int width, unsigned int height);
 		void DestroyEntity(Entity entity);
 		void CopyEntity(Entity entity);
 
-		void OnUpdate(float,bool VisualizeCollider=false);
-		void OnEditorUpdate(float deltaTime, EditorCamera &camera,bool VisualizeCollider=false);
+		void OnUpdate(float);
+		void OnEditorUpdate(float deltaTime, EditorCamera &camera);
+		void OnPreviewUpdate(float deltaTime,Camera &camera,glm::mat4 transform);
+		void OnSimulateUpdate(float deltaTime,EditorCamera &camera);
 
 		~Scene();
+
 	};
 }
 

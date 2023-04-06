@@ -50,5 +50,37 @@ namespace Z {
 	void OpenGLRenderAPI::SetLineWidth(float width) {
 		glLineWidth(width);
 	}
+	GLenum DepthTestStateToGL(RenderAPI::DepthTestState state) {
+		switch (state) {
+			case RenderAPI::DepthTestState::None:
+			return GL_NONE;
+		case RenderAPI::DepthTestState::Less:
+			return GL_LESS;
+		case RenderAPI::DepthTestState::LessOrEqual:
+			return GL_LEQUAL;
+		case RenderAPI::DepthTestState::Equal:
+			return GL_EQUAL;
+		case RenderAPI::DepthTestState::NotEqual:
+			return GL_NOTEQUAL;
+		case RenderAPI::DepthTestState::GreaterOrEqual:
+			return GL_GEQUAL;
+		case RenderAPI::DepthTestState::Greater:
+			return GL_GREATER;
+		case RenderAPI::DepthTestState::Always:
+			return GL_ALWAYS;
+		case RenderAPI::DepthTestState::Never:
+			return GL_NEVER;
+		default:
+			return GL_NONE;
+		}
+	}
+	void OpenGLRenderAPI::ChangeDepthTest(RenderAPI::DepthTestState state) {
+		if (state == RenderAPI::DepthTestState::None) {
+			glDisable(GL_DEPTH_TEST);
+		}else {
+			glEnable(GL_DEPTH_TEST);
+			glDepthFunc(DepthTestStateToGL(state));
+		}
+	}
 
 }

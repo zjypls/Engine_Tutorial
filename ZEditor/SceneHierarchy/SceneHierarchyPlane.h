@@ -37,11 +37,11 @@ namespace Z {
 
 		inline Entity GetSelectedEntity() const { return selectedEntity; }
 
-		inline void SetSelectedEntity(int id) {
+		inline Entity SetSelectedEntity(int id) {
 			if (id != -1)
-				selectedEntity = Entity{entt::entity(id), context.get()};
+				return selectedEntity = Entity{entt::entity(id), context.get()};
 			else
-				selectedEntity = {};
+				return selectedEntity = {};
 		}
 
 		void OnImGuiRender();

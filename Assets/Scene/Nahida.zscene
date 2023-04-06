@@ -2,7 +2,7 @@ Scene: Untitled
 Entities:
   - Entity: 3461289287262062511
     TagComponent:
-      Tag: Nahida
+      Tag: quad3
     TransformComponent:
       Translation: [0.776155889, 1.9302727, 0]
       Rotation: [0, -0, 0]
@@ -15,7 +15,7 @@ Entities:
       offset: [0, 0]
       IsTrigger: false
       visualize: true
-      Density: 1
+      Density: 1.89999998
       Friction: 0.100000001
       Restitution: 0.899999976
       MinRestitution: 0.100000001
@@ -38,7 +38,7 @@ Entities:
         Primary: true
   - Entity: 704800038312441548
     TagComponent:
-      Tag: Nahida
+      Tag: quad2
     TransformComponent:
       Translation: [0, 3.24061012, 0]
       Rotation: [0, -0, 0]
@@ -52,12 +52,12 @@ Entities:
       IsTrigger: false
       visualize: true
       Density: 1.20000005
-      Friction: 0.5
+      Friction: 0.100000001
       Restitution: 0.800000012
       MinRestitution: 0.100000001
   - Entity: 13154956672401408934
     TagComponent:
-      Tag: Empty Entity
+      Tag: floor_left
     TransformComponent:
       Translation: [-4.96272898, 2.0734849, 0]
       Rotation: [0, 0, -1.59595788]
@@ -76,7 +76,7 @@ Entities:
       MinRestitution: 0.100000001
   - Entity: 277638330891630569
     TagComponent:
-      Tag: Empty Entity
+      Tag: floor_left_down
     TransformComponent:
       Translation: [-3.23941517, -2.40192175, 0]
       Rotation: [0, 0, -1.21944845]
@@ -95,7 +95,7 @@ Entities:
       MinRestitution: 0.100000001
   - Entity: 523728875933920043
     TagComponent:
-      Tag: Empty Entity
+      Tag: floor_right
     TransformComponent:
       Translation: [4.13819599, 2.02458644, 0]
       Rotation: [0, 0, -1.54130471]
@@ -114,7 +114,7 @@ Entities:
       MinRestitution: 0.100000001
   - Entity: 15718013152389724316
     TagComponent:
-      Tag: Empty Entity
+      Tag: floor_down
     TransformComponent:
       Translation: [0, -4.38197947, 0]
       Rotation: [0, -0, 0.223270431]
@@ -128,12 +128,12 @@ Entities:
       IsTrigger: false
       visualize: true
       Density: 0.5
-      Friction: 0.5
+      Friction: 0.300000012
       Restitution: 0.899999976
       MinRestitution: 0.100000001
   - Entity: 4982351336056530389
     TagComponent:
-      Tag: Nahida
+      Tag: quad1
     TransformComponent:
       Translation: [-0.795886874, 1.9302727, 0]
       Rotation: [0, -0, 0]
@@ -149,4 +149,23 @@ Entities:
       Density: 0.800000012
       Friction: 0.5
       Restitution: 0.699999988
+      MinRestitution: 0.100000001
+  - Entity: 16592705992816869889
+    TagComponent:
+      Tag: circle
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RigidBody2DComponent:
+      bodyType: Dynamic
+      fixedRotation: false
+    CircleCollider2DComponent:
+      IsTrigger: false
+      visualize: true
+      offset: [0, 0]
+      radius: 0.5
+      density: 0.899999976
+      friction: 0.100000001
+      restitution: 0.800000012
       MinRestitution: 0.100000001
