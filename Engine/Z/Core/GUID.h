@@ -16,7 +16,7 @@ namespace Z {
 
 		GUID();
 
-		GUID(Type value):value(value) {}
+		GUID(Type value) : value(value) {}
 
 		GUID(const GUID &other) = default;
 

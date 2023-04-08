@@ -10,66 +10,24 @@
 
 
 namespace YAML {
-	template<>
-	struct convert<glm::vec3> {
-		static Node encode(const glm::vec3 &rhs) {
+
+	template<int L, typename T, glm::qualifier Q>
+	struct convert<glm::vec<L, T, Q>> {
+		static Node encode(const glm::vec<L, T, Q> &rhs) {
 			Node node;
-			node.push_back(rhs.x);
-			node.push_back(rhs.y);
-			node.push_back(rhs.z);
+			for (int i = 0; i < L; i++) {
+				node.push_back(rhs[i]);
+			}
 			return node;
 		}
 
-		static bool decode(const Node &node, glm::vec3 &rhs) {
-			if (!node.IsSequence() || node.size() != 3) {
+		static bool decode(const Node &node, glm::vec<L, T, Q> &rhs) {
+			if (!node.IsSequence() || node.size() != L) {
 				return false;
 			}
-			rhs.x = node[0].as<float>();
-			rhs.y = node[1].as<float>();
-			rhs.z = node[2].as<float>();
-			return true;
-		}
-	};
-
-	template<>
-	struct convert<glm::vec2> {
-		static Node encode(const glm::vec2 &rhs) {
-			Node node;
-			node.push_back(rhs.x);
-			node.push_back(rhs.y);
-			return node;
-		}
-
-		static bool decode(const Node &node, glm::vec2 &rhs) {
-			if (!node.IsSequence() || node.size() != 2) {
-				return false;
+			for (int i = 0; i < L; i++) {
+				rhs[i] = node[i].as<T>();
 			}
-			rhs.x = node[0].as<float>();
-			rhs.y = node[1].as<float>();
-			return true;
-		}
-
-	};
-
-	template<>
-	struct convert<glm::vec4> {
-		static Node encode(const glm::vec4 &rhs) {
-			Node node;
-			node.push_back(rhs.x);
-			node.push_back(rhs.y);
-			node.push_back(rhs.z);
-			node.push_back(rhs.w);
-			return node;
-		}
-
-		static bool decode(const Node &node, glm::vec4 &rhs) {
-			if (!node.IsSequence() || node.size() != 4) {
-				return false;
-			}
-			rhs.x = node[0].as<float>();
-			rhs.y = node[1].as<float>();
-			rhs.z = node[2].as<float>();
-			rhs.w = node[3].as<float>();
 			return true;
 		}
 	};
@@ -106,18 +64,13 @@ namespace Z {
 		return RigidBody2DComponent::BodyType::Static;
 	}
 
-	YAML::Emitter &operator<<(YAML::Emitter &out, const glm::vec2 &vec) {
-		out << YAML::Flow << YAML::BeginSeq << vec.x << vec.y << YAML::EndSeq;
-		return out;
-	}
-
-	YAML::Emitter &operator<<(YAML::Emitter &out, const glm::vec3 &vec) {
-		out << YAML::Flow << YAML::BeginSeq << vec.x << vec.y << vec.z << YAML::EndSeq;
-		return out;
-	}
-
-	YAML::Emitter &operator<<(YAML::Emitter &out, const glm::vec4 &vec) {
-		out << YAML::Flow << YAML::BeginSeq << vec.x << vec.y << vec.z << vec.w << YAML::EndSeq;
+	template<int L, typename T, glm::qualifier Q>
+	YAML::Emitter &operator<<(YAML::Emitter &out, const glm::vec<L, T, Q> &vec) {
+		out << YAML::Flow << YAML::BeginSeq;
+		for (int i = 0; i < L; i++) {
+			out << vec[i];
+		}
+		out << YAML::EndSeq;
 		return out;
 	}
 
@@ -126,7 +79,6 @@ namespace Z {
 	}
 
 	SceneSerializer::SceneSerializer(const Ref<Scene> &scene) : scene(scene) {
-
 	}
 
 	static void SerializerEntity(YAML::Emitter &out, Entity entity) {
@@ -217,6 +169,13 @@ namespace Z {
 			out << YAML::Key << "restitution" << YAML::Value << collier.restitution;
 			out << YAML::Key << "MinRestitution" << YAML::Value << collier.MinRestitution;
 			out << YAML::Key << "ptr" << YAML::Value << *(int *) collier.ptr;
+			out << YAML::EndMap;
+		}
+		if (entity.HasComponent<ScriptComponent>()) {
+			out << YAML::Key << "ScriptComponent";
+			out << YAML::BeginMap;
+			auto &script = entity.GetComponent<ScriptComponent>();
+			out << YAML::Key << "ScriptName" << YAML::Value << script.scriptName;
 			out << YAML::EndMap;
 		}
 		out << YAML::EndMap;
@@ -339,7 +298,12 @@ namespace Z {
 				collider.MinRestitution = circleCollier["MinRestitution"].as<float>();
 				collider.radius = circleCollier["radius"].as<float>();
 				collider.offset = circleCollier["offset"].as<glm::vec2>();
-				collider.ptr= new int{circleCollier["ptr"].as<int>()};
+				collider.ptr = new int{circleCollier["ptr"].as<int>()};
+			}
+			auto scriptComponent = Entity["ScriptComponent"];
+			if (scriptComponent) {
+				auto &script = entity.AddComponent<ScriptComponent>();
+				script.scriptName = scriptComponent["ScriptName"].as<std::string>();
 			}
 		}
 		return true;

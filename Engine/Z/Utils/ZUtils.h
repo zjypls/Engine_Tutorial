@@ -10,6 +10,8 @@
 
 namespace Z{
 	class Utils{
+	private:
+		friend class GUID;
 	public:
 		static std::string FileOpen(const char* filter);
 		static std::string FileSave(const char* filter);

@@ -6,6 +6,7 @@ include_directories(Include/GLFW/include depends)
 include_directories(Include/glm depends)
 include_directories(Include/glad/include depends)
 include_directories(${ImGuiPath}/backends depends)
+include_directories(Include/mono/include depends)
 
 include_directories($ENV{VK_SDK_PATH}/Include depends)
 include_directories(Include/box2d/include depends)
@@ -24,6 +25,7 @@ file(GLOB src CONFIGURE_DEPENDS
         Z/Debug/*.h Z/Debug/*.cpp
         Z/Scene/*.h Z/Scene/*.cpp
         Z/Utils/*.h
+        Z/Script/*.h Z/Script/*.cpp
         ${ImGuizmoPath}/ImGuizmo.h ${ImGuizmoPath}/ImGuizmo.cpp)
 
 
@@ -31,8 +33,13 @@ add_library(Z STATIC ${src})
 
 
 target_include_directories(Z PUBLIC depends)
-
-target_link_libraries(Z PUBLIC GLFW glad ImGui yaml Box2D shaderc_sharedd spirv-cross-cored spirv-cross-glsld)
+#Todo: change
+target_link_libraries(Z PUBLIC
+        GLFW glad ImGui yaml Box2D
+        shaderc_sharedd spirv-cross-cored spirv-cross-glsld
+        libmono-static-sgen
+        Ws2_32 winmm Version Bcrypt
+        )
 
 
 

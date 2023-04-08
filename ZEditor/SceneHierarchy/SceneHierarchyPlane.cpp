@@ -3,6 +3,7 @@
 //
 #include "Z/Scene/Components.h"
 #include "SceneHierarchyPlane.h"
+#include "Z/Script/ScriptEngine.h"
 #include <filesystem>
 #include "imgui/imgui.h"
 #include "imgui_internal.h"
@@ -265,6 +266,21 @@ namespace Z {
 			ImGui::DragFloat("Friction", &component.friction, .05f);
 			ImGui::DragFloat("Restitution", &component.restitution, .05f);
 			ImGui::DragFloat("MinRestitution", &component.MinRestitution, .05f);
+		});
+		DrawComponent<ScriptComponent>("Script",entity,[](ScriptComponent&component){
+			static char buffer[257];
+			std::strcpy(buffer,component.scriptName.data());
+			bool exists=ScriptEngine::ClassExists(component.scriptName);
+			ImGui::Text("Script Name:");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+			if(!exists)
+				ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(.8f,.1f,.2f,1));
+			if(ImGui::InputText("##ScriptName",buffer,256)){
+				component.scriptName=buffer;
+			}
+			if(!exists)
+				ImGui::PopStyleColor();
 		});
 	}
 

@@ -3,6 +3,7 @@
 //
 
 #include "ScriptEntity.h"
+#include "Z/Script/ScriptEngine.h"
 #include "Scene.h"
 #include "Z/Renderer/Renderer2D.h"
 #include "box2d/b2_world.h"
@@ -46,10 +47,12 @@ namespace Z {
 
 	void Scene::OnRuntimeStart() {
 		OnPhysics2DStart();
+		OnScriptStart();
 	}
 
 	void Scene::OnRuntimeStop() {
 		OnPhysics2DStop();
+		OnScriptStop();
 	}
 
 	void Scene::OnPhysics2DStart() {
@@ -164,6 +167,7 @@ namespace Z {
 
 	void Scene::OnUpdate(float deltaTime) {
 		Entity mainCamera={};
+		NativeScriptUpdate(deltaTime);
 		ScriptUpdate(deltaTime);
 		OnPhysics2DUpdate(deltaTime);
 		mainCamera = GetMainCamera();
@@ -192,8 +196,8 @@ namespace Z {
 				});
 	}
 
-	void Scene::ScriptUpdate(float deltaTime){
-		registry.view<ScriptComponent>().each([&](auto entity, auto &script) {
+	void Scene::NativeScriptUpdate(float deltaTime){
+		registry.view<NativeScriptComponent>().each([&](auto entity, auto &script) {
 			if (!script.instance) {
 				script.instance = script.onConstruct();
 				script.instance->entity = Entity{entity, this};
@@ -268,6 +272,25 @@ namespace Z {
 		Temp::CopyEntity(AllTypes{},entity,res);
 	}
 
+	void Scene::ScriptUpdate(float deltaTime) {
+		registry.view<ScriptComponent>().each([&](auto id, auto &script) {
+			Entity entity{id, this};
+			ScriptEngine::OnRuntimeUpdate(entity, deltaTime);
+		});
+	}
+
+	void Scene::OnScriptStart() {
+		ScriptEngine::OnRuntimeStart(this);
+		registry.view<ScriptComponent>().each([&](auto id, auto &script) {
+			Entity entity{id, this};
+			ScriptEngine::CreateInstance(entity);
+		});
+	}
+
+	void Scene::OnScriptStop() {
+		ScriptEngine::OnRuntimeStop();
+	}
+
 
 	template<class Ty>
 	void Scene::OnComponentAdd(Entity entity, Ty &component) {
@@ -285,6 +308,11 @@ namespace Z {
 	}
 
 	template<>
+	void Scene::OnComponentAdd<ScriptComponent>(Entity entity, ScriptComponent &component) {
+
+	}
+
+	template<>
 	void Scene::OnComponentAdd<TagComponent>(Entity entity, TagComponent &component) {
 
 	}
@@ -294,7 +322,7 @@ namespace Z {
 
 
 	template<>
-	void Scene::OnComponentAdd<ScriptComponent>(Entity entity, ScriptComponent &component) {}
+	void Scene::OnComponentAdd<NativeScriptComponent>(Entity entity, NativeScriptComponent &component) {}
 
 	template<>
 	void Scene::OnComponentAdd<RigidBody2DComponent>(Entity entity, RigidBody2DComponent &component) {}

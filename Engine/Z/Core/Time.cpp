@@ -6,8 +6,11 @@
 #include "GLFW/glfw3.h"
 
 namespace Z {
-	float Time::lastTime=GetTime();
+	float Time::lastTime = GetTime();
 	float Time::deltaTime;
+
+	float Time::lastFlushTime;
+
 	float Time::GetTime() {
 		return glfwGetTime();
 	}

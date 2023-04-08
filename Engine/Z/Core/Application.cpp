@@ -9,6 +9,7 @@
 #include "Time.h"
 #include "Z/Renderer/Renderer.h"
 #include "KeyCodes.h"
+#include "Z/Script/ScriptEngine.h"
 #include <filesystem>
 
 namespace Z {
@@ -23,6 +24,7 @@ namespace Z {
 		window=Z::Scope<zWindow>(zWindow::Create(WindowProps(spec.Name)));
 		window->SetEventCallFunc(Z_BIND_EVENT_FUNC(Application::EventCall));
 
+		Z::ScriptEngine::Init();
 		Renderer::Init();
 
 		window->SetVSync(false);
@@ -32,7 +34,7 @@ namespace Z {
 
 
 	Application::~Application() {
-
+		Z::ScriptEngine::ShutDown();
 	}
 
 	void Application::Run() {

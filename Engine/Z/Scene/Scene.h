@@ -9,6 +9,7 @@
 #include "Z/Renderer/EditorCamera.h"
 
 
+
 namespace Z {
 
 	class Scene {
@@ -18,10 +19,13 @@ namespace Z {
 		friend class SceneHierarchyPlane;
 		friend class SceneSerializer;
 		void* PhysicalWorld = nullptr;
-		template<class _Ty>
-		void OnComponentAdd(Entity entity, _Ty &component);
+		template<class Ty>
+		void OnComponentAdd(Entity entity, Ty &component);
 		void Render2D();
+		void NativeScriptUpdate(float deltaTime);
 		void ScriptUpdate(float deltaTime);
+		void OnScriptStart();
+		void OnScriptStop();
 		void OnPhysics2DUpdate(float deltaTime);
 
 	public:

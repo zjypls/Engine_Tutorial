@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
-project(Engine_Tutorial)
-set(CMAKE_BUILD_TYPE Debug)
+project(Engine_Tutorial LANGUAGES CXX CSharp)
+#set(CMAKE_BUILD_TYPE RELEASE)
 add_definitions(-w)
 
 set(DynamicLink OFF)
@@ -17,6 +17,7 @@ message("CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 set(CMAKE_CXX_STANDARD 17)
 
 message("CXX CompilerID:${CMAKE_CXX_COMPILER_ID}")
+message("CMAKE_GENERATOR: ${CMAKE_GENERATOR}")
 set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Lib)
 if (${CMAKE_GENERATOR} MATCHES "Visual Studio")
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ZEditor)
@@ -30,6 +31,7 @@ if(NOT DEFINED ENV{VK_SDK_PATH})
 endif ()
 link_directories(${CMAKE_SOURCE_DIR}/Lib $ENV{VULKAN_SDK}/Lib)
 
+link_directories(Engine/Include/mono/lib/${CMAKE_BUILD_TYPE})
 add_compile_definitions(Z_PLATFORM_WIN32)
 add_compile_definitions(Z_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 include_directories(${CMAKE_SOURCE_DIR}/Engine/Include/spdlog/include
@@ -48,7 +50,8 @@ add_subdirectory(Engine/Include/Box2D)
 
 add_subdirectory(Engine)
 
-add_dependencies(Z glad GLFW ImGui Box2D)
 #add_subdirectory(Test)
+add_subdirectory(ZScriptCore)
+add_dependencies(Z glad GLFW ImGui Box2D Script)
 
 add_subdirectory(ZEditor)

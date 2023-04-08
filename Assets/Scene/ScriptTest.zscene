@@ -1,0 +1,42 @@
+Scene: Untitled
+Entities:
+  - Entity: 16320962048619293804
+    TagComponent:
+      Tag: SceneCamera
+    TransformComponent:
+      Translation: [0, 0, 3]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 0.785398185
+        PerspectiveNear: 0.00999999978
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+        Primary: true
+  - Entity: 4467103018020660145
+    TagComponent:
+      Tag: Nahida
+    TransformComponent:
+      Translation: [0, 0.375629514, 0.523719966]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+    RigidBody2DComponent:
+      bodyType: Dynamic
+      fixedRotation: false
+    BoxCollider2DComponent:
+      size: [1, 1]
+      offset: [0, 0]
+      IsTrigger: false
+      Density: 0.5
+      Friction: 0.5
+      Restitution: 0
+      MinRestitution: 0.5
+      ptr: 1
+    ScriptComponent:
+      ScriptName: Player

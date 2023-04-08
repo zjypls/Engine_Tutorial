@@ -8,36 +8,35 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 namespace Z {
-	std::string Utils::FileOpen(const char *filter){
+	std::string Utils::FileOpen(const char *filter) {
 		OPENFILENAMEA ofn{};
 		char szFile[260]{0};
 		ofn.lStructSize = sizeof(ofn);
-		ofn.hwndOwner = glfwGetWin32Window((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow());
+		ofn.hwndOwner = glfwGetWin32Window((GLFWwindow *) Application::Get().GetWindow().GetNativeWindow());
 		ofn.lpstrFile = szFile;
 		ofn.nMaxFile = sizeof(szFile);
 		ofn.lpstrFilter = filter;
 		ofn.nFilterIndex = 1;
-		ofn.Flags=OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST|OFN_NOCHANGEDIR;
-		if(GetOpenFileNameA(&ofn)){
+		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+		if (GetOpenFileNameA(&ofn)) {
 			return ofn.lpstrFile;
 		}
 		return "";
 	}
 
-	std::string Utils::FileSave(const char *filter){
+	std::string Utils::FileSave(const char *filter) {
 		OPENFILENAMEA ofn{};
 		char szFile[260]{0};
 		ofn.lStructSize = sizeof(ofn);
-		ofn.hwndOwner = glfwGetWin32Window((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow());
+		ofn.hwndOwner = glfwGetWin32Window((GLFWwindow *) Application::Get().GetWindow().GetNativeWindow());
 		ofn.lpstrFile = szFile;
 		ofn.nMaxFile = sizeof(szFile);
 		ofn.lpstrFilter = filter;
 		ofn.nFilterIndex = 1;
-		ofn.Flags=OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST|OFN_NOCHANGEDIR;
-		if(GetSaveFileNameA(&ofn)){
+		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+		if (GetSaveFileNameA(&ofn)) {
 			return ofn.lpstrFile;
 		}
 		return "";
 	}
-
 }

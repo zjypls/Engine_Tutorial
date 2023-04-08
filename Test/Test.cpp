@@ -106,15 +106,15 @@ private:
 
 class App : public Z::Application {
 public:
-	App() {
+	App(const Z::ApplicationSpec&spec):Z::Application(spec) {
 		PushLayer(new SanBox2D());
 	}
 
 	~App() override = default;
 };
 
-Z::Application *Z::GetApplication() {
-	return new App{};
+Z::Application *Z::GetApplication(const Z::CommandArgs&args) {
+	return new App{{"SanBox2D", args,Z_SOURCE_DIR}};
 }
 
 

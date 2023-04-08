@@ -8,6 +8,7 @@
 #include "Z/Scene/SceneSerializer.h"
 #include "Z/Utils/ZUtils.h"
 #include "ImGuizmo.h"
+#include "Z/Script/ScriptEngine.h"
 
 
 ImVec2 operator-(const ImVec2 &lhs, const ImVec2 &rhs) {
@@ -129,6 +130,9 @@ namespace Z {
 
 		sceneHierarchyPlane = CreateScope<SceneHierarchyPlane>(scene);
 		contentBrowser = CreateScope<ContentBrowser>();
+		//ScriptEngine::Init();
+		ScriptEngine::LoadAssembly("Bin-C/MSVC/Script.dll");
+		//ScriptEngine::ShutDown();
 
 	}
 
@@ -259,8 +263,15 @@ namespace Z {
 		ImGui::Text("Quads: %u", stats->QuadCount);
 		ImGui::Text("Vertices: %u", stats->GetTotalVertexCount());
 		ImGui::Text("Indices: %u", stats->GetTotalIndexCount());
-		ImGui::Text("FPS: %.0f", 1.f / Time::DeltaTime());
-		ImGui::Text("Frame Time: %.3f s", Time::DeltaTime());
+		static float fps = 1.f / Time::DeltaTime();
+		static float dt = Time::DeltaTime() * 1000.f;
+		if (Time::GetFlushTime() > 1) {
+			fps = 1.f / Time::DeltaTime();
+			dt = Time::DeltaTime() * 1000.f;
+			Time::FlushTime();
+		}
+		ImGui::Text("FPS: %.0f", fps);
+		ImGui::Text("Frame Time: %.2f ms", dt);
 		stats->Reset();
 		ImGui::End();
 		ImGui::Begin("Settings");

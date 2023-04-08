@@ -87,8 +87,14 @@ namespace Z {
 
 		inline const Camera &operator()() const { return camera; }
 	};
+
+	struct ScriptComponent{
+		std::string scriptName;
+		ScriptComponent()=default;
+	};
+
 	class ScriptEntity;
-	struct ScriptComponent {
+	struct NativeScriptComponent {
 		ScriptEntity* instance;
 		ScriptEntity* (*onConstruct)();
 		void (*onDestruct)(ScriptEntity*);
@@ -149,7 +155,7 @@ namespace Z {
 	};
 
 	using AllTypes=Type<TransformComponent,SpriteRendererComponent,CircleRendererComponent,TagComponent,
-	CameraComponent,ScriptComponent,RigidBody2DComponent,BoxCollider2DComponent,CircleCollider2DComponent>;
+	CameraComponent,ScriptComponent,NativeScriptComponent,RigidBody2DComponent,BoxCollider2DComponent,CircleCollider2DComponent>;
 
 }
 
