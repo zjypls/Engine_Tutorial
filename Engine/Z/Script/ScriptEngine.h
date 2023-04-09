@@ -15,6 +15,7 @@ typedef struct _MonoClass MonoClass;
 typedef struct _MonoObject MonoObject;
 typedef struct _MonoMethod MonoMethod;
 typedef struct _MonoAssembly MonoAssembly;
+typedef struct _MonoImage MonoImage;
 };
 
 namespace Z {
@@ -61,8 +62,10 @@ namespace Z {
 		static void OnRuntimeUpdate(Entity entity,float deltaTime);
 		static void OnRuntimeStop();
 		static void CreateInstance(Entity entity);
+		static Scene* GetContext();
 
 		static bool ClassExists(const std::string &name);
+		static MonoImage* GetCoreImage();
 
 	private:
 		static void MonoInit();
@@ -73,7 +76,9 @@ namespace Z {
 
 		static void LoadAssemblyClasses(MonoAssembly *assembly);
 
+
 		friend class ScriptClass;
+		friend class ScriptReg;
 	};
 
 }

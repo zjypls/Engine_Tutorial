@@ -19,6 +19,7 @@ namespace Z {
 		friend class SceneHierarchyPlane;
 		friend class SceneSerializer;
 		void* PhysicalWorld = nullptr;
+		std::unordered_map<GUID, Entity> entities;
 		template<class Ty>
 		void OnComponentAdd(Entity entity, Ty &component);
 		void Render2D();
@@ -27,6 +28,7 @@ namespace Z {
 		void OnScriptStart();
 		void OnScriptStop();
 		void OnPhysics2DUpdate(float deltaTime);
+
 
 	public:
 		Scene() = default;
@@ -52,6 +54,7 @@ namespace Z {
 		void OnViewportResize(unsigned int width, unsigned int height);
 		void DestroyEntity(Entity entity);
 		void CopyEntity(Entity entity);
+		Entity GetEntityWithGUID(GUID guid);
 
 		void OnUpdate(float);
 		void OnEditorUpdate(float deltaTime, EditorCamera &camera);

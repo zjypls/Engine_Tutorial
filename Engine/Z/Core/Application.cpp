@@ -35,6 +35,8 @@ namespace Z {
 
 	Application::~Application() {
 		Z::ScriptEngine::ShutDown();
+
+		Z_CORE_INFO("Application closed!");
 	}
 
 	void Application::Run() {

@@ -36,11 +36,11 @@ namespace Z {
 		}
 
 		template<class... T>
-		static void CopyEntity(Type<T...>,Entity src,Entity dst){
-			([&](){
+		static void CopyEntity(Type<T...>, Entity src, Entity dst) {
+			([&]() {
 				if (src.HasComponent<T>())
 					dst.AddOrReplaceComponent<T>(src.GetComponent<T>());
-			}(),...);
+			}(), ...);
 		}
 	}
 
@@ -65,7 +65,7 @@ namespace Z {
 			bodyDef.position.Set(transform.translation.x, transform.translation.y);
 			bodyDef.angle = transform.rotation.z;
 			bodyDef.fixedRotation = rigidBody.fixedRotation;
-			b2Body *body = ((b2World*)PhysicalWorld)->CreateBody(&bodyDef);
+			b2Body *body = ((b2World *) PhysicalWorld)->CreateBody(&bodyDef);
 			rigidBody.ptr = body;
 
 			if (entity.HasComponent<BoxCollider2DComponent>()) {
@@ -80,13 +80,13 @@ namespace Z {
 				fixtureDef.restitution = collider.restitution;
 				fixtureDef.restitutionThreshold = collider.MinRestitution;
 				body->CreateFixture(&fixtureDef);
-				*(int*)collider.ptr = {body->GetType()!=b2_staticBody};
+				*(int *) collider.ptr = {body->GetType() != b2_staticBody};
 			}
 			if (entity.HasComponent<CircleCollider2DComponent>()) {
 				auto &collider = entity.GetComponent<CircleCollider2DComponent>();
 				b2CircleShape circle{};
-				circle.m_radius = collider.radius* transform.scale.x;
-				circle.m_p.Set(collider.offset.x,collider.offset.y);
+				circle.m_radius = collider.radius * transform.scale.x;
+				circle.m_p.Set(collider.offset.x, collider.offset.y);
 				b2FixtureDef fixtureDef;
 				fixtureDef.shape = &circle;
 				fixtureDef.density = collider.density;
@@ -95,7 +95,7 @@ namespace Z {
 				fixtureDef.restitutionThreshold = collider.MinRestitution;
 				body->CreateFixture(&fixtureDef);
 				//Todo: improve this
-				*(int*)collider.ptr = {body->GetType()!=b2_staticBody};
+				*(int *) collider.ptr = {body->GetType() != b2_staticBody};
 			}
 		});
 	}
@@ -107,10 +107,11 @@ namespace Z {
 
 	Entity Scene::CreateEntity(const std::string &name) {
 		Entity entity{registry.create(), this};
-		entity.AddComponent<IDComponent>();
+		auto&id= entity.AddComponent<IDComponent>();
 		entity.AddComponent<TransformComponent>();
 		auto &tag = entity.AddComponent<TagComponent>(name);
 		if (tag.tag.empty())tag.tag = "Entity";
+		entities[id.ID]=entity;
 		return entity;
 	}
 
@@ -120,6 +121,8 @@ namespace Z {
 		entity.AddComponent<TransformComponent>();
 		auto &tag = entity.AddComponent<TagComponent>(name);
 		if (tag.tag.empty())tag.tag = "Entity";
+		if(entities.find(guid)==entities.end())
+			entities[guid]=entity;
 		return entity;
 	}
 
@@ -144,7 +147,7 @@ namespace Z {
 //				return Entity{entity, this};
 //			}
 //		});
-		for (auto entity : view) {
+		for (auto entity: view) {
 			if (view.get<CameraComponent>(entity).primary) {
 				return Entity{entity, this};
 			}
@@ -166,13 +169,14 @@ namespace Z {
 	}
 
 	void Scene::OnUpdate(float deltaTime) {
-		Entity mainCamera={};
+		Entity mainCamera = {};
 		NativeScriptUpdate(deltaTime);
 		ScriptUpdate(deltaTime);
 		OnPhysics2DUpdate(deltaTime);
 		mainCamera = GetMainCamera();
 		if (!mainCamera)return;
-		Renderer2D::BeginScene(mainCamera.GetComponent<CameraComponent>().camera, mainCamera.GetComponent<TransformComponent>().GetTransform());
+		Renderer2D::BeginScene(mainCamera.GetComponent<CameraComponent>().camera,
+		                       mainCamera.GetComponent<TransformComponent>().GetTransform());
 		Render2D();
 		Renderer2D::EndScene();
 	}
@@ -196,7 +200,7 @@ namespace Z {
 				});
 	}
 
-	void Scene::NativeScriptUpdate(float deltaTime){
+	void Scene::NativeScriptUpdate(float deltaTime) {
 		registry.view<NativeScriptComponent>().each([&](auto entity, auto &script) {
 			if (!script.instance) {
 				script.instance = script.onConstruct();
@@ -208,26 +212,27 @@ namespace Z {
 	}
 
 	void Scene::OnPhysics2DUpdate(float deltaTime) {
-		((b2World*)PhysicalWorld)->Step(deltaTime, 8, 3);
+		((b2World *) PhysicalWorld)->Step(deltaTime, 8, 3);
 		registry.view<RigidBody2DComponent>().each([&](auto id, auto &rigidBody) {
 			if (rigidBody.bodyType != RigidBody2DComponent::BodyType::Static) {
 				Entity entity{id, this};
 				auto &transform = entity.GetComponent<TransformComponent>();
 				auto body = (b2Body *) rigidBody.ptr;
 				const auto &position = body->GetPosition();
-				if(!body->IsAwake()) {
+				//Todo: improve this
+				if (!body->IsAwake()) {
 					if (entity.HasComponent<BoxCollider2DComponent>()) {
-						*(int*)(entity.GetComponent<BoxCollider2DComponent>().ptr)=0;
+						*(int *) (entity.GetComponent<BoxCollider2DComponent>().ptr) = 0;
 					}
-					if(entity.HasComponent<CircleCollider2DComponent>()){
-						*(int*)(entity.GetComponent<CircleCollider2DComponent>().ptr)=0;
+					if (entity.HasComponent<CircleCollider2DComponent>()) {
+						*(int *) (entity.GetComponent<CircleCollider2DComponent>().ptr) = 0;
 					}
-				}else{
+				} else {
 					if (entity.HasComponent<BoxCollider2DComponent>()) {
-						*(int*)(entity.GetComponent<BoxCollider2DComponent>().ptr)=1;
+						*(int *) (entity.GetComponent<BoxCollider2DComponent>().ptr) = 1;
 					}
-					if(entity.HasComponent<CircleCollider2DComponent>()){
-						*(int*)(entity.GetComponent<CircleCollider2DComponent>().ptr)=1;
+					if (entity.HasComponent<CircleCollider2DComponent>()) {
+						*(int *) (entity.GetComponent<CircleCollider2DComponent>().ptr) = 1;
 					}
 				}
 				transform.translation.x = position.x;
@@ -261,7 +266,7 @@ namespace Z {
 			auto entity = res->CreateEntityWithGuid(idComponent.ID, srcRegistry.get<TagComponent>(id).tag);
 			auto &trans = srcEntity.GetComponent<TransformComponent>();
 			resRegistry.emplace_or_replace<TransformComponent>(entity, trans);
-			Temp::CopyEntity(AllTypes{},srcEntity,entity);
+			Temp::CopyEntity(AllTypes{}, srcEntity, entity);
 		});
 		return res;
 	}
@@ -269,7 +274,7 @@ namespace Z {
 
 	void Scene::CopyEntity(Entity entity) {
 		Entity res = CreateEntity(entity.GetName());
-		Temp::CopyEntity(AllTypes{},entity,res);
+		Temp::CopyEntity(AllTypes{}, entity, res);
 	}
 
 	void Scene::ScriptUpdate(float deltaTime) {
@@ -289,6 +294,12 @@ namespace Z {
 
 	void Scene::OnScriptStop() {
 		ScriptEngine::OnRuntimeStop();
+	}
+
+	Entity Scene::GetEntityWithGUID(GUID guid) {
+		if (entities.find(guid) != entities.end())
+			return entities[guid];
+		return Entity{};
 	}
 
 

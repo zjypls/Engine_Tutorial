@@ -4,16 +4,13 @@
 
 #include "ScriptEngine.h"
 #include "ScriptReg.h"
+#include "Z/Scene/Entity.h"
 #include "mono/jit/jit.h"
 #include "mono/metadata/assembly.h"
-#include "glm/glm.hpp"
-#include "Z/Scene/Entity.h"
-#include "Z/Scene/Components.h"
 #include<fstream>
 #include <filesystem>
 #include <iostream>
 #include <utility>
-#include <Windows.h>
 
 namespace Z {
 	namespace Temp {
@@ -65,6 +62,7 @@ namespace Z {
 		}
 	}
 
+
 	struct ScriptEngineData {
 		MonoDomain *rootDomain = nullptr, *appDomain = nullptr;
 		MonoAssembly *assembly = nullptr;
@@ -104,6 +102,7 @@ namespace Z {
 		scriptData->assembly = Temp::LoadMonoAssembly(path);
 		scriptData->image = mono_assembly_get_image(scriptData->assembly);
 		scriptData->Class=new ScriptClass("Z", "EntityCore");
+		ScriptReg::RegComponents();
 		LoadAssemblyClasses(scriptData->assembly);
 		for (auto &[name, klass]: scriptData->EntityClasses) {
 			Z_CORE_INFO("ScripteEngine:Entity Type:Name: {0}", name);
@@ -111,9 +110,9 @@ namespace Z {
 	}
 
 	MonoObject *ScriptEngine::GetInstance(MonoClass *Class) {
-		MonoObject *object = mono_object_new(scriptData->appDomain, Class);
+		return mono_object_new(scriptData->appDomain, Class);
 		//mono_runtime_object_init(object);
-		return object;
+//		return object;
 	}
 
 	void ScriptEngine::LoadAssemblyClasses(MonoAssembly *assembly) {
@@ -177,6 +176,14 @@ namespace Z {
 			Z_CORE_ERROR("ScriptEngine:CreateInstance: Class {0} does not exist", script.scriptName);
 			return;
 		}
+	}
+
+	Scene *ScriptEngine::GetContext() {
+		return scriptData->scene;
+	}
+
+	MonoImage *ScriptEngine::GetCoreImage() {
+		return scriptData->image;
 	}
 
 	ScriptClass::ScriptClass(const std::string &nameSpace, const std::string &name)
