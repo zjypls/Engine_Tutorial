@@ -18,7 +18,7 @@ namespace Z {
 		void DrawComponents(Entity entity);
 
 		template<typename _Ty>
-		void DrawComponent(const std::string &, Entity entity, void (*drawFunc)(_Ty &));
+		void DrawComponent(const std::string &, Entity entity, void (*drawFunc)(Entity,_Ty &));
 
 	public:
 		SceneHierarchyPlane() = default;

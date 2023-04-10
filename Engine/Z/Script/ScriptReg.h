@@ -4,7 +4,7 @@
 
 #ifndef ENGINE_TUTORIAL_SCRIPTREG_H
 #define ENGINE_TUTORIAL_SCRIPTREG_H
-#define Z_INTERNAL_FUNC(Name) mono_add_internal_call("Z.Internal::"#Name,Name);
+#define Z_INTERNAL_FUNC(Name) mono_add_internal_call("Z.Internal::"#Name,Name)
 #include "Z/Scene/Components.h"
 #include "Z/Scene/Entity.h"
 #include "ScriptEngine.h"

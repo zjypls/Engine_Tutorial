@@ -18,6 +18,7 @@ namespace Z {
 	Application::Application(const ApplicationSpec&spec): Spec(spec){
 		Z_CORE_ASSERT(!application,"Application already exists!")
 		application=this;
+		Z_CORE_WARN("Current path{0}!",spec.commandArgs.Args[0]);
 		if(!Spec.RootPath.empty()){
 			std::filesystem::current_path(Spec.RootPath);
 		}

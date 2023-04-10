@@ -39,7 +39,7 @@ namespace Z {
 		return Input::IsKeyPressed((KeyCode) keycode);
 	}
 
-	static std::unordered_map<MonoType *, bool (*)(Entity)> ReflectionMap;
+	static std::unordered_map<MonoType* , bool (*)(Entity)> ReflectionMap;
 
 	bool Entity_HasComponent(GUID id, MonoReflectionType *type) {
 		Entity entity = ScriptEngine::GetContext()->GetEntityWithGUID(id);
@@ -85,17 +85,17 @@ namespace Z {
 
 
 	void ScriptReg::Reg() {
-		Z_INTERNAL_FUNC(InternalCallPRT)
-		Z_INTERNAL_FUNC(InternalCallWARN)
-		Z_INTERNAL_FUNC(InternalCallDot)
-		Z_INTERNAL_FUNC(GetTranslation)
-		Z_INTERNAL_FUNC(SetTranslation)
-		Z_INTERNAL_FUNC(IsKeyPressed)
-		Z_INTERNAL_FUNC(Entity_HasComponent)
-		Z_INTERNAL_FUNC(Entity_GetVelocity)
-		Z_INTERNAL_FUNC(Entity_SetVelocity)
-		Z_INTERNAL_FUNC(Entity_ApplyForce)
-		Z_INTERNAL_FUNC(Entity_ApplyForceCenter)
+		Z_INTERNAL_FUNC(InternalCallPRT);
+		Z_INTERNAL_FUNC(InternalCallWARN);
+		Z_INTERNAL_FUNC(InternalCallDot);
+		Z_INTERNAL_FUNC(GetTranslation);
+		Z_INTERNAL_FUNC(SetTranslation);
+		Z_INTERNAL_FUNC(IsKeyPressed);
+		Z_INTERNAL_FUNC(Entity_HasComponent);
+		Z_INTERNAL_FUNC(Entity_GetVelocity);
+		Z_INTERNAL_FUNC(Entity_SetVelocity);
+		Z_INTERNAL_FUNC(Entity_ApplyForce);
+		Z_INTERNAL_FUNC(Entity_ApplyForceCenter);
 	}
 
 	void ScriptReg::RegComponents() {

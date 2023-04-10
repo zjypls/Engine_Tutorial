@@ -26,7 +26,7 @@ namespace Z
     {
         public readonly ulong ID;
 
-        internal EntityCore()
+        protected EntityCore()
         {
             ID = 0;
         }

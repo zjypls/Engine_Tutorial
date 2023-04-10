@@ -4,6 +4,8 @@ public class Player : EntityCore
 {
     TransformComponent transform;
     RigidBody2DComponent rigidBody;
+    public float Speed = 980.0f;
+    public Vector2 velicity = Vector2.Zero;
 
     void OnCreate()
     {
@@ -13,7 +15,6 @@ public class Player : EntityCore
 
     void OnUpdate(float deltaTime)
     {
-        float speed = deltaTime*980.0f;
         Vector2 vec = Vector2.Zero;
         Vector2 pos;
         if (Input.IsKeyPressed(KeyCode.W))
@@ -34,9 +35,12 @@ public class Player : EntityCore
             vec.x = 1;
         }
 
-        if (rigidBody!=null&&(vec.x != 0 || vec.y != 0))
+
+        if (rigidBody != null)
         {
-            rigidBody.ApplyForce(vec * speed);
+            velicity = rigidBody.velocity;
+            if (vec.x != 0 || vec.y != 0)
+                rigidBody.ApplyForce(vec * (deltaTime * Speed));
         }
     }
 

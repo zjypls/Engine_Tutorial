@@ -131,7 +131,7 @@ namespace Z {
 		sceneHierarchyPlane = CreateScope<SceneHierarchyPlane>(scene);
 		contentBrowser = CreateScope<ContentBrowser>();
 		//ScriptEngine::Init();
-		ScriptEngine::LoadAssembly("Bin-C/MSVC/Script.dll");
+		ScriptEngine::LoadAssembly("Bin-C/MSVC/scripts.dll");
 		//ScriptEngine::ShutDown();
 
 	}

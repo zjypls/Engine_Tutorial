@@ -52,6 +52,6 @@ add_subdirectory(Engine)
 
 #add_subdirectory(Test)
 add_subdirectory(ZScriptCore)
-add_dependencies(Z glad GLFW ImGui Box2D Script)
+add_dependencies(Z glad GLFW ImGui Box2D ScriptCore)
 
 add_subdirectory(ZEditor)
