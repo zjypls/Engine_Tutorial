@@ -2,7 +2,7 @@
 
 public class Camera : EntityCore
 {
-    TransformComponent transform;
+    TransformComponent transform=null;
     public float fov = 60.0f;
 
     void OnCreate()

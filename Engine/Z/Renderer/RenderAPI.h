@@ -12,7 +12,7 @@ namespace Z{
 	class RenderAPI {
 	public:
 		enum class API{
-			None = 0, OpenGL = 1
+			None = 0, OpenGL = 1,Vulkan
 		};
 		enum class DepthTestState{None=0,Less=1,LessOrEqual=2,Equal=3,NotEqual=4,GreaterOrEqual=5,Greater=6,Always=7,Never=8};
 		enum class zShaderType{None=0,Vertex = 1, Fragment = 2, Geometry = 3, TessellationControl = 4, TessellationEvaluation = 5, Compute = 6};

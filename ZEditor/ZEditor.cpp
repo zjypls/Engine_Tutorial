@@ -149,7 +149,7 @@ namespace Z {
 
 		switch (sceneState) {
 			case SceneState::Edit: {
-				if (IsViewportFocused) {
+				if (IsViewportFocused&&IsViewportHovered) {
 					controller.OnUpdate(Time::DeltaTime());
 					editorCamera.OnUpdate();
 				}
@@ -161,7 +161,7 @@ namespace Z {
 				break;
 			}
 			case SceneState::Simulate: {
-				if (IsViewportFocused) {
+				if (IsViewportFocused&&IsViewportHovered) {
 					controller.OnUpdate(Time::DeltaTime());
 					editorCamera.OnUpdate();
 				}

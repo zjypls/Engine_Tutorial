@@ -24,6 +24,7 @@ namespace Z {
 		operator uint32_t() const { return (uint32_t) handle; }
 
 		operator entt::entity() const { return handle; }
+		Scene* GetContext()const{return scene;}
 
 		bool operator==(const Entity &other) const { return handle == other.handle && scene == other.scene; }
 

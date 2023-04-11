@@ -23,14 +23,12 @@ namespace Z {
 
 	void EditorCamera::OnUpdate() {
 		auto [x, y] = Input::GetMousePosition();
-		if (Input::IsKeyPressed(KeyCode::LeftShift)) {
-			auto offset = glm::vec2(x, y) - lastMousePosition;
-			if (Input::IsMouseButtonPressed(MouseCode::ButtonRight)) {
-				ViewRotate(offset);
-			}
-			if (Input::IsMouseButtonPressed(MouseCode::ButtonMiddle)) {
-				MoveFocus(offset);
-			}
+		auto offset = glm::vec2(x, y) - lastMousePosition;
+		if (Input::IsMouseButtonPressed(MouseCode::ButtonRight)) {
+			ViewRotate(offset);
+		}
+		if (Input::IsMouseButtonPressed(MouseCode::ButtonMiddle)) {
+			MoveFocus(offset);
 		}
 		lastMousePosition = glm::vec2(x, y);
 		projection = glm::perspective(Fov, aspectRatio, nearClip, farClip);

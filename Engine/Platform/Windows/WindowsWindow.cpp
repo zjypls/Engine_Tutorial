@@ -6,8 +6,8 @@
 #include "Z/Events/ApplicationEvent.h"
 #include "Z/Events/KeyEvent.h"
 #include "Z/Events/MouseEvent.h"
-#include "glad/glad.h"
 #include "Platform/OpenGL/zOpenGLContext.h"
+#include "Z/Renderer/Renderer.h"
 #include "Z/Core/Random.h"
 #include "Z/Renderer/Particle.h"
 

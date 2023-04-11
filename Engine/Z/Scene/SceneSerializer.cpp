@@ -3,10 +3,11 @@
 //
 #include "Z/Core/Core.h"
 #include "Z/Core/Log.h"
-#include "SceneSerializer.h"
-#include "yaml-cpp/yaml.h"
 #include "Entity.h"
 #include "Components.h"
+#include "Z/Script/ScriptEngine.h"
+#include "SceneSerializer.h"
+#include "yaml-cpp/yaml.h"
 
 
 namespace YAML {
@@ -36,6 +37,7 @@ namespace YAML {
 
 
 namespace Z {
+
 
 	inline std::string ToString(RigidBody2DComponent::BodyType type) {
 		switch (type) {
@@ -76,6 +78,65 @@ namespace Z {
 
 	YAML::Emitter &operator<<(YAML::Emitter &out, RigidBody2DComponent::BodyType type) {
 		return out << YAML::Flow << ToString(type);
+	}
+
+	YAML::Emitter &operator<<(YAML::Emitter &out, const ScriptFieldBuffer &buffer) {
+		out << YAML::Key << "FieldName" << YAML::Value << buffer.field.Name;
+		out << YAML::Key << "Type" << YAML::Value << FieldTypeToString(buffer.field.Type);
+		switch (buffer.field.Type) {
+			case ScriptFieldType::Int:
+				out << YAML::Key << "Value" << YAML::Value << *(int *) buffer.buffer;
+				break;
+			case ScriptFieldType::Float:
+				out << YAML::Key << "Value" << YAML::Value << *(float *) buffer.buffer;
+				break;
+			case ScriptFieldType::Bool:
+				out << YAML::Key << "Value" << YAML::Value << *(bool *) buffer.buffer;
+				break;
+			case ScriptFieldType::String:
+				out << YAML::Key << "Value" << YAML::Value << (char *) buffer.buffer;
+				break;
+			case ScriptFieldType::Float2:
+				out << YAML::Key << "Value" << YAML::Value << *(glm::vec2 *) buffer.buffer;
+				break;
+			case ScriptFieldType::Float3:
+				out << YAML::Key << "Value" << YAML::Value << *(glm::vec3 *) buffer.buffer;
+				break;
+			case ScriptFieldType::Float4:
+				out << YAML::Key << "Value" << YAML::Value << *(glm::vec4 *) buffer.buffer;
+				break;
+			default: Z_CORE_ASSERT(false, "Unknown ScriptFieldType!");
+				break;
+		}
+		return out;
+	}
+
+	void ProcessFieldType(ScriptFieldBuffer &buffer, YAML::Node &node) {
+		switch (buffer.field.Type) {
+			case ScriptFieldType::Int:
+				*(int *) buffer.buffer = node["Value"].as<int>();
+				break;
+			case ScriptFieldType::Float:
+				*(float *) buffer.buffer = node["Value"].as<float>();
+				break;
+			case ScriptFieldType::Bool:
+				*(bool *) buffer.buffer = node["Value"].as<bool>();
+				break;
+			case ScriptFieldType::String:
+				strcpy((char *) buffer.buffer, node["Value"].as<std::string>().c_str());
+				break;
+			case ScriptFieldType::Float2:
+				*(glm::vec2 *) buffer.buffer = node["Value"].as<glm::vec2>();
+				break;
+			case ScriptFieldType::Float3:
+				*(glm::vec3 *) buffer.buffer = node["Value"].as<glm::vec3>();
+				break;
+			case ScriptFieldType::Float4:
+				*(glm::vec4 *) buffer.buffer = node["Value"].as<glm::vec4>();
+				break;
+			default: Z_CORE_ASSERT(false, "Unknown ScriptFieldType!");
+				break;
+		}
 	}
 
 	SceneSerializer::SceneSerializer(const Ref<Scene> &scene) : scene(scene) {
@@ -176,6 +237,18 @@ namespace Z {
 			out << YAML::BeginMap;
 			auto &script = entity.GetComponent<ScriptComponent>();
 			out << YAML::Key << "ScriptName" << YAML::Value << script.scriptName;
+			if (ScriptEngine::ClassExists(script.scriptName)) {
+				out << YAML::Key << "ScriptFields";
+				out << YAML::BeginMap;
+				auto &fields = ScriptEngine::GetFields(entity.GetUID(),
+				                                       *ScriptEngine::GetScriptList().at(script.scriptName));
+				for (auto &[name, field]: fields) {
+					out << YAML::Key << name;
+					out << YAML::BeginMap;
+					out << field;
+					out << YAML::EndMap;
+				}
+			}
 			out << YAML::EndMap;
 		}
 		out << YAML::EndMap;
@@ -304,6 +377,18 @@ namespace Z {
 			if (scriptComponent) {
 				auto &script = entity.AddComponent<ScriptComponent>();
 				script.scriptName = scriptComponent["ScriptName"].as<std::string>();
+				if (ScriptEngine::ClassExists(script.scriptName)) {
+					auto klass = ScriptEngine::GetScriptList().at(script.scriptName);
+					ScriptEngine::RegisterEntityClass(id, *klass);
+					auto &buffers = ScriptEngine::GetFields(id, *klass);
+					auto fields = scriptComponent["ScriptFields"];
+					if (fields) {
+						for (auto field: buffers) {
+							YAML::Node data = fields[field.second.field.Name];
+							ProcessFieldType(buffers[field.second.field.Name], data);
+						}
+					}
+				}
 			}
 		}
 		return true;

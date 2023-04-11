@@ -12,26 +12,64 @@
 #include "mono/jit/jit.h"
 #include "mono/metadata/assembly.h"
 #include "mono/metadata/attrdefs.h"
+#include "mono/metadata/debug-helpers.h"
+
+
+namespace std{
+	template<>
+	struct hash<pair<Z::GUID,Z::ScriptClass>>{
+		::size_t operator()(const pair<Z::GUID,Z::ScriptClass>&p)const{
+			return (hash<Z::GUID>()(p.first)<<10)|(hash<Z::ScriptClass>()(p.second)>>10);
+		}
+	};
+
+	bool operator==(const std::pair<Z::GUID,Z::ScriptClass>&a,const std::pair<Z::GUID,Z::ScriptClass>&b){
+		return a.first==b.first&&a.second==b.second;
+	}
+
+}
+
+std::string Z::FieldTypeToString(ScriptFieldType type){
+	switch (type) {
+		case ScriptFieldType::Byte:
+			return "System.Byte";
+		case ScriptFieldType::Char:
+			return "System.Char";
+		case ScriptFieldType::Int16:
+			return "System.Int16";
+		case ScriptFieldType::UInt16:
+			return "System.UInt16";
+		case ScriptFieldType::Int:
+			return "System.Int32";
+		case ScriptFieldType::UInt:
+			return "System.UInt32";
+		case ScriptFieldType::Long:
+			return "System.Int64";
+		case ScriptFieldType::ULong:
+			return "System.UInt64";
+		case ScriptFieldType::Float:
+			return "System.Single";
+		case ScriptFieldType::Double:
+			return "System.Double";
+		case ScriptFieldType::Bool:
+			return "System.Boolean";
+		case ScriptFieldType::String:
+			return "System.String";
+		case ScriptFieldType::Entity:
+			return "Z.EntityCore";
+		case ScriptFieldType::Float2:
+			return "Z.Vector2";
+		case ScriptFieldType::Float3:
+			return "Z.Vector3";
+		case ScriptFieldType::Float4:
+			return "Z.Vector4";
+		default:
+			return "<Invalid>";
+	}
+}
 
 namespace Z {
-	static std::unordered_map<std::string, ScriptFieldType> FieldTypeMap{
-			{"System.Byte",    ScriptFieldType::Byte},
-			{"System.Char",    ScriptFieldType::Char},
-			{"System.Int16",   ScriptFieldType::Int16},
-			{"System.UInt16",  ScriptFieldType::UInt16},
-			{"System.Int32",   ScriptFieldType::Int},
-			{"System.UInt32",  ScriptFieldType::UInt},
-			{"System.Int64",   ScriptFieldType::Long},
-			{"System.UInt64",  ScriptFieldType::ULong},
-			{"System.Single",  ScriptFieldType::Float},
-			{"System.Double",  ScriptFieldType::Double},
-			{"System.Boolean", ScriptFieldType::Bool},
-			{"System.String",  ScriptFieldType::String},
-			{"Z.EntityCore",   ScriptFieldType::Entity},
-			{"Z.Vector2",      ScriptFieldType::Float2},
-			{"Z.Vector3",      ScriptFieldType::Float3},
-			{"Z.Vector4",      ScriptFieldType::Float4}
-	};
+
 	namespace Temp {
 		std::string ReadBytes(const std::filesystem::path &path) {
 			std::ifstream file(path, std::ios::ate | std::ios::binary);
@@ -43,6 +81,7 @@ namespace Z {
 			file.close();
 			return buffer;
 		}
+
 
 		MonoAssembly *LoadMonoAssembly(const std::filesystem::path &assemblyPath) {
 			uint32_t fileSize = 0;
@@ -82,44 +121,6 @@ namespace Z {
 
 	}
 
-	std::string FieldTypeToString(ScriptFieldType type) {
-		switch (type) {
-			case ScriptFieldType::Byte:
-				return "System.Byte";
-			case ScriptFieldType::Char:
-				return "System.Char";
-			case ScriptFieldType::Int16:
-				return "System.Int16";
-			case ScriptFieldType::UInt16:
-				return "System.UInt16";
-			case ScriptFieldType::Int:
-				return "System.Int32";
-			case ScriptFieldType::UInt:
-				return "System.UInt32";
-			case ScriptFieldType::Long:
-				return "System.Int64";
-			case ScriptFieldType::ULong:
-				return "System.UInt64";
-			case ScriptFieldType::Float:
-				return "System.Single";
-			case ScriptFieldType::Double:
-				return "System.Double";
-			case ScriptFieldType::Bool:
-				return "System.Boolean";
-			case ScriptFieldType::String:
-				return "System.String";
-			case ScriptFieldType::Entity:
-				return "Z.EntityCore";
-			case ScriptFieldType::Float2:
-				return "Z.Vector2";
-			case ScriptFieldType::Float3:
-				return "Z.Vector3";
-			case ScriptFieldType::Float4:
-				return "Z.Vector4";
-			default:
-				return "<Invalid>";
-		}
-	}
 
 	struct ScriptEngineData {
 		MonoDomain *rootDomain = nullptr, *appDomain = nullptr;
@@ -130,6 +131,9 @@ namespace Z {
 
 		std::unordered_map<std::string, Ref<ScriptClass>> EntityClasses;
 		std::unordered_map<GUID, Ref<ScriptInstance>> EntityInstances;
+		using FieldMap=std::unordered_map<std::string,ScriptFieldBuffer>;
+		using EntityWithClass = std::pair<GUID,ScriptClass>;
+		std::unordered_map<EntityWithClass,FieldMap> EntityFields;
 	};
 	static ScriptEngineData *scriptData;
 
@@ -268,6 +272,27 @@ namespace Z {
 			return nullptr;
 	}
 
+	bool ScriptEngine::EntityFieldExists(GUID id,ScriptClass&klass) {
+		return scriptData->EntityFields.find(std::pair{id,klass})!=scriptData->EntityFields.end();
+	}
+
+	void ScriptEngine::RegisterEntityClass(GUID id, ScriptClass &klass) {
+		std::unordered_map<std::string,ScriptFieldBuffer> values;
+		auto key=std::make_pair(id,klass);
+		for(const auto&[name,field]:klass.Fields){
+			int align=0;
+			auto size=mono_type_size(mono_field_get_type(field.Field),&align);
+			MonoTypeEnum typeEnum;
+			auto fieldBuffer=ScriptFieldBuffer{field,size};
+			values[name]=fieldBuffer;
+		}
+		scriptData->EntityFields[key]=values;
+	}
+
+	std::unordered_map<std::string,ScriptFieldBuffer>&ScriptEngine::GetFields(GUID id,const ScriptClass& klass) {
+		return scriptData->EntityFields.at({id, klass});
+	}
+
 	ScriptClass::ScriptClass(const std::string &nameSpace, const std::string &name)
 			: NameSpace(nameSpace), ClassName(name) {
 		Class = mono_class_from_name(scriptData->appImage == nullptr ? scriptData->image : scriptData->appImage,
@@ -294,20 +319,33 @@ namespace Z {
 		return mono_class_num_fields(Class);
 	}
 
-	unsigned char ScriptClass::buffer[64];
-	void ScriptClass::SetValue(const std::string &name, void *ptr) {
+
+	void ScriptClass::SetValue(GUID id,const std::string &name, void *ptr) {
 //		mono_field_static_set_value(mono_class_vtable(scriptData->rootDomain,Class),
 //		                            Fields.at(name).Field,ptr);
-	}
-	void ScriptClass::InnerGetValue(const std::string &name, void *ptr) {
-//		mono_field_static_get_value(mono_class_vtable(scriptData->rootDomain,Class),
-//		                            Fields.at(name).Field,ptr);
+		auto bufferMap= scriptData->EntityFields.find(std::pair{id,*this});
+		auto& buffer=bufferMap->second.at(name);
+		buffer.SetValue(ptr);
 	}
 
-	ScriptInstance::ScriptInstance(Ref<ScriptClass> klass, Entity entity) : Class(klass) {
+	void ScriptClass::InnerGetValue(GUID id,const std::string &name, void *ptr) {
+		auto bufferMap= scriptData->EntityFields.find(std::pair{id,*this});
+		auto buffer=bufferMap->second.at(name);
+		buffer.GetValue(ptr);
+	}
+
+	ScriptInstance::ScriptInstance(Ref<ScriptClass> klass, Entity entity) : Class(std::move(klass)) {
 		instance = Class->GetInstance();
 		construct = scriptData->Class->GetMethod(".ctor", 1);
 		unsigned long long id = entity.GetUID();
+		auto& a=scriptData->EntityFields;
+		const auto&bufferPair=scriptData->EntityFields.find(std::pair{id,*Class});
+		const auto&bufferMap=bufferPair->second;
+		unsigned char buffer[8]{0};
+		for(auto&[name,field]:bufferMap){
+			field.GetValue(buffer);
+			SetValue(name,buffer);
+		}
 		void *uuid = &id;
 		Class->InvokeMethod(construct, instance, &uuid, nullptr);
 		create = Class->GetMethod("OnCreate");

@@ -14,9 +14,9 @@ namespace Z {
 
 		template<class T>
 		std::string GetTypeName() {
-			auto temp=std::string(typeid(T).name());
+			auto temp = std::string(typeid(T).name());
 			auto space = temp.rfind(':');
-			auto end=temp.rfind("Component");
+			auto end = temp.rfind("Component");
 			return temp.substr(space + 1, end - space - 1);
 		}
 
@@ -31,7 +31,8 @@ namespace Z {
 	}
 
 	static void
-	MyDrawVec(const std::string &label, glm::vec3 &value, const glm::vec3& ResetValue = glm::vec3{.0f}, float ColumnWidth = 100.f) {
+	MyDrawVec(const std::string &label, glm::vec3 &value, const glm::vec3 &ResetValue = glm::vec3{.0f},
+	          float ColumnWidth = 100.f) {
 		ImGui::PushID(label.c_str());
 		ImGui::Columns(2);
 		ImGui::SetColumnWidth(0, ColumnWidth);
@@ -126,14 +127,14 @@ namespace Z {
 
 	template<>
 	void SceneHierarchyPlane::DrawComponent<TagComponent>(const std::string &name, Entity entity,
-	                                                      void (*drawFunc)(Entity entity,TagComponent &)) {
+	                                                      void (*drawFunc)(Entity entity, TagComponent &)) {
 		auto &component = entity.GetComponent<TagComponent>();
-		drawFunc(entity,component);
+		drawFunc(entity, component);
 	}
 
 	template<>
 	void SceneHierarchyPlane::DrawComponent<TransformComponent>(const std::string &name, Entity entity,
-	                                                            void (*drawFunc)(Entity entity,TransformComponent &)) {
+	                                                            void (*drawFunc)(Entity entity, TransformComponent &)) {
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
 		ImGui::Separator();
 		bool open = ImGui::TreeNodeEx((void *) typeid(TransformComponent).hash_code(),
@@ -144,13 +145,13 @@ namespace Z {
 
 		if (open) {
 			auto &component = entity.GetComponent<TransformComponent>();
-			drawFunc(entity,component);
+			drawFunc(entity, component);
 			ImGui::TreePop();
 		}
 	}
 
 	void SceneHierarchyPlane::DrawComponents(Entity entity) {
-		DrawComponent<TagComponent>("Tag", entity, [](Entity entity,auto &tag) {
+		DrawComponent<TagComponent>("Tag", entity, [](Entity entity, auto &tag) {
 			static char buffer[256];
 			memset(buffer, 0, 256);
 			strcpy(buffer, tag.tag.c_str());
@@ -164,12 +165,12 @@ namespace Z {
 			ImGui::OpenPopup("AddComponent");
 		}
 		if (ImGui::BeginPopup("AddComponent")) {
-			Temp::AddComponentMenu(AllTypes{},entity);
+			Temp::AddComponentMenu(AllTypes{}, entity);
 			ImGui::EndPopup();
 		}
 		ImGui::PopItemWidth();
 
-		DrawComponent<TransformComponent>("Transform", entity, [](Entity entity,auto &transform) {
+		DrawComponent<TransformComponent>("Transform", entity, [](Entity entity, auto &transform) {
 			MyDrawVec("Position", transform.translation);
 			auto rotation = glm::degrees(transform.rotation);
 			MyDrawVec("Rotation", rotation);
@@ -177,7 +178,7 @@ namespace Z {
 			MyDrawVec("Scale", transform.scale, glm::vec3{1.f});
 		});
 		DrawComponent<SpriteRendererComponent>("SpriteRenderer", entity,
-		                                       [](Entity entity,SpriteRendererComponent &spriteRenderer) {
+		                                       [](Entity entity, SpriteRendererComponent &spriteRenderer) {
 			                                       ImGui::ColorEdit4("Color", &spriteRenderer.color[0]);
 			                                       ImGui::Image(spriteRenderer.texture.get() == nullptr ? nullptr :
 			                                                    (void *) spriteRenderer.texture->GetRendererID(),
@@ -198,12 +199,13 @@ namespace Z {
 				                                       ImGui::EndDragDropTarget();
 			                                       }
 		                                       });
-		DrawComponent<CircleRendererComponent>("CircleRenderer", entity, [](Entity entity,CircleRendererComponent &component) {
-			ImGui::ColorEdit4("Color", &component.color[0]);
-			ImGui::DragFloat("thick", &component.thickness, .05f, 0.f, 1.f);
-			ImGui::DragFloat("Fade", &component.fade, .05f, 0.f, 1.f);
-		});
-		DrawComponent<CameraComponent>("Camera", entity, [](Entity entity,CameraComponent &component) {
+		DrawComponent<CircleRendererComponent>("CircleRenderer", entity,
+		                                       [](Entity entity, CircleRendererComponent &component) {
+			                                       ImGui::ColorEdit4("Color", &component.color[0]);
+			                                       ImGui::DragFloat("thick", &component.thickness, .05f, 0.f, 1.f);
+			                                       ImGui::DragFloat("Fade", &component.fade, .05f, 0.f, 1.f);
+		                                       });
+		DrawComponent<CameraComponent>("Camera", entity, [](Entity entity, CameraComponent &component) {
 			auto &camera = component.camera;
 			if (ImGui::Checkbox("Primary", &component.primary)) {//Todo:Change logic
 			}
@@ -243,169 +245,171 @@ namespace Z {
 				}
 			}
 		});
-		DrawComponent<RigidBody2DComponent>("RigidBody2D", entity, [](Entity entity,RigidBody2DComponent &component) {
+		DrawComponent<RigidBody2DComponent>("RigidBody2D", entity, [](Entity entity, RigidBody2DComponent &component) {
 			ImGui::Checkbox("Fixed Rotation", &component.fixedRotation);
 			if (int i = (int) component.bodyType;ImGui::Combo("Body Type", &i,
 			                                                  "Static\0Dynamic\0Kinematic\0\0"))
 				component.bodyType = (RigidBody2DComponent::BodyType) i;
 		});
-		DrawComponent<BoxCollider2DComponent>("BoxCollider2D", entity, [](Entity entity,BoxCollider2DComponent &component) {
-			ImGui::Checkbox("Is Trigger", &component.isTrigger);
-			ImGui::DragFloat2("Size", &component.size.x,.05f);
-			ImGui::DragFloat2("Offset", &component.offset.x,.05f);
-			ImGui::DragFloat("Density", &component.density, .05f);
-			ImGui::DragFloat("Friction", &component.friction, .05f);
-			ImGui::DragFloat("Restitution", &component.restitution, .05f);
-			ImGui::DragFloat("MinRestitution", &component.MinRestitution, .05f);
-		});
-		DrawComponent<CircleCollider2DComponent>("CircleCollider2D", entity, [](Entity entity,CircleCollider2DComponent &component) {
-			ImGui::Checkbox("Is Trigger", &component.isTrigger);
-			ImGui::DragFloat("Radius", &component.radius,.1f);
-			ImGui::DragFloat2("Offset", &component.offset.x,.05f);
-			ImGui::DragFloat("Density", &component.density, .1f);
-			ImGui::DragFloat("Friction", &component.friction, .05f);
-			ImGui::DragFloat("Restitution", &component.restitution, .05f);
-			ImGui::DragFloat("MinRestitution", &component.MinRestitution, .05f);
-		});
-		DrawComponent<ScriptComponent>("Script",entity,[](Entity entity,ScriptComponent&component){
+		DrawComponent<BoxCollider2DComponent>("BoxCollider2D", entity,
+		                                      [](Entity entity, BoxCollider2DComponent &component) {
+			                                      ImGui::Checkbox("Is Trigger", &component.isTrigger);
+			                                      ImGui::DragFloat2("Size", &component.size.x, .05f);
+			                                      ImGui::DragFloat2("Offset", &component.offset.x, .05f);
+			                                      ImGui::DragFloat("Density", &component.density, .05f);
+			                                      ImGui::DragFloat("Friction", &component.friction, .05f);
+			                                      ImGui::DragFloat("Restitution", &component.restitution, .05f);
+			                                      ImGui::DragFloat("MinRestitution", &component.MinRestitution, .05f);
+		                                      });
+		DrawComponent<CircleCollider2DComponent>("CircleCollider2D", entity,
+		                                         [](Entity entity, CircleCollider2DComponent &component) {
+			                                         ImGui::Checkbox("Is Trigger", &component.isTrigger);
+			                                         ImGui::DragFloat("Radius", &component.radius, .1f);
+			                                         ImGui::DragFloat2("Offset", &component.offset.x, .05f);
+			                                         ImGui::DragFloat("Density", &component.density, .1f);
+			                                         ImGui::DragFloat("Friction", &component.friction, .05f);
+			                                         ImGui::DragFloat("Restitution", &component.restitution, .05f);
+			                                         ImGui::DragFloat("MinRestitution", &component.MinRestitution,
+			                                                          .05f);
+		                                         });
+		DrawComponent<ScriptComponent>("Script", entity, [](Entity entity, ScriptComponent &component) {
 			static char buffer[257];
-			std::strcpy(buffer,component.scriptName.data());
-			bool exists=ScriptEngine::ClassExists(component.scriptName);
+			std::strcpy(buffer, component.scriptName.data());
+			bool exists = ScriptEngine::ClassExists(component.scriptName);
 			ImGui::Text("Script Name:");
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-			if(!exists)
-				ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(.8f,.1f,.2f,1));
-			if(ImGui::InputText("##ScriptName",buffer,256)){
-				component.scriptName=buffer;
+			if (!exists)
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(.8f, .1f, .2f, 1));
+			if (ImGui::InputText("##ScriptName", buffer, 256)) {
+				component.scriptName = buffer;
 				ImGui::OpenPopup("ScriptNameList");
 			}
-			if(!exists)
+			if (!exists)
 				ImGui::PopStyleColor();
-			if(ImGui::BeginPopup("ScriptNameList",ImGuiWindowFlags_NoFocusOnAppearing)){
-				ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(.1f,.1f,.8f,1));
-				if(ImGui::Selectable("New"))
-					component.scriptName="New";
-				for(const auto&[name,script]:ScriptEngine::GetScriptList()){
-					if(ImGui::Selectable(name.c_str()))
-						component.scriptName=name;
+			if (ImGui::BeginPopup("ScriptNameList", ImGuiWindowFlags_NoFocusOnAppearing)) {
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(.1f, .1f, .8f, 1));
+				if (ImGui::Selectable("New"))
+					component.scriptName = "New";
+				for (const auto &[name, script]: ScriptEngine::GetScriptList()) {
+					if (ImGui::Selectable(name.c_str()))
+						component.scriptName = name;
 				}
 				ImGui::PopStyleColor();
 				ImGui::EndPopup();
+				if (ScriptEngine::ClassExists(component.scriptName)) {
+					if (auto klass = ScriptEngine::GetScriptList().at(
+								component.scriptName);!ScriptEngine::EntityFieldExists(entity.GetUID(), *klass))
+						ScriptEngine::RegisterEntityClass(entity.GetUID(), *klass);
+				}
 			}
-			if(exists){
-				auto instance=ScriptEngine::GetInstance(entity.GetUID());
-				if(!instance)
-					return;
-				auto klass=instance->GetClass();
-				auto&fields=klass->GetFields();
-				for(const auto&[name,type]:fields){
-					ImGui::Text(name.c_str());
-					ImGui::SameLine();
-					switch (type.Type) {
-						case ScriptFieldType::Float:{
-							auto ptr=instance->GetValue<float>(name);
-							if(ImGui::DragFloat(("##"+name).c_str(),&ptr,.5f)){
-								instance->SetValue(name,&ptr);
+			if (exists)
+				if (entity.GetContext()->isRunning()) {
+					auto instance = ScriptEngine::GetInstance(entity.GetUID());
+					if (!instance)
+						return;
+					auto klass = instance->GetClass();
+					auto &fields = klass->GetFields();
+					auto id=entity.GetUID();
+					unsigned char buffer[64]{0};
+					for (const auto &[name, type]: fields) {
+						instance->GetValue(name,buffer);
+						ImGui::Text(name.c_str());
+						ImGui::SameLine();
+						switch (type.Type) {
+							case ScriptFieldType::Float: {
+								if (ImGui::DragFloat(("##" + name).c_str(), (float*)buffer, .5f)) {
+									instance->SetValue(name, buffer);
+								}
+								break;
 							}
-							break;
-						}
-						case ScriptFieldType::Int:{
-							auto ptr=instance->GetValue<int>(name);
-							if(ImGui::DragInt(("##"+name).c_str(),&ptr)){
-								instance->SetValue(name,&ptr);
+							case ScriptFieldType::Int: {
+								if (ImGui::DragInt(("##" + name).c_str(), (int*)buffer)) {
+									instance->SetValue(name, buffer);
+								}
+								break;
 							}
-							break;
-						}
-						case ScriptFieldType::Float2:{
-							auto ptr=instance->GetValue<glm::vec2>(name);
-							if(ImGui::DragFloat2(("##"+name).c_str(),&ptr[0])){
-								instance->SetValue(name,&ptr[0]);
+							case ScriptFieldType::Float2: {
+								if (ImGui::DragFloat2(("##" + name).c_str(), (float*)buffer)) {
+									instance->SetValue(name, buffer);
+								}
+								break;
 							}
-							break;
-						}
-						case ScriptFieldType::Float3:{
-							auto ptr=instance->GetValue<glm::vec3>(name);
-							if(ImGui::DragFloat3(("##"+name).c_str(),&ptr[0])){
-								instance->SetValue(name,&ptr[0]);
+							case ScriptFieldType::Float3: {
+								if (ImGui::DragFloat3(("##" + name).c_str(), (float*)buffer)) {
+									instance->SetValue(name, buffer);
+								}
+								break;
 							}
-							break;
-						}
-						case ScriptFieldType::Float4:{
-							auto ptr=instance->GetValue<glm::vec4>(name);
-							if(ImGui::DragFloat4(("##"+name).c_str(),&ptr[0])){
-								instance->SetValue(name,&ptr[0]);
+							case ScriptFieldType::Float4: {
+								if (ImGui::DragFloat4(("##" + name).c_str(), (float*)buffer)) {
+									instance->SetValue(name,buffer);
+								}
+								break;
 							}
-							break;
-						}
-						case ScriptFieldType::Bool:{
-							auto ptr=instance->GetValue<bool>(name);
-							if(ImGui::Checkbox(("##"+name).c_str(),&ptr)){
-								instance->SetValue(name,&ptr);
+							case ScriptFieldType::Bool: {
+								if (ImGui::Checkbox(("##" + name).c_str(), (bool*)buffer)) {
+									instance->SetValue(name, buffer);
+								}
+								break;
 							}
-							break;
 						}
 					}
-				}
 
-			}
-/*			if(exists){
-				auto klass=ScriptEngine::GetScriptList().at(component.scriptName);
-				auto&fields=klass->GetFields();
-				for(const auto&[name,type]:fields){
-					ImGui::Text(name.c_str());
-					ImGui::SameLine();
-					switch (type.Type) {
-						case ScriptFieldType::Float:{
-							auto ptr=klass->GetValue<float>(name);
-							if(ImGui::DragFloat(("##"+name).c_str(),&ptr,.5f)){
-								klass->SetValue(name,&ptr);
+				} else {
+					auto klass = ScriptEngine::GetScriptList().at(component.scriptName);
+					auto &fields = klass->GetFields();
+					unsigned char buffer[8]{0};
+					auto id = entity.GetUID();
+					for (const auto &[name, type]: fields) {
+						ImGui::Text(name.c_str());
+						ImGui::SameLine();
+						klass->GetValue(id, name, buffer);
+						switch (type.Type) {
+							case ScriptFieldType::Float: {
+								if (ImGui::DragFloat(("##" + name).c_str(), (float *) buffer, .5f)) {
+									klass->SetValue(id, name, buffer);
+								}
+								break;
 							}
-							break;
-						}
-						case ScriptFieldType::Int:{
-							auto ptr=klass->GetValue<int>(name);
-							if(ImGui::DragInt(("##"+name).c_str(),&ptr)){
-								klass->SetValue(name,&ptr);
+							case ScriptFieldType::Int: {
+								if (ImGui::DragInt(("##" + name).c_str(), (int *) buffer)) {
+									klass->SetValue(id, name, buffer);
+								}
+								break;
 							}
-							break;
-						}
-						case ScriptFieldType::Float2:{
-							auto ptr=klass->GetValue<glm::vec2>(name);
-							if(ImGui::DragFloat2(("##"+name).c_str(),&ptr[0])){
-								klass->SetValue(name,&ptr[0]);
+							case ScriptFieldType::Float2: {
+								if (ImGui::DragFloat2(("##" + name).c_str(), (float *) buffer)) {
+									klass->SetValue(id, name, buffer);
+								}
+								break;
 							}
-							break;
-						}
-						case ScriptFieldType::Float3:{
-							auto ptr=klass->GetValue<glm::vec3>(name);
-							if(ImGui::DragFloat3(("##"+name).c_str(),&ptr[0])){
-								klass->SetValue(name,&ptr[0]);
+							case ScriptFieldType::Float3: {
+								if (ImGui::DragFloat3(("##" + name).c_str(), (float *) buffer)) {
+									klass->SetValue(id, name, buffer);
+								}
+								break;
 							}
-							break;
-						}
-						case ScriptFieldType::Float4:{
-							auto ptr=klass->GetValue<glm::vec4>(name);
-							if(ImGui::DragFloat4(("##"+name).c_str(),&ptr[0])){
-								klass->SetValue(name,&ptr[0]);
+							case ScriptFieldType::Float4: {
+								if (ImGui::DragFloat4(("##" + name).c_str(), (float *) buffer)) {
+									klass->SetValue(id, name, buffer);
+								}
+								break;
 							}
-							break;
-						}
-						case ScriptFieldType::Bool:{
-							auto ptr=klass->GetValue<bool>(name);
-							if(ImGui::Checkbox(("##"+name).c_str(),&ptr)){
-								klass->SetValue(name,&ptr);
+							case ScriptFieldType::Bool: {
+								if (ImGui::Checkbox(("##" + name).c_str(), (bool *) buffer)) {
+									klass->SetValue(id, name, buffer);
+								}
+								break;
 							}
-							break;
 						}
 					}
 				}
-			}*/
 		});
 	}
 
 	template<typename Ty>
-	void SceneHierarchyPlane::DrawComponent(const std::string &name, Entity entity, void (*drawFunc)(Entity,Ty &)) {
+	void SceneHierarchyPlane::DrawComponent(const std::string &name, Entity entity, void (*drawFunc)(Entity, Ty &)) {
 		if (entity.HasComponent<Ty>()) {
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
 			auto RegionWidth = ImGui::GetContentRegionAvail().x;
@@ -430,7 +434,7 @@ namespace Z {
 			}
 			if (open) {
 				auto &component = entity.GetComponent<Ty>();
-				drawFunc(entity,component);
+				drawFunc(entity, component);
 				ImGui::TreePop();
 			}
 			if (remove) {

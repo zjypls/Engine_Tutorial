@@ -28,10 +28,44 @@ namespace Z {
 		Bool, String, Entity,
 	};
 
+
+	std::string FieldTypeToString(ScriptFieldType);
+
 	struct ScriptField {
 		std::string Name;
 		ScriptFieldType Type;
 		MonoClassField *Field;
+	};
+	static std::unordered_map<std::string, ScriptFieldType> FieldTypeMap{
+			{"System.Byte",    ScriptFieldType::Byte},
+			{"System.Char",    ScriptFieldType::Char},
+			{"System.Int16",   ScriptFieldType::Int16},
+			{"System.UInt16",  ScriptFieldType::UInt16},
+			{"System.Int32",   ScriptFieldType::Int},
+			{"System.UInt32",  ScriptFieldType::UInt},
+			{"System.Int64",   ScriptFieldType::Long},
+			{"System.UInt64",  ScriptFieldType::ULong},
+			{"System.Single",  ScriptFieldType::Float},
+			{"System.Double",  ScriptFieldType::Double},
+			{"System.Boolean", ScriptFieldType::Bool},
+			{"System.String",  ScriptFieldType::String},
+			{"Z.EntityCore",   ScriptFieldType::Entity},
+			{"Z.Vector2",      ScriptFieldType::Float2},
+			{"Z.Vector3",      ScriptFieldType::Float3},
+			{"Z.Vector4",      ScriptFieldType::Float4}
+	};
+
+	struct ScriptFieldBuffer {
+		ScriptField field;
+		int TypeSize=0;
+		void GetValue(void* ptr) const{
+			memcpy(ptr,buffer,TypeSize);
+		}
+
+		void SetValue(void*v){
+			std::memcpy(buffer,v,TypeSize);
+		}
+		unsigned char buffer[8]{0};
 	};
 
 	class ScriptClass {
@@ -50,21 +84,27 @@ namespace Z {
 
 		const auto &GetFields() const { return Fields; }
 
-		template<class T>
-		T GetValue(const std::string&name){
-			InnerGetValue(name,buffer);
-			return *(T*)buffer;
+
+		void GetValue(GUID id,const std::string &name,void* ptr) {
+			InnerGetValue(id,name, ptr);
+		}
+		std::string GetTypeName()const{
+			return NameSpace+"."+ClassName;
 		}
 
-		void SetValue(const std::string&name,void*ptr);
+		void SetValue(GUID id,const std::string &name, void *ptr);
+
 		[[nodiscard]] MonoClass *GetClass() const { return Class; }
+		bool operator==(const ScriptClass&a)const{
+			return NameSpace==a.NameSpace&&ClassName==a.ClassName;
+		}
 
 	private:
-		void InnerGetValue(const std::string&name,void *ptr);
+		void InnerGetValue(GUID id,const std::string &name, void *ptr);
+
 		std::unordered_map<std::string, ScriptField> Fields;
 		MonoClass *Class;
 		std::string NameSpace, ClassName;
-		static unsigned char buffer[64];
 
 		friend class ScriptEngine;
 	};
@@ -82,14 +122,10 @@ namespace Z {
 
 		void SetValue(const std::string &name, void *ptr);
 
-		template<class T>
-		T GetValue(const std::string &name) {
-			GetValue(name, buffer);
-			return *(T*)buffer;
-		}
+		void GetValue(const std::string &name,void*ptr);
 
 	private:
-		void GetValue(const std::string &name, void *ptr);
+
 		Ref<ScriptClass> Class;
 		MonoObject *instance;
 		MonoMethod *construct, *create, *update;
@@ -123,6 +159,9 @@ namespace Z {
 		static Ref<ScriptInstance> GetInstance(GUID id);
 
 		static bool ClassExists(const std::string &name);
+		static bool EntityFieldExists(GUID id,ScriptClass&klass);
+		static void RegisterEntityClass(GUID id,ScriptClass&klass);
+		static std::unordered_map<std::string,ScriptFieldBuffer>&GetFields(GUID id,const ScriptClass&klass);
 
 		static MonoImage *GetCoreImage();
 
@@ -143,6 +182,15 @@ namespace Z {
 		friend class ScriptReg;
 	};
 
+}
+
+namespace std{
+	template<>
+	struct hash<Z::ScriptClass>{
+		size_t operator()(const Z::ScriptClass&klass)const{
+			return std::hash<std::string>()(klass.GetTypeName());
+		}
+	};
 }
 
 

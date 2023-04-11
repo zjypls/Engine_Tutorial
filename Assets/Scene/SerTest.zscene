@@ -1,0 +1,39 @@
+Scene: Untitled
+Entities:
+  - Entity: 16907461534238671459
+    TagComponent:
+      Tag: SceneCamera
+    TransformComponent:
+      Translation: [0, 0, 3]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 0.785398185
+        PerspectiveNear: 0.00999999978
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+        Primary: true
+  - Entity: 8965147083211702859
+    TagComponent:
+      Tag: Nahida
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+    ScriptComponent:
+      ScriptName: Player
+      ScriptFields:
+        Speed:
+          FieldName: Speed
+          Type: System.Single
+          Value: 27
+        velicity:
+          FieldName: velicity
+          Type: Z.Vector2
+          Value: [87, 0]

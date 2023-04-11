@@ -17,6 +17,7 @@ file(GLOB src CONFIGURE_DEPENDS
         Z/Core/*.h Z/Core/*.cpp
         Platform/Windows/*.cpp Platform/Windows/*.h
         Platform/OpenGL/*.cpp Platform/OpenGL/*.h
+        Platform/Vulkan/*.cpp Platform/Vulkan/*.h
         Z/Events/*.h
         Z/ImGui/*.h
         Z/ImGui/*.cpp

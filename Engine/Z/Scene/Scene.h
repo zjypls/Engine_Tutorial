@@ -19,6 +19,7 @@ namespace Z {
 		friend class SceneHierarchyPlane;
 		friend class SceneSerializer;
 		void* PhysicalWorld = nullptr;
+		bool Running=false;
 		std::unordered_map<GUID, Entity> entities;
 		template<class Ty>
 		void OnComponentAdd(Entity entity, Ty &component);
@@ -33,6 +34,7 @@ namespace Z {
 	public:
 		Scene() = default;
 		Entity GetMainCamera();
+		inline bool isRunning(){return Running;}
 
 		static Ref<Scene> Copy(Ref<Scene>);
 

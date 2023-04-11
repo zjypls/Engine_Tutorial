@@ -46,11 +46,13 @@ namespace Z {
 
 
 	void Scene::OnRuntimeStart() {
+		Running=true;
 		OnPhysics2DStart();
 		OnScriptStart();
 	}
 
 	void Scene::OnRuntimeStop() {
+		Running=false;
 		OnPhysics2DStop();
 		OnScriptStop();
 	}
