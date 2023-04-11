@@ -65,6 +65,24 @@ namespace Z {
 		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
 		body->ApplyForceToCenter(b2Vec2(o->x,o->y),wake);
 	}
+	MonoArray* GetEntityByName(MonoString* name){
+		std::vector<GUID> ids;
+		ScriptEngine::GetContext()->GetEntitiesByName(mono_string_to_utf8(name),ids);
+		auto array=mono_array_new(ScriptEngine::GetDomain(),mono_get_uint64_class(),ids.size());
+		for(int i=0;i<ids.size();i++){
+			mono_array_set(array, uint64_t, i,ids[i]);
+		}
+		return array;
+	}
+	glm::vec3 Entity_GetRigidBody2DPosition(GUID id){
+		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
+		auto pos=body->GetPosition();
+		return {pos.x,pos.y,0};
+	}
+	void Entity_SetRigidBody2DPosition(GUID id,glm::vec3* pos){
+		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
+		body->SetTransform(b2Vec2(pos->x,pos->y),body->GetAngle());
+	}
 
 
 	template<class... T>
@@ -96,6 +114,9 @@ namespace Z {
 		Z_INTERNAL_FUNC(Entity_SetVelocity);
 		Z_INTERNAL_FUNC(Entity_ApplyForce);
 		Z_INTERNAL_FUNC(Entity_ApplyForceCenter);
+		Z_INTERNAL_FUNC(GetEntityByName);
+		Z_INTERNAL_FUNC(Entity_GetRigidBody2DPosition);
+		Z_INTERNAL_FUNC(Entity_SetRigidBody2DPosition);
 	}
 
 	void ScriptReg::RegComponents() {

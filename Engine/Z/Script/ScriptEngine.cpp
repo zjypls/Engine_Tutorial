@@ -271,6 +271,10 @@ namespace Z {
 		else
 			return nullptr;
 	}
+	MonoDomain* ScriptEngine::GetDomain(){
+		return scriptData->appDomain;
+	}
+
 
 	bool ScriptEngine::EntityFieldExists(GUID id,ScriptClass&klass) {
 		return scriptData->EntityFields.find(std::pair{id,klass})!=scriptData->EntityFields.end();

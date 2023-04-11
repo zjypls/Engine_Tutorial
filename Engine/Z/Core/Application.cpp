@@ -20,6 +20,7 @@ namespace Z {
 		application=this;
 		Z_CORE_WARN("Current path{0}!",spec.commandArgs.Args[0]);
 		if(!Spec.RootPath.empty()){
+			//Todo : change working directory
 			std::filesystem::current_path(Spec.RootPath);
 		}
 		window=Z::Scope<zWindow>(zWindow::Create(WindowProps(spec.Name)));

@@ -17,6 +17,7 @@ typedef struct _MonoMethod MonoMethod;
 typedef struct _MonoAssembly MonoAssembly;
 typedef struct _MonoImage MonoImage;
 typedef struct _MonoClassField MonoClassField;
+typedef struct _MonoDomain MonoDomain;
 };
 
 namespace Z {
@@ -157,6 +158,7 @@ namespace Z {
 		static const std::unordered_map<std::string, Ref<ScriptClass>> &GetScriptList();
 
 		static Ref<ScriptInstance> GetInstance(GUID id);
+		static MonoDomain*GetDomain();
 
 		static bool ClassExists(const std::string &name);
 		static bool EntityFieldExists(GUID id,ScriptClass&klass);

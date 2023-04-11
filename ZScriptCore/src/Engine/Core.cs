@@ -45,5 +45,9 @@ namespace Z
             if (HasComponent<T>()) return new T() { EntityCore = this };
             return null;
         }
+        public ulong[] GetEntitiesByName(string name)
+        {
+            return Internal.GetEntityByName(name);
+        }
     }
 }

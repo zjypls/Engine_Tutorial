@@ -37,5 +37,20 @@ namespace Z
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern void Entity_ApplyForceCenter(ulong id, ref Vector2 force, bool wake);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern ulong[] GetEntityByName(string name);
+        
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern string Entity_GetTag(ulong id);
+        
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern void Entity_SetTag(ulong id,string tag);
+        
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern Vector3 Entity_GetRigidBody2DPosition(ulong id);
+        
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern void Entity_SetRigidBody2DPosition(ulong id,ref Vector3 pos);
     }
 }

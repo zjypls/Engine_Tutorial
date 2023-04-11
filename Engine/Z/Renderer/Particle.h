@@ -29,7 +29,7 @@
 	};
 
 }*/
-
+//Todo : use list instead of vector
 namespace Z {
 	struct ParticleProp{
 		glm::vec3 position;
@@ -52,6 +52,7 @@ namespace Z {
 	};
 
 }
+
 
 
 #endif //ENGINE_TUTORIAL_PARTICLE_H

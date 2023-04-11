@@ -304,6 +304,14 @@ namespace Z {
 		return Entity{};
 	}
 
+	void Scene::GetEntitiesByName(const std::string &name, std::vector<GUID> &ids) {
+		registry.view<TagComponent>().each([&](auto id, auto &tag) {
+			if (tag.tag == name) {
+				ids.push_back(registry.get<IDComponent>(id).ID);
+			}
+		});
+	}
+
 
 	template<class Ty>
 	void Scene::OnComponentAdd(Entity entity, Ty &component) {

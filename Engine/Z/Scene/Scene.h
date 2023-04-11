@@ -58,6 +58,8 @@ namespace Z {
 		void CopyEntity(Entity entity);
 		Entity GetEntityWithGUID(GUID guid);
 
+		void GetEntitiesByName(const std::string& name, std::vector<GUID>& ids);
+
 		void OnUpdate(float);
 		void OnEditorUpdate(float deltaTime, EditorCamera &camera);
 		void OnPreviewUpdate(float deltaTime,Camera &camera,glm::mat4 transform);
