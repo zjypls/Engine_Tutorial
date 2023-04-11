@@ -1,9 +1,7 @@
 ﻿
 cmake-build-build/
 *.exe
-Lib/Debug/
-Lib/Release/
-Lib/*.lib
+Lib/
 .idea/
 *.ilk
 *.pdb
