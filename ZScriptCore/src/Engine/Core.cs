@@ -49,5 +49,9 @@ namespace Z
         {
             return Internal.GetEntityByName(name);
         }
+        public EntityCore GetEntity(ulong id)
+        {
+            return new EntityCore(id);
+        }
     }
 }

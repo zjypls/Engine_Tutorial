@@ -52,5 +52,8 @@ namespace Z
         
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern void Entity_SetRigidBody2DPosition(ulong id,ref Vector3 pos);
+        
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern string[] Entity_GetScripts(ulong id);
     }
 }

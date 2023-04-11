@@ -248,6 +248,7 @@ namespace Z {
 					out << field;
 					out << YAML::EndMap;
 				}
+				out << YAML::EndMap;
 			}
 			out << YAML::EndMap;
 		}

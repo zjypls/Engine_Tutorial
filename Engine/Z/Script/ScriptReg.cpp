@@ -84,6 +84,13 @@ namespace Z {
 		body->SetTransform(b2Vec2(pos->x,pos->y),body->GetAngle());
 	}
 
+	MonoArray * Entity_GetScripts(GUID id){
+		auto& scripts=ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<ScriptComponent>().scriptName;
+		auto array=mono_array_new(ScriptEngine::GetDomain(),mono_get_string_class(),1);
+		mono_array_set(array,MonoString*,0,mono_string_new(ScriptEngine::GetDomain(),scripts.c_str()));
+		return array;
+	}
+
 
 	template<class... T>
 	void RegComponent(Type<T...>) {
@@ -117,6 +124,7 @@ namespace Z {
 		Z_INTERNAL_FUNC(GetEntityByName);
 		Z_INTERNAL_FUNC(Entity_GetRigidBody2DPosition);
 		Z_INTERNAL_FUNC(Entity_SetRigidBody2DPosition);
+		Z_INTERNAL_FUNC(Entity_GetScripts);
 	}
 
 	void ScriptReg::RegComponents() {

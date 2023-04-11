@@ -62,5 +62,13 @@
         }
     }
     
+    public class ScriptComponent:Component
+    {
+        public string[] scriptName
+        {
+            get { return Internal.Entity_GetScripts(EntityCore.ID); }
+        }
+    }
+    
     
 }

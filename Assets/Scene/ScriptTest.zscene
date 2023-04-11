@@ -1,35 +1,12 @@
 Scene: Untitled
 Entities:
-  - Entity: 7155769313222489339
+  - Entity: 15101478482369457152
     TagComponent:
-      Tag: Nahida
+      Tag: Floor
     TransformComponent:
-      Translation: [0, 0.390946895, 0.523719966]
+      Translation: [0, -4.17480707, 0.523719966]
       Rotation: [0, -0, 0]
-      Scale: [1, 1, 1]
-    SpriteRendererComponent:
-      Color: [1, 1, 1, 1]
-    RigidBody2DComponent:
-      bodyType: Dynamic
-      fixedRotation: false
-    BoxCollider2DComponent:
-      size: [1, 1]
-      offset: [0, 0]
-      IsTrigger: false
-      Density: 0.100000001
-      Friction: 0.100000001
-      Restitution: 0.699999988
-      MinRestitution: 0.100000001
-      ptr: 1
-    ScriptComponent:
-      ScriptName: Player
-  - Entity: 621569215151616284
-    TagComponent:
-      Tag: Nahida
-    TransformComponent:
-      Translation: [3.52862501, 0.753140569, 0.523719966]
-      Rotation: [0, -0, 0]
-      Scale: [1, 8.83564758, 1]
+      Scale: [8.23124313, 1, 1]
     SpriteRendererComponent:
       Color: [1, 1, 1, 1]
     RigidBody2DComponent:
@@ -44,13 +21,13 @@ Entities:
       Restitution: 0
       MinRestitution: 0.5
       ptr: 0
-  - Entity: 4467103018020660145
+  - Entity: 9510310145040963069
     TagComponent:
-      Tag: Nahida_S
+      Tag: Wall Top
     TransformComponent:
-      Translation: [-3.58873749, 0.688402832, 0.523719966]
+      Translation: [0, 5.69228458, 0.523719966]
       Rotation: [0, -0, 0]
-      Scale: [1, 8.73546791, 1]
+      Scale: [8.23124313, 1, 1]
     SpriteRendererComponent:
       Color: [1, 1, 1, 1]
     RigidBody2DComponent:
@@ -82,13 +59,24 @@ Entities:
         OrthographicNear: -1
         OrthographicFar: 1
         Primary: true
-  - Entity: 9510310145040963069
+    ScriptComponent:
+      ScriptName: Camera
+      ScriptFields:
+        fov:
+          FieldName: fov
+          Type: System.Single
+          Value: 0
+        distance:
+          FieldName: distance
+          Type: System.Single
+          Value: 6.5
+  - Entity: 4467103018020660145
     TagComponent:
-      Tag: Nahida
+      Tag: Wall Left
     TransformComponent:
-      Translation: [0, 5.69228458, 0.523719966]
+      Translation: [-3.58873749, 0.688402832, 0.523719966]
       Rotation: [0, -0, 0]
-      Scale: [8.23124313, 1, 1]
+      Scale: [1, 8.73546791, 1]
     SpriteRendererComponent:
       Color: [1, 1, 1, 1]
     RigidBody2DComponent:
@@ -103,13 +91,13 @@ Entities:
       Restitution: 0
       MinRestitution: 0.5
       ptr: 0
-  - Entity: 15101478482369457152
+  - Entity: 621569215151616284
     TagComponent:
-      Tag: Nahida
+      Tag: Wall Right
     TransformComponent:
-      Translation: [0, -4.17480707, 0.523719966]
+      Translation: [3.52862501, 0.753140569, 0.523719966]
       Rotation: [0, -0, 0]
-      Scale: [8.23124313, 1, 1]
+      Scale: [1, 8.83564758, 1]
     SpriteRendererComponent:
       Color: [1, 1, 1, 1]
     RigidBody2DComponent:
@@ -124,3 +112,35 @@ Entities:
       Restitution: 0
       MinRestitution: 0.5
       ptr: 0
+  - Entity: 7155769313222489339
+    TagComponent:
+      Tag: Player
+    TransformComponent:
+      Translation: [0, 0.390946895, 0.523719966]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+    RigidBody2DComponent:
+      bodyType: Dynamic
+      fixedRotation: false
+    BoxCollider2DComponent:
+      size: [1, 1]
+      offset: [0, 0]
+      IsTrigger: false
+      Density: 0.100000001
+      Friction: 0.100000001
+      Restitution: 0.699999988
+      MinRestitution: 0.100000001
+      ptr: 1
+    ScriptComponent:
+      ScriptName: Player
+      ScriptFields:
+        Speed:
+          FieldName: Speed
+          Type: System.Single
+          Value: 324.5
+        velicity:
+          FieldName: velicity
+          Type: Z.Vector2
+          Value: [0, 0]
