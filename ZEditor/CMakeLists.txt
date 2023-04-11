@@ -13,3 +13,8 @@ add_dependencies(${PROJECT_NAME} scripts)
 target_include_directories(${PROJECT_NAME} PUBLIC depends ${ImGuiPath}/backends/)
 target_link_libraries(${PROJECT_NAME} PUBLIC Z)
 target_compile_definitions(${PROJECT_NAME} PUBLIC Z_PLATFORM_WIN32 Z_SOURCE_DIR)
+
+if (${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
+    message("ZEditor: Debug mode")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC Z_DEBUG)
+endif ()

@@ -3,11 +3,18 @@
 //
 
 #include "zVulkanContext.h"
-#include "vulkan/vulkan.hpp"
+
+#ifdef Z_DEBUG
+constexpr bool enableValidationLayers = true;
+#else
+constexpr bool enableValidationLayers = false;
+#endif
+
 
 namespace Z {
-	zVulkanContext::zVulkanContext(GLFWwindow *w):windowHandle(w) {
+	zVulkanContext::zVulkanContext(GLFWwindow *w) : windowHandle(w) {
 		Z_CORE_ASSERT(windowHandle, "window handle is null!!!");
+
 	}
 
 }

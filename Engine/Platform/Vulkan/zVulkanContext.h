@@ -8,9 +8,12 @@
 #include "Z/Core/Log.h"
 #include "Z/Renderer/zGraphicContext.h"
 #include "GLFW/glfw3.h"
+#include "vulkan/vulkan.hpp"
 namespace Z {
 	class zVulkanContext : public zGraphicContext {
 		GLFWwindow* windowHandle;
+		vk::Instance instance;
+		vk::PhysicalDevice physicalDevice;
 	public:
 		virtual void Init()override;
 		zVulkanContext(GLFWwindow*w);
