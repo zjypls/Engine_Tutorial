@@ -40,7 +40,6 @@ namespace Z {
 		static std::string GetDefaultName();
 		static inline bool Exists(const std::string& name){return Shaders.find(name)!=Shaders.end();}
 	};
-
 }
 
 

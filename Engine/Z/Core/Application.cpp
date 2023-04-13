@@ -13,24 +13,24 @@
 #include <filesystem>
 
 namespace Z {
-	Application* Application::application=nullptr;
+	Application *Application::application = nullptr;
 
-	Application::Application(const ApplicationSpec&spec): Spec(spec){
-		Z_CORE_ASSERT(!application,"Application already exists!")
-		application=this;
-		Z_CORE_WARN("Current path{0}!",spec.commandArgs.Args[0]);
-		if(!Spec.RootPath.empty()){
+	Application::Application(const ApplicationSpec &spec) : Spec(spec) {
+		Z_CORE_ASSERT(!application, "Application already exists!")
+		application = this;
+		Z_CORE_WARN("Current path{0}!", spec.commandArgs.Args[0]);
+		if (!Spec.RootPath.empty()) {
 			//Todo : change working directory
 			std::filesystem::current_path(Spec.RootPath);
 		}
-		window=Z::Scope<zWindow>(zWindow::Create(WindowProps(spec.Name)));
+		window = Z::Scope<zWindow>(zWindow::Create(WindowProps(spec.Name)));
 		window->SetEventCallFunc(Z_BIND_EVENT_FUNC(Application::EventCall));
 
 		Z::ScriptEngine::Init();
 		Renderer::Init();
 
 		window->SetVSync(false);
-		imguiLayer=new ImGuiLayer();
+		imguiLayer = new ImGuiLayer();
 		PushLayer(imguiLayer);
 	}
 
@@ -42,18 +42,23 @@ namespace Z {
 	}
 
 	void Application::Run() {
-		while(Running){
+		while (Running) {
 			Z::Time::Update();
 			imguiLayer->Begin();
-			if(!MinSize){
+			if (!MinSize) {
 				for (Layer *layer: LayerStack) {
 					layer->OnUpdate();
 				}
 			}
-			for(Layer* layer:LayerStack){
+			for (Layer *layer: LayerStack) {
 				layer->OnImGuiRender();
 			}
 			imguiLayer->End();
+
+			for (auto &func: FuncQueue) {
+				func();
+			}
+			FuncQueue.clear();
 
 			window->Update();
 		}
@@ -63,9 +68,9 @@ namespace Z {
 		EventDispatcher dispatcher(e);
 		dispatcher.Handle<WindowCloseEvent>(Z_BIND_EVENT_FUNC(Application::OnWindowClose));
 		dispatcher.Handle<WindowResizeEvent>(Z_BIND_EVENT_FUNC(Application::OnWindowResize));
-		for(auto it=LayerStack.end();it!=LayerStack.begin();){
+		for (auto it = LayerStack.end(); it != LayerStack.begin();) {
 			(*--it)->OnEvent(e);
-			if(e.Handled){
+			if (e.Handled) {
 				break;
 			}
 		}
@@ -86,18 +91,18 @@ namespace Z {
 	}
 
 	bool Application::OnWindowClose(WindowCloseEvent &e) {
-		Running=false;
-		Z_CORE_INFO("{0}",e);
+		Running = false;
+		Z_CORE_INFO("{0}", e);
 		return true;
 	}
 
 	bool Application::OnWindowResize(WindowResizeEvent &e) {
-		if(e.GetWidth()==0||e.GetHeight()==0){
-			MinSize=true;
+		if (e.GetWidth() == 0 || e.GetHeight() == 0) {
+			MinSize = true;
 			return false;
 		}
-		MinSize=false;
-		Renderer::OnWindowResize(e.GetWidth(),e.GetHeight());
+		MinSize = false;
+		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
 		return false;
 	}
 

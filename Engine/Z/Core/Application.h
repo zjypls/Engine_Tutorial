@@ -52,7 +52,10 @@ namespace Z {
 		inline ApplicationSpec& GetSpec(){return Spec;}
 		static Application& Get();
 		inline zWindow& GetWindow(){return *application->window;}
+		inline void SubmitFunc(const std::function<void()>& func){std::scoped_lock<std::mutex> lock(QueueMutex);FuncQueue.push_back(func);}
 	private:
+		std::vector<std::function<void()>> FuncQueue;
+		std::mutex QueueMutex;
 		static Application* application;
 
     };

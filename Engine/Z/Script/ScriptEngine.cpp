@@ -8,10 +8,12 @@
 #include "ScriptEngine.h"
 #include "ScriptReg.h"
 #include "Z/Scene/Entity.h"
+#include "Z/Core/Application.h"
 #include "mono/jit/jit.h"
 #include "mono/metadata/assembly.h"
 #include "mono/metadata/attrdefs.h"
 #include "mono/metadata/debug-helpers.h"
+#include "filewatch/filewatch.h"
 
 
 namespace std {
@@ -120,28 +122,42 @@ namespace Z {
 
 	}
 
-
 	struct ScriptEngineData {
 		MonoDomain *rootDomain = nullptr, *appDomain = nullptr;
 		MonoAssembly *assembly = nullptr;
 		Ref<ScriptClass> Class = nullptr;
 		MonoImage *image = nullptr, *appImage = nullptr;
 		Scene *scene = nullptr;
+		std::filesystem::path CoreAssemblyPath,AppAssemblyPath;
 
 		std::unordered_map<std::string, Ref<ScriptClass>> EntityClasses;
 		std::unordered_map<GUID, Ref<ScriptInstance>> EntityInstances;
 		using FieldMap = std::unordered_map<std::string, ScriptFieldBuffer>;
 		using EntityWithClass = std::pair<GUID, ScriptClass>;
 		std::unordered_map<EntityWithClass, FieldMap> EntityFields;
+		Scope<filewatch::FileWatch<std::string>> AppCoreWatch;
+		bool HasReloadApp=false;
 	};
 	static ScriptEngineData *scriptData;
 
 	void ScriptEngine::Init() {
 		scriptData = new ScriptEngineData();
 		MonoInit();
-		LoadCoreAssembly(Temp::LoadMonoAssembly("Bin-C/MSVC/ScriptCore.dll"));
+		LoadCoreAssembly(Temp::LoadMonoAssembly(scriptData->CoreAssemblyPath));
 		ScriptReg::Reg();
 		ScriptReg::RegComponents();
+		scriptData->AppCoreWatch= CreateScope<filewatch::FileWatch<std::string>>(scriptData->AppAssemblyPath.string(),
+				[&](auto&str,auto action){
+			//Todo : prevent runtime reload
+			static auto lastTime = std::chrono::high_resolution_clock::now()-std::chrono::seconds(10);
+			if(auto now = std::chrono::high_resolution_clock::now();
+			now-lastTime>std::chrono::milliseconds (500)&&action==filewatch::Event::modified){
+				lastTime=now;
+				Application::Get().SubmitFunc([]{
+					ScriptEngine::ReLoadApp();
+				});
+			}
+		});
 	}
 
 	void ScriptEngine::ShutDown() {
@@ -191,6 +207,8 @@ namespace Z {
 	}
 
 	void ScriptEngine::MonoInit() {
+		scriptData->CoreAssemblyPath="Bin-C/MSVC/ScriptCore.dll";
+		scriptData->AppAssemblyPath="Bin-C/MSVC/scripts.dll";
 		mono_set_assemblies_path("mono/lib/4.5");
 		scriptData->rootDomain = mono_jit_init("ZJIT");
 		scriptData->appDomain = mono_domain_create_appdomain("ZAppDomain", nullptr);
@@ -206,12 +224,12 @@ namespace Z {
 		mono_domain_set(mono_get_root_domain(), false);
 		scriptData->appDomain = mono_domain_create_appdomain("ZAppDomain", nullptr);
 		mono_domain_set(scriptData->appDomain, false);
-		LoadCoreAssembly(Temp::LoadMonoAssembly("Bin-C/MSVC/ScriptCore.dll"));
+		LoadCoreAssembly(Temp::LoadMonoAssembly(scriptData->CoreAssemblyPath));
 		ScriptReg::Reg();
 		ScriptReg::RegComponents();
 	}
 
-	void ScriptEngine::LoadAssembly(const std::filesystem::path &path, Scene *scene) {
+	void ScriptEngine::LoadAssembly(const std::filesystem::path &path) {
 		scriptData->EntityInstances.clear();
 		scriptData->EntityFields.clear();
 		scriptData->EntityClasses.clear();
@@ -219,12 +237,6 @@ namespace Z {
 		scriptData->appImage = mono_assembly_get_image(assembly);
 		Z_CORE_ASSERT(scriptData->appImage, "ScriptEngine:LoadAssembly: Failed to load assembly");
 		GetClasses(assembly);
-		if (scene != nullptr)
-			scene->GetComponentView<ScriptComponent>().each([&](auto id, auto &scriptComponent) {
-				Entity entity{id, scene};
-				if (ClassExists(scriptComponent.scriptName))
-					RegisterEntityClassFields(entity.GetUID(), *scriptData->EntityClasses[scriptComponent.scriptName]);
-			});
 	}
 
 	MonoObject *ScriptEngine::GetInstance(MonoClass *Class) {
@@ -316,6 +328,30 @@ namespace Z {
 
 	std::unordered_map<std::string, ScriptFieldBuffer> &ScriptEngine::GetFields(GUID id, const ScriptClass &klass) {
 		return scriptData->EntityFields.at({id, klass});
+	}
+
+	void ScriptEngine::ReLoadApp() {
+		ReCreateDomain();
+		LoadAssembly(scriptData->AppAssemblyPath);
+		scriptData->HasReloadApp=true;
+	}
+
+	void ScriptEngine::ReCreateFields(Ref<Scene> scene) {
+		scene->GetComponentView<ScriptComponent>().each([&](auto id, ScriptComponent &script) {
+			Entity entity = {id, scene.get()};
+			if (ScriptEngine::ClassExists(script.scriptName)) {
+				auto &klass = scriptData->EntityClasses[script.scriptName];
+				RegisterEntityClassFields(entity.GetUID(), *klass);
+			}
+		});
+	}
+
+	bool ScriptEngine::HasReLoadApp() {
+		return scriptData->HasReloadApp;
+	}
+
+	void ScriptEngine::SetReLoadApp(bool state) {
+		scriptData->HasReloadApp = state;
 	}
 
 

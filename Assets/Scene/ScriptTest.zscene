@@ -28,8 +28,8 @@ Entities:
           FieldName: mass
           Type: System.Single
           Value: 1
-        Speed:
-          FieldName: Speed
+        Force:
+          FieldName: Force
           Type: System.Single
           Value: 60
         velicity:

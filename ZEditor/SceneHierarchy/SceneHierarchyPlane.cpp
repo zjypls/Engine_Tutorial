@@ -276,6 +276,12 @@ namespace Z {
 			static char buffer[256];
 			std::strcpy(buffer, component.scriptName.data());
 			bool exists = ScriptEngine::ClassExists(component.scriptName);
+			if(exists){
+				auto klass=ScriptEngine::GetScriptList().at(component.scriptName);
+				if(!ScriptEngine::EntityFieldExists(entity.GetUID(),*klass)){
+					ScriptEngine::RegisterEntityClassFields(entity.GetUID(),*klass);
+				}
+			}
 			ImGui::Text("Script Name:");
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
@@ -284,9 +290,6 @@ namespace Z {
 			if (ImGui::InputText("##ScriptName", buffer, 256)) {
 				component.scriptName = buffer;
 				ImGui::OpenPopup("ScriptNameList");
-				if(ScriptEngine::ClassExists(component.scriptName)){
-					ScriptEngine::RegisterEntityClassFields(entity.GetUID(),*ScriptEngine::GetScriptList().at(component.scriptName));
-				}
 			}
 			if (!exists)
 				ImGui::PopStyleColor();

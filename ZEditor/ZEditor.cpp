@@ -3,12 +3,13 @@
 //
 #include "Z/Core/Core.h"
 #include "ZEditor.h"
-#include "glm/gtc/type_ptr.hpp"
-#include "glm/gtx/matrix_decompose.hpp"
 #include "Z/Scene/SceneSerializer.h"
 #include "Z/Utils/ZUtils.h"
-#include "ImGuizmo.h"
 #include "Z/Script/ScriptEngine.h"
+#include "ImGuizmo.h"
+#include "glm/gtc/type_ptr.hpp"
+#include "glm/gtx/matrix_decompose.hpp"
+#include "filewatch/filewatch.h"
 
 
 ImVec2 operator-(const ImVec2 &lhs, const ImVec2 &rhs) {
@@ -119,6 +120,12 @@ namespace Z {
 		contentBrowser = CreateScope<ContentBrowser>();
 		//ScriptEngine::Init();
 		ScriptEngine::LoadAssembly("Bin-C/MSVC/scripts.dll");
+		//Todo:remove this test code
+//		auto* watch= new filewatch::FileWatch<std::string >("Bin-C/MSVC/scripts.dll", [this](const std::string &str, auto action) {
+//			if(action==filewatch::Event::modified){
+//				Z_CORE_INFO(str);
+//			}
+//		});
 		//ScriptEngine::ShutDown();
 
 	}
@@ -127,6 +134,11 @@ namespace Z {
 	}
 
 	void EditorLayer::OnUpdate() {
+		//Todo : change this to a better way
+		if(ScriptEngine::HasReLoadApp()){
+			ScriptEngine::ReCreateFields(scene);
+			ScriptEngine::SetReLoadApp(false);
+		}
 		frameBuffer->Bind();
 
 		RenderCommand::SetClearValue(clearValue);
@@ -232,6 +244,17 @@ namespace Z {
 				if (ImGui::MenuItem("Exit")) Application::Get().Close();
 				ImGui::EndMenu();
 			}
+			//Todo : change
+			if (ImGui::BeginMenu("Scripts")) {
+				if (ImGui::MenuItem("Reload Scripts")) {
+					if (scene->isRunning()) {
+						Z_CORE_ERROR("Try to reload scripts when scene is running!!!");
+					} else {
+						scriptReload=true;
+					}
+				}
+				ImGui::EndMenu();
+			}
 
 			ImGui::EndMenuBar();
 		}
@@ -260,25 +283,17 @@ namespace Z {
 		ImGui::Checkbox("RunTime Visualize Collider", &RunTimeVisualizeCollider);
 		ImGui::DragFloat4("Collider ActiveColor", glm::value_ptr(ActiveColor), 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat4("Collider InActiveColor", glm::value_ptr(InactiveColor), 0.01f, 0.0f, 1.0f);
-		//Todo : change to auto
-		if (ImGui::Button("Reload scripts")) {
-			if (scene->isRunning()) {
-				Z_CORE_ERROR("Try to reload scripts when scene is running!!!");
-			} else {
-				ScriptEngine::ReCreateDomain();
-				ScriptEngine::LoadAssembly("Bin-C/MSVC/scripts.dll", scene.get());
-			}
-		}
 
 		sceneHierarchyPlane->OnImGuiRender();
 		contentBrowser->OnImGuiRender();
 
 		ImGui::End();
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
-		ImGui::Begin("ViewPort", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar|
-											ImGuiWindowFlags_NoCollapse
-											|ImGuiWindowFlags_NoFocusOnAppearing |ImGuiWindowFlags_NoNavFocus |
-		                                  ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoNavInputs |ImGuiWindowFlags_NoNav);
+		ImGui::Begin("ViewPort", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar |
+		                                  ImGuiWindowFlags_NoCollapse
+		                                  | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNavFocus |
+		                                  ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoNavInputs |
+		                                  ImGuiWindowFlags_NoNav);
 		IsViewportFocused = ImGui::IsWindowFocused();
 		IsViewportHovered = ImGui::IsWindowHovered();
 		auto viewSize = ImGui::GetContentRegionAvail();
@@ -512,7 +527,7 @@ namespace Z {
 					if (shift) {
 						if (WorkPath.empty()) {
 							WorkPath = "./Untitled.zscene";
-							Z_CORE_WARN("WorkPath is empty,Save to {0}",WorkPath.string());
+							Z_CORE_WARN("WorkPath is empty,Save to {0}", WorkPath.string());
 						}
 						InnerSave(WorkPath.string());
 					} else

@@ -36,6 +36,7 @@ namespace Z {
 		Ref<Z::Texture2D> playButtonIcon, stopButtonIcon, simulateButtonIcon, currentButtonIcon0, currentButtonIcon1;
 		std::filesystem::path WorkPath{};
 		Entity selectedEntity;
+		bool scriptReload = false;
 
 		void InnerSave(const std::string &path);
 
