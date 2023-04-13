@@ -6,6 +6,7 @@
 #include "Platform/OpenGL/OpenGLRenderAPI.h"
 
 namespace Z {
+	//Todo: Add vulkan support
 	RenderAPI *RenderCommand::s_RenderAPI = new OpenGLRenderAPI();
 
 	void RenderCommand::Init() {

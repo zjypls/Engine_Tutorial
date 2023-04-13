@@ -273,7 +273,7 @@ namespace Z {
 			                                                          .05f);
 		                                         });
 		DrawComponent<ScriptComponent>("Script", entity, [](Entity entity, ScriptComponent &component) {
-			static char buffer[257];
+			static char buffer[256];
 			std::strcpy(buffer, component.scriptName.data());
 			bool exists = ScriptEngine::ClassExists(component.scriptName);
 			ImGui::Text("Script Name:");
@@ -313,8 +313,7 @@ namespace Z {
 						return;
 					auto klass = instance->GetClass();
 					auto &fields = klass->GetFields();
-					auto id=entity.GetUID();
-					unsigned char buffer[64]{0};
+					unsigned char buffer[8]{0};
 					for (const auto &[name, type]: fields) {
 						instance->GetValue(name,buffer);
 						ImGui::Text(name.c_str());

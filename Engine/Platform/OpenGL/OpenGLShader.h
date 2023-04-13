@@ -22,6 +22,7 @@ namespace Z {
 		virtual void Bind() const override;
 		virtual void UnBind() const override;
 		inline virtual std::string GetName() const override{return Name;}
+		//Todo:improve
 		virtual void SetUniform(const char* name, const glm::mat4& matrix) override;
 		virtual void SetUniform(const char* name, const glm::mat3& matrix) override;
 		virtual void SetUniform(const char* name, const glm::vec4& vector) override;

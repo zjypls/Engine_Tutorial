@@ -14,7 +14,6 @@
 namespace Z {
 	bool WindowsWindow::IsGLFWInit=false;
 	WindowsWindow::WindowsWindow(const WindowProps &props) {
-		//ToDo:init zOpenGLContext
 		Random::Init();
 		Z::Particle::Init();
 		Init(props);
@@ -110,7 +109,6 @@ namespace Z {
 
 	void WindowsWindow::Update() {
 		glfwPollEvents();
-		//ToDo: change to zGraphicContext.swapBuffers();have do
 		Context->SwapBuffers();
 	}
 

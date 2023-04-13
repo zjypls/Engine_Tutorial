@@ -16,6 +16,7 @@ namespace Z {
 		virtual void Bind() const=0;
 		virtual void UnBind() const=0;
 		[[nodiscard]] virtual std::string GetName() const=0;
+		//Todo:improve
 		virtual void SetUniform(const char* name, int value)=0;
 		virtual void SetUniform(const char* name, float value)=0;
 		virtual void SetUniform(const char* name, const glm::vec3& value)=0;
@@ -25,7 +26,7 @@ namespace Z {
 		virtual void SetUniform(const char* name, const glm::mat3& value)=0;
 	};
 
-
+	//Todo : change into as aprt of  assets manager
 	class ShaderLibrary{
 		static std::unordered_map<std::string, std::shared_ptr<Shader>> Shaders;
 	public:

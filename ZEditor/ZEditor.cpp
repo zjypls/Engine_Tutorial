@@ -24,7 +24,7 @@ ImVec2 operator/(const ImVec2 &lhs, const ImVec2 &rhs) {
 }
 
 namespace Z {
-	EditorLayer::EditorLayer() : Layer("EditorLayer"), controller(1200.f / 800.0f) {
+	EditorLayer::EditorLayer() : Layer("EditorLayer") {
 
 	}
 
@@ -85,18 +85,7 @@ namespace Z {
 		currentButtonIcon0 = playButtonIcon;
 		currentButtonIcon1 = simulateButtonIcon;
 		/*
-		//Todo: To be removed
-		cameraEntity = scene->CreateEntity("Camera");
-		cameraEntity.AddComponent<CameraComponent>(glm::ortho(-16.f, 16.f, -9.f, 9.f, -1.f, 1.f));
-		SecondCamera = scene->CreateEntity("SecondCamera");
-		SecondCamera.AddComponent<CameraComponent>(glm::ortho(-1.f, 1.f, -1.f, 1.f, -1.f, 1.f));
-		SecondCamera.GetComponent<CameraComponent>().primary = false;
-		entity = scene->CreateEntity("Square");
-		entity.AddComponent<SpriteRendererComponent>(glm::vec4{1, 0, 0, 1});
-		auto newSquare = scene->CreateEntity("NewSquare");
-		newSquare.AddComponent<SpriteRendererComponent>(glm::vec4{0, 1, 0, 1});
-
-
+		//a native C++  script
 		class CameraCtrl : public ScriptEntity {
 		public:
 			void OnCreate() {
@@ -124,8 +113,6 @@ namespace Z {
 			}
 		};
 
-		cameraEntity.AddComponent<ScriptComponent>().Bind<CameraCtrl>();
-		SecondCamera.AddComponent<ScriptComponent>().Bind<CameraCtrl>();
 */
 
 		sceneHierarchyPlane = CreateScope<SceneHierarchyPlane>(scene);
@@ -150,7 +137,6 @@ namespace Z {
 		switch (sceneState) {
 			case SceneState::Edit: {
 				if (IsViewportFocused && IsViewportHovered) {
-					controller.OnUpdate(Time::DeltaTime());
 					editorCamera.OnUpdate();
 				}
 				scene->OnEditorUpdate(Time::DeltaTime(), editorCamera);
@@ -162,7 +148,6 @@ namespace Z {
 			}
 			case SceneState::Simulate: {
 				if (IsViewportFocused && IsViewportHovered) {
-					controller.OnUpdate(Time::DeltaTime());
 					editorCamera.OnUpdate();
 				}
 				scene->OnSimulateUpdate(Time::DeltaTime(), editorCamera);
@@ -194,13 +179,10 @@ namespace Z {
 
 	//Todo : To be optimized
 	void EditorLayer::OnImGuiRender() {
-		static bool dockspaceOpen = true;
-		static bool opt_fullscreen_persistant = true;
-		bool opt_fullscreen = opt_fullscreen_persistant;
 		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-		if (opt_fullscreen) {
+		{
 			ImGuiViewport *viewport = ImGui::GetMainViewport();
 			ImGui::SetNextWindowPos(viewport->Pos);
 			ImGui::SetNextWindowSize(viewport->Size);
@@ -216,13 +198,12 @@ namespace Z {
 			window_flags |= ImGuiWindowFlags_NoBackground;
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		static bool dockspaceOpen = true;
 		ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
 
 
-		ImGui::PopStyleVar();
+		ImGui::PopStyleVar(3);
 
-		if (opt_fullscreen)
-			ImGui::PopStyleVar(2);
 
 		ImGuiIO &io = ImGui::GetIO();
 		auto &style = ImGui::GetStyle();
@@ -294,11 +275,10 @@ namespace Z {
 
 		ImGui::End();
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
-		ImGui::Begin("ViewPort", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar |
-		                                  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing |
-		                                  ImGuiWindowFlags_NoNavFocus |
-		                                  ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoNavInputs |
-		                                  ImGuiWindowFlags_NoNav);
+		ImGui::Begin("ViewPort", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar|
+											ImGuiWindowFlags_NoCollapse
+											|ImGuiWindowFlags_NoFocusOnAppearing |ImGuiWindowFlags_NoNavFocus |
+		                                  ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoNavInputs |ImGuiWindowFlags_NoNav);
 		IsViewportFocused = ImGui::IsWindowFocused();
 		IsViewportHovered = ImGui::IsWindowHovered();
 		auto viewSize = ImGui::GetContentRegionAvail();
@@ -323,7 +303,6 @@ namespace Z {
 			frameBuffer->Resize(viewportSize.x, viewportSize.y);
 			scene->OnViewportResize(viewportSize.x, viewportSize.y);
 			editorCamera.SetViewportSize(viewportSize.x, viewportSize.y);
-			controller.OnResize(viewportSize.x, viewportSize.y);
 		}
 		if (ImGui::BeginDragDropTarget()) {
 			if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")) {
@@ -424,9 +403,6 @@ namespace Z {
 	}
 
 	void EditorLayer::OnEvent(Event &event) {
-		{//Todo: remove this
-			controller.OnEvent(event);
-		}
 		if (IsViewportHovered && IsViewportFocused) {
 			editorCamera.OnEvent(event);
 		}
@@ -535,8 +511,8 @@ namespace Z {
 				if (control)
 					if (shift) {
 						if (WorkPath.empty()) {
-							Z_CORE_WARN("WorkPath is empty Save to ./Untitled.zscene");
 							WorkPath = "./Untitled.zscene";
+							Z_CORE_WARN("WorkPath is empty,Save to {0}",WorkPath.string());
 						}
 						InnerSave(WorkPath.string());
 					} else
@@ -611,7 +587,6 @@ namespace Z {
 						Renderer2D::DrawCircle(trans, *(int *) (circle2D.ptr) ? ActiveColor : InactiveColor);
 					});
 		}
-		//Todo: To be optimized
 		Renderer2D::ChangeDepthTest(RenderAPI::DepthTestState::Always);
 		Renderer2D::EndScene();
 		Renderer2D::ChangeDepthTest();

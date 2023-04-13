@@ -75,6 +75,7 @@ namespace Z {
 
 		//set style
 		//set platform and renderer
+		//Todo : move to platform
 		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow *) Application::Get().GetWindow().GetNativeWindow(), true);
 		ImGui_ImplOpenGL3_Init("#version 410");
 	}

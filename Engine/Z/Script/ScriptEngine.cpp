@@ -4,7 +4,6 @@
 
 #include<fstream>
 #include <filesystem>
-#include <iostream>
 #include <utility>
 #include "ScriptEngine.h"
 #include "ScriptReg.h"
@@ -23,10 +22,10 @@ namespace std {
 		}
 	};
 
-	bool operator==(const std::pair<Z::GUID, Z::ScriptClass> &a, const std::pair<Z::GUID, Z::ScriptClass> &b) {
-		return a.first == b.first && a.second == b.second;
-	}
 
+}
+bool operator==(const std::pair<Z::GUID, Z::ScriptClass> &a, const std::pair<Z::GUID, Z::ScriptClass> &b) {
+	return a.first == b.first && a.second == b.second;
 }
 
 std::string Z::FieldTypeToString(ScriptFieldType type) {
@@ -199,7 +198,6 @@ namespace Z {
 	}
 
 	void ScriptEngine::MonoShutDown() {
-		//mono_domain_unload(scriptData->appDomain);
 		mono_jit_cleanup(scriptData->rootDomain);
 	}
 
@@ -246,7 +244,6 @@ namespace Z {
 	}
 
 	void ScriptEngine::OnRuntimeStart(Scene *scene) {
-		//scriptData->appDomain= mono_domain_create_appdomain("ZAppDomain", nullptr);
 		mono_domain_set(scriptData->appDomain, false);
 		scriptData->scene = scene;
 	}
@@ -261,7 +258,6 @@ namespace Z {
 	void ScriptEngine::OnRuntimeStop() {
 		scriptData->EntityInstances.clear();
 		mono_domain_finalize(scriptData->appDomain, 1000);
-		//mono_domain_unload(scriptData->appDomain);
 		scriptData->scene = nullptr;
 	}
 
@@ -368,7 +364,6 @@ namespace Z {
 		instance = Class->GetInstance();
 		construct = scriptData->Class->GetMethod(".ctor", 1);
 		unsigned long long id = entity.GetUID();
-		auto &a = scriptData->EntityFields;
 		const auto &bufferPair = scriptData->EntityFields.find(std::pair{id, *Class});
 		const auto &bufferMap = bufferPair->second;
 		unsigned char buffer[8]{0};
