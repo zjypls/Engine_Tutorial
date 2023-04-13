@@ -55,5 +55,11 @@ namespace Z
         
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern string[] Entity_GetScripts(ulong id);
+        
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern float Entity_GetMass(ulong id);
+        
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern float Entity_SetMass(ulong id,float mass);
     }
 }

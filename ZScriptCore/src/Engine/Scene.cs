@@ -37,6 +37,18 @@
             }
             set { Internal.Entity_SetRigidBody2DPosition(EntityCore.ID, ref value); }
         }
+
+        public float Mass
+        {
+            get
+            {
+                return Internal.Entity_GetMass(EntityCore.ID);
+            }
+            set
+            {
+                Internal.Entity_SetMass(EntityCore.ID, value);
+            }
+        }
         public void ApplyForce(Vector2 force,Vector2 point,bool wake = true)
         {
             Internal.Entity_ApplyForce(EntityCore.ID, ref force,ref point,wake);

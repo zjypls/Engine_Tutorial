@@ -90,6 +90,15 @@ namespace Z {
 		mono_array_set(array,MonoString*,0,mono_string_new(ScriptEngine::GetDomain(),scripts.c_str()));
 		return array;
 	}
+	float Entity_GetMass(GUID id){
+		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
+		return body->GetMass();
+	}
+	void Entity_SetMass(GUID id,float mass){
+		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
+		b2MassData data{mass,body->GetLocalCenter(),body->GetInertia()};
+		body->SetMassData(&data);
+	}
 
 
 	template<class... T>
@@ -125,6 +134,7 @@ namespace Z {
 		Z_INTERNAL_FUNC(Entity_GetRigidBody2DPosition);
 		Z_INTERNAL_FUNC(Entity_SetRigidBody2DPosition);
 		Z_INTERNAL_FUNC(Entity_GetScripts);
+		Z_INTERNAL_FUNC(Entity_GetMass);
 	}
 
 	void ScriptReg::RegComponents() {

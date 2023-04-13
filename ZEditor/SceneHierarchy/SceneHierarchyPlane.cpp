@@ -284,6 +284,9 @@ namespace Z {
 			if (ImGui::InputText("##ScriptName", buffer, 256)) {
 				component.scriptName = buffer;
 				ImGui::OpenPopup("ScriptNameList");
+				if(ScriptEngine::ClassExists(component.scriptName)){
+					ScriptEngine::RegisterEntityClassFields(entity.GetUID(),*ScriptEngine::GetScriptList().at(component.scriptName));
+				}
 			}
 			if (!exists)
 				ImGui::PopStyleColor();
@@ -300,7 +303,7 @@ namespace Z {
 				if (ScriptEngine::ClassExists(component.scriptName)) {
 					if (auto klass = ScriptEngine::GetScriptList().at(
 								component.scriptName);!ScriptEngine::EntityFieldExists(entity.GetUID(), *klass))
-						ScriptEngine::RegisterEntityClass(entity.GetUID(), *klass);
+						ScriptEngine::RegisterEntityClassFields(entity.GetUID(), *klass);
 				}
 			}
 			if (exists)

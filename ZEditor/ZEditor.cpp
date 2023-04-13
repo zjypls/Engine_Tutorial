@@ -149,7 +149,7 @@ namespace Z {
 
 		switch (sceneState) {
 			case SceneState::Edit: {
-				if (IsViewportFocused&&IsViewportHovered) {
+				if (IsViewportFocused && IsViewportHovered) {
 					controller.OnUpdate(Time::DeltaTime());
 					editorCamera.OnUpdate();
 				}
@@ -161,7 +161,7 @@ namespace Z {
 				break;
 			}
 			case SceneState::Simulate: {
-				if (IsViewportFocused&&IsViewportHovered) {
+				if (IsViewportFocused && IsViewportHovered) {
 					controller.OnUpdate(Time::DeltaTime());
 					editorCamera.OnUpdate();
 				}
@@ -279,6 +279,15 @@ namespace Z {
 		ImGui::Checkbox("RunTime Visualize Collider", &RunTimeVisualizeCollider);
 		ImGui::DragFloat4("Collider ActiveColor", glm::value_ptr(ActiveColor), 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat4("Collider InActiveColor", glm::value_ptr(InactiveColor), 0.01f, 0.0f, 1.0f);
+		//Todo : change to auto
+		if (ImGui::Button("Reload scripts")) {
+			if (scene->isRunning()) {
+				Z_CORE_ERROR("Try to reload scripts when scene is running!!!");
+			} else {
+				ScriptEngine::ReCreateDomain();
+				ScriptEngine::LoadAssembly("Bin-C/MSVC/scripts.dll", scene.get());
+			}
+		}
 
 		sceneHierarchyPlane->OnImGuiRender();
 		contentBrowser->OnImGuiRender();

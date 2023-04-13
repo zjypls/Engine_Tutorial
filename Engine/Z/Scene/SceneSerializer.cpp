@@ -380,7 +380,7 @@ namespace Z {
 				script.scriptName = scriptComponent["ScriptName"].as<std::string>();
 				if (ScriptEngine::ClassExists(script.scriptName)) {
 					auto klass = ScriptEngine::GetScriptList().at(script.scriptName);
-					ScriptEngine::RegisterEntityClass(id, *klass);
+					ScriptEngine::RegisterEntityClassFields(id, *klass);
 					auto &buffers = ScriptEngine::GetFields(id, *klass);
 					auto fields = scriptComponent["ScriptFields"];
 					if (fields) {

@@ -4,19 +4,24 @@ public class Player : EntityCore
 {
     TransformComponent transform;
     RigidBody2DComponent rigidBody;
+    public float mass = 1.0f;
     public float Speed = 980.0f;
     public Vector2 velicity = Vector2.Zero;
 
     void OnCreate()
     {
+        Log.log($"Player({ID}): Create");
         transform = GetComponent<TransformComponent>();
         rigidBody = GetComponent<RigidBody2DComponent>();
+        if (rigidBody != null)
+        {
+            mass = rigidBody.Mass;
+        }
     }
 
     void OnUpdate(float deltaTime)
     {
         Vector2 vec = Vector2.Zero;
-        Vector2 pos;
         if (Input.IsKeyPressed(KeyCode.W))
         {
             vec.y = 1;
@@ -40,12 +45,12 @@ public class Player : EntityCore
         {
             velicity = rigidBody.velocity;
             if (vec.x != 0 || vec.y != 0)
-                rigidBody.ApplyForce(vec * (deltaTime * Speed));
+                rigidBody.ApplyForce(vec * (deltaTime * Speed / mass));
         }
     }
 
     ~Player()
     {
-        Log.log("Player destroyed");
+        Log.log($"Player({ID}): Destroy");
     }
 }

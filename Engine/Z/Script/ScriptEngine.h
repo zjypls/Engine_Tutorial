@@ -140,10 +140,11 @@ namespace Z {
 		virtual ~ScriptEngine() = default;
 
 		static void Init();
+		static void ReCreateDomain();
 
 		static void ShutDown();
 
-		static void LoadAssembly(const std::filesystem::path &path);
+		static void LoadAssembly(const std::filesystem::path &path,Scene* scene= nullptr);
 
 		static void OnRuntimeStart(Scene *scene);
 
@@ -162,7 +163,7 @@ namespace Z {
 
 		static bool ClassExists(const std::string &name);
 		static bool EntityFieldExists(GUID id,ScriptClass&klass);
-		static void RegisterEntityClass(GUID id,ScriptClass&klass);
+		static void RegisterEntityClassFields(GUID id, ScriptClass&klass);
 		static std::unordered_map<std::string,ScriptFieldBuffer>&GetFields(GUID id,const ScriptClass&klass);
 
 		static MonoImage *GetCoreImage();

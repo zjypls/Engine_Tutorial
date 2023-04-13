@@ -9,7 +9,7 @@ public class Camera : EntityCore
 
     void OnCreate()
     {
-        Log.log("Camera created");
+        Log.log($"Camera({ID}): created");
         transform = GetComponent<TransformComponent>();
         var entities = GetEntitiesByName("Player");
         foreach (var id in entities)
@@ -37,5 +37,9 @@ public class Camera : EntityCore
         var playerPos=player?.GetComponent<TransformComponent>().translation;
         if(playerPos!=null)
             transform.translation=playerPos.Value + new Vector3(0,0,distance);
+    }
+    ~Camera()
+    {
+        Log.log($"Camera({ID}): destroyed");
     }
 }
