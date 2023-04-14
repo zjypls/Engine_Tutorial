@@ -15,9 +15,9 @@
 namespace Z {
 	class EditorLayer : public Layer {
 		enum class SceneState {
-			Edit, Play, Simulate
+			Edit, Play, Simulate,Pause
 		};
-		SceneState sceneState = SceneState::Edit;
+		SceneState sceneState = SceneState::Edit,BackState=SceneState::Edit;
 		Ref<VertexArray> vertexArray;
 		Ref<Texture2D> texture[4];
 		Ref<SubTex2D> subTex;
@@ -33,10 +33,12 @@ namespace Z {
 		int currentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 		Z::EditorCamera editorCamera;
 		Scope<ContentBrowser> contentBrowser;
-		Ref<Z::Texture2D> playButtonIcon, stopButtonIcon, simulateButtonIcon, currentButtonIcon0, currentButtonIcon1;
+		Ref<Z::Texture2D> playButtonIcon, stopButtonIcon, simulateButtonIcon,pauseButtonIcon,stepButtonIcon;
+		Ref<Z::Texture2D> toolButtons[3];
 		std::filesystem::path WorkPath{};
 		Entity selectedEntity;
-		bool scriptReload = false;
+		bool scriptReload = false,nextStep=false;
+		int stepFrames=1;
 
 		void InnerSave(const std::string &path);
 

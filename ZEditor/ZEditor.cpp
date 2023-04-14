@@ -83,8 +83,11 @@ namespace Z {
 		playButtonIcon = Texture2D::CreateTexture("Assets/Icons/PlayButton.png");
 		stopButtonIcon = Texture2D::CreateTexture("Assets/Icons/StopButton.png");
 		simulateButtonIcon = Texture2D::CreateTexture("Assets/Icons/SimulateButton.png");
-		currentButtonIcon0 = playButtonIcon;
-		currentButtonIcon1 = simulateButtonIcon;
+		pauseButtonIcon = Texture2D::CreateTexture("Assets/Icons/PauseButton.png");
+		stepButtonIcon = Texture2D::CreateTexture("Assets/Icons/StepButton.png");
+		toolButtons[0] = playButtonIcon;
+		toolButtons[1] = simulateButtonIcon;
+		toolButtons[2] = stepButtonIcon;
 		/*
 		//a native C++  script
 		class CameraCtrl : public ScriptEntity {
@@ -135,7 +138,7 @@ namespace Z {
 
 	void EditorLayer::OnUpdate() {
 		//Todo : change this to a better way
-		if(ScriptEngine::HasReLoadApp()){
+		if (ScriptEngine::HasReLoadApp()) {
 			ScriptEngine::ReCreateFields(scene);
 			ScriptEngine::SetReLoadApp(false);
 		}
@@ -146,28 +149,32 @@ namespace Z {
 
 		frameBuffer->ClearAttachment(1, -1);
 
-		switch (sceneState) {
-			case SceneState::Edit: {
-				if (IsViewportFocused && IsViewportHovered) {
-					editorCamera.OnUpdate();
+		{
+			SceneState state = sceneState;
+			if (state == SceneState::Pause)
+				state = BackState;
+			switch (state) {
+				case SceneState::Edit: {
+					if (IsViewportFocused && IsViewportHovered) {
+						editorCamera.OnUpdate();
+					}
+					scene->OnEditorUpdate(Time::DeltaTime(), editorCamera);
+					break;
 				}
-				scene->OnEditorUpdate(Time::DeltaTime(), editorCamera);
-				break;
-			}
-			case SceneState::Play: {
-				scene->OnUpdate(Time::DeltaTime());
-				break;
-			}
-			case SceneState::Simulate: {
-				if (IsViewportFocused && IsViewportHovered) {
-					editorCamera.OnUpdate();
+				case SceneState::Play: {
+					scene->OnUpdate(Time::DeltaTime());
+					break;
 				}
-				scene->OnSimulateUpdate(Time::DeltaTime(), editorCamera);
-				break;
+				case SceneState::Simulate: {
+					if (IsViewportFocused && IsViewportHovered) {
+						editorCamera.OnUpdate();
+					}
+					scene->OnSimulateUpdate(Time::DeltaTime(), editorCamera);
+					break;
+				}
 			}
+			OnDebugShow();
 		}
-		OnDebugShow();
-
 		if (selectedEntity = sceneHierarchyPlane->GetSelectedEntity();
 				(sceneState == SceneState::Edit && IsViewportFocused && IsViewportHovered && !ImGuizmo::IsOver()) &&
 				((selectedEntity && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) ||
@@ -250,7 +257,7 @@ namespace Z {
 					if (scene->isRunning()) {
 						Z_CORE_ERROR("Try to reload scripts when scene is running!!!");
 					} else {
-						scriptReload=true;
+						scriptReload = true;
 					}
 				}
 				ImGui::EndMenu();
@@ -283,6 +290,7 @@ namespace Z {
 		ImGui::Checkbox("RunTime Visualize Collider", &RunTimeVisualizeCollider);
 		ImGui::DragFloat4("Collider ActiveColor", glm::value_ptr(ActiveColor), 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat4("Collider InActiveColor", glm::value_ptr(InactiveColor), 0.01f, 0.0f, 1.0f);
+		ImGui::DragInt("StepFrameCount", &stepFrames, 1, 1, 100);
 
 		sceneHierarchyPlane->OnImGuiRender();
 		contentBrowser->OnImGuiRender();
@@ -290,10 +298,9 @@ namespace Z {
 		ImGui::End();
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
 		ImGui::Begin("ViewPort", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar |
-		                                  ImGuiWindowFlags_NoCollapse
-		                                  | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNavFocus |
-		                                  ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoNavInputs |
-		                                  ImGuiWindowFlags_NoNav);
+		                                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoNav |
+		                                  ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNavFocus |
+		                                  ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoNavInputs);
 		IsViewportFocused = ImGui::IsWindowFocused();
 		IsViewportHovered = ImGui::IsWindowHovered();
 		auto viewSize = ImGui::GetContentRegionAvail();
@@ -393,21 +400,47 @@ namespace Z {
 		ImGui::BeginDisabled(!scene);
 		float size = ImGui::GetWindowHeight() - 4;
 		ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x / 2 - ImGui::GetWindowHeight());
-		if (ImGui::ImageButton((ImTextureID) currentButtonIcon0->GetRendererID(), ImVec2{size, size}, ImVec2{0, 1},
-		                       ImVec2{1, 0}) && sceneState != SceneState::Simulate) {
+		if (ImGui::ImageButton((ImTextureID) toolButtons[0]->GetRendererID(), ImVec2{size, size}, ImVec2{0, 1},
+		                       ImVec2{1, 0})) {
 			if (sceneState == SceneState::Edit) {
 				OnPlay();
-			} else if (sceneState == SceneState::Play) {
+			} else {
 				OnStop();
 			}
 		}
 		ImGui::SameLine();
-		if (ImGui::ImageButton((ImTextureID) currentButtonIcon1->GetRendererID(), ImVec2{size, size}, ImVec2{0, 1},
-		                       ImVec2{1, 0}) && sceneState != SceneState::Play) {
+		if (ImGui::ImageButton((ImTextureID) toolButtons[1]->GetRendererID(), ImVec2{size, size}, ImVec2{0, 1},
+		                       ImVec2{1, 0})) {
 			if (sceneState == SceneState::Edit) {
 				OnSimulate();
-			} else if (sceneState == SceneState::Simulate) {
-				OnStop();
+			} else if (sceneState != SceneState::Pause) {
+				BackState = sceneState;
+				sceneState = SceneState::Pause;
+				scene->SetPaused(true);
+				nextStep = false;
+				toolButtons[1] = playButtonIcon;
+			} else {
+				sceneState = BackState;
+				scene->SetPaused(false);
+				toolButtons[1] = pauseButtonIcon;
+				nextStep = false;
+			}
+		}
+		ImGui::EndDisabled();
+		ImGui::SameLine();
+		ImGui::BeginDisabled(sceneState == SceneState::Edit);
+		if (ImGui::ImageButton((ImTextureID) toolButtons[2]->GetRendererID(), ImVec2{size, size}, ImVec2{0, 1},
+		                       ImVec2{1, 0})) {
+			if (sceneState == SceneState::Pause) {
+				scene->SetPaused(true);
+				scene->SetFrameStepCount(stepFrames);
+				nextStep = true;
+			} else {
+				BackState = sceneState;
+				sceneState = SceneState::Pause;
+				nextStep = false;
+				scene->SetPaused(true);
+				scene->SetFrameStepCount(0);
 			}
 		}
 		ImGui::EndDisabled();
@@ -438,7 +471,7 @@ namespace Z {
 
 	void EditorLayer::SaveHotKey() {
 		if (sceneState != SceneState::Edit) {
-			Z_CORE_WARN("Try to Save Scene not in Edit Mode");
+			Z_CORE_WARN("Trying to Save Scene not in Edit Mode!!!");
 			return;
 		}
 		if (!WorkPath.empty()) {
@@ -489,7 +522,8 @@ namespace Z {
 
 	void EditorLayer::OnPlay() {
 		sceneState = SceneState::Play;
-		currentButtonIcon0 = stopButtonIcon;
+		toolButtons[1] = pauseButtonIcon;
+		toolButtons[0] = stopButtonIcon;
 		BackScene = scene;
 		scene = Scene::Copy(BackScene);
 		scene->OnViewportResize(viewportSize.x, viewportSize.y);
@@ -498,13 +532,16 @@ namespace Z {
 	}
 
 	void EditorLayer::OnStop() {
-		if (sceneState == SceneState::Play) {
-			currentButtonIcon0 = playButtonIcon;
+		auto state = sceneState;
+		if(state == SceneState::Pause)
+			state=BackState;
+		if (state == SceneState::Play) {
 			scene->OnRuntimeStop();
-		} else if (sceneState == SceneState::Simulate) {
-			currentButtonIcon1 = simulateButtonIcon;
+		} else if (state == SceneState::Simulate) {
 			scene->OnSimulateStop();
 		}
+		toolButtons[1] = simulateButtonIcon;
+		toolButtons[0] = playButtonIcon;
 		sceneState = SceneState::Edit;
 		scene = BackScene;
 		sceneHierarchyPlane->SetContext(scene);
@@ -609,7 +646,8 @@ namespace Z {
 
 	void EditorLayer::OnSimulate() {
 		sceneState = SceneState::Simulate;
-		currentButtonIcon1 = stopButtonIcon;
+		toolButtons[1] = pauseButtonIcon;
+		toolButtons[0]=stopButtonIcon;
 		BackScene = scene;
 		scene = Scene::Copy(BackScene);
 		scene->OnViewportResize(viewportSize.x, viewportSize.y);

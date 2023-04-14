@@ -19,7 +19,8 @@ namespace Z {
 		friend class SceneHierarchyPlane;
 		friend class SceneSerializer;
 		void* PhysicalWorld = nullptr;
-		bool Running=false;
+		bool Running=false,Paused=false;
+		int FrameStepCount=0;
 		std::unordered_map<GUID, Entity> entities;
 		template<class Ty>
 		void OnComponentAdd(Entity entity, Ty &component);
@@ -35,6 +36,7 @@ namespace Z {
 		Scene() = default;
 		Entity GetMainCamera();
 		inline bool isRunning(){return Running;}
+		inline void SetFrameStepCount(int count){FrameStepCount=count;}
 
 		static Ref<Scene> Copy(Ref<Scene>);
 
@@ -45,7 +47,8 @@ namespace Z {
 		void OnRuntimeStop();
 		void OnSimulateStart();
 		void OnSimulateStop();
-
+		inline bool IsPaused(){return Paused;}
+		inline void SetPaused(bool paused){Paused=paused;}
 		void OnPhysics2DStart();
 		void OnPhysics2DStop();
 		template<class... T>

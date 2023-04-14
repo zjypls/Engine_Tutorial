@@ -354,6 +354,10 @@ namespace Z {
 		scriptData->HasReloadApp = state;
 	}
 
+	void ScriptEngine::RemoveEntityClassFields(GUID id, ScriptClass &klass) {
+		scriptData->EntityFields.erase({id, klass});
+	}
+
 
 	ScriptClass::ScriptClass(const std::string &nameSpace, const std::string &name)
 			: NameSpace(nameSpace), ClassName(name) {

@@ -46,13 +46,13 @@ namespace Z {
 
 
 	void Scene::OnRuntimeStart() {
-		Running=true;
+		Running = true;
 		OnPhysics2DStart();
 		OnScriptStart();
 	}
 
 	void Scene::OnRuntimeStop() {
-		Running=false;
+		Running = false;
 		OnPhysics2DStop();
 		OnScriptStop();
 	}
@@ -109,11 +109,11 @@ namespace Z {
 
 	Entity Scene::CreateEntity(const std::string &name) {
 		Entity entity{registry.create(), this};
-		auto&id= entity.AddComponent<IDComponent>();
+		auto &id = entity.AddComponent<IDComponent>();
 		entity.AddComponent<TransformComponent>();
 		auto &tag = entity.AddComponent<TagComponent>(name);
 		if (tag.tag.empty())tag.tag = "Entity";
-		entities[id.ID]=entity;
+		entities[id.ID] = entity;
 		return entity;
 	}
 
@@ -123,8 +123,8 @@ namespace Z {
 		entity.AddComponent<TransformComponent>();
 		auto &tag = entity.AddComponent<TagComponent>(name);
 		if (tag.tag.empty())tag.tag = "Entity";
-		if(entities.find(guid)==entities.end())
-			entities[guid]=entity;
+		if (entities.find(guid) == entities.end())
+			entities[guid] = entity;
 		return entity;
 	}
 
@@ -164,7 +164,8 @@ namespace Z {
 	}
 
 	void Scene::OnSimulateUpdate(float deltaTime, EditorCamera &camera) {
-		OnPhysics2DUpdate(deltaTime);
+		if (!Paused||FrameStepCount-->0)
+			OnPhysics2DUpdate(deltaTime);
 		Renderer2D::BeginScene(camera);
 		Render2D();
 		Renderer2D::EndScene();
@@ -172,9 +173,11 @@ namespace Z {
 
 	void Scene::OnUpdate(float deltaTime) {
 		Entity mainCamera = {};
-		NativeScriptUpdate(deltaTime);
-		ScriptUpdate(deltaTime);
-		OnPhysics2DUpdate(deltaTime);
+		if (!Paused ||FrameStepCount-->0) {
+			NativeScriptUpdate(deltaTime);
+			ScriptUpdate(deltaTime);
+			OnPhysics2DUpdate(deltaTime);
+		}
 		mainCamera = GetMainCamera();
 		if (!mainCamera)return;
 		Renderer2D::BeginScene(mainCamera.GetComponent<CameraComponent>().camera,

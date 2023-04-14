@@ -443,6 +443,9 @@ namespace Z {
 				ImGui::TreePop();
 			}
 			if (remove) {
+				if(std::is_same_v<Ty,ScriptComponent>){
+					ScriptEngine::RemoveEntityClassFields(entity.GetUID(),*ScriptEngine::GetScriptList().at(entity.GetComponent<ScriptComponent>().scriptName));
+				}
 				entity.RemoveComponent<Ty>();
 			}
 		}

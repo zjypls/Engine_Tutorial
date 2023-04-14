@@ -36,6 +36,9 @@ namespace Z {
 
 
 	Application::~Application() {
+		if(Z::ScriptEngine::GetContext()!=nullptr){
+			Z_CORE_WARN("Close Application in Running!!!");
+		}
 		Z::ScriptEngine::ShutDown();
 
 		Z_CORE_INFO("Application closed!");
