@@ -42,16 +42,27 @@ namespace Z
         }
         public T GetComponent<T>() where T : Component, new()
         {
-            if (HasComponent<T>()) return new T() { EntityCore = this };
+            if (HasComponent<T>()) return new T() { Entity = this };
             return null;
         }
         public ulong[] GetEntitiesByName(string name)
         {
-            return Internal.GetEntityByName(name);
+            return Internal.Entity_GetByName(name);
         }
         public EntityCore GetEntity(ulong id)
         {
             return new EntityCore(id);
         }
+        public T AddComponent<T>() where T : Component, new()
+        {
+            if (HasComponent<T>()) return GetComponent<T>();
+            Internal.Entity_AddComponent(ID, typeof(T));
+            return new T() { Entity = this };
+        }
+        //Todo:Instantiate
+        // public static T Instantiate<T>() where T : EntityCore, new()
+        // {
+        // }
+
     }
 }

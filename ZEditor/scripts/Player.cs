@@ -10,13 +10,15 @@ public class Player : EntityCore
 
     void OnCreate()
     {
-        Log.log($"Player({ID}): Create");
+        Log.log($"Player({ID}): Create");//Test
         transform = GetComponent<TransformComponent>();
         rigidBody = GetComponent<RigidBody2DComponent>();
         if (rigidBody != null)
         {
             mass = rigidBody.Mass;
         }
+
+        var rd= AddComponent<RigidBody2DComponent>();
     }
 
     void OnUpdate(float deltaTime)
@@ -39,18 +41,11 @@ public class Player : EntityCore
         {
             vec.x = 1;
         }
-
-
-        if (rigidBody != null)
-        {
-            velicity = rigidBody.velocity;
-            if (vec.x != 0 || vec.y != 0)
-                rigidBody.ApplyForce(vec * (deltaTime * Force / mass));
-        }
+        transform.translation +=new Vector3(vec * deltaTime,0);
     }
 
     ~Player()
     {
-        Log.log($"Player({ID}): Destroy");
+        Log.log($"Player({ID}): Destroy");//Test
     }
 }

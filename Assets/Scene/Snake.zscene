@@ -1,0 +1,43 @@
+Scene: Untitled
+Entities:
+  - Entity: 3155040527772333386
+    TagComponent:
+      Tag: Scebe Camera
+    TransformComponent:
+      Translation: [-0.0044670403, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 1
+        PerspectiveFOV: 0.785398185
+        PerspectiveNear: 0.00999999978
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+        Primary: true
+  - Entity: 9142601977308597247
+    TagComponent:
+      Tag: Snake
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+    ScriptComponent:
+      ScriptName: Player
+      ScriptFields:
+        mass:
+          FieldName: mass
+          Type: System.Single
+          Value: 0
+        velicity:
+          FieldName: velicity
+          Type: Z.Vector2
+          Value: [1, 1]
+        Force:
+          FieldName: Force
+          Type: System.Single
+          Value: 100

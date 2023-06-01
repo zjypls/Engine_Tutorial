@@ -25,6 +25,9 @@ namespace Z
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern bool Entity_HasComponent(ulong id, Type component);
+        
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern void Entity_AddComponent(ulong id,Type component);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern void Entity_GetVelocity(ulong id, out Vector2 vec);
@@ -39,7 +42,7 @@ namespace Z
         public static extern void Entity_ApplyForceCenter(ulong id, ref Vector2 force, bool wake);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern ulong[] GetEntityByName(string name);
+        public static extern ulong[] Entity_GetByName(string name);
         
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern string Entity_GetTag(ulong id);
@@ -61,5 +64,6 @@ namespace Z
         
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern float Entity_SetMass(ulong id,float mass);
+        
     }
 }

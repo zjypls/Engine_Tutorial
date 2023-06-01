@@ -8,6 +8,13 @@
             this.y = y;
             this.z = z;
         }
+
+        public Vector3(Vector2 xy, float z)
+        {
+            this.x = xy.x;
+            this.y = xy.y;
+            this.z = z;
+        }
     
         public float x;
         public float y;

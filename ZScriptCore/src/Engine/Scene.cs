@@ -2,7 +2,7 @@
 {
     public abstract class Component
     {
-        public EntityCore EntityCore { get; internal set; }
+        public EntityCore Entity { get; internal set; }
     }
 
     public class TransformComponent : Component
@@ -11,10 +11,10 @@
         {
             get
             {
-                Internal.GetTranslation(EntityCore.ID, out Vector3 res);
+                Internal.GetTranslation(Entity.ID, out Vector3 res);
                 return res;
             }
-            set { Internal.SetTranslation(EntityCore.ID, ref value); }
+            set { Internal.SetTranslation(Entity.ID, ref value); }
         }
     }
 
@@ -24,38 +24,38 @@
         {
             get
             {
-                Internal.Entity_GetVelocity(EntityCore.ID, out Vector2 res);
+                Internal.Entity_GetVelocity(Entity.ID, out Vector2 res);
                 return res;
             }
-            set { Internal.Entity_SetVelocity(EntityCore.ID, ref value); }
+            set { Internal.Entity_SetVelocity(Entity.ID, ref value); }
         }
         public Vector3 position
         {
             get
             {
-                return Internal.Entity_GetRigidBody2DPosition(EntityCore.ID);
+                return Internal.Entity_GetRigidBody2DPosition(Entity.ID);
             }
-            set { Internal.Entity_SetRigidBody2DPosition(EntityCore.ID, ref value); }
+            set { Internal.Entity_SetRigidBody2DPosition(Entity.ID, ref value); }
         }
 
         public float Mass
         {
             get
             {
-                return Internal.Entity_GetMass(EntityCore.ID);
+                return Internal.Entity_GetMass(Entity.ID);
             }
             set
             {
-                Internal.Entity_SetMass(EntityCore.ID, value);
+                Internal.Entity_SetMass(Entity.ID, value);
             }
         }
         public void ApplyForce(Vector2 force,Vector2 point,bool wake = true)
         {
-            Internal.Entity_ApplyForce(EntityCore.ID, ref force,ref point,wake);
+            Internal.Entity_ApplyForce(Entity.ID, ref force,ref point,wake);
         }
         public void ApplyForce(Vector2 force,bool wake = true)
         {
-            Internal.Entity_ApplyForceCenter(EntityCore.ID, ref force,wake);
+            Internal.Entity_ApplyForceCenter(Entity.ID, ref force,wake);
         }
     }
     
@@ -65,11 +65,11 @@
         {
             get
             {
-                return Internal.Entity_GetTag(EntityCore.ID);
+                return Internal.Entity_GetTag(Entity.ID);
             }
             set
             {
-                Internal.Entity_SetTag(EntityCore.ID,value);
+                Internal.Entity_SetTag(Entity.ID,value);
             }
         }
     }
@@ -78,7 +78,7 @@
     {
         public string[] scriptName
         {
-            get { return Internal.Entity_GetScripts(EntityCore.ID); }
+            get { return Internal.Entity_GetScripts(Entity.ID); }
         }
     }
     

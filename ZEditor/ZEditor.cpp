@@ -35,6 +35,7 @@ namespace Z {
 
 	void EditorLayer::OnAttach() {
 		Z_CORE_INFO("Layer:{0} Attach!", GetName());
+		//Todo:clean
 		float vertices[] = {
 				-.5f, -.5f, .0f, 0, 0, .5f, -.5f, .0f, 1, 0,
 				-.5f, .5f, .0f, 0, 1, .5f, .5f, .0f, 1, 1};
@@ -80,6 +81,7 @@ namespace Z {
 		_camera.camera.SetProjectionType(SceneCamera::ProjectionType::Perspective);
 		auto &_Transform = _sceneCamera.GetComponent<TransformComponent>();
 		_Transform.translation = {0, 0, 3};
+		//Todo:optimize with a project system
 		playButtonIcon = Texture2D::CreateTexture("Assets/Icons/PlayButton.png");
 		stopButtonIcon = Texture2D::CreateTexture("Assets/Icons/StopButton.png");
 		simulateButtonIcon = Texture2D::CreateTexture("Assets/Icons/SimulateButton.png");
@@ -122,6 +124,7 @@ namespace Z {
 		sceneHierarchyPlane = CreateScope<SceneHierarchyPlane>(scene);
 		contentBrowser = CreateScope<ContentBrowser>();
 		//ScriptEngine::Init();
+		//Todo:change this to a better way
 		ScriptEngine::LoadAssembly("Bin-C/MSVC/scripts.dll");
 		//Todo:remove this test code
 //		auto* watch= new filewatch::FileWatch<std::string >("Bin-C/MSVC/scripts.dll", [this](const std::string &str, auto action) {
@@ -467,7 +470,6 @@ namespace Z {
 			InnerSave(WorkPath.string());
 		}
 	}
-
 
 	void EditorLayer::SaveHotKey() {
 		if (sceneState != SceneState::Edit) {

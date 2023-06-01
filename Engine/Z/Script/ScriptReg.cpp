@@ -40,6 +40,7 @@ namespace Z {
 	}
 
 	static std::unordered_map<MonoType* , bool (*)(Entity)> ReflectionMap;
+	static std::unordered_map<MonoType *,void(*)(Entity)> AddComponentMap;
 
 	bool Entity_HasComponent(GUID id, MonoReflectionType *type) {
 		Entity entity = ScriptEngine::GetContext()->GetEntityWithGUID(id);
@@ -48,6 +49,19 @@ namespace Z {
 		Z_CORE_ASSERT(ReflectionMap.find(monoType) != ReflectionMap.end(), "No such type");
 		return ReflectionMap.at(monoType)(entity);
 	}
+
+	void Entity_AddComponent(GUID id,MonoReflectionType*type){
+		if(Entity_HasComponent(id,type)){
+			Z_CORE_WARN("Entity already has component:"+std::string(mono_type_get_name(mono_reflection_type_get_type(type))));
+			return;
+		}
+		Entity entity = ScriptEngine::GetContext()->GetEntityWithGUID(id);
+		Z_CORE_ASSERT(entity, "No such entity");
+		MonoType *monoType = mono_reflection_type_get_type(type);
+		Z_CORE_ASSERT(AddComponentMap.find(monoType) != AddComponentMap.end(), "No such type");
+		AddComponentMap.at(monoType)(entity);
+	}
+
 	void Entity_GetVelocity(GUID id, glm::vec2 *o) {
 		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
 		*o = glm::vec2(body->GetLinearVelocity().x, body->GetLinearVelocity().y);
@@ -65,7 +79,7 @@ namespace Z {
 		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
 		body->ApplyForceToCenter(b2Vec2(o->x,o->y),wake);
 	}
-	MonoArray* GetEntityByName(MonoString* name){
+	MonoArray* Entity_GetByName(MonoString* name){
 		std::vector<GUID> ids;
 		ScriptEngine::GetContext()->GetEntitiesByName(mono_string_to_utf8(name),ids);
 		auto array=mono_array_new(ScriptEngine::GetDomain(),mono_get_uint64_class(),ids.size());
@@ -114,8 +128,11 @@ namespace Z {
 						return;
 					}
 					ReflectionMap[type] = [](Entity entity) -> bool { return entity.HasComponent<T>(); };
+					AddComponentMap[type] = [](Entity entity) -> void { entity.AddComponent<T>(); };
 				}(), ...);
 	}
+
+
 
 
 	void ScriptReg::Reg() {
@@ -126,11 +143,12 @@ namespace Z {
 		Z_INTERNAL_FUNC(SetTranslation);
 		Z_INTERNAL_FUNC(IsKeyPressed);
 		Z_INTERNAL_FUNC(Entity_HasComponent);
+		Z_INTERNAL_FUNC(Entity_AddComponent);
 		Z_INTERNAL_FUNC(Entity_GetVelocity);
 		Z_INTERNAL_FUNC(Entity_SetVelocity);
 		Z_INTERNAL_FUNC(Entity_ApplyForce);
 		Z_INTERNAL_FUNC(Entity_ApplyForceCenter);
-		Z_INTERNAL_FUNC(GetEntityByName);
+		Z_INTERNAL_FUNC(Entity_GetByName);
 		Z_INTERNAL_FUNC(Entity_GetRigidBody2DPosition);
 		Z_INTERNAL_FUNC(Entity_SetRigidBody2DPosition);
 		Z_INTERNAL_FUNC(Entity_GetScripts);
