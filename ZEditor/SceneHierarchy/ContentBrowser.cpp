@@ -4,12 +4,13 @@
 
 #include "Z/Core/Log.h"
 #include "ContentBrowser.h"
+#include "Z/Project/Project.h"
 
 namespace Z {
 	//constexpr char *RootPath = Z_SOURCE_DIR;
 	const std::filesystem::path RootPath("./");
 
-	ContentBrowser::ContentBrowser() : currentPath(RootPath) {
+	ContentBrowser::ContentBrowser() : currentPath(Project::GetProjectRootDir()) {
 		loadIcons({"Assets/Icons/DirectoryIcon.png", "Assets/Icons/FileIcon.png"});
 	}
 

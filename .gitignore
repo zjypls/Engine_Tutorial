@@ -11,3 +11,4 @@ Bin-C/MSVC
 
 *.shaderc_glsl_vertex_shader
 *.shaderc_glsl_fragment_shader
+Bin-C/Scripts/*.dll

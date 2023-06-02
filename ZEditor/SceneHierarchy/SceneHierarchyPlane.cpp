@@ -248,7 +248,7 @@ namespace Z {
 		DrawComponent<RigidBody2DComponent>("RigidBody2D", entity, [](Entity entity, RigidBody2DComponent &component) {
 			ImGui::Checkbox("Fixed Rotation", &component.fixedRotation);
 			if (int i = (int) component.bodyType;ImGui::Combo("Body Type", &i,
-			                                                  "Static\0Dynamic\0Kinematic\0\0"))
+			                                                  "Static\0Kinematic\0Dynamic\0\0"))
 				component.bodyType = (RigidBody2DComponent::BodyType) i;
 		});
 		DrawComponent<BoxCollider2DComponent>("BoxCollider2D", entity,

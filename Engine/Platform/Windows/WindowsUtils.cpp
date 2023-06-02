@@ -4,6 +4,7 @@
 #include <Windows.h>
 #include "Z/Utils/ZUtils.h"
 #include "Z/Core/Application.h"
+#include "Z/Project/Project.h"
 #include<GLFW/glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
@@ -18,6 +19,7 @@ namespace Z {
 		ofn.lpstrFilter = filter;
 		ofn.nFilterIndex = 1;
 		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+		ofn.lpstrInitialDir = Project::GetProject()== nullptr?Z_SOURCE_DIR:Project::GetProjectRootDir().string().c_str();
 		if (GetOpenFileNameA(&ofn)) {
 			return ofn.lpstrFile;
 		}
@@ -34,6 +36,7 @@ namespace Z {
 		ofn.lpstrFilter = filter;
 		ofn.nFilterIndex = 1;
 		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+		ofn.lpstrInitialDir = Project::GetProject()== nullptr?Z_SOURCE_DIR:Project::GetProjectRootDir().string().c_str();
 		if (GetSaveFileNameA(&ofn)) {
 			return ofn.lpstrFile;
 		}

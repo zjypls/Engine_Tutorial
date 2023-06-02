@@ -17,8 +17,12 @@ public class Player : EntityCore
         {
             mass = rigidBody.Mass;
         }
-
-        var rd= AddComponent<RigidBody2DComponent>();
+        else
+        {
+            rigidBody = AddComponent<RigidBody2DComponent>();
+        }
+        //Todo:remove test code
+        Log.log($"{rigidBody?.bodyType}");
     }
 
     void OnUpdate(float deltaTime)

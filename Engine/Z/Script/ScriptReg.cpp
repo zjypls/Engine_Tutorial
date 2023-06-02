@@ -114,6 +114,16 @@ namespace Z {
 		body->SetMassData(&data);
 	}
 
+	void Entity_SetRigidBody2DType(GUID id,int type){
+		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
+		body->SetType((b2BodyType)type);
+	}
+
+	int Entity_GetRigidBody2DType(GUID id){
+		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
+		return body->GetType();
+	}
+
 
 	template<class... T>
 	void RegComponent(Type<T...>) {
@@ -153,6 +163,8 @@ namespace Z {
 		Z_INTERNAL_FUNC(Entity_SetRigidBody2DPosition);
 		Z_INTERNAL_FUNC(Entity_GetScripts);
 		Z_INTERNAL_FUNC(Entity_GetMass);
+		Z_INTERNAL_FUNC(Entity_GetRigidBody2DType);
+		Z_INTERNAL_FUNC(Entity_SetRigidBody2DType);
 	}
 
 	void ScriptReg::RegComponents() {

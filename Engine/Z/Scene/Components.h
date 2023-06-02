@@ -110,8 +110,8 @@ namespace Z {
 	struct RigidBody2DComponent{
 		enum class BodyType{
 			Static,
-			Dynamic,
-			Kinematic
+			Kinematic,
+			Dynamic
 		};
 		BodyType bodyType{BodyType::Static};
 		bool fixedRotation{false};
