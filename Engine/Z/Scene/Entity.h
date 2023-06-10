@@ -4,11 +4,11 @@
 
 #ifndef ENGINE_TUTORIAL_ENTITY_H
 #define ENGINE_TUTORIAL_ENTITY_H
-
+#include "entt.hpp"
 #include "Z/Core/Log.h"
-#include "Scene.h"
 
 namespace Z {
+	class Scene;
 	class Entity {
 		entt::entity handle = entt::null;
 		Scene *scene = nullptr;
@@ -31,44 +31,22 @@ namespace Z {
 		bool operator!=(const Entity &other) const { return !(*this == other); }
 
 		template<class Ty>
-		Ty &GetComponent() const{
-			Z_CORE_ASSERT(HasComponent<Ty>(), "Entity does not have component!");
-			return scene->registry.get<Ty>(handle);
-		}
+		Ty &GetComponent() const;
 
 		unsigned long long GetUID();
 		const std::string& GetName() const ;
 
 		template<class Ty>
-		bool HasComponent() const{
-			return scene->registry.any_of<Ty>(handle);
-		}
+		bool HasComponent() const;
 
 		template<class Ty, class ...Args>
-		Ty &AddComponent(Args &&... args) {
-			if (!HasComponent<Ty>()) {
-				auto& component= scene->registry.emplace<Ty>(handle, std::forward<Args>(args)...);
-				scene->OnComponentAdd<Ty>(*this, component);
-				return component;
-			}
-			else{
-				Z_CORE_WARN("Entity already has component:{0}!", typeid(Ty).name());
-				return GetComponent<Ty>();
-			}
-		}
+		Ty &AddComponent(Args &&... args);
 
 		template<class Ty,class ...Args>
-		Ty& AddOrReplaceComponent(Args&&... args){
-			auto&component= scene->registry.emplace_or_replace<Ty>(handle, std::forward<Args>(args)...);
-			scene->OnComponentAdd<Ty>(*this, component);
-			return component;
-		}
+		Ty& AddOrReplaceComponent(Args&&... args);
 
 		template<class Ty>
-		void RemoveComponent() {
-			Z_CORE_ASSERT(HasComponent<Ty>(), "Entity does not have component!");
-			scene->registry.remove<Ty>(handle);
-		}
+		void RemoveComponent() ;
 
 	};
 

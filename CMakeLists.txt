@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 project(Engine_Tutorial LANGUAGES CXX CSharp)
-#set(CMAKE_BUILD_TYPE RELEASE)
-set(CMAKE_BUILD_TYPE DEBUG)
+set(CMAKE_BUILD_TYPE RELEASE)
+#set(CMAKE_BUILD_TYPE DEBUG)
 
 add_definitions(-w)
 

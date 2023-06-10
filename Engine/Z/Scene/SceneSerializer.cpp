@@ -1,9 +1,9 @@
 //
 // Created by 32725 on 2023/3/30.
 //
-#include "Z/Core/Core.h"
-#include "Z/Core/Log.h"
-#include "Entity.h"
+//#include "Z/Core/Core.h"
+//#include "Z/Core/Log.h"
+#include "Entity.hpp"
 #include "Components.h"
 #include "Z/Script/ScriptEngine.h"
 #include "SceneSerializer.h"

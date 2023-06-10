@@ -7,4 +7,4 @@ Learning GameEngine with The Cherno in Youtobe
   
 ## Screen Shot:
 Editor:
-![EditorMain](./Assets/ReadMe/Pic/MainEditor.png)
+![EditorMain](./Assets/ReadMe/Gif/Editor.gif)

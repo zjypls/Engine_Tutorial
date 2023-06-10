@@ -5,7 +5,7 @@
 #ifndef ENGINE_TUTORIAL_GUID_H
 #define ENGINE_TUTORIAL_GUID_H
 
-#include <xhash>
+#include <functional>
 #include <random>
 
 namespace Z {

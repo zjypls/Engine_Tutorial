@@ -24,7 +24,7 @@ file(GLOB src CONFIGURE_DEPENDS
         Z/Renderer/*.h
         Z/Renderer/*.cpp
         Z/Debug/*.h Z/Debug/*.cpp
-        Z/Scene/*.h Z/Scene/*.cpp
+        Z/Scene/*.h Z/Scene/*.cpp Z/Scene/*.hpp
         Z/Utils/*.h
         Z/Script/*.h Z/Script/*.cpp
         ${ImGuizmoPath}/ImGuizmo.h ${ImGuizmoPath}/ImGuizmo.cpp

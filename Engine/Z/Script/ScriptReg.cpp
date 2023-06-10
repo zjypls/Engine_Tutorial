@@ -3,24 +3,25 @@
 //
 
 #include "ScriptReg.h"
-#include "Z/Core/Core.h"
-#include "Z/Core/Log.h"
-#include "Z/Core/GUID.h"
+//#include "Z/Core/Core.h"
+//#include "Z/Core/Log.h"
+//#include "Z/Core/GUID.h"
 #include "ScriptEngine.h"
-#include "Z/Scene/Entity.h"
+#include "Z/Scene/Entity.hpp"
 #include "Z/Core/Input.h"
+#include "Z/Scene/Components.h"
 #include "glm/glm.hpp"
 #include "mono/jit/jit.h"
 #include "mono/metadata/reflection.h"
 #include "box2d/b2_body.h"
 
 namespace Z {
-	void InternalCallPRT(MonoString *str) {
+	const void InternalCallPRT(MonoString *str) {
 		Z_CORE_WARN("C#: {0}", mono_string_to_utf8(str));
 	}
 
 	void InternalCallWARN(glm::vec3 *v) {
-		Z_CORE_WARN("C#: {0}", *v);
+		//Z_CORE_WARN("C#: {0}", *v);
 	}
 
 	void InternalCallDot(glm::vec3 *v, glm::vec3 *u, glm::vec3 *o) {

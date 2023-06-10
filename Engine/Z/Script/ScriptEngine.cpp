@@ -2,12 +2,13 @@
 // Created by 32725 on 2023/4/6.
 //
 
-#include<fstream>
+//#include<fstream>
 #include <filesystem>
 #include <utility>
 #include "ScriptEngine.h"
 #include "ScriptReg.h"
-#include "Z/Scene/Entity.h"
+#include "Z/Scene/Components.h"
+#include "Z/Scene/Entity.hpp"
 #include "Z/Core/Application.h"
 #include "mono/jit/jit.h"
 #include "mono/metadata/assembly.h"
@@ -85,7 +86,6 @@ namespace Z {
 
 
 		MonoAssembly *LoadMonoAssembly(const std::filesystem::path &assemblyPath) {
-			uint32_t fileSize = 0;
 			auto fileData = ReadBytes(assemblyPath);
 
 			MonoImageOpenStatus status;

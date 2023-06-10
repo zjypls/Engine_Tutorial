@@ -7,11 +7,11 @@
 #include "Z/Core/GUID.h"
 #include "entt.hpp"
 #include "Z/Renderer/EditorCamera.h"
-
+#include "Entity.h"
 
 
 namespace Z {
-
+	class Entity;
 	class Scene {
 		entt::registry registry;
 		uint32_t viewportWidth = 0, viewportHeight = 0;
