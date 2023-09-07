@@ -11,6 +11,7 @@ include_directories(Include/mono/include depends)
 
 include_directories($ENV{VK_SDK_PATH}/Include depends)
 include_directories(Include/box2d/include depends)
+link_directories($ENV{VK_SDK_PATH}/Lib)
 
 
 add_compile_definitions(GLFW_INCLUDE_NONE)
@@ -39,13 +40,13 @@ target_include_directories(Z PUBLIC depends)
 #Todo: change
 target_link_libraries(Z PUBLIC
         GLFW glad ImGui yaml Box2D
-        shaderc_shared spirv-cross-core spirv-cross-glsl
+        vulkan-1 shaderc_shared spirv-cross-core spirv-cross-glsl
         libmono-static-sgen
         Ws2_32 winmm Version Bcrypt
         )
 
 
-target_compile_definitions(Z PUBLIC Z_PLATFORM_WIN32 GLFW_INCLUDE_NONE Z_SOURCE_DIR)
+target_compile_definitions(Z PUBLIC Z_PLATFORM_WIN32 GLFW_INCLUDE_NONE Z_SOURCE_DIR Z_ENABLE_VK_VALIDATION Z_USE_OPENGL)
 
 if (CMAKE_BUILD_TYPE MATCHES DEBUG)
     message("Core:Debug mode")

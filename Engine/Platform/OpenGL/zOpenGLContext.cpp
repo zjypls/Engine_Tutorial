@@ -21,4 +21,12 @@ namespace  Z{
 	zOpenGLContext::zOpenGLContext(GLFWwindow* window) :windowHandle(window){
 		Z_CORE_ASSERT(windowHandle, "window handle is null!!!");
 	}
+
+	void zOpenGLContext::Destroy() {
+
+	}
+
+	void zOpenGLContext::PreInit() {
+
+	}
 }

@@ -18,4 +18,20 @@ namespace  Z{
 				return nullptr;
 		}
 	}
+
+	void zGraphicContext::PreInitForRenderAPI() {
+		switch(RenderAPI::GetAPI()){
+			case RenderAPI::API::OpenGL:
+				zOpenGLContext::PreInit();
+				break;
+			case RenderAPI::API::Vulkan:
+				zVulkanContext::PreInit();
+				break;
+			default:
+				Z_CORE_ERROR("Error RenderAPI");
+				Z_CORE_ASSERT(false,"Unknown API");
+				break;
+		}
+		return;
+	}
 }

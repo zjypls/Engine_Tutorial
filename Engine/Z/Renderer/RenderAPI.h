@@ -19,6 +19,7 @@ namespace Z{
 		virtual void Init()=0;
 		virtual void SetClearValue(const glm::vec4&)=0;
 		virtual void Clear()=0;
+		//Todo:remove
 		virtual void GetError()=0;
 		virtual void ChangeDepthTest(DepthTestState state=DepthTestState::Less)=0;
 		virtual void SetLineWidth(float)=0;

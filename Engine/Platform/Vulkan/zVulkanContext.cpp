@@ -4,7 +4,7 @@
 
 #include "zVulkanContext.h"
 
-#ifdef Z_DEBUG
+#ifdef Z_ENABLE_VK_VALIDATION
 constexpr bool enableValidationLayers = true;
 #else
 constexpr bool enableValidationLayers = false;
@@ -23,6 +23,19 @@ namespace Z {
 
 	void zVulkanContext::SwapBuffers() {
 
+	}
+
+	void zVulkanContext::Destroy() {
+
+
+		vkDestroyDevice(device,allocator);
+
+		vkDestroyInstance(instance,allocator);
+
+	}
+
+	void zVulkanContext::PreInit() {
+		glfwWindowHint(GLFW_CLIENT_API,GLFW_NO_API);
 	}
 
 }

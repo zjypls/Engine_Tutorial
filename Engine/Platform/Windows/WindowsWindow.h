@@ -37,7 +37,7 @@ namespace Z {
 		WData WinData;
 		static bool IsGLFWInit;
 		GLFWwindow* window;
-		zGraphicContext* Context;
+		Scope<zGraphicContext> Context;
 	};
 
 }

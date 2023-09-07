@@ -16,11 +16,15 @@ namespace Z {
 		GLFWwindow* windowHandle;
 		VkInstance instance;
 		VkPhysicalDevice physicalDevice;
+		VkDevice device;
+		VkAllocationCallbacks* allocator= nullptr;
 	public:
 		zVulkanContext(GLFWwindow*w);
+		static void PreInit();
 		void Init()override;
 
 		void SwapBuffers()override;
+		void Destroy()override;
 	};
 
 }

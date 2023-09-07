@@ -10,9 +10,11 @@ namespace Z {
 	class zOpenGLContext final:public zGraphicContext {
 		GLFWwindow* windowHandle;
 	public:
+		static void PreInit();
 		zOpenGLContext(GLFWwindow*);
 		void SwapBuffers() override;
 		void Init() override;
+		void Destroy()override;
 	};
 
 }

@@ -33,10 +33,9 @@ namespace Z {
 			Z_ASSERT(res,"failed to Init GLFW!!!");
 			IsGLFWInit=true;
 		}
-		if(RenderAPI::GetAPI()!=RenderAPI::API::OpenGL)
-			glfwWindowHint(GLFW_CLIENT_API,GLFW_NO_API);
+		zGraphicContext::PreInitForRenderAPI();
 		window= glfwCreateWindow(WinData.width,WinData.height,(WinData.title +"(" + RenderAPI::GetApiStr()+")").c_str(), nullptr, nullptr);
-		Context=new zOpenGLContext(window);
+		Context=zGraphicContext::Create(window);
 		Context->Init();
 		glfwSetWindowUserPointer(window,&WinData);
 		SetVSync(false);
