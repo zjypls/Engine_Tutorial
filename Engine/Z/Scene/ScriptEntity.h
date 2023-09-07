@@ -4,7 +4,7 @@
 
 #ifndef ENGINE_TUTORIAL_SCRIPTENTITY_H
 #define ENGINE_TUTORIAL_SCRIPTENTITY_H
-#include "Entity.h"
+#include "Entity.hpp"
 
 namespace Z {
 	class ScriptEntity {

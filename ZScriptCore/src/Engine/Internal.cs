@@ -65,5 +65,11 @@ namespace Z
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern float Entity_SetMass(ulong id,float mass);
         
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern void Entity_SetRigidBody2DType(ulong id,int type);
+        
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern int Entity_GetRigidBody2DType(ulong id);
+        
     }
 }

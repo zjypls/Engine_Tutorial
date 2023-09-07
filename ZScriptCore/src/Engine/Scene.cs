@@ -37,6 +37,25 @@
             }
             set { Internal.Entity_SetRigidBody2DPosition(Entity.ID, ref value); }
         }
+        
+        public enum RigidbodyType2D
+        {
+            Static=0,
+            Kinematic,
+            Dynamic
+        }
+
+        public RigidbodyType2D bodyType
+        {
+            set
+            {
+                Internal.Entity_SetRigidBody2DType(Entity.ID, (int) value);
+            }
+            get
+            {
+                return (RigidbodyType2D)Internal.Entity_GetRigidBody2DType(Entity.ID);
+            }
+        }
 
         public float Mass
         {

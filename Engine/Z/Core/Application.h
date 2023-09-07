@@ -4,8 +4,6 @@
 
 #ifndef ENGINE_TUTORIAL_APPLICATION_H
 #define ENGINE_TUTORIAL_APPLICATION_H
-#include "Core.h"
-#include<memory>
 #include "Z/Events/Event.h"
 #include "zWindow.h"
 #include "LayerStacks.h"

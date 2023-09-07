@@ -30,6 +30,6 @@
 #include"Z/Renderer/SubTex2D.h"
 #include"Z/Renderer/FrameBuffer.h"
 #include"Z/Scene/Scene.h"
-#include"Z/Scene/Entity.h"
+#include"Z/Scene/Entity.hpp"
 #include"Z/Scene/ScriptEntity.h"
 #endif //ENGINE_TUTORIAL_Z_H

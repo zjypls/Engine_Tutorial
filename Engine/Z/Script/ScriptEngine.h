@@ -4,9 +4,7 @@
 
 #ifndef ENGINE_TUTORIAL_SCRIPTENGINE_H
 #define ENGINE_TUTORIAL_SCRIPTENGINE_H
-
-#include "Z/Core/Core.h"
-#include "Z/Core/Log.h"
+#include <filesystem>
 #include "Z/Core/GUID.h"
 #include "Z/Scene/Scene.h"
 
@@ -64,7 +62,8 @@ namespace Z {
 		}
 
 		void SetValue(void*v){
-			std::memcpy(buffer,v,TypeSize);
+			//std::memcpy(buffer,v,TypeSize);
+			memcpy(buffer,v,TypeSize);
 		}
 		unsigned char buffer[8]{0};
 	};
