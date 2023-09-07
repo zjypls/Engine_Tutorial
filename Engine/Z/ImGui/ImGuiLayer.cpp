@@ -70,35 +70,27 @@ namespace Z {
 
 		io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
 		io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
-		io.BackendPlatformName = "imgui_impl_glfw";
+		ImGuiRendererPlatform::Init();
+		ImGuiRendererPlatform::GetRenderer()->PlatformInit();
+		//Set imgui block events
 		//io.SetAppAcceptingEvents(true);
-
-		//set style
-		//set platform and renderer
-		//Todo : move to platform
-		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow *) Application::Get().GetWindow().GetNativeWindow(), true);
-		ImGui_ImplOpenGL3_Init("#version 410");
 	}
 
 	void ImGuiLayer::OnDetach() {
 
 	}
 
-
-
 	ImGuiLayer::ImGuiLayer() : Layer("ImGuiLayer") {
 
 	}
 
 	ImGuiLayer::~ImGuiLayer() {
-		ImGui_ImplOpenGL3_Shutdown();
-		ImGui_ImplGlfw_Shutdown();
+		ImGuiRendererPlatform::GetRenderer()->Shutdown();
 		ImGui::DestroyContext();
 	}
 
 	void ImGuiLayer::Begin() {
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
+		ImGuiRendererPlatform::GetRenderer()->Begin();
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();
 	}
@@ -115,15 +107,7 @@ namespace Z {
 		io.DisplaySize = ImVec2(app.GetWindow().GetWidth(), app.GetWindow().GetHeight());
 
 		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-			GLFWwindow *backup_current_context = glfwGetCurrentContext();
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-			glfwMakeContextCurrent(backup_current_context);
-		}
+		ImGuiRendererPlatform::GetRenderer()->End();
 
 	}
 

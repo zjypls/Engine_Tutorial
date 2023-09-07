@@ -32,7 +32,7 @@ namespace Z{
 			case ShaderDataType::Bool:
 				return 1;
 		}
-		Z_CORE_ASSERT(false, "Unknown ShaderDataType!")
+		Z_CORE_ASSERT(false, "Unknown ShaderDataType!");
 		return 0;
 	}
 	Ref<VertexBuffer> VertexBuffer::Create(float *vertices, uint32_t size) {
@@ -59,7 +59,7 @@ namespace Z{
 			case RenderAPI::API::OpenGL: return CreateRef<OpenGLIndexBuffer>(indices,count);
 		}
 
-		Z_CORE_ASSERT(false,"Unknown RenderAPI!")
+		Z_CORE_ASSERT(false,"Unknown RenderAPI!");
 		return nullptr;
 	}
 
@@ -88,7 +88,7 @@ namespace Z{
 			case ShaderDataType::Bool:
 				return 1;
 		}
-		Z_CORE_ASSERT(false, "Unknown ShaderDataType!")
+		Z_CORE_ASSERT(false, "Unknown ShaderDataType!");
 		return 0;
 	}
 

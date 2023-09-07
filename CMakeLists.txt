@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
+
 project(Engine_Tutorial LANGUAGES CXX CSharp)
-#set(CMAKE_BUILD_TYPE RELEASE)
-set(CMAKE_BUILD_TYPE DEBUG)
 
 add_definitions(-w)
 
@@ -23,10 +22,10 @@ message("CMAKE_GENERATOR: ${CMAKE_GENERATOR}")
 set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Lib)
 if (${CMAKE_GENERATOR} MATCHES "Visual Studio")
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ZEditor)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_SOURCE_DIR}/Bin-C/${CMAKE_CXX_COMPILER_ID}>)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_SOURCE_DIR}/Bin-C>)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 else ()
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin-C/${CMAKE_CXX_COMPILER_ID})
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin-C)
 endif ()
 if(NOT DEFINED ENV{VK_SDK_PATH})
     message(FATAL_ERROR "Please set VK_SDK_PATH environment variable")
@@ -52,8 +51,7 @@ add_subdirectory(Engine/Include/Box2D)
 
 add_subdirectory(Engine)
 
-#add_subdirectory(Test)
 add_subdirectory(ZScriptCore)
 add_dependencies(Z glad GLFW ImGui Box2D ScriptCore)
-
 add_subdirectory(ZEditor)
+

@@ -27,6 +27,15 @@ namespace Z{
 
 		virtual void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)=0;
 		inline static API GetAPI() { return api; }
+		inline static std::string GetApiStr(){
+			#define tCASE(str) case API::str:return #str
+			switch (api) {
+				tCASE(None);
+				tCASE(OpenGL);
+				tCASE(Vulkan);
+			}
+			#undef tCASE
+		}
 	private:
 		static API api;
 	};

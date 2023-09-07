@@ -121,7 +121,7 @@ namespace Z {
 					Temp::AttachColor(Attachments[index], GL_RGBA32F, GL_RGBA, specification.samples,
 					                  specification.width, specification.height, index);
 					break;
-				default: Z_CORE_ASSERT(false, "Unknown format")
+				default: Z_CORE_ASSERT(false, "Unknown format");
 			}
 		}
 		if (depthSpec.format != FrameBufferTextureFormat::None) {
@@ -131,7 +131,7 @@ namespace Z {
 					Temp::AttachDepth(DepthID, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, specification.samples,
 					                  specification.width, specification.height);
 					break;
-				default: Z_CORE_ASSERT(false, "Unknown format")
+				default: Z_CORE_ASSERT(false, "Unknown format");
 			}
 		}
 
@@ -150,7 +150,7 @@ namespace Z {
 	}
 
 	int OpenGLFrameBuffer::GetPixel(unsigned int x, unsigned int y, unsigned int id) {
-		Z_CORE_ASSERT(id < Attachments.size(), "Invalid id")
+		Z_CORE_ASSERT(id < Attachments.size(), "Invalid id");
 		int color = -1;
 		glReadBuffer(GL_COLOR_ATTACHMENT0 + id);
 		glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &color);
@@ -158,7 +158,7 @@ namespace Z {
 	}
 
 	void OpenGLFrameBuffer::ClearAttachment(unsigned int num, int value) {
-		Z_CORE_ASSERT(num < Attachments.size(), "Invalid id")
+		Z_CORE_ASSERT(num < Attachments.size(), "Invalid id");
 		glClearTexImage(Attachments[num], 0, GL_RED_INTEGER, GL_INT, &value);
 	}
 

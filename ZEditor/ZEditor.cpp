@@ -35,6 +35,13 @@ namespace Z {
 
 	void EditorLayer::OnAttach() {
 		Z_CORE_INFO("Layer:{0} Attach!", GetName());
+		std::filesystem::path ProjectPath = Z::Utils::FileOpen("*.zPrj","Test001.zPrj",".\\Projects\\Test001");
+		if(!Project::Init(ProjectPath)){
+			Z_CORE_ASSERT(false,"Project Init Failed!");
+			return;
+		}
+		//Sample Code
+		/*
 		//Todo:clean
 		float vertices[] = {
 				-.5f, -.5f, .0f, 0, 0, .5f, -.5f, .0f, 1, 0,
@@ -125,7 +132,8 @@ namespace Z {
 		contentBrowser = CreateScope<ContentBrowser>();
 		//ScriptEngine::Init();
 		//Todo:change this to a better way
-		ScriptEngine::LoadAssembly("Bin-C/MSVC/scripts.dll");
+		ScriptEngine::LoadAssembly("Bin-C/scripts.dll");
+		LoadScene(Project::GetProjectRootDir()/Project::GetStartScene());
 		//Todo:remove this test code
 //		auto* watch= new filewatch::FileWatch<std::string >("Bin-C/MSVC/scripts.dll", [this](const std::string &str, auto action) {
 //			if(action==filewatch::Event::modified){
@@ -180,9 +188,8 @@ namespace Z {
 		}
 		if (selectedEntity = sceneHierarchyPlane->GetSelectedEntity();
 				(sceneState == SceneState::Edit && IsViewportFocused && IsViewportHovered && !ImGuizmo::IsOver()) &&
-				((selectedEntity && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) ||
+				((selectedEntity && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) ||
 				 (!selectedEntity && Input::IsMouseButtonPressed(MouseCode::ButtonLeft)))) {
-
 			auto value = frameBuffer->GetPixel(CursorPos.x, CursorPos.y);
 			selectedEntity = sceneHierarchyPlane->SetSelectedEntity(value);
 		}
@@ -279,13 +286,15 @@ namespace Z {
 		ImGui::Text("Indices: %u", stats->GetTotalIndexCount());
 		static float fps = 1.f / Time::DeltaTime();
 		static float dt = Time::DeltaTime() * 1000.f;
-		if (Time::GetFlushTime() > 1) {
-			fps = 1.f / Time::DeltaTime();
+		static uint32_t frameCount=0;
+		if (++frameCount >= 500) {
+			fps = frameCount/Time::GetFlushTime();
+			frameCount=0;
 			dt = Time::DeltaTime() * 1000.f;
 			Time::FlushTime();
 		}
 		ImGui::Text("FPS: %.0f", fps);
-		ImGui::Text("Frame Time: %.2f ms", dt);
+		ImGui::Text("Current Frame Time: %.2f ms", dt);
 		stats->Reset();
 		ImGui::End();
 		ImGui::Begin("Settings");
@@ -516,6 +525,7 @@ namespace Z {
 			InnerSave(WorkPath.string());
 		}
 		scene = CreateRef<Scene>();
+		scene->OnViewportResize(viewportSize.x,viewportSize.y);
 		sceneHierarchyPlane->SetSelectedEntity(-1);
 		sceneHierarchyPlane->SetContext(scene);
 		WorkPath = std::filesystem::path();
@@ -628,7 +638,6 @@ namespace Z {
 						             glm::rotate(glm::mat4(1.f), transformComponent.rotation.z,
 						                         glm::vec3(0, 0, 1)) * glm::scale(glm::mat4(1.f), size);
 						Renderer2D::DrawRect(trans, box2D.size, *(int *) (box2D.ptr) ? ActiveColor : InactiveColor);
-
 					});
 			scene->GetComponentView<CircleCollider2DComponent, TransformComponent>().each(
 					[&](auto &circle2D, auto &transformComponent) {

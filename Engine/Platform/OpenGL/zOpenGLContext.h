@@ -7,12 +7,12 @@
 #include "Z/Renderer/zGraphicContext.h"
 #include "GLFW/glfw3.h"
 namespace Z {
-	class zOpenGLContext :public zGraphicContext {
+	class zOpenGLContext final:public zGraphicContext {
 		GLFWwindow* windowHandle;
 	public:
 		zOpenGLContext(GLFWwindow*);
-		virtual void SwapBuffers() override;
-		virtual void Init() override;
+		void SwapBuffers() override;
+		void Init() override;
 	};
 
 }

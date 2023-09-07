@@ -8,13 +8,15 @@
 #include <string>
 #include <commdlg.h>
 
-namespace Z{
-	class Utils{
+namespace Z {
+	class Utils {
 	private:
 		friend class GUID;
+
 	public:
-		static std::string FileOpen(const char* filter);
-		static std::string FileSave(const char* filter);
+		static std::string FileOpen(const char *filter, const char *defaultOpen = "", const char *initialDir = "");
+
+		static std::string FileSave(const char *filter, const char *defaultOpen = "", const char *initialDir = "");
 	};
 
 }

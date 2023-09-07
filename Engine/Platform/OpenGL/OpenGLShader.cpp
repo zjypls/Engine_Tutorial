@@ -27,7 +27,7 @@ namespace Z {
 					return "shaderc_glsl_fragment_shader";
 				case shaderc_glsl_geometry_shader:
 					return "shaderc_glsl_geometry_shader";
-				default: Z_CORE_ASSERT(false, "Unknown shader type")
+				default: Z_CORE_ASSERT(false, "Unknown shader type");
 					return "unknown";
 			}
 		}
@@ -40,7 +40,7 @@ namespace Z {
 			} else if (type == "shaderc_glsl_geometry_shader")
 				return shaderc_glsl_geometry_shader;
 			else {
-				Z_CORE_ASSERT(false, "Unknown shader type")
+				Z_CORE_ASSERT(false, "Unknown shader type");
 				return shaderc_glsl_vertex_shader;
 			}
 		}
