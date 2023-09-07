@@ -7,10 +7,11 @@
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
-#include "Camera.h"
+#include "./Camera.h"
 #include "Z/Core/Core.h"
 #include "Z/Events/Event.h"
 #include "Z/Events/MouseEvent.h"
+#include "Z/Events/KeyEvent.h"
 #include "Z/Events/ApplicationEvent.h"
 #include "glm/gtx/transform.hpp"
 
@@ -32,12 +33,14 @@ namespace Z {
 		bool OnMouseScrolled(MouseScrollEvent &e);
 
 		bool OnWindowResized(WindowResizeEvent &e);
+		bool OnKeyPressed(KeyPressEvent&e);
 
 		void ViewRotate(const glm::vec2 offset);
 
 		void MoveFocus(const glm::vec2 offset);
 
-		void UpdatePos();
+		void UpdateCursorPos();
+		void Walk();
 
 
 	public:
