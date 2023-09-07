@@ -4,6 +4,7 @@
 #include <Windows.h>
 #include "Z/Utils/ZUtils.h"
 #include "Z/Core/Application.h"
+#include "Z/Project/Project.h"
 #include<GLFW/glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>

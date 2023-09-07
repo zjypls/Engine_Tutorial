@@ -17,4 +17,12 @@ namespace Z {
 
 	}
 
+	void zVulkanContext::Init() {
+
+	}
+
+	void zVulkanContext::SwapBuffers() {
+
+	}
+
 }

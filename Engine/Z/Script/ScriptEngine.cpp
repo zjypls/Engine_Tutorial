@@ -9,6 +9,7 @@
 #include "ScriptReg.h"
 #include "Z/Scene/Entity.h"
 #include "Z/Core/Application.h"
+#include "Z/Scene/Components.h"
 #include "mono/jit/jit.h"
 #include "mono/metadata/assembly.h"
 #include "mono/metadata/attrdefs.h"

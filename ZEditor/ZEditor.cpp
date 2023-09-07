@@ -1,11 +1,12 @@
 //
 // Created by 32725 on 2023/3/19.
 //
-#include "Z/Core/Core.h"
 #include "ZEditor.h"
+#include "Z/Core/Core.h"
 #include "Z/Scene/SceneSerializer.h"
 #include "Z/Utils/ZUtils.h"
 #include "Z/Script/ScriptEngine.h"
+#include "Z/Project/Project.h"
 #include "ImGuizmo.h"
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
@@ -40,32 +41,6 @@ namespace Z {
 			Z_CORE_ASSERT(false,"Project Init Failed!");
 			return;
 		}
-		//Sample Code
-		/*
-		//Todo:clean
-		float vertices[] = {
-				-.5f, -.5f, .0f, 0, 0, .5f, -.5f, .0f, 1, 0,
-				-.5f, .5f, .0f, 0, 1, .5f, .5f, .0f, 1, 1};
-		uint32_t indices[] = {0, 1, 2, 1, 3, 2};
-		vertexArray = VertexArray::Create();
-		texture[0] = Texture2D::CreateTexture("Assets/Textures/Colum.png");
-		texture[1] = Texture2D::CreateTexture("Assets/Textures/Layla.jpg");
-		texture[2] = Texture2D::CreateTexture("Assets/Textures/Nahida.png");
-		texture[3] = Texture2D::CreateTexture("Assets/Sprites/rpgSheet.png");
-		subTex = SubTex2D::Create(texture[3], glm::vec2{10, 10}, glm::vec2{128, 128}, glm::vec2{3, 3});
-		textureMap['W'] = SubTex2D::Create(texture[3], glm::vec2{11, 11}, glm::vec2{128, 128}, glm::vec2{1, 1});
-		textureMap['D'] = SubTex2D::Create(texture[3], glm::vec2{6, 11}, glm::vec2{128, 128}, glm::vec2{1, 1});
-		auto vertexBuffer = VertexBuffer::Create(vertices, sizeof(vertices));
-		{
-			auto layout = CreateScope<BufferLayout>(BufferLayout{
-					{ShaderDataType::Float3, "position"},
-					{ShaderDataType::Float2, "texCoord"}});
-			vertexBuffer->SetLayout(*layout);
-		}
-		vertexArray->AddVertexBuffer(vertexBuffer);
-		auto indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
-		vertexArray->SetIndexBuffer(indexBuffer);
-		vertexArray->Unbind();
 
 		FrameBufferSpecification spec;
 		spec.width = 1200;
@@ -79,15 +54,6 @@ namespace Z {
 		previewFrame = FrameBuffer::Create(spec);
 		scene = CreateRef<Scene>();
 		editorCamera = Z::EditorCamera(45.f, 1.f, 0.1f, 1000.f);
-		auto nahida = scene->CreateEntity("Nahida");
-		auto &tex = nahida.AddComponent<SpriteRendererComponent>();
-		tex.texture = texture[2];
-		auto _sceneCamera = scene->CreateEntity("SceneCamera");
-		auto &_camera = _sceneCamera.AddComponent<CameraComponent>();
-		_camera.camera.OnViewportResize(1200, 800);
-		_camera.camera.SetProjectionType(SceneCamera::ProjectionType::Perspective);
-		auto &_Transform = _sceneCamera.GetComponent<TransformComponent>();
-		_Transform.translation = {0, 0, 3};
 		//Todo:optimize with a project system
 		playButtonIcon = Texture2D::CreateTexture("Assets/Icons/PlayButton.png");
 		stopButtonIcon = Texture2D::CreateTexture("Assets/Icons/StopButton.png");
@@ -135,11 +101,11 @@ namespace Z {
 		ScriptEngine::LoadAssembly("Bin-C/scripts.dll");
 		LoadScene(Project::GetProjectRootDir()/Project::GetStartScene());
 		//Todo:remove this test code
-//		auto* watch= new filewatch::FileWatch<std::string >("Bin-C/MSVC/scripts.dll", [this](const std::string &str, auto action) {
-//			if(action==filewatch::Event::modified){
-//				Z_CORE_INFO(str);
-//			}
-//		});
+		//auto* watch= new filewatch::FileWatch<std::string >("Bin-C/MSVC/scripts.dll", [this](const std::string &str, auto action) {
+		//	if(action==filewatch::Event::modified){
+		//		Z_CORE_INFO(str);
+		//	}
+		//});
 		//ScriptEngine::ShutDown();
 
 	}
@@ -504,7 +470,7 @@ namespace Z {
 		}
 	}
 
-	void EditorLayer::LoadScene(const std::string &path) {
+	void EditorLayer::LoadScene(const std::filesystem::path &path) {
 		if (sceneState != SceneState::Edit) {
 			OnStop();
 		}
@@ -513,7 +479,7 @@ namespace Z {
 		sceneHierarchyPlane->SetSelectedEntity(-1);
 		sceneHierarchyPlane->SetContext(scene);
 		SceneSerializer serializer(scene);
-		if (serializer.Deserialize(path)) {
+		if (serializer.Deserialize(path.string())) {
 			WorkPath = path;
 		}
 	}
