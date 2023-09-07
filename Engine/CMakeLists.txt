@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
+#set(CMAKE_BUILD_TYPE RELEASE)
 project(Z)
 
 include_directories(${CMAKE_SOURCE_DIR}/Engine/Include/spdlog/include depends)
@@ -38,7 +39,7 @@ target_include_directories(Z PUBLIC depends)
 #Todo: change
 target_link_libraries(Z PUBLIC
         GLFW glad ImGui yaml Box2D
-        shaderc_sharedd spirv-cross-cored spirv-cross-glsld
+        shaderc_shared spirv-cross-core spirv-cross-glsl
         libmono-static-sgen
         Ws2_32 winmm Version Bcrypt
         )

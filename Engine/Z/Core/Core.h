@@ -21,8 +21,8 @@
 #endif
 
 #ifndef Z_ENABLE_ASSERT
-	#define Z_ASSERT(x, ...) {if(!(x)){Z_ERROR("Assertion Failed!:{0}",__VA_ARGS__);__debugbreak();}}
-	#define Z_CORE_ASSERT(x, ...) {if(!(x)){Z_CORE_ERROR("Assertion Failed!:{0}",__VA_ARGS__);__debugbreak();}}
+	#define Z_ASSERT(x, ...) do{if(!(x)){Z_ERROR("Assertion Failed!:{0}",__VA_ARGS__);__debugbreak();}}while(0)
+	#define Z_CORE_ASSERT(x, ...) do{if(!(x)){Z_CORE_ERROR("Assertion Failed!:{0}",__VA_ARGS__);__debugbreak();}}while(0)
 #else
 	#define Z_ASSERT(x,...)
 	#define Z_CORE_ASSERT(x,...)

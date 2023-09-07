@@ -2,13 +2,12 @@
 // Created by 32725 on 2023/4/6.
 //
 
-//#include<fstream>
+#include<fstream>
 #include <filesystem>
 #include <utility>
 #include "ScriptEngine.h"
 #include "ScriptReg.h"
-#include "Z/Scene/Components.h"
-#include "Z/Scene/Entity.hpp"
+#include "Z/Scene/Entity.h"
 #include "Z/Core/Application.h"
 #include "mono/jit/jit.h"
 #include "mono/metadata/assembly.h"
@@ -86,6 +85,7 @@ namespace Z {
 
 
 		MonoAssembly *LoadMonoAssembly(const std::filesystem::path &assemblyPath) {
+			uint32_t fileSize = 0;
 			auto fileData = ReadBytes(assemblyPath);
 
 			MonoImageOpenStatus status;
@@ -208,7 +208,7 @@ namespace Z {
 
 	void ScriptEngine::MonoInit() {
 		scriptData->CoreAssemblyPath="Bin-C/Scripts/ScriptCore.dll";
-		scriptData->AppAssemblyPath="Bin-C/MSVC/scripts.dll";
+		scriptData->AppAssemblyPath="Bin-C/scripts.dll";
 		mono_set_assemblies_path("mono/lib/4.5");
 		scriptData->rootDomain = mono_jit_init("ZJIT");
 		scriptData->appDomain = mono_domain_create_appdomain("ZAppDomain", nullptr);

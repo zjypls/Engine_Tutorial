@@ -4,21 +4,23 @@
 
 #ifndef ENGINE_TUTORIAL_ZVULKANRENDERAPI_H
 #define ENGINE_TUTORIAL_ZVULKANRENDERAPI_H
+#define GLFW_INCLUDE_NONE
+#define GLFW_INCLUDE_VULKAN
 #include "Z/Core/Core.h"
 #include "Z/Core/Log.h"
 #include "Z/Renderer/zGraphicContext.h"
 #include "GLFW/glfw3.h"
-#include "vulkan/vulkan.hpp"
+#include "vulkan/vulkan.h"
 namespace Z {
-	class zVulkanContext : public zGraphicContext {
+	class zVulkanContext final : public zGraphicContext {
 		GLFWwindow* windowHandle;
-		vk::Instance instance;
-		vk::PhysicalDevice physicalDevice;
+		VkInstance instance;
+		VkPhysicalDevice physicalDevice;
 	public:
-		virtual void Init()override;
 		zVulkanContext(GLFWwindow*w);
+		void Init()override;
 
-		virtual void SwapBuffers()override;
+		void SwapBuffers()override;
 	};
 
 }

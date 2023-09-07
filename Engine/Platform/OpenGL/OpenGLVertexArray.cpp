@@ -25,7 +25,7 @@ namespace Z {
 			case ShaderDataType::Bool:
 				return GL_BOOL;
 		}
-		Z_CORE_ASSERT(false, "Unknown ShaderDataType!")
+		Z_CORE_ASSERT(false, "Unknown ShaderDataType!");
 		return 0;
 	}
 
@@ -51,7 +51,7 @@ namespace Z {
 	}
 
 	void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer> &vertexBuffer) {
-		Z_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer has no layout!")
+		Z_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer has no layout!");
 
 		glBindVertexArray(m_RendererID);
 		vertexBuffer->Bind();
@@ -83,7 +83,7 @@ namespace Z {
 					                       layout.GetStride(),
 					                       (const void *) element.Offset);
 					break;
-				default: Z_CORE_ASSERT(false, "Unknown ShaderDataType!")
+				default: Z_CORE_ASSERT(false, "Unknown ShaderDataType!");
 					return;
 			}
 			m_VertexBufferIndex++;

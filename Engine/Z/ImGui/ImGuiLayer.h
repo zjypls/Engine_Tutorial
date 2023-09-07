@@ -11,6 +11,7 @@
 #include "Z/Events/KeyEvent.h"
 #include "Z/Events/MouseEvent.h"
 #include "Z/Events/ApplicationEvent.h"
+#include "ImGuiRendererPlatform.h"
 namespace Z {
 	class Z_API ImGuiLayer: public Layer {
 		bool BlockEvents=false;

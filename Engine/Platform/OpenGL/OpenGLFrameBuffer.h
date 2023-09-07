@@ -42,7 +42,7 @@ namespace Z {
 		virtual void Resize(unsigned int width, unsigned int height) override;
 
 		inline virtual unsigned int GetAttachmentID(unsigned int num) const override {
-			Z_CORE_ASSERT(num < Attachments.size(), "Out of range")
+			Z_CORE_ASSERT(num < Attachments.size(), "Out of range");
 			return Attachments[num];
 		}
 

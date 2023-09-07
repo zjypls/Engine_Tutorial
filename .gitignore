@@ -1,14 +1,24 @@
-﻿
+﻿#build folder
 cmake-build-build/
 *.exe
+#build libarary
 Lib/
+#jetbrain toolchain config folder
 .idea/
+#temp file
 *.ilk
 *.pdb
 *.idb
+#visual studio config folder
+.vs
+#temp build folder
 build/
-Bin-C/MSVC
-
+#local shader cache files
 *.shaderc_glsl_vertex_shader
 *.shaderc_glsl_fragment_shader
+#a test folder
+Application
+#build dynamic libraries
 Bin-C/Scripts/*.dll
+Bin-C/*.dll
+Bin-C/MSVC

@@ -1,6 +1,7 @@
 //
 // Created by 32725 on 2023/3/19.
 //
+#include "Z/Core/Core.h"
 #include "ZEditor.h"
 #include "Z/Scene/SceneSerializer.h"
 #include "Z/Utils/ZUtils.h"
@@ -9,7 +10,6 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
 #include "filewatch/filewatch.h"
-#include "Z/Project/Project.h"
 
 
 ImVec2 operator-(const ImVec2 &lhs, const ImVec2 &rhs) {
@@ -35,12 +35,12 @@ namespace Z {
 
 	void EditorLayer::OnAttach() {
 		Z_CORE_INFO("Layer:{0} Attach!", GetName());
-		std::filesystem::path ProjectPath = Z::Utils::FileOpen("*.zPrj");
+		std::filesystem::path ProjectPath = Z::Utils::FileOpen("*.zPrj","Test001.zPrj",".\\Projects\\Test001");
 		if(!Project::Init(ProjectPath)){
 			Z_CORE_ASSERT(false,"Project Init Failed!");
 			return;
 		}
-		//Sample Code /Todo:clean
+		//Sample Code
 		/*
 		//Todo:clean
 		float vertices[] = {
@@ -66,7 +66,6 @@ namespace Z {
 		auto indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 		vertexArray->SetIndexBuffer(indexBuffer);
 		vertexArray->Unbind();
-		*/
 
 		FrameBufferSpecification spec;
 		spec.width = 1200;
@@ -80,16 +79,15 @@ namespace Z {
 		previewFrame = FrameBuffer::Create(spec);
 		scene = CreateRef<Scene>();
 		editorCamera = Z::EditorCamera(45.f, 1.f, 0.1f, 1000.f);
-		//Todo:remove this
-//		auto nahida = scene->CreateEntity("Nahida");
-//		auto &tex = nahida.AddComponent<SpriteRendererComponent>();
-//		tex.texture = texture[2];
-//		auto _sceneCamera = scene->CreateEntity("SceneCamera");
-//		auto &_camera = _sceneCamera.AddComponent<CameraComponent>();
-//		_camera.camera.OnViewportResize(1200, 800);
-//		_camera.camera.SetProjectionType(SceneCamera::ProjectionType::Perspective);
-//		auto &_Transform = _sceneCamera.GetComponent<TransformComponent>();
-//		_Transform.translation = {0, 0, 3};
+		auto nahida = scene->CreateEntity("Nahida");
+		auto &tex = nahida.AddComponent<SpriteRendererComponent>();
+		tex.texture = texture[2];
+		auto _sceneCamera = scene->CreateEntity("SceneCamera");
+		auto &_camera = _sceneCamera.AddComponent<CameraComponent>();
+		_camera.camera.OnViewportResize(1200, 800);
+		_camera.camera.SetProjectionType(SceneCamera::ProjectionType::Perspective);
+		auto &_Transform = _sceneCamera.GetComponent<TransformComponent>();
+		_Transform.translation = {0, 0, 3};
 		//Todo:optimize with a project system
 		playButtonIcon = Texture2D::CreateTexture("Assets/Icons/PlayButton.png");
 		stopButtonIcon = Texture2D::CreateTexture("Assets/Icons/StopButton.png");
@@ -134,7 +132,7 @@ namespace Z {
 		contentBrowser = CreateScope<ContentBrowser>();
 		//ScriptEngine::Init();
 		//Todo:change this to a better way
-		ScriptEngine::LoadAssembly("Bin-C/MSVC/scripts.dll");
+		ScriptEngine::LoadAssembly("Bin-C/scripts.dll");
 		LoadScene(Project::GetProjectRootDir()/Project::GetStartScene());
 		//Todo:remove this test code
 //		auto* watch= new filewatch::FileWatch<std::string >("Bin-C/MSVC/scripts.dll", [this](const std::string &str, auto action) {
@@ -147,7 +145,6 @@ namespace Z {
 	}
 
 	void EditorLayer::OnDetach() {
-		Project::Save();
 	}
 
 	void EditorLayer::OnUpdate() {
@@ -191,9 +188,8 @@ namespace Z {
 		}
 		if (selectedEntity = sceneHierarchyPlane->GetSelectedEntity();
 				(sceneState == SceneState::Edit && IsViewportFocused && IsViewportHovered && !ImGuizmo::IsOver()) &&
-				((selectedEntity && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) ||
+				((selectedEntity && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) ||
 				 (!selectedEntity && Input::IsMouseButtonPressed(MouseCode::ButtonLeft)))) {
-
 			auto value = frameBuffer->GetPixel(CursorPos.x, CursorPos.y);
 			selectedEntity = sceneHierarchyPlane->SetSelectedEntity(value);
 		}
@@ -290,13 +286,15 @@ namespace Z {
 		ImGui::Text("Indices: %u", stats->GetTotalIndexCount());
 		static float fps = 1.f / Time::DeltaTime();
 		static float dt = Time::DeltaTime() * 1000.f;
-		if (Time::GetFlushTime() > 1) {
-			fps = 1.f / Time::DeltaTime();
+		static uint32_t frameCount=0;
+		if (++frameCount >= 500) {
+			fps = frameCount/Time::GetFlushTime();
+			frameCount=0;
 			dt = Time::DeltaTime() * 1000.f;
 			Time::FlushTime();
 		}
 		ImGui::Text("FPS: %.0f", fps);
-		ImGui::Text("Frame Time: %.2f ms", dt);
+		ImGui::Text("Current Frame Time: %.2f ms", dt);
 		stats->Reset();
 		ImGui::End();
 		ImGui::Begin("Settings");
@@ -506,7 +504,7 @@ namespace Z {
 		}
 	}
 
-	void EditorLayer::LoadScene(const std::filesystem::path&path) {
+	void EditorLayer::LoadScene(const std::string &path) {
 		if (sceneState != SceneState::Edit) {
 			OnStop();
 		}
@@ -515,7 +513,7 @@ namespace Z {
 		sceneHierarchyPlane->SetSelectedEntity(-1);
 		sceneHierarchyPlane->SetContext(scene);
 		SceneSerializer serializer(scene);
-		if (serializer.Deserialize(path.string())) {
+		if (serializer.Deserialize(path)) {
 			WorkPath = path;
 		}
 	}
@@ -527,6 +525,7 @@ namespace Z {
 			InnerSave(WorkPath.string());
 		}
 		scene = CreateRef<Scene>();
+		scene->OnViewportResize(viewportSize.x,viewportSize.y);
 		sceneHierarchyPlane->SetSelectedEntity(-1);
 		sceneHierarchyPlane->SetContext(scene);
 		WorkPath = std::filesystem::path();
@@ -639,7 +638,6 @@ namespace Z {
 						             glm::rotate(glm::mat4(1.f), transformComponent.rotation.z,
 						                         glm::vec3(0, 0, 1)) * glm::scale(glm::mat4(1.f), size);
 						Renderer2D::DrawRect(trans, box2D.size, *(int *) (box2D.ptr) ? ActiveColor : InactiveColor);
-
 					});
 			scene->GetComponentView<CircleCollider2DComponent, TransformComponent>().each(
 					[&](auto &circle2D, auto &transformComponent) {

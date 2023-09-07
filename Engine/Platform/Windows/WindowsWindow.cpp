@@ -33,7 +33,9 @@ namespace Z {
 			Z_ASSERT(res,"failed to Init GLFW!!!");
 			IsGLFWInit=true;
 		}
-		window= glfwCreateWindow(WinData.width,WinData.height,WinData.title.c_str(), nullptr, nullptr);
+		if(RenderAPI::GetAPI()!=RenderAPI::API::OpenGL)
+			glfwWindowHint(GLFW_CLIENT_API,GLFW_NO_API);
+		window= glfwCreateWindow(WinData.width,WinData.height,(WinData.title +"(" + RenderAPI::GetApiStr()+")").c_str(), nullptr, nullptr);
 		Context=new zOpenGLContext(window);
 		Context->Init();
 		glfwSetWindowUserPointer(window,&WinData);
@@ -122,6 +124,7 @@ namespace Z {
 	}
 
 	void WindowsWindow::SetVSync(bool enable) {
+		//TODO:may can be optimized
 		if(enable)
 			glfwSwapInterval(1);
 		else

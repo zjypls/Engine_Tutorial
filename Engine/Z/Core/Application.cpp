@@ -16,14 +16,19 @@ namespace Z {
 	Application *Application::application = nullptr;
 
 	Application::Application(const ApplicationSpec &spec) : Spec(spec) {
-		Z_CORE_ASSERT(!application, "Application already exists!")
+		Z_CORE_ASSERT(!application, "Application already exists!");
 		application = this;
-		Z_CORE_WARN("Current path{0}!", spec.commandArgs.Args[0]);
+		Z_CORE_WARN("Current path: {0}!", Spec.commandArgs.Args[0]);
 		if (!Spec.RootPath.empty()) {
-			//Todo : change working directory
-			std::filesystem::current_path(Spec.RootPath);
+			//Fixme : optimize
+//			std::string temp=Spec.commandArgs.Args[0];
+//			std::string::size_type i;
+//			while((i=temp.find_first_of('/'))!=-1)
+//				temp.replace(i,1,"\\");
+//			Z_CORE_ERROR(temp);
+			std::filesystem::current_path("../");
 		}
-		window = Z::Scope<zWindow>(zWindow::Create(WindowProps(spec.Name)));
+		window = Z::Scope<zWindow>(zWindow::Create(WindowProps(Spec.Name)));
 		window->SetEventCallFunc(Z_BIND_EVENT_FUNC(Application::EventCall));
 
 		Z::ScriptEngine::Init();
