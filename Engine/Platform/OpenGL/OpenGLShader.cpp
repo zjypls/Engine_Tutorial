@@ -158,7 +158,8 @@ namespace Z {
 
 	}
 
-	OpenGLShader::OpenGLShader(const std::string &Src, const std::string &name, bool isFile) : Name(name) {
+	OpenGLShader::OpenGLShader(const std::string &Src, const std::string &name, bool isFile) {
+		Name=name;
 		auto src = Src;
 		if (isFile) {
 			src = Temp::ReadFile(Src);
@@ -178,7 +179,8 @@ namespace Z {
 	}
 
 	OpenGLShader::OpenGLShader(const std::string &name, const std::string &VertSrc, const std::string &FragSrc,
-	                           bool isFile) : Name(name) {
+	                           bool isFile)  {
+		Name=name;
 		auto vertSrc = VertSrc;
 		auto fragSrc = FragSrc;
 		if (isFile) {

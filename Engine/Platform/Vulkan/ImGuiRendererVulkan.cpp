@@ -2,12 +2,12 @@
 // Created by z on 2023/9/5.
 //
 
-#include "./ImGuiRendererVulkan.h"
-#include "imgui/imgui.h"
-#include "imgui/backends/imgui_impl_glfw.h"
-#include "imgui/backends/imgui_impl_vulkan.h"
+#include "Include/imgui/imgui.h"
+#include "Include/imgui/backends/imgui_impl_glfw.h"
 
 #include "Z/Core/Application.h"
+#include "Platform/Vulkan/ImGuiRendererVulkan.h"
+#include "Platform/Vulkan/ImGuiVulkanRenderDocking.h"
 
 namespace Z {
 	static ImGuiIO* zImGuiGlobalIO;
@@ -18,6 +18,8 @@ namespace Z {
 
 		ImGui_ImplGlfw_InitForVulkan((GLFWwindow *) Application::Get().GetWindow().GetNativeWindow(), true);
 
+		ImGui_ImplVulkan_InitInfo initInfo{};
+		ImGui_ImplVulkan_Init(&initInfo,{});
 	}
 
 	void ImGuiRendererVulkan::Begin() {

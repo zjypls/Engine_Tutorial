@@ -8,18 +8,18 @@
 #define GLFW_INCLUDE_VULKAN
 #include "Z/Core/Core.h"
 #include "Z/Core/Log.h"
-#include "Z/Renderer/zGraphicContext.h"
+#include "Z/Renderer/GraphicContext.h"
 #include "GLFW/glfw3.h"
 #include "vulkan/vulkan.h"
 namespace Z {
-	class zVulkanContext final : public zGraphicContext {
+	class Z_API VulkanContext final : public GraphicContext {
 		GLFWwindow* windowHandle;
 		VkInstance instance;
 		VkPhysicalDevice physicalDevice;
 		VkDevice device;
 		VkAllocationCallbacks* allocator= nullptr;
 	public:
-		zVulkanContext(GLFWwindow*w);
+		VulkanContext(GLFWwindow*w);
 		static void PreInit();
 		void Init()override;
 

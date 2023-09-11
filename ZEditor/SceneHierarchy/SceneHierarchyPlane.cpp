@@ -1,12 +1,14 @@
 //
 // Created by 32725 on 2023/3/28.
 //
-#include "Z/Scene/Components.h"
-#include "SceneHierarchyPlane.h"
-#include "Z/Script/ScriptEngine.h"
 #include <filesystem>
-#include "imgui/imgui.h"
-#include "imgui_internal.h"
+
+#include "Include/imgui/imgui.h"
+#include "Include/imgui/imgui_internal.h"
+
+#include "Z/Scene/Components.h"
+#include "Z/Script/ScriptEngine.h"
+#include "SceneHierarchyPlane.h"
 
 namespace Z {
 
@@ -276,10 +278,10 @@ namespace Z {
 			static char buffer[256];
 			std::strcpy(buffer, component.scriptName.data());
 			bool exists = ScriptEngine::ClassExists(component.scriptName);
-			if(exists){
-				auto klass=ScriptEngine::GetScriptList().at(component.scriptName);
-				if(!ScriptEngine::EntityFieldExists(entity.GetUID(),*klass)){
-					ScriptEngine::RegisterEntityClassFields(entity.GetUID(),*klass);
+			if (exists) {
+				auto klass = ScriptEngine::GetScriptList().at(component.scriptName);
+				if (!ScriptEngine::EntityFieldExists(entity.GetUID(), *klass)) {
+					ScriptEngine::RegisterEntityClassFields(entity.GetUID(), *klass);
 				}
 			}
 			ImGui::Text("Script Name:");
@@ -316,46 +318,51 @@ namespace Z {
 						return;
 					auto klass = instance->GetClass();
 					auto &fields = klass->GetFields();
-					unsigned char buffer[8]{0};
+					unsigned char buffer[32]{0};
 					for (const auto &[name, type]: fields) {
-						instance->GetValue(name,buffer);
+						instance->GetValue(name, buffer);
 						ImGui::Text(name.c_str());
 						ImGui::SameLine();
 						switch (type.Type) {
 							case ScriptFieldType::Float: {
-								if (ImGui::DragFloat(("##" + name).c_str(), (float*)buffer, .5f)) {
+								if (ImGui::DragFloat(("##" + name).c_str(), (float *) buffer, .5f)) {
 									instance->SetValue(name, buffer);
 								}
 								break;
 							}
 							case ScriptFieldType::Int: {
-								if (ImGui::DragInt(("##" + name).c_str(), (int*)buffer)) {
+								if (ImGui::DragInt(("##" + name).c_str(), (int *) buffer)) {
 									instance->SetValue(name, buffer);
 								}
 								break;
 							}
 							case ScriptFieldType::Float2: {
-								if (ImGui::DragFloat2(("##" + name).c_str(), (float*)buffer)) {
+								if (ImGui::DragFloat2(("##" + name).c_str(), (float *) buffer)) {
 									instance->SetValue(name, buffer);
 								}
 								break;
 							}
 							case ScriptFieldType::Float3: {
-								if (ImGui::DragFloat3(("##" + name).c_str(), (float*)buffer)) {
+								if (ImGui::DragFloat3(("##" + name).c_str(), (float *) buffer)) {
 									instance->SetValue(name, buffer);
 								}
 								break;
 							}
 							case ScriptFieldType::Float4: {
-								if (ImGui::DragFloat4(("##" + name).c_str(), (float*)buffer)) {
-									instance->SetValue(name,buffer);
+								if (ImGui::DragFloat4(("##" + name).c_str(), (float *) buffer)) {
+									instance->SetValue(name, buffer);
 								}
 								break;
 							}
 							case ScriptFieldType::Bool: {
-								if (ImGui::Checkbox(("##" + name).c_str(), (bool*)buffer)) {
+								if (ImGui::Checkbox(("##" + name).c_str(), (bool *) buffer)) {
 									instance->SetValue(name, buffer);
 								}
+								break;
+							}
+							case ScriptFieldType::String: {
+								if (ImGui::InputText(("##" + name).c_str(), (char *) buffer, 32))
+									instance->SetValue(name, buffer);
 								break;
 							}
 						}
@@ -364,7 +371,7 @@ namespace Z {
 				} else {
 					auto klass = ScriptEngine::GetScriptList().at(component.scriptName);
 					auto &fields = klass->GetFields();
-					unsigned char buffer[8]{0};
+					unsigned char buffer[32]{0};
 					auto id = entity.GetUID();
 					for (const auto &[name, type]: fields) {
 						ImGui::Text(name.c_str());
@@ -407,6 +414,11 @@ namespace Z {
 								}
 								break;
 							}
+							case ScriptFieldType::String: {
+								if (ImGui::InputText(("##" + name).c_str(), (char *) buffer, 32))
+									klass->SetValue(id, name, buffer);
+								break;
+							}
 						}
 					}
 				}
@@ -443,8 +455,9 @@ namespace Z {
 				ImGui::TreePop();
 			}
 			if (remove) {
-				if(std::is_same_v<Ty,ScriptComponent>){
-					ScriptEngine::RemoveEntityClassFields(entity.GetUID(),*ScriptEngine::GetScriptList().at(entity.GetComponent<ScriptComponent>().scriptName));
+				if (std::is_same_v<Ty, ScriptComponent>) {
+					ScriptEngine::RemoveEntityClassFields(entity.GetUID(), *ScriptEngine::GetScriptList().at(
+							entity.GetComponent<ScriptComponent>().scriptName));
 				}
 				entity.RemoveComponent<Ty>();
 			}

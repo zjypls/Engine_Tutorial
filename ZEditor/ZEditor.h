@@ -6,11 +6,11 @@
 #define ENGINE_TUTORIAL_ZEDITOR_H
 
 #include "z.h"
-#include"SceneHierarchy/SceneHierarchyPlane.h"
-#include"SceneHierarchy/ContentBrowser.h"
-#include "ImGuizmo.h"
+#include "SceneHierarchy/SceneHierarchyPlane.h"
+#include "SceneHierarchy/ContentBrowser.h"
+#include "Include/ImGuizmo/ImGuizmo.h"
 #include "Z/Renderer/EditorCamera.h"
-#include<unordered_map>
+#include <unordered_map>
 
 namespace Z {
 	class EditorLayer : public Layer {

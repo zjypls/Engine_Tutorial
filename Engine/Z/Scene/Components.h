@@ -4,7 +4,7 @@
 
 #ifndef ENGINE_TUTORIAL_COMPENENTS_H
 #define ENGINE_TUTORIAL_COMPONENTS_H
-#include "Z/Core/GUID.h"
+#include "Z/Core/zGUID.h"
 #include "SceneCamera.h"
 #include "Z/Renderer/Texture.h"
 #include "glm/glm.hpp"
@@ -14,9 +14,9 @@
 namespace Z {
 
 	struct IDComponent{
-		GUID ID{};
+		zGUID ID{};
 		IDComponent()=default;
-		IDComponent(const GUID& id):ID(id){}
+		IDComponent(const zGUID& id): ID(id){}
 	};
 
 	struct TransformComponent {

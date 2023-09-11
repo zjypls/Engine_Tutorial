@@ -2,32 +2,34 @@
 // Created by 32725 on 2023/4/6.
 //
 
-#include<fstream>
+#include <fstream>
 #include <filesystem>
 #include <utility>
-#include "ScriptEngine.h"
-#include "ScriptReg.h"
+
+#include "Include/mono/include/mono/jit/jit.h"
+#include "Include/mono/include/mono/metadata/assembly.h"
+#include "Include/mono/include/mono/metadata/attrdefs.h"
+#include "Include/mono/include/mono/metadata/debug-helpers.h"
+#include "Include/filewatch/filewatch.h"
+
+#include "Z/Script/ScriptEngine.h"
+#include "Z/Script/ScriptReg.h"
 #include "Z/Scene/Entity.h"
 #include "Z/Core/Application.h"
 #include "Z/Scene/Components.h"
-#include "mono/jit/jit.h"
-#include "mono/metadata/assembly.h"
-#include "mono/metadata/attrdefs.h"
-#include "mono/metadata/debug-helpers.h"
-#include "filewatch/filewatch.h"
 
 
 namespace std {
 	template<>
-	struct hash<pair<Z::GUID, Z::ScriptClass>> {
-		::size_t operator()(const pair<Z::GUID, Z::ScriptClass> &p) const {
-			return (hash<Z::GUID>()(p.first) << 10) | (hash<Z::ScriptClass>()(p.second) >> 10);
+	struct hash<pair<Z::zGUID, Z::ScriptClass>> {
+		::size_t operator()(const pair<Z::zGUID, Z::ScriptClass> &p) const {
+			return (hash<Z::zGUID>()(p.first) << 10) | (hash<Z::ScriptClass>()(p.second) >> 10);
 		}
 	};
 
 
 }
-bool operator==(const std::pair<Z::GUID, Z::ScriptClass> &a, const std::pair<Z::GUID, Z::ScriptClass> &b) {
+bool operator==(const std::pair<Z::zGUID, Z::ScriptClass> &a, const std::pair<Z::zGUID, Z::ScriptClass> &b) {
 	return a.first == b.first && a.second == b.second;
 }
 
@@ -132,9 +134,9 @@ namespace Z {
 		std::filesystem::path CoreAssemblyPath,AppAssemblyPath;
 
 		std::unordered_map<std::string, Ref<ScriptClass>> EntityClasses;
-		std::unordered_map<GUID, Ref<ScriptInstance>> EntityInstances;
+		std::unordered_map<zGUID, Ref<ScriptInstance>> EntityInstances;
 		using FieldMap = std::unordered_map<std::string, ScriptFieldBuffer>;
-		using EntityWithClass = std::pair<GUID, ScriptClass>;
+		using EntityWithClass = std::pair<zGUID, ScriptClass>;
 		std::unordered_map<EntityWithClass, FieldMap> EntityFields;
 		Scope<filewatch::FileWatch<std::string>> AppCoreWatch;
 		bool HasReloadApp=false;
@@ -208,7 +210,7 @@ namespace Z {
 	}
 
 	void ScriptEngine::MonoInit() {
-		scriptData->CoreAssemblyPath="Bin-C/Scripts/ScriptCore.dll";
+		scriptData->CoreAssemblyPath="Bin-C/ScriptCore.dll";
 		scriptData->AppAssemblyPath="Bin-C/scripts.dll";
 		mono_set_assemblies_path("mono/lib/4.5");
 		scriptData->rootDomain = mono_jit_init("ZJIT");
@@ -299,7 +301,7 @@ namespace Z {
 		return scriptData->EntityClasses;
 	}
 
-	Ref<ScriptInstance> ScriptEngine::GetInstance(GUID id) {
+	Ref<ScriptInstance> ScriptEngine::GetInstance(zGUID id) {
 		if (auto instance = scriptData->EntityInstances.find(id);instance != scriptData->EntityInstances.end())
 			return instance->second;
 		else
@@ -311,11 +313,11 @@ namespace Z {
 	}
 
 
-	bool ScriptEngine::EntityFieldExists(GUID id, ScriptClass &klass) {
+	bool ScriptEngine::EntityFieldExists(zGUID id, ScriptClass &klass) {
 		return scriptData->EntityFields.find(std::pair{id, klass}) != scriptData->EntityFields.end();
 	}
 
-	void ScriptEngine::RegisterEntityClassFields(GUID id, ScriptClass &klass) {
+	void ScriptEngine::RegisterEntityClassFields(zGUID id, ScriptClass &klass) {
 		std::unordered_map<std::string, ScriptFieldBuffer> values;
 		auto key = std::make_pair(id, klass);
 		for (const auto &[name, field]: klass.Fields) {
@@ -327,7 +329,7 @@ namespace Z {
 		scriptData->EntityFields[key] = values;
 	}
 
-	std::unordered_map<std::string, ScriptFieldBuffer> &ScriptEngine::GetFields(GUID id, const ScriptClass &klass) {
+	std::unordered_map<std::string, ScriptFieldBuffer> &ScriptEngine::GetFields(zGUID id, const ScriptClass &klass) {
 		return scriptData->EntityFields.at({id, klass});
 	}
 
@@ -355,7 +357,7 @@ namespace Z {
 		scriptData->HasReloadApp = state;
 	}
 
-	void ScriptEngine::RemoveEntityClassFields(GUID id, ScriptClass &klass) {
+	void ScriptEngine::RemoveEntityClassFields(zGUID id, ScriptClass &klass) {
 		scriptData->EntityFields.erase({id, klass});
 	}
 
@@ -387,7 +389,7 @@ namespace Z {
 	}
 
 
-	void ScriptClass::SetValue(GUID id, const std::string &name, void *ptr) {
+	void ScriptClass::SetValue(zGUID id, const std::string &name, void *ptr) {
 //		mono_field_static_set_value(mono_class_vtable(scriptData->rootDomain,Class),
 //		                            Fields.at(name).Field,ptr);
 		auto bufferMap = scriptData->EntityFields.find(std::pair{id, *this});
@@ -395,7 +397,7 @@ namespace Z {
 		buffer.SetValue(ptr);
 	}
 
-	void ScriptClass::InnerGetValue(GUID id, const std::string &name, void *ptr) {
+	void ScriptClass::InnerGetValue(zGUID id, const std::string &name, void *ptr) {
 		auto bufferMap = scriptData->EntityFields.find(std::pair{id, *this});
 		auto buffer = bufferMap->second.at(name);
 		buffer.GetValue(ptr);

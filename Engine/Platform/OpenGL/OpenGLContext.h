@@ -4,14 +4,14 @@
 
 #ifndef ENGINE_TUTORIAL_ZOPENGLCONTEXT_H
 #define ENGINE_TUTORIAL_ZOPENGLCONTEXT_H
-#include "Z/Renderer/zGraphicContext.h"
+#include "Z/Renderer/GraphicContext.h"
 #include "GLFW/glfw3.h"
 namespace Z {
-	class zOpenGLContext final:public zGraphicContext {
+	class OpenGLContext final: public GraphicContext {
 		GLFWwindow* windowHandle;
 	public:
 		static void PreInit();
-		zOpenGLContext(GLFWwindow*);
+		OpenGLContext(GLFWwindow*);
 		void SwapBuffers() override;
 		void Init() override;
 		void Destroy()override;

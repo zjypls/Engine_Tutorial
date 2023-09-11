@@ -3,8 +3,9 @@
 //
 
 #include "Z/Core/Log.h"
-#include "ContentBrowser.h"
 #include "Z/Project/Project.h"
+
+#include "ContentBrowser.h"
 
 namespace Z {
 	//constexpr char *RootPath = Z_SOURCE_DIR;

@@ -28,11 +28,11 @@ namespace Z {
 		*o = glm::normalize(glm::cross(*v, *u));
 	}
 
-	void GetTranslation(GUID id, glm::vec3 *o) {
+	void GetTranslation(zGUID id, glm::vec3 *o) {
 		*o = ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<TransformComponent>().translation;
 	}
 
-	void SetTranslation(GUID id, glm::vec3 *o) {
+	void SetTranslation(zGUID id, glm::vec3 *o) {
 		ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<TransformComponent>().translation = *o;
 	}
 
@@ -43,7 +43,7 @@ namespace Z {
 	static std::unordered_map<MonoType* , bool (*)(Entity)> ReflectionMap;
 	static std::unordered_map<MonoType *,void(*)(Entity)> AddComponentMap;
 
-	bool Entity_HasComponent(GUID id, MonoReflectionType *type) {
+	bool Entity_HasComponent(zGUID id, MonoReflectionType *type) {
 		Entity entity = ScriptEngine::GetContext()->GetEntityWithGUID(id);
 		Z_CORE_ASSERT(entity, "No such entity");
 		MonoType *monoType = mono_reflection_type_get_type(type);
@@ -51,7 +51,7 @@ namespace Z {
 		return ReflectionMap.at(monoType)(entity);
 	}
 
-	void Entity_AddComponent(GUID id,MonoReflectionType*type){
+	void Entity_AddComponent(zGUID id, MonoReflectionType*type){
 		if(Entity_HasComponent(id,type)){
 			Z_CORE_WARN("Entity already has component:"+std::string(mono_type_get_name(mono_reflection_type_get_type(type))));
 			return;
@@ -63,25 +63,25 @@ namespace Z {
 		AddComponentMap.at(monoType)(entity);
 	}
 
-	void Entity_GetVelocity(GUID id, glm::vec2 *o) {
+	void Entity_GetVelocity(zGUID id, glm::vec2 *o) {
 		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
 		*o = glm::vec2(body->GetLinearVelocity().x, body->GetLinearVelocity().y);
 	}
-	void Entity_SetVelocity(GUID id, glm::vec2 *o) {
+	void Entity_SetVelocity(zGUID id, glm::vec2 *o) {
 		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
 		auto vel = body->GetLinearVelocity();
 		body->SetLinearVelocity(vel+b2Vec2(o->x, o->y));
 	}
-	void Entity_ApplyForce(GUID id, glm::vec2 *o,glm::vec2* c,bool wake) {
+	void Entity_ApplyForce(zGUID id, glm::vec2 *o, glm::vec2* c, bool wake) {
 		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
 		body->ApplyForce(b2Vec2(o->x,o->y),b2Vec2(c->x,c->y),wake);
 	}
-	void Entity_ApplyForceCenter(GUID id, glm::vec2 *o,bool wake) {
+	void Entity_ApplyForceCenter(zGUID id, glm::vec2 *o, bool wake) {
 		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
 		body->ApplyForceToCenter(b2Vec2(o->x,o->y),wake);
 	}
 	MonoArray* Entity_GetByName(MonoString* name){
-		std::vector<GUID> ids;
+		std::vector<zGUID> ids;
 		ScriptEngine::GetContext()->GetEntitiesByName(mono_string_to_utf8(name),ids);
 		auto array=mono_array_new(ScriptEngine::GetDomain(),mono_get_uint64_class(),ids.size());
 		for(int i=0;i<ids.size();i++){
@@ -89,38 +89,38 @@ namespace Z {
 		}
 		return array;
 	}
-	glm::vec3 Entity_GetRigidBody2DPosition(GUID id){
+	glm::vec3 Entity_GetRigidBody2DPosition(zGUID id){
 		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
 		auto pos=body->GetPosition();
 		return {pos.x,pos.y,0};
 	}
-	void Entity_SetRigidBody2DPosition(GUID id,glm::vec3* pos){
+	void Entity_SetRigidBody2DPosition(zGUID id, glm::vec3* pos){
 		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
 		body->SetTransform(b2Vec2(pos->x,pos->y),body->GetAngle());
 	}
 
-	MonoArray * Entity_GetScripts(GUID id){
+	MonoArray * Entity_GetScripts(zGUID id){
 		auto& scripts=ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<ScriptComponent>().scriptName;
 		auto array=mono_array_new(ScriptEngine::GetDomain(),mono_get_string_class(),1);
 		mono_array_set(array,MonoString*,0,mono_string_new(ScriptEngine::GetDomain(),scripts.c_str()));
 		return array;
 	}
-	float Entity_GetMass(GUID id){
+	float Entity_GetMass(zGUID id){
 		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
 		return body->GetMass();
 	}
-	void Entity_SetMass(GUID id,float mass){
+	void Entity_SetMass(zGUID id, float mass){
 		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
 		b2MassData data{mass,body->GetLocalCenter(),body->GetInertia()};
 		body->SetMassData(&data);
 	}
 
-	void Entity_SetRigidBody2DType(GUID id,int type){
+	void Entity_SetRigidBody2DType(zGUID id, int type){
 		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
 		body->SetType((b2BodyType)type);
 	}
 
-	int Entity_GetRigidBody2DType(GUID id){
+	int Entity_GetRigidBody2DType(zGUID id){
 		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
 		return body->GetType();
 	}

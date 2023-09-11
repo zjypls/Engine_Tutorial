@@ -2,30 +2,30 @@
 // Created by 32725 on 2023/3/14.
 //
 #include "RenderAPI.h"
-#include "zGraphicContext.h"
-#include "Platform/OpenGL/zOpenGLContext.h"
-#include "Platform/Vulkan/zVulkanContext.h"
+#include "GraphicContext.h"
+#include "Platform/OpenGL/OpenGLContext.h"
+#include "Platform/Vulkan/VulkanContext.h"
 namespace  Z{
 
-	Scope<zGraphicContext> zGraphicContext::Create(void *window) {
+	Scope<GraphicContext> GraphicContext::Create(void *window) {
 		switch (RenderAPI::GetAPI()) {
 			case RenderAPI::API::OpenGL:
-				return CreateScope<zOpenGLContext>((GLFWwindow*)window);
+				return CreateScope<OpenGLContext>((GLFWwindow*)window);
 			case RenderAPI::API::Vulkan:
 				//Todo: Add vulkan support
-				return CreateScope<zVulkanContext>((GLFWwindow*)window);
+				return CreateScope<VulkanContext>((GLFWwindow*)window);
 			default:
 				return nullptr;
 		}
 	}
 
-	void zGraphicContext::PreInitForRenderAPI() {
+	void GraphicContext::PreInitForRenderAPI() {
 		switch(RenderAPI::GetAPI()){
 			case RenderAPI::API::OpenGL:
-				zOpenGLContext::PreInit();
+				OpenGLContext::PreInit();
 				break;
 			case RenderAPI::API::Vulkan:
-				zVulkanContext::PreInit();
+				VulkanContext::PreInit();
 				break;
 			default:
 				Z_CORE_ERROR("Error RenderAPI");

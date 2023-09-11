@@ -7,7 +7,7 @@
 #include "Z/Core/zWindow.h"
 #include "Z/Core/Log.h"
 #include "GLFW/glfw3.h"
-#include "Z/Renderer/zGraphicContext.h"
+#include "Z/Renderer/GraphicContext.h"
 
 namespace Z {
 	class WindowsWindow: public zWindow{
@@ -37,7 +37,7 @@ namespace Z {
 		WData WinData;
 		static bool IsGLFWInit;
 		GLFWwindow* window;
-		Scope<zGraphicContext> Context;
+		Scope<GraphicContext> Context;
 	};
 
 }

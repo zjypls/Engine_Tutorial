@@ -12,7 +12,7 @@
 
 namespace Z {
 	class Z_API RenderCommand {
-		static RenderAPI *s_RenderAPI;
+		static Scope<RenderAPI> s_RenderAPI;
 	public:
 		static void Init();
 
@@ -33,8 +33,6 @@ namespace Z {
 		static void ChangeDepthTest(RenderAPI::DepthTestState state = RenderAPI::DepthTestState::Less){
 			s_RenderAPI->ChangeDepthTest(state);
 		}
-
-		inline static void GetError() { s_RenderAPI->GetError(); }
 	};
 
 }

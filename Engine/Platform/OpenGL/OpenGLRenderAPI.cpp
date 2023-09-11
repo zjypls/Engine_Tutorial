@@ -17,6 +17,7 @@ namespace Z {
 
 	void OpenGLRenderAPI::DrawIndexed(const Ref<VertexArray> &vertexArray,unsigned int count) {
 		vertexArray->Bind();
+		//Fixme:out of range bug
 		//count = (count == 0) ? vertexArray->GetIndexBuffer()->GetCount() : count;
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
@@ -34,12 +35,6 @@ namespace Z {
 
 	void OpenGLRenderAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) {
 		glViewport(x, y, width, height);
-	}
-
-	void OpenGLRenderAPI::GetError() {
-		auto warn = glGetError();
-		if (warn != 0)
-			Z_CORE_ERROR("{1}:{2},OpenGL ERROR {0}", warn, __FILE__, __LINE__);
 	}
 
 	void OpenGLRenderAPI::DrawLine(const Ref<VertexArray> &vertexArray, unsigned int count) {

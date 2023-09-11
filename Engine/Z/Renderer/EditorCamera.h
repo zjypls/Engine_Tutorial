@@ -5,15 +5,16 @@
 #ifndef ENGINE_TUTORIAL_EDITORCAMERA_H
 #define ENGINE_TUTORIAL_EDITORCAMERA_H
 
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "./Camera.h"
+#include "Include/glm/glm/glm.hpp"
+#include "Include/glm/glm/gtc/matrix_transform.hpp"
+#include "Include/glm/glm/gtx/transform.hpp"
+
+#include "Z/Renderer/Camera.h"
 #include "Z/Core/Core.h"
 #include "Z/Events/Event.h"
 #include "Z/Events/MouseEvent.h"
 #include "Z/Events/KeyEvent.h"
 #include "Z/Events/ApplicationEvent.h"
-#include "glm/gtx/transform.hpp"
 
 namespace Z {
 

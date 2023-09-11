@@ -2,12 +2,14 @@
 // Created by z on 2023/9/5.
 //
 
-#include "./ImGuiRendererOpenGL.h"
-#include "imgui/imgui.h"
-#include "imgui/backends/imgui_impl_glfw.h"
-#include "imgui/backends/imgui_impl_opengl3.h"
-#include "GLFW/glfw3.h"
+#include "Include/imgui/imgui.h"
+#include "Include/imgui/backends/imgui_impl_glfw.h"
+#include "Include/glfw/include/GLFW/glfw3.h"
+
+#include "Platform/OpenGL/ImGuiOpenGLRenderDocking.h"
+#include "Platform/OpenGL/ImGuiRendererOpenGL.h"
 #include "Z/Core/Application.h"
+
 namespace Z {
 	static ImGuiIO* zImGuiGlobalIO;
 

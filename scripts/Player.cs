@@ -2,27 +2,25 @@ using Z;
 
 public class Player : EntityCore
 {
-    TransformComponent transform;
-    RigidBody2DComponent rigidBody;
-    public float mass = 1.0f;
+    TransformComponent _transform;
+    RigidBody2DComponent _rigidBody;
+    public float Mass = 1.0f;
     public float Force = 980.0f;
-    public Vector2 velicity = Vector2.Zero;
+    public Vector2 Velicity = Vector2.Zero;
 
     void OnCreate()
     {
-        Log.log($"Player({ID}): Create");//Test
-        transform = GetComponent<TransformComponent>();
-        rigidBody = GetComponent<RigidBody2DComponent>();
-        if (rigidBody != null)
+        _transform = GetComponent<TransformComponent>();
+        _rigidBody = GetComponent<RigidBody2DComponent>();
+        if (_rigidBody != null)
         {
-            mass = rigidBody.Mass;
+            Mass = _rigidBody.Mass;
         }
         else
         {
-            rigidBody = AddComponent<RigidBody2DComponent>();
+            _rigidBody = AddComponent<RigidBody2DComponent>();
+            Mass = _rigidBody.Mass;
         }
-        //Todo:remove test code
-        Log.log($"{rigidBody?.bodyType}");
     }
 
     void OnUpdate(float deltaTime)
@@ -45,11 +43,12 @@ public class Player : EntityCore
         {
             vec.x = 1;
         }
-        transform.translation +=new Vector3(vec * deltaTime,0);
+
+        Velicity = _rigidBody.velocity;
+        _transform.translation +=new Vector3(vec * deltaTime,0);
     }
 
     ~Player()
     {
-        Log.log($"Player({ID}): Destroy");//Test
     }
 }

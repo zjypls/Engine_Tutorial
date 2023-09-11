@@ -30,6 +30,8 @@ namespace Z {
 		configure.StartScene = nodeData["StartScene"].as<std::string>();
 		configure.AssetsDir = nodeData["AssetsDirectory"].as<std::string>();
 		configure.ScriptsDir = nodeData["ScriptsDirectory"].as<std::string>();
+		configure.editorLayout = configure.ProjectRootDir/nodeData["EditorLayout"].as<std::string>();
+		Z_CORE_WARN(configure.editorLayout);
 		if (nodeData["ProjectName"])
 			configure.ProjectName = nodeData["ProjectName"].as<std::string>();
 		else

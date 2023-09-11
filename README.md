@@ -11,3 +11,5 @@ Learning:
 ## Screen Shot:
 Editor:
 ![EditorMain](./Assets/ReadMe/Gif/Editor.gif)
+
+notices:can build with msvc or clang14(must off ReBuildScriptsCore flags in CMakeLists.txt)

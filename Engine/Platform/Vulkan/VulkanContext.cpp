@@ -2,7 +2,7 @@
 // Created by 32725 on 2023/4/10.
 //
 
-#include "zVulkanContext.h"
+#include "Platform/Vulkan/VulkanContext.h"
 
 #ifdef Z_ENABLE_VK_VALIDATION
 constexpr bool enableValidationLayers = true;
@@ -12,20 +12,20 @@ constexpr bool enableValidationLayers = false;
 
 
 namespace Z {
-	zVulkanContext::zVulkanContext(GLFWwindow *w) : windowHandle(w) {
-		Z_CORE_ASSERT(windowHandle, "window handle is null!!!");
+	VulkanContext::VulkanContext(GLFWwindow *w) : windowHandle(w) {
+		Z_CORE_ASSERT(windowHandle!= nullptr, "window handle is null!!!");
 
 	}
 
-	void zVulkanContext::Init() {
+	void VulkanContext::Init() {
 
 	}
 
-	void zVulkanContext::SwapBuffers() {
+	void VulkanContext::SwapBuffers() {
 
 	}
 
-	void zVulkanContext::Destroy() {
+	void VulkanContext::Destroy() {
 
 
 		vkDestroyDevice(device,allocator);
@@ -34,7 +34,7 @@ namespace Z {
 
 	}
 
-	void zVulkanContext::PreInit() {
+	void VulkanContext::PreInit() {
 		glfwWindowHint(GLFW_CLIENT_API,GLFW_NO_API);
 	}
 

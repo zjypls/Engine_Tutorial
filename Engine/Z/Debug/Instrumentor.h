@@ -56,10 +56,10 @@ namespace Z {
 			std::replace(name.begin(), name.end(), '"', '\'');
 
 			m_OutputStream << "{";
-			m_OutputStream << "\"cat\":\"function\",";
+			m_OutputStream << R"("cat":"function",)";
 			m_OutputStream << "\"dur\":" << (result.End - result.Start) << ',';
-			m_OutputStream << "\"name\":\"" << name << "\",";
-			m_OutputStream << "\"ph\":\"X\",";
+			m_OutputStream << R"("name":")" << name << "\",";
+			m_OutputStream << R"("ph":"X",)";
 			m_OutputStream << "\"pid\":0,";
 			m_OutputStream << "\"tid\":" << result.ThreadID << ",";
 			m_OutputStream << "\"ts\":" << result.Start;
@@ -69,7 +69,7 @@ namespace Z {
 		}
 
 		void WriteHeader() {
-			m_OutputStream << "{\"otherData\": {},\"traceEvents\":[";
+			m_OutputStream << R"({"otherData": {},"traceEvents":[)";
 			m_OutputStream.flush();
 		}
 
@@ -120,9 +120,7 @@ namespace Z {
 
 
 
-#define Z_ENABLE_PROFILING
-#ifdef Z_ENABLE_PROFILING
-
+#if Z_ENABLE_PROFILING
 	#define Z_PROFILE_BEGIN_SESSION(name, filepath) ::Z::Instrumentor::Get().BeginSession(name, filepath)
 	#define Z_PROFILE_END_SESSION() ::Z::Instrumentor::Get().EndSession()
 	#define Z_PROFILE_SCOPE(name) ::Z::InstrumentationTimer timer##__LINE__(name)

@@ -9,7 +9,6 @@
 namespace Z {
 	class OpenGLShader:public Shader {
 		unsigned int ProgramID;
-		std::string Name;
 		void Compile(unsigned int ) ;
 		void AddShader(const std::string& shaderSrc, RenderAPI::zShaderType shaderType) ;
 		void AddShader(const std::string&Code) ;

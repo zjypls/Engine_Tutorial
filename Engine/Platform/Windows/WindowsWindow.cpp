@@ -2,14 +2,20 @@
 // Created by 32725 on 2023/3/12.
 //
 
-#include "WindowsWindow.h"
+#include <filesystem>
+
+#include "Include/stb/stb_image.h"
+
+#include "Platform/Windows/WindowsWindow.h"
+
 #include "Z/Events/ApplicationEvent.h"
 #include "Z/Events/KeyEvent.h"
 #include "Z/Events/MouseEvent.h"
-#include "Platform/OpenGL/zOpenGLContext.h"
 #include "Z/Renderer/Renderer.h"
 #include "Z/Core/Random.h"
 #include "Z/Renderer/Particle.h"
+#include "Platform/OpenGL/OpenGLContext.h"
+
 
 namespace Z {
 	bool WindowsWindow::IsGLFWInit=false;
@@ -33,9 +39,14 @@ namespace Z {
 			Z_ASSERT(res,"failed to Init GLFW!!!");
 			IsGLFWInit=true;
 		}
-		zGraphicContext::PreInitForRenderAPI();
+		GraphicContext::PreInitForRenderAPI();
 		window= glfwCreateWindow(WinData.width,WinData.height,(WinData.title +"(" + RenderAPI::GetApiStr()+")").c_str(), nullptr, nullptr);
-		Context=zGraphicContext::Create(window);
+		GLFWimage Icon{};
+		Icon.pixels=stbi_load("Assets/Configs/AppIcon.png",&Icon.width,&Icon.height, nullptr,STBI_rgb_alpha);
+		Z_CORE_ASSERT(Icon.pixels!= nullptr,"Failed to load icon");
+		glfwSetWindowIcon(window,1,&Icon);
+		stbi_image_free(Icon.pixels);
+		Context=GraphicContext::Create(window);
 		Context->Init();
 		glfwSetWindowUserPointer(window,&WinData);
 		SetVSync(false);
@@ -118,6 +129,7 @@ namespace Z {
 	}
 
 	void WindowsWindow::Shutdown() {
+		Context->Destroy();
 		glfwDestroyWindow(window);
 		glfwTerminate();
 	}

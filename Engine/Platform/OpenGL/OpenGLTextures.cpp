@@ -2,11 +2,12 @@
 // Created by 32725 on 2023/3/18.
 //
 #define STB_IMAGE_IMPLEMENTATION
-#include "Z/Core/Log.h"
-#include "stb/stb_image.h"
+#include "Include/stb/stb_image.h"
+#include "Include/glad/include/glad/glad.h"
 
-#include "OpenGLTextures.h"
-#include "glad/glad.h"
+#include "Z/Core/Log.h"
+#include "Platform/OpenGL/OpenGLTextures.h"
+
 namespace Z {
 	OpenGLTexture2D::OpenGLTexture2D(const std::string &path) {
 		int wid,hig,canal;

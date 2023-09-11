@@ -20,10 +20,14 @@ namespace Z {
 		ofn.lpstrFilter = filter;
 		ofn.nFilterIndex = 1;
 		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-		if(initialDir=="")
-			ofn.lpstrInitialDir = Project::GetProject()== nullptr?Z_SOURCE_DIR:Project::GetProjectRootDir().string().c_str();
-		else
-			ofn.lpstrInitialDir=initialDir;
+		if (initialDir == nullptr) {
+			Z_CORE_WARN("No Give Open Path");
+			ofn.lpstrInitialDir = Project::GetProject() == nullptr ? ".\\" : Project::GetProjectRootDir().string().c_str();
+		}
+		else {
+			Z_CORE_INFO("Open Path:{}",initialDir);
+			ofn.lpstrInitialDir = initialDir;
+		}
 		if (GetOpenFileNameA(&ofn)) {
 			return ofn.lpstrFile;
 		}
@@ -41,8 +45,8 @@ namespace Z {
 		ofn.lpstrFilter = filter;
 		ofn.nFilterIndex = 1;
 		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-		if(initialDir=="")
-			ofn.lpstrInitialDir = Project::GetProject()== nullptr?Z_SOURCE_DIR:Project::GetProjectRootDir().string().c_str();
+		if(initialDir==nullptr)
+			ofn.lpstrInitialDir = Project::GetProject()== nullptr?".\\" : Project::GetProjectRootDir().string().c_str();
 		else
 			ofn.lpstrInitialDir=initialDir;
 		if (GetSaveFileNameA(&ofn)) {
