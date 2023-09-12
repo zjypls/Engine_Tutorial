@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.22)
 
 project(scripts CSharp)
 
-add_dependencies(scripts ScriptCore)
 
 file(GLOB srcs *.cs)
 

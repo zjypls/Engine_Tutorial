@@ -48,5 +48,6 @@ add_dependencies(Z glad glfw ImGui Box2D)
 add_subdirectory(ZEditor)
 if(ReBuildScriptsCore)
     add_subdirectory(scripts)
+    add_dependencies(scripts ScriptCore)
 endif ()
 
