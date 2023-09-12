@@ -7,7 +7,6 @@
 #include "Z/Renderer/Camera.h"
 
 namespace Z {
-	//Todo: Fix if set perspective for init will cause error
 	class SceneCamera :public Camera {
 	public:
 		enum class ProjectionType {Perspective = 0, Orthographic = 1} ;

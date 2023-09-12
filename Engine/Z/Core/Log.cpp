@@ -2,8 +2,8 @@
 // Created by 32725 on 2023/3/12.
 //
 
-#include "Log.h"
-#include "spdlog/sinks/stdout_color_sinks.h"
+#include "Z/Core/Log.h"
+#include "Include/spdlog/include/spdlog/sinks/stdout_color_sinks.h"
 
 namespace Z{
 

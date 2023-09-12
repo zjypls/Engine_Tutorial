@@ -26,7 +26,7 @@ namespace Z {
 //			while((i=temp.find_first_of('/'))!=-1)
 //				temp.replace(i,1,"\\");
 //			Z_CORE_ERROR(temp);
-			std::filesystem::current_path("../");
+			std::filesystem::current_path(Spec.RootPath);
 		}
 		window = Z::Scope<zWindow>(zWindow::Create(WindowProps(Spec.Name)));
 		window->SetEventCallFunc(Z_BIND_EVENT_FUNC(Application::EventCall));

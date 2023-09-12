@@ -13,6 +13,7 @@ namespace Z {
 		std::filesystem::path ProjectFile;
 		std::filesystem::path ProjectRootDir;
 		std::filesystem::path StartScene;
+		std::filesystem::path editorLayout;
 		//Todo:change to AssetsSystem
 		std::filesystem::path AssetsDir;
 		std::filesystem::path ScriptsDir;
@@ -30,6 +31,7 @@ namespace Z {
 		static std::string GetProjectName() { return project->configure.ProjectName; }
 		static std::filesystem::path GetProjectFile() { return project->configure.ProjectFile; }
 		static ProjectConfigure GetConfigure() { return project->configure; }
+		static const std::filesystem::path& GetEditorLayoutConfiguration(){return project->configure.editorLayout;}
 	private:
 		ProjectConfigure configure;
 		static Ref<Project> project;

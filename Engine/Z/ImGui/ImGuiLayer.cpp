@@ -2,13 +2,13 @@
 // Created by 32725 on 2023/3/13.
 //
 
+
+#include "Include/imgui/backends/imgui_impl_glfw.h"
+#include "Include/ImGuizmo/ImGuizmo.h"
+
 #include "ImGuiLayer.h"
 #include "Z/Core/Application.h"
-#include "GLFW/glfw3.h"
-#include "imgui_impl_glfw.h"
-#include "ImGuizmo.h"
 
-#include "Platform/OpenGL/ImGuiOpenGLRenderDocking.h"
 
 
 namespace Z {
@@ -52,6 +52,7 @@ namespace Z {
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
 		ImGuiIO &io = ImGui::GetIO();
+		io.IniFilename="./Assets/Configs/editorLayout.ini";
 
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;      //Necessary for docking
@@ -85,6 +86,7 @@ namespace Z {
 	}
 
 	ImGuiLayer::~ImGuiLayer() {
+		Z_CORE_WARN("ImGui Layer Destroy!");
 		ImGuiRendererPlatform::GetRenderer()->Shutdown();
 		ImGui::DestroyContext();
 	}

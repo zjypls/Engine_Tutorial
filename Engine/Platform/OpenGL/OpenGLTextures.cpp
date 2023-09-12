@@ -2,11 +2,12 @@
 // Created by 32725 on 2023/3/18.
 //
 #define STB_IMAGE_IMPLEMENTATION
-#include "Z/Core/Log.h"
-#include "stb/stb_image.h"
+#include "Include/stb/stb_image.h"
+#include "Include/glad/include/glad/glad.h"
 
-#include "OpenGLTextures.h"
-#include "glad/glad.h"
+#include "Z/Core/Log.h"
+#include "Platform/OpenGL/OpenGLTextures.h"
+
 namespace Z {
 	OpenGLTexture2D::OpenGLTexture2D(const std::string &path) {
 		int wid,hig,canal;
@@ -14,7 +15,8 @@ namespace Z {
 		stbi_uc* pixels= stbi_load(path.c_str(), &wid, &hig, &canal, 0);
 		Z_CORE_ASSERT(pixels, "Failed to load image!");
 		width=wid,height=hig;
-		if(wid>2600||hig>2600) {
+		//TODO:improve judge logic with a device limits
+		if(wid>5000||hig>5000) {
 			Z_CORE_WARN("Texture size is too large! (width:{0},height:{1})", wid, hig);
 			ID=0;
 			stbi_image_free(pixels);

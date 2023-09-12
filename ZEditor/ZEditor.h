@@ -6,11 +6,11 @@
 #define ENGINE_TUTORIAL_ZEDITOR_H
 
 #include "z.h"
-#include"SceneHierarchy/SceneHierarchyPlane.h"
-#include"SceneHierarchy/ContentBrowser.h"
-#include "ImGuizmo.h"
+#include "SceneHierarchy/SceneHierarchyPlane.h"
+#include "SceneHierarchy/ContentBrowser.h"
+#include "Include/ImGuizmo/ImGuizmo.h"
 #include "Z/Renderer/EditorCamera.h"
-#include<unordered_map>
+#include <unordered_map>
 
 namespace Z {
 	class EditorLayer : public Layer {
@@ -18,13 +18,9 @@ namespace Z {
 			Edit, Play, Simulate,Pause
 		};
 		SceneState sceneState = SceneState::Edit,BackState=SceneState::Edit;
-		Ref<VertexArray> vertexArray;
-		Ref<Texture2D> texture[4];
-		Ref<SubTex2D> subTex;
 		glm::vec4 clearValue{0.1f, 0.1f, 0.1f, 1.0f};
 		glm::vec4 ActiveColor{0.3f, 0.8f, 0.1f, 1.0f}, InactiveColor{0.4f, 0.4f, 0.1f, 1.0f};
 		bool IsViewportFocused = false, IsViewportHovered = false, RunTimeVisualizeCollider = true, EditorVisualizeCollider = true;
-		std::unordered_map<char, Ref<SubTex2D>> textureMap;
 		Ref<FrameBuffer> frameBuffer, previewFrame;
 		glm::vec2 viewportSize{1200, 800};
 		glm::vec2 CursorPos{0, 0};

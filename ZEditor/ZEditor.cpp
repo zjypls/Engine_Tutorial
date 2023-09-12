@@ -1,15 +1,14 @@
 //
 // Created by 32725 on 2023/3/19.
 //
-#include "Z/Core/Core.h"
-#include "ZEditor.h"
-#include "Z/Scene/SceneSerializer.h"
-#include "Z/Utils/ZUtils.h"
-#include "Z/Script/ScriptEngine.h"
-#include "ImGuizmo.h"
-#include "glm/gtc/type_ptr.hpp"
-#include "glm/gtx/matrix_decompose.hpp"
-#include "filewatch/filewatch.h"
+#include "Include/imgui/imgui.h"
+#include "Include/ImGuizmo/ImGuizmo.h"
+#include "Include/glm/glm/gtc/type_ptr.hpp"
+#include "Include/glm/glm/gtx/matrix_decompose.hpp"
+#include "Include/filewatch/filewatch.h"
+
+#include "./ZEditor.h"
+
 
 
 ImVec2 operator-(const ImVec2 &lhs, const ImVec2 &rhs) {
@@ -35,37 +34,15 @@ namespace Z {
 
 	void EditorLayer::OnAttach() {
 		Z_CORE_INFO("Layer:{0} Attach!", GetName());
-		std::filesystem::path ProjectPath = Z::Utils::FileOpen("*.zPrj","Test001.zPrj",".\\Projects\\Test001");
-		if(!Project::Init(ProjectPath)){
-			Z_CORE_ASSERT(false,"Project Init Failed!");
+		std::filesystem::path ProjectPath = Z::Utils::FileOpen("*.zPrj\0", "Test001.zPrj\0", ".\\Projects\\Test001\0");
+		if (!Project::Init(ProjectPath)) {
+			Z_CORE_ASSERT(false, "Project Init Failed!");
 			return;
 		}
-		//Sample Code
-		/*
-		//Todo:clean
-		float vertices[] = {
-				-.5f, -.5f, .0f, 0, 0, .5f, -.5f, .0f, 1, 0,
-				-.5f, .5f, .0f, 0, 1, .5f, .5f, .0f, 1, 1};
-		uint32_t indices[] = {0, 1, 2, 1, 3, 2};
-		vertexArray = VertexArray::Create();
-		texture[0] = Texture2D::CreateTexture("Assets/Textures/Colum.png");
-		texture[1] = Texture2D::CreateTexture("Assets/Textures/Layla.jpg");
-		texture[2] = Texture2D::CreateTexture("Assets/Textures/Nahida.png");
-		texture[3] = Texture2D::CreateTexture("Assets/Sprites/rpgSheet.png");
-		subTex = SubTex2D::Create(texture[3], glm::vec2{10, 10}, glm::vec2{128, 128}, glm::vec2{3, 3});
-		textureMap['W'] = SubTex2D::Create(texture[3], glm::vec2{11, 11}, glm::vec2{128, 128}, glm::vec2{1, 1});
-		textureMap['D'] = SubTex2D::Create(texture[3], glm::vec2{6, 11}, glm::vec2{128, 128}, glm::vec2{1, 1});
-		auto vertexBuffer = VertexBuffer::Create(vertices, sizeof(vertices));
-		{
-			auto layout = CreateScope<BufferLayout>(BufferLayout{
-					{ShaderDataType::Float3, "position"},
-					{ShaderDataType::Float2, "texCoord"}});
-			vertexBuffer->SetLayout(*layout);
-		}
-		vertexArray->AddVertexBuffer(vertexBuffer);
-		auto indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
-		vertexArray->SetIndexBuffer(indexBuffer);
-		vertexArray->Unbind();
+		//Fixme:no effect
+//		if(auto&configuration=Project::GetEditorLayoutConfiguration();!configuration.empty()) {
+//			ImGui::GetIO().IniFilename=configuration.string().c_str();
+//		}
 
 		FrameBufferSpecification spec;
 		spec.width = 1200;
@@ -79,15 +56,6 @@ namespace Z {
 		previewFrame = FrameBuffer::Create(spec);
 		scene = CreateRef<Scene>();
 		editorCamera = Z::EditorCamera(45.f, 1.f, 0.1f, 1000.f);
-		auto nahida = scene->CreateEntity("Nahida");
-		auto &tex = nahida.AddComponent<SpriteRendererComponent>();
-		tex.texture = texture[2];
-		auto _sceneCamera = scene->CreateEntity("SceneCamera");
-		auto &_camera = _sceneCamera.AddComponent<CameraComponent>();
-		_camera.camera.OnViewportResize(1200, 800);
-		_camera.camera.SetProjectionType(SceneCamera::ProjectionType::Perspective);
-		auto &_Transform = _sceneCamera.GetComponent<TransformComponent>();
-		_Transform.translation = {0, 0, 3};
 		//Todo:optimize with a project system
 		playButtonIcon = Texture2D::CreateTexture("Assets/Icons/PlayButton.png");
 		stopButtonIcon = Texture2D::CreateTexture("Assets/Icons/StopButton.png");
@@ -97,50 +65,14 @@ namespace Z {
 		toolButtons[0] = playButtonIcon;
 		toolButtons[1] = simulateButtonIcon;
 		toolButtons[2] = stepButtonIcon;
-		/*
-		//a native C++  script
-		class CameraCtrl : public ScriptEntity {
-		public:
-			void OnCreate() {
-				Z_CORE_INFO("{0}:CameraCtrl OnCreate", entity.GetComponent<TagComponent>().tag.c_str());
-			}
 
-			void OnDestroy() {
-				Z_CORE_INFO("CameraCtrl OnDestroy");
-			}
-
-			void OnUpdate(float deltaTime) {
-				auto pri = entity.GetComponent<CameraComponent>().primary;
-				if (!pri)
-					return;
-				auto &transform = entity.GetComponent<TransformComponent>().translation;
-				constexpr float speed = 6.f;
-				if (Input::IsKeyPressed(KeyCode::W))
-					transform[1] += speed * deltaTime;
-				else if (Input::IsKeyPressed(KeyCode::S))
-					transform[1] -= speed * deltaTime;
-				if (Input::IsKeyPressed(KeyCode::A))
-					transform[0] -= speed * deltaTime;
-				else if (Input::IsKeyPressed(KeyCode::D))
-					transform[0] += speed * deltaTime;
-			}
-		};
-
-*/
 
 		sceneHierarchyPlane = CreateScope<SceneHierarchyPlane>(scene);
 		contentBrowser = CreateScope<ContentBrowser>();
-		//ScriptEngine::Init();
+
 		//Todo:change this to a better way
 		ScriptEngine::LoadAssembly("Bin-C/scripts.dll");
-		LoadScene(Project::GetProjectRootDir()/Project::GetStartScene());
-		//Todo:remove this test code
-//		auto* watch= new filewatch::FileWatch<std::string >("Bin-C/MSVC/scripts.dll", [this](const std::string &str, auto action) {
-//			if(action==filewatch::Event::modified){
-//				Z_CORE_INFO(str);
-//			}
-//		});
-		//ScriptEngine::ShutDown();
+		LoadScene(Project::GetProjectRootDir() / Project::GetStartScene());
 
 	}
 
@@ -166,7 +98,8 @@ namespace Z {
 				state = BackState;
 			switch (state) {
 				case SceneState::Edit: {
-					if (IsViewportFocused && IsViewportHovered) {
+					//TODO:optimize operation logic
+					if (/*IsViewportFocused &&*/ IsViewportHovered) {
 						editorCamera.OnUpdate();
 					}
 					scene->OnEditorUpdate(Time::DeltaTime(), editorCamera);
@@ -244,7 +177,6 @@ namespace Z {
 		}
 		style.WindowMinSize.x = miniSize;
 
-
 		if (ImGui::BeginMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
 
@@ -286,10 +218,10 @@ namespace Z {
 		ImGui::Text("Indices: %u", stats->GetTotalIndexCount());
 		static float fps = 1.f / Time::DeltaTime();
 		static float dt = Time::DeltaTime() * 1000.f;
-		static uint32_t frameCount=0;
+		static uint32_t frameCount = 0;
 		if (++frameCount >= 500) {
-			fps = frameCount/Time::GetFlushTime();
-			frameCount=0;
+			fps = frameCount / Time::GetFlushTime();
+			frameCount = 0;
 			dt = Time::DeltaTime() * 1000.f;
 			Time::FlushTime();
 		}
@@ -504,7 +436,7 @@ namespace Z {
 		}
 	}
 
-	void EditorLayer::LoadScene(const std::string &path) {
+	void EditorLayer::LoadScene(const std::filesystem::path &path) {
 		if (sceneState != SceneState::Edit) {
 			OnStop();
 		}
@@ -513,7 +445,7 @@ namespace Z {
 		sceneHierarchyPlane->SetSelectedEntity(-1);
 		sceneHierarchyPlane->SetContext(scene);
 		SceneSerializer serializer(scene);
-		if (serializer.Deserialize(path)) {
+		if (serializer.Deserialize(path.string())) {
 			WorkPath = path;
 		}
 	}
@@ -525,7 +457,7 @@ namespace Z {
 			InnerSave(WorkPath.string());
 		}
 		scene = CreateRef<Scene>();
-		scene->OnViewportResize(viewportSize.x,viewportSize.y);
+		scene->OnViewportResize(viewportSize.x, viewportSize.y);
 		sceneHierarchyPlane->SetSelectedEntity(-1);
 		sceneHierarchyPlane->SetContext(scene);
 		WorkPath = std::filesystem::path();
@@ -545,8 +477,8 @@ namespace Z {
 
 	void EditorLayer::OnStop() {
 		auto state = sceneState;
-		if(state == SceneState::Pause)
-			state=BackState;
+		if (state == SceneState::Pause)
+			state = BackState;
 		if (state == SceneState::Play) {
 			scene->OnRuntimeStop();
 		} else if (state == SceneState::Simulate) {
@@ -583,16 +515,20 @@ namespace Z {
 						SaveHotKey();
 				break;
 			case Key::Q:
-				currentGizmoOperation = -1;
+				if (IsViewportFocused && IsViewportHovered)
+					currentGizmoOperation = -1;
 				break;
 			case Key::W:
-				currentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+				if (IsViewportFocused && IsViewportHovered)
+					currentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 				break;
 			case Key::E:
-				currentGizmoOperation = ImGuizmo::OPERATION::SCALE;
+				if (IsViewportFocused && IsViewportHovered)
+					currentGizmoOperation = ImGuizmo::OPERATION::SCALE;
 				break;
 			case Key::R:
-				currentGizmoOperation = ImGuizmo::OPERATION::ROTATE;
+				if (IsViewportFocused && IsViewportHovered)
+					currentGizmoOperation = ImGuizmo::OPERATION::ROTATE;
 				break;
 			case Key::D:
 				if (sceneState == SceneState::Edit)
@@ -658,7 +594,7 @@ namespace Z {
 	void EditorLayer::OnSimulate() {
 		sceneState = SceneState::Simulate;
 		toolButtons[1] = pauseButtonIcon;
-		toolButtons[0]=stopButtonIcon;
+		toolButtons[0] = stopButtonIcon;
 		BackScene = scene;
 		scene = Scene::Copy(BackScene);
 		scene->OnViewportResize(viewportSize.x, viewportSize.y);

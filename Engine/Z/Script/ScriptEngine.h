@@ -5,17 +5,17 @@
 #ifndef ENGINE_TUTORIAL_SCRIPTENGINE_H
 #define ENGINE_TUTORIAL_SCRIPTENGINE_H
 #include <filesystem>
-#include "Z/Core/GUID.h"
+#include "Z/Core/zGUID.h"
 #include "Z/Scene/Scene.h"
 
 extern "C" {
-typedef struct _MonoClass MonoClass;
-typedef struct _MonoObject MonoObject;
-typedef struct _MonoMethod MonoMethod;
-typedef struct _MonoAssembly MonoAssembly;
-typedef struct _MonoImage MonoImage;
-typedef struct _MonoClassField MonoClassField;
-typedef struct _MonoDomain MonoDomain;
+	typedef struct _MonoClass MonoClass;
+	typedef struct _MonoObject MonoObject;
+	typedef struct _MonoMethod MonoMethod;
+	typedef struct _MonoAssembly MonoAssembly;
+	typedef struct _MonoImage MonoImage;
+	typedef struct _MonoClassField MonoClassField;
+	typedef struct _MonoDomain MonoDomain;
 };
 
 namespace Z {
@@ -65,7 +65,7 @@ namespace Z {
 			//std::memcpy(buffer,v,TypeSize);
 			memcpy(buffer,v,TypeSize);
 		}
-		unsigned char buffer[8]{0};
+		unsigned char buffer[32]{0};
 	};
 
 	class ScriptClass {
@@ -85,14 +85,14 @@ namespace Z {
 		const auto &GetFields() const { return Fields; }
 
 
-		void GetValue(GUID id,const std::string &name,void* ptr) {
+		void GetValue(zGUID id, const std::string &name, void* ptr) {
 			InnerGetValue(id,name, ptr);
 		}
 		std::string GetTypeName()const{
 			return NameSpace+"."+ClassName;
 		}
 
-		void SetValue(GUID id,const std::string &name, void *ptr);
+		void SetValue(zGUID id, const std::string &name, void *ptr);
 
 		[[nodiscard]] MonoClass *GetClass() const { return Class; }
 		bool operator==(const ScriptClass&a)const{
@@ -100,7 +100,7 @@ namespace Z {
 		}
 
 	private:
-		void InnerGetValue(GUID id,const std::string &name, void *ptr);
+		void InnerGetValue(zGUID id, const std::string &name, void *ptr);
 
 		std::unordered_map<std::string, ScriptField> Fields;
 		MonoClass *Class;
@@ -156,7 +156,7 @@ namespace Z {
 
 		static const std::unordered_map<std::string, Ref<ScriptClass>> &GetScriptList();
 
-		static Ref<ScriptInstance> GetInstance(GUID id);
+		static Ref<ScriptInstance> GetInstance(zGUID id);
 		static MonoDomain*GetDomain();
 
 		static void ReCreateFields(Ref<Scene>);
@@ -164,10 +164,10 @@ namespace Z {
 		static void SetReLoadApp(bool);
 
 		static bool ClassExists(const std::string &name);
-		static bool EntityFieldExists(GUID id,ScriptClass&klass);
-		static void RegisterEntityClassFields(GUID id, ScriptClass&klass);
-		static void RemoveEntityClassFields(GUID id, ScriptClass&klass);
-		static std::unordered_map<std::string,ScriptFieldBuffer>&GetFields(GUID id,const ScriptClass&klass);
+		static bool EntityFieldExists(zGUID id, ScriptClass&klass);
+		static void RegisterEntityClassFields(zGUID id, ScriptClass&klass);
+		static void RemoveEntityClassFields(zGUID id, ScriptClass&klass);
+		static std::unordered_map<std::string,ScriptFieldBuffer>&GetFields(zGUID id, const ScriptClass&klass);
 
 		static MonoImage *GetCoreImage();
 		static void ReLoadApp();

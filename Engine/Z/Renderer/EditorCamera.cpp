@@ -2,8 +2,10 @@
 // Created by 32725 on 2023/3/31.
 //
 
-#include "EditorCamera.h"
+#include "./EditorCamera.h"
 #include "Z/Core/Input.h"
+#include "Z/Core/Time.h"
+#include "Z/Core/Log.h"
 #include "glm/gtx/quaternion.hpp"
 
 
@@ -19,15 +21,18 @@ namespace Z {
 	void EditorCamera::OnEvent(Event &e) {
 		EventDispatcher dispatcher(e);
 		dispatcher.Handle<MouseScrollEvent>(Z_BIND_EVENT_FUNC(EditorCamera::OnMouseScrolled));
+		dispatcher.Handle<WindowResizeEvent>(Z_BIND_EVENT_FUNC(EditorCamera::OnWindowResized));
+		dispatcher.Handle<KeyPressEvent>(Z_BIND_EVENT_FUNC(EditorCamera::OnKeyPressed));
 	}
 
 	void EditorCamera::OnUpdate() {
 		auto [x, y] = Input::GetMousePosition();
 		auto offset = glm::vec2(x, y) - lastMousePosition;
+		//ToDO:Optimize
 		if (Input::IsMouseButtonPressed(MouseCode::ButtonRight)) {
 			ViewRotate(offset);
-		}
-		if (Input::IsMouseButtonPressed(MouseCode::ButtonMiddle)) {
+			Walk();
+		} else if (Input::IsMouseButtonPressed(MouseCode::ButtonMiddle)) {
 			MoveFocus(offset);
 		}
 		lastMousePosition = glm::vec2(x, y);
@@ -36,7 +41,7 @@ namespace Z {
 	}
 
 	bool EditorCamera::OnMouseScrolled(MouseScrollEvent &e) {
-		distance -= e.GetYOffset() * 3E-2f * distance;
+		distance -= e.GetYOffset() * 0.1f * distance;
 		distance = std::max(distance, 0.1f);
 		position = focus - distance * glm::normalize(focus - position);
 		return false;
@@ -51,16 +56,22 @@ namespace Z {
 	void EditorCamera::ViewRotate(const glm::vec2 offset) {
 		auto [x, y] = Input::GetMousePosition();
 		auto toFocus = glm::normalize(position - focus);
-		pitch -= offset.y * 1E-2f;
+		//TODO:multiply with deltaTime
+		pitch-=offset.y * 1E-2f;
 		yaw -= offset.x * 1E-2f;
-		right = glm::normalize(
-				glm::cross(toFocus, up));//glm::normalize(glm::rotate(glm::quat(-offset.x * up*1E-2f), right));
-		toFocus = glm::rotate(glm::quat(-offset.x * up * 1E-2f), toFocus);
-		toFocus = glm::rotate(glm::quat(offset.y * right * 1E-2f), toFocus);
-		position = focus + distance * glm::normalize(toFocus);
+		right = glm::normalize(glm::cross(toFocus, up));//glm::normalize(glm::rotate(glm::quat(-offset.x * up*1E-2f), right));
+		// Todo:optimize
+		if(pitch<3.1f&&pitch>0.1f) {
+			toFocus = glm::rotate(glm::quat(-offset.x * up * 1E-2f), toFocus);
+			toFocus = glm::rotate(glm::quat(offset.y * right * 1E-2f), toFocus);
+			position = focus + distance * glm::normalize(toFocus);
+		}
+		else
+			//TODO:use clamp?
+			pitch += offset.y * 1E-2f;
 	}
 
-	void EditorCamera::UpdatePos() {
+	void EditorCamera::UpdateCursorPos() {
 		auto [x, y] = Input::GetMousePosition();
 		lastMousePosition = glm::vec2(x, y);
 	}
@@ -71,5 +82,29 @@ namespace Z {
 		auto LocalUp = glm::normalize(glm::cross(LocalRight, toFocus));
 		focus += (-offset.x * LocalRight + offset.y * LocalUp) * 1E-2f;
 		position += (-offset.x * LocalRight + offset.y * LocalUp) * 1E-2f;
+	}
+
+	bool EditorCamera::OnKeyPressed(KeyPressEvent &e) {
+		return false;
+	}
+
+	void EditorCamera::Walk() {
+		glm::vec3 befPos = this->position;
+		float deltaTimeScale = Time::DeltaTime() * 10;
+		if (Input::IsKeyPressed(KeyCode::W))
+			this->position += glm::normalize(this->focus - this->position) * deltaTimeScale;
+		else if (Input::IsKeyPressed(KeyCode::S))
+			this->position -= glm::normalize(this->focus - this->position) * deltaTimeScale;
+		else if (Input::IsKeyPressed(KeyCode::A))
+			this->position += right * deltaTimeScale;
+		else if (Input::IsKeyPressed(KeyCode::D))
+			this->position -= right * deltaTimeScale;
+		else if (Input::IsKeyPressed(KeyCode::E))
+			this->position += this->up * deltaTimeScale;
+		else if (Input::IsKeyPressed(KeyCode::Q))
+			this->position -= this->up * deltaTimeScale;
+		else
+			return;
+		this->focus += this->position - befPos;
 	}
 }

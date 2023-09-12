@@ -4,14 +4,16 @@
 
 #ifndef ENGINE_TUTORIAL_IMGUILAYER_H
 #define ENGINE_TUTORIAL_IMGUILAYER_H
-#include"Z/Core/Core.h"
+#include "Include/imgui/imgui.h"
+
+#include "Z/Core/Core.h"
 #include "Z/Core/Layer.h"
 #include "Z/Core/Log.h"
-#include "imgui.h"
 #include "Z/Events/KeyEvent.h"
 #include "Z/Events/MouseEvent.h"
 #include "Z/Events/ApplicationEvent.h"
-#include "ImGuiRendererPlatform.h"
+#include "Z/Imgui/ImGuiRendererPlatform.h"
+
 namespace Z {
 	class Z_API ImGuiLayer: public Layer {
 		bool BlockEvents=false;

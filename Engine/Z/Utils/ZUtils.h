@@ -10,14 +10,13 @@
 namespace Z {
 	class Utils {
 	private:
-		friend class GUID;
+		friend class zGUID;
 
 	public:
-		static std::string FileOpen(const char *filter, const char *defaultOpen = "", const char *initialDir = "");
+		static std::string FileOpen(const char *filter, const char *defaultOpen = "", const char *initialDir =nullptr);
 
-		static std::string FileSave(const char *filter, const char *defaultOpen = "", const char *initialDir = "");
+		static std::string FileSave(const char *filter, const char *defaultOpen = "", const char *initialDir = nullptr);
 	};
-
 }
 
 #endif //ENGINE_TUTORIAL_ZUTILS_H

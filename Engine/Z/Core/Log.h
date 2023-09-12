@@ -5,10 +5,13 @@
 #ifndef ENGINE_TUTORIAL_LOG_H
 #define ENGINE_TUTORIAL_LOG_H
 #include <memory>
-#include "Core.h"
-#include "glm/gtx/string_cast.hpp"
-#include "spdlog/spdlog.h"
-#include "spdlog/fmt/ostr.h"
+
+#include "Include/glm/glm/gtx/string_cast.hpp"
+#include "Include/spdlog/include/spdlog/spdlog.h"
+#include "Include/spdlog/include/spdlog/fmt/ostr.h"
+#include "Include/spdlog/include/spdlog/logger.h"
+
+#include "Z/Core/Core.h"
 
 namespace Z {
 	class Z_API Log {

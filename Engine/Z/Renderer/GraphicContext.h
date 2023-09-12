@@ -7,11 +7,13 @@
 #include "Z/Core/Core.h"
 
 namespace Z {
-	class Z_API zGraphicContext {
+	class Z_API GraphicContext {
 	public:
+		static void PreInitForRenderAPI();
 		virtual void Init()=0;
 		virtual void SwapBuffers()=0;
-		static Scope<zGraphicContext> Create(void* window);
+		virtual void Destroy()=0;
+		static Scope<GraphicContext> Create(void* window);
 	};
 
 }

@@ -3,3 +3,4 @@ Project:
   StartScene: Assets/Scene/Nahida.zscene
   AssetsDirectory: Assets
   ScriptsDirectory: Assets/Script
+  EditorLayout: editorLayout.ini

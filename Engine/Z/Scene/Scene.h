@@ -4,10 +4,12 @@
 
 #ifndef ENGINE_TUTORIAL_SCENE_H
 #define ENGINE_TUTORIAL_SCENE_H
-#include "Z/Core/GUID.h"
-#include "entt.hpp"
+
+#include "Include/entt/include/entt.hpp"
+
+#include "Z/Core/zGUID.h"
 #include "Z/Renderer/EditorCamera.h"
-#include "Entity.h"
+#include "Z/Scene/Entity.h"
 
 
 namespace Z {
@@ -21,7 +23,7 @@ namespace Z {
 		void* PhysicalWorld = nullptr;
 		bool Running=false,Paused=false;
 		int FrameStepCount=0;
-		std::unordered_map<GUID, Entity> entities;
+		std::unordered_map<zGUID, Entity> entities;
 		template<class Ty>
 		void OnComponentAdd(Entity entity, Ty &component);
 		void Render2D();
@@ -41,7 +43,7 @@ namespace Z {
 		static Ref<Scene> Copy(Ref<Scene>);
 
 		Entity CreateEntity(const std::string& name="Entity");
-		Entity CreateEntityWithGuid(GUID guid,const std::string&name= "Entity");
+		Entity CreateEntityWithGuid(zGUID guid, const std::string&name= "Entity");
 
 		void OnRuntimeStart();
 		void OnRuntimeStop();
@@ -59,9 +61,9 @@ namespace Z {
 		void OnViewportResize(unsigned int width, unsigned int height);
 		void DestroyEntity(Entity entity);
 		void CopyEntity(Entity entity);
-		Entity GetEntityWithGUID(GUID guid);
+		Entity GetEntityWithGUID(zGUID guid);
 
-		void GetEntitiesByName(const std::string& name, std::vector<GUID>& ids);
+		void GetEntitiesByName(const std::string& name, std::vector<zGUID>& ids);
 
 		void OnUpdate(float);
 		void OnEditorUpdate(float deltaTime, EditorCamera &camera);

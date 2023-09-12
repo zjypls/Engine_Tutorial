@@ -2,16 +2,17 @@
 // Created by 32725 on 2023/3/27.
 //
 
-#include "ScriptEntity.h"
+#include "Include/box2d/include/box2d/b2_world.h"
+#include "Include/box2d/include/box2d/b2_body.h"
+#include "Include/box2d/include/box2d/b2_fixture.h"
+#include "Include/box2d/include/box2d/b2_polygon_shape.h"
+#include "Include/box2d/include/box2d/b2_circle_shape.h"
+#include "Include/box2d/include/box2d/b2_collision.h"
+
+#include "Z/Scene/Scene.h"
+#include "Z/Scene/ScriptEntity.h"
 #include "Z/Script/ScriptEngine.h"
-#include "Scene.h"
 #include "Z/Renderer/Renderer2D.h"
-#include "box2d/b2_world.h"
-#include "box2d/b2_body.h"
-#include "box2d/b2_fixture.h"
-#include "box2d/b2_polygon_shape.h"
-#include "box2d/b2_circle_shape.h"
-#include "box2d/b2_collision.h"
 
 namespace Z {
 
@@ -117,7 +118,7 @@ namespace Z {
 		return entity;
 	}
 
-	Entity Scene::CreateEntityWithGuid(GUID guid, const std::string &name) {
+	Entity Scene::CreateEntityWithGuid(zGUID guid, const std::string &name) {
 		Entity entity{registry.create(), this};
 		entity.AddComponent<IDComponent>(guid);
 		entity.AddComponent<TransformComponent>();
@@ -301,13 +302,13 @@ namespace Z {
 		ScriptEngine::OnRuntimeStop();
 	}
 
-	Entity Scene::GetEntityWithGUID(GUID guid) {
+	Entity Scene::GetEntityWithGUID(zGUID guid) {
 		if (entities.find(guid) != entities.end())
 			return entities[guid];
 		return Entity{};
 	}
 
-	void Scene::GetEntitiesByName(const std::string &name, std::vector<GUID> &ids) {
+	void Scene::GetEntitiesByName(const std::string &name, std::vector<zGUID> &ids) {
 		registry.view<TagComponent>().each([&](auto id, auto &tag) {
 			if (tag.tag == name) {
 				ids.push_back(registry.get<IDComponent>(id).ID);

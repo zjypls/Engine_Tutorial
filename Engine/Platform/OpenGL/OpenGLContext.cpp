@@ -3,22 +3,29 @@
 //
 #include "Z/Core/Log.h"
 #include "Z/Core/Core.h"
-#include "zOpenGLContext.h"
-#include "GLFW/glfw3.h"
+#include "Platform/OpenGL/OpenGLContext.h"
 #include "glad/glad.h"
 namespace  Z{
 
-	void zOpenGLContext::Init() {
+	void OpenGLContext::Init() {
 		glfwMakeContextCurrent(windowHandle);
 		auto state = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		Z_CORE_ASSERT(state, "failed to init glad!!!");
 	}
 
-	void zOpenGLContext::SwapBuffers() {
+	void OpenGLContext::SwapBuffers() {
 		glfwSwapBuffers(windowHandle);
 	}
 
-	zOpenGLContext::zOpenGLContext(GLFWwindow* window) :windowHandle(window){
+	OpenGLContext::OpenGLContext(GLFWwindow* window) : windowHandle(window){
 		Z_CORE_ASSERT(windowHandle, "window handle is null!!!");
+	}
+
+	void OpenGLContext::Destroy() {
+		Z_CORE_WARN("OpenGL Context Destroy!");
+	}
+
+	void OpenGLContext::PreInit() {
+
 	}
 }

@@ -1,12 +1,12 @@
 //
 // Created by 32725 on 2023/3/27.
 //
-
-#include "Entity.h"
-#include "Components.h"
+#include "Z/Scene/Entity.h"
+#include "Z/Core/zGUID.h"
+#include "Z/Scene/Components.h"
 
 namespace Z {
-	GUID::Type Entity::GetUID() {
+	zGUID::Type Entity::GetUID() {
 		return GetComponent<IDComponent>().ID;
 	}
 

@@ -24,9 +24,12 @@ namespace Z {
 		virtual void SetUniform(const char* name, const glm::vec4& value)=0;
 		virtual void SetUniform(const char* name, const glm::mat4& value)=0;
 		virtual void SetUniform(const char* name, const glm::mat3& value)=0;
+
+	protected:
+		std::string Name;
 	};
 
-	//Todo : change into as aprt of  assets manager
+	//Todo : change into as a prt of  assets manager
 	class ShaderLibrary{
 		static std::unordered_map<std::string, std::shared_ptr<Shader>> Shaders;
 	public:
