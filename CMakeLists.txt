@@ -8,7 +8,7 @@ add_definitions(-w)
 
 set(DynamicLink OFF)
 #this flags open mean msvc generator only because cmake build C# only support msvc generator
-set(ReBuildScriptsCore OFF)
+set(ReBuildScriptsCore ON)
 set(UseVulkan OFF)
 
 set(gladPath ${CMAKE_SOURCE_DIR}/Engine/Include/glad)
