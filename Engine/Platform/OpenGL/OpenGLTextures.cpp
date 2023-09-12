@@ -15,7 +15,8 @@ namespace Z {
 		stbi_uc* pixels= stbi_load(path.c_str(), &wid, &hig, &canal, 0);
 		Z_CORE_ASSERT(pixels, "Failed to load image!");
 		width=wid,height=hig;
-		if(wid>2600||hig>2600) {
+		//TODO:improve judge logic with a device limits
+		if(wid>5000||hig>5000) {
 			Z_CORE_WARN("Texture size is too large! (width:{0},height:{1})", wid, hig);
 			ID=0;
 			stbi_image_free(pixels);

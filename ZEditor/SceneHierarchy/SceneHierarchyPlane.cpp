@@ -192,11 +192,7 @@ namespace Z {
 					                                       Z_CORE_ASSERT(std::filesystem::exists(path),
 					                                                     "Path does not exist!");
 					                                       auto temp = Texture2D::CreateTexture(path);
-					                                       if (temp->GetWidth() > 2600 || temp->GetHeight() > 2600) {
-						                                       MessageBoxA(nullptr, "Texture is too large!", "Error",
-						                                                   MB_OK);
-					                                       } else
-						                                       spriteRenderer.texture = temp;
+						                                   spriteRenderer.texture = temp;
 				                                       }
 				                                       ImGui::EndDragDropTarget();
 			                                       }
