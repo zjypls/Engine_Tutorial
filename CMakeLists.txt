@@ -9,6 +9,7 @@ add_definitions(-w)
 set(DynamicLink OFF)
 #this flags open mean msvc generator only because cmake build C# only support msvc generator
 set(ReBuildScriptsCore ON)
+set(UseVulkan OFF)
 
 set(gladPath ${CMAKE_SOURCE_DIR}/Engine/Include/glad)
 set(GLFWPath ${CMAKE_SOURCE_DIR}/Engine/Include/GLFW)
@@ -44,7 +45,7 @@ add_compile_definitions(Z_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 
 add_subdirectory(Engine)
 
-add_dependencies(Z glad glfw ImGui Box2D)
+add_dependencies(Z glad glfw imgui Box2D)
 add_subdirectory(ZEditor)
 if(ReBuildScriptsCore)
     add_subdirectory(scripts)

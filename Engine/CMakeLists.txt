@@ -38,7 +38,7 @@ add_library(Z STATIC ${src})
 target_include_directories(Z PUBLIC depends)
 #Todo: change
 target_link_libraries(Z PUBLIC
-        glfw glad ImGui yaml Box2D
+        glfw glad imgui yaml Box2D
         vulkan-1 shaderc_shared spirv-cross-core spirv-cross-glsl
         libmono-static-sgen
         Ws2_32 winmm Version Bcrypt
