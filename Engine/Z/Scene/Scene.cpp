@@ -39,6 +39,9 @@ namespace Z {
 		template<class... T>
 		static void CopyEntity(Type<T...>, Entity src, Entity dst) {
 			([&]() {
+				auto& typeID= typeid(T);
+				if(typeID == typeid(IDComponent)||typeID==typeid(TagComponent)||typeID==typeid(TransformComponent))
+					return;
 				if (src.HasComponent<T>())
 					dst.AddOrReplaceComponent<T>(src.GetComponent<T>());
 			}(), ...);
@@ -272,7 +275,7 @@ namespace Z {
 			auto entity = res->CreateEntityWithGuid(idComponent.ID, srcRegistry.get<TagComponent>(id).tag);
 			auto &trans = srcEntity.GetComponent<TransformComponent>();
 			resRegistry.emplace_or_replace<TransformComponent>(entity, trans);
-			Temp::CopyEntity(AllTypes{}, srcEntity, entity);
+			Temp::CopyEntity(NoBaseTypes{}, srcEntity, entity);
 		});
 		return res;
 	}
@@ -280,7 +283,7 @@ namespace Z {
 
 	void Scene::CopyEntity(Entity entity) {
 		Entity res = CreateEntity(entity.GetName());
-		Temp::CopyEntity(AllTypes{}, entity, res);
+		Temp::CopyEntity(NoBaseTypes{}, entity, res);
 	}
 
 	void Scene::ScriptUpdate(float deltaTime) {

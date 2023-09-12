@@ -8,6 +8,7 @@
 
 namespace Z {
 	Ref<Texture2D> Texture2D::CreateTexture(const std::string &path) {
+		Z_CORE_INFO("Create Texture2D with path {0}.",path);
 		switch (RenderAPI::GetAPI()) {
 			case RenderAPI::API::None:
 				Z_CORE_ASSERT(false, "RenderAPI::None is not supported!");

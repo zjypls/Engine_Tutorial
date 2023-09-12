@@ -4,6 +4,7 @@
 
 #include "Z/Core/Log.h"
 #include "Z/Project/Project.h"
+#include "Z/Core/AssetsSystem.h"
 
 #include "ContentBrowser.h"
 
@@ -12,7 +13,8 @@ namespace Z {
 	const std::filesystem::path RootPath("./");
 
 	ContentBrowser::ContentBrowser() : currentPath(Project::GetProjectRootDir()) {
-		loadIcons({"Assets/Icons/DirectoryIcon.png", "Assets/Icons/FileIcon.png"});
+		loadIcons({ZSTRCAT(Z_SOURCE_DIR,"Assets/Icons/DirectoryIcon.png"),
+				   ZSTRCAT(Z_SOURCE_DIR,"Assets/Icons/FileIcon.png")});
 	}
 
 	void ContentBrowser::OnImGuiRender() {
@@ -22,9 +24,10 @@ namespace Z {
 		int columns = std::max(int(x / width), 1);
 		ImGui::Columns(columns, 0, false);
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-		if (currentPath != RootPath) {
+		if (currentPath != Project::GetProjectRootDir()) {
 			ImGui::ImageButton((ImTextureID) icons[0]->GetRendererID(),
-			                   ImVec2{static_cast<float>(width), static_cast<float>(width)});
+			                   ImVec2{static_cast<float>(width), static_cast<float>(width)},
+			                   {0,1},{1,0});
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
 				currentPath = currentPath.has_parent_path() ? currentPath.parent_path() : currentPath;
 			}
@@ -61,7 +64,7 @@ namespace Z {
 		Z_CORE_ASSERT(paths.size() == 2, "Icon size must be 2");
 		int i = 0;
 		for (const auto &path: paths) {
-			icons[i++] = Texture2D::CreateTexture(path);
+			icons[i++] = AssetsSystem::LoadTexture(path,true) ;//Texture2D::CreateTexture(path);
 		}
 	}
 }

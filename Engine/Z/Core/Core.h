@@ -28,6 +28,7 @@
 	#define Z_CORE_ASSERT(x,...)
 #endif
 
+#define ZSTRCAT(str1,str2) str1 "/" str2
 #define BIT(x) (1<<x)
 #define Z_BIND_EVENT_FUNC(func) [this](auto&&... args) -> decltype(auto) { return this->func(std::forward<decltype(args)>(args)...); }
 

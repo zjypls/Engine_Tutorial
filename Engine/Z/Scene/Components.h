@@ -156,6 +156,8 @@ namespace Z {
 
 	using AllTypes=Type<TransformComponent,SpriteRendererComponent,CircleRendererComponent,TagComponent,
 	CameraComponent,ScriptComponent,NativeScriptComponent,RigidBody2DComponent,BoxCollider2DComponent,CircleCollider2DComponent>;
+	using NoBaseTypes=Type<SpriteRendererComponent,CircleRendererComponent,
+			CameraComponent,ScriptComponent,NativeScriptComponent,RigidBody2DComponent,BoxCollider2DComponent,CircleCollider2DComponent>;
 
 }
 

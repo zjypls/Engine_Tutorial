@@ -10,7 +10,6 @@
 #include "./ZEditor.h"
 
 
-
 ImVec2 operator-(const ImVec2 &lhs, const ImVec2 &rhs) {
 	return {lhs.x - rhs.x, lhs.y - rhs.y};
 }
@@ -39,6 +38,7 @@ namespace Z {
 			Z_CORE_ASSERT(false, "Project Init Failed!");
 			return;
 		}
+		AssetsSystem::Init(Project::GetProjectRootDir());
 		//Fixme:no effect
 //		if(auto&configuration=Project::GetEditorLayoutConfiguration();!configuration.empty()) {
 //			ImGui::GetIO().IniFilename=configuration.string().c_str();
@@ -57,11 +57,16 @@ namespace Z {
 		scene = CreateRef<Scene>();
 		editorCamera = Z::EditorCamera(45.f, 1.f, 0.1f, 1000.f);
 		//Todo:optimize with a project system
-		playButtonIcon = Texture2D::CreateTexture("Assets/Icons/PlayButton.png");
-		stopButtonIcon = Texture2D::CreateTexture("Assets/Icons/StopButton.png");
-		simulateButtonIcon = Texture2D::CreateTexture("Assets/Icons/SimulateButton.png");
-		pauseButtonIcon = Texture2D::CreateTexture("Assets/Icons/PauseButton.png");
-		stepButtonIcon = Texture2D::CreateTexture("Assets/Icons/StepButton.png");
+		playButtonIcon = AssetsSystem::LoadTexture(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/PlayButton.png"), true);
+		//Texture2D::CreateTexture("Assets/Icons/PlayButton.png");
+		stopButtonIcon = AssetsSystem::LoadTexture(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/StopButton.png"), true);
+		//Texture2D::CreateTexture("Assets/Icons/StopButton.png");
+		simulateButtonIcon = AssetsSystem::LoadTexture(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/SimulateButton.png"), true);
+		//Texture2D::CreateTexture("Assets/Icons/SimulateButton.png");
+		pauseButtonIcon = AssetsSystem::LoadTexture(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/PauseButton.png"), true);
+		//Texture2D::CreateTexture("Assets/Icons/PauseButton.png");
+		stepButtonIcon = AssetsSystem::LoadTexture(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/StepButton.png"), true);
+		//Texture2D::CreateTexture("Assets/Icons/StepButton.png");
 		toolButtons[0] = playButtonIcon;
 		toolButtons[1] = simulateButtonIcon;
 		toolButtons[2] = stepButtonIcon;
@@ -272,12 +277,14 @@ namespace Z {
 		}
 		if (ImGui::BeginDragDropTarget()) {
 			if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")) {
-				const char *path = (const char *) payload->Data;
-				LoadScene(path);
-				ImGui::PopStyleVar();
-				ImGui::End();
-				ImGui::End();
-				return;
+				std::filesystem::path path = (const char *) payload->Data;
+				if(path.extension()==".zscene") {
+					LoadScene(path);
+					ImGui::PopStyleVar();
+					ImGui::End();
+					ImGui::End();
+					return;
+				}
 			}
 		}
 		if (selectedEntity = sceneHierarchyPlane->GetSelectedEntity();

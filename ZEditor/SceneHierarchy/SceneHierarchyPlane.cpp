@@ -8,6 +8,8 @@
 
 #include "Z/Scene/Components.h"
 #include "Z/Script/ScriptEngine.h"
+#include "Z/Core/AssetsSystem.h"
+
 #include "SceneHierarchyPlane.h"
 
 namespace Z {
@@ -191,8 +193,7 @@ namespace Z {
 					                                       const char *path = (const char *) payload->Data;
 					                                       Z_CORE_ASSERT(std::filesystem::exists(path),
 					                                                     "Path does not exist!");
-					                                       auto temp = Texture2D::CreateTexture(path);
-						                                   spriteRenderer.texture = temp;
+						                                   spriteRenderer.texture = AssetsSystem::LoadTexture(path);
 				                                       }
 				                                       ImGui::EndDragDropTarget();
 			                                       }
