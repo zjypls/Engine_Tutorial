@@ -4,8 +4,8 @@
 
 #ifndef ENGINE_TUTORIAL_SHADER_H
 #define ENGINE_TUTORIAL_SHADER_H
-#include "glm/glm.hpp"
-#include "RenderAPI.h"
+#include "Include/glm/glm/glm.hpp"
+#include "Z/Renderer/RenderAPI.h"
 namespace Z {
 	class Shader {
 	public:

@@ -2,8 +2,9 @@
 // Created by 32725 on 2023/6/1.
 //
 
-#include "Project.h"
-#include "yaml-cpp/yaml.h"
+#include "Include/yaml-cpp/include/yaml-cpp/yaml.h"
+
+#include "Z/Project/Project.h"
 #include "Z/Core/Log.h"
 
 namespace Z {

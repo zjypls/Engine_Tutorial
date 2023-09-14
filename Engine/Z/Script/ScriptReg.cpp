@@ -2,18 +2,18 @@
 // Created by 32725 on 2023/4/7.
 //
 
-#include "ScriptReg.h"
+#include "Z/Script/ScriptReg.h"
 //#include "Z/Core/Core.h"
 //#include "Z/Core/Log.h"
 //#include "Z/Core/GUID.h"
-#include "ScriptEngine.h"
+#include "Z/Script/ScriptEngine.h"
 #include "Z/Scene/Entity.hpp"
 #include "Z/Core/Input.h"
 #include "Z/Scene/Components.h"
-#include "glm/glm.hpp"
-#include "mono/jit/jit.h"
-#include "mono/metadata/reflection.h"
-#include "box2d/b2_body.h"
+#include "Include/glm/glm/glm.hpp"
+#include "Include/mono/include/mono/jit/jit.h"
+#include "Include/mono/include/mono/metadata/reflection.h"
+#include "Include/box2d/include/box2d/b2_body.h"
 
 namespace Z {
 	const void InternalCallPRT(MonoString *str) {

@@ -4,10 +4,11 @@
 
 #ifndef ENGINE_TUTORIAL_MOUSEEVENT_H
 #define ENGINE_TUTORIAL_MOUSEEVENT_H
-
-#include "Event.h"
 #include <sstream>
+
 #include "Z/Core/MouseButtonCodes.h"
+#include "Z/Events/Event.h"
+
 namespace Z {
 	class MouseMovedEvent : public Event {
 		float m_X, m_Y;

@@ -4,12 +4,15 @@
 
 #ifndef ENGINE_TUTORIAL_COMPENENTS_H
 #define ENGINE_TUTORIAL_COMPONENTS_H
+#pragma once
+#include "Include/glm/glm/glm.hpp"
+#include "Include/glm/glm/gtc/matrix_transform.hpp"
+#include "Include/glm/glm/gtx/quaternion.hpp"
+
 #include "Z/Core/zGUID.h"
-#include "SceneCamera.h"
+#include "Z/Scene/SceneCamera.h"
 #include "Z/Renderer/Texture.h"
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtx/quaternion.hpp"
+#include "Z/Renderer/VertexArray.h"
 
 namespace Z {
 
@@ -150,13 +153,18 @@ namespace Z {
 		CircleCollider2DComponent()=default;
 	};
 
+	//TODO:Add a GUID for each component?
+	struct MeshRendererComponent{
+		Ref<VertexArray> vertexArray;
+	};
+
 	template<class... T>
 	struct Type{
 	};
 
-	using AllTypes=Type<TransformComponent,SpriteRendererComponent,CircleRendererComponent,TagComponent,
+	using AllTypes=Type<MeshRendererComponent,TransformComponent,SpriteRendererComponent,CircleRendererComponent,TagComponent,
 	CameraComponent,ScriptComponent,NativeScriptComponent,RigidBody2DComponent,BoxCollider2DComponent,CircleCollider2DComponent>;
-	using NoBaseTypes=Type<SpriteRendererComponent,CircleRendererComponent,
+	using NoBaseTypes=Type<MeshRendererComponent,SpriteRendererComponent,CircleRendererComponent,
 			CameraComponent,ScriptComponent,NativeScriptComponent,RigidBody2DComponent,BoxCollider2DComponent,CircleCollider2DComponent>;
 
 }

@@ -2,13 +2,15 @@
 // Created by 32725 on 2023/3/12.
 //
 
+#include <iostream>
+
 #include "Z/Core/Log.h"
 #include "Include/spdlog/include/spdlog/sinks/stdout_color_sinks.h"
 
 namespace Z{
 
-	std::shared_ptr<spdlog::logger> Log::z_CoreLog;
-	std::shared_ptr<spdlog::logger> Log::z_ClientLog;
+	Ref<spdlog::logger> Log::z_CoreLog;
+	Ref<spdlog::logger> Log::z_ClientLog;
 	void Log::Init() {
 		spdlog::set_pattern("%^[%T] %n:%v%$");
 		Log::z_CoreLog=spdlog::stdout_color_mt("Z");

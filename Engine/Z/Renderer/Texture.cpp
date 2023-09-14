@@ -2,9 +2,9 @@
 // Created by 32725 on 2023/3/18.
 //
 
-#include "Texture.h"
+#include "Z/Renderer/Texture.h"
+#include "Z/Renderer/Renderer.h"
 #include "Platform/OpenGL/OpenGLTextures.h"
-#include "Renderer.h"
 
 namespace Z {
 	Ref<Texture2D> Texture2D::CreateTexture(const std::string &path) {

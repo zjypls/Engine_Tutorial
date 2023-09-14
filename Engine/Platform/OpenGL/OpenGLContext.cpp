@@ -28,4 +28,8 @@ namespace  Z{
 	void OpenGLContext::PreInit() {
 
 	}
+
+	void OpenGLContext::DeviceSynchronize() {
+
+	}
 }

@@ -25,6 +25,7 @@ add_subdirectory(Include/glad)
 add_subdirectory(Include/imgui)
 add_subdirectory(Include/yaml-cpp)
 add_subdirectory(Include/Box2D)
+add_subdirectory(Include/tinyobjloader)
 
 add_compile_definitions(GLFW_INCLUDE_NONE)
 
@@ -38,7 +39,7 @@ add_library(Z STATIC ${src})
 target_include_directories(Z PUBLIC depends)
 #Todo: change
 target_link_libraries(Z PUBLIC
-        glfw glad imgui yaml Box2D
+        glfw glad imgui yaml Box2D tinyobjloader
         vulkan-1 shaderc_shared spirv-cross-core spirv-cross-glsl
         libmono-static-sgen
         Ws2_32 winmm Version Bcrypt

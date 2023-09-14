@@ -1,13 +1,13 @@
 //
 // Created by 32725 on 2023/3/30.
 //
-//#include "Z/Core/Core.h"
-//#include "Z/Core/Log.h"
-#include "Entity.hpp"
-#include "Components.h"
+
+#include "Include/yaml-cpp/include/yaml-cpp/yaml.h"
+
+#include "Z/Scene/Entity.hpp"
+#include "Z/Scene/Components.h"
+#include "Z/Scene/SceneSerializer.h"
 #include "Z/Script/ScriptEngine.h"
-#include "SceneSerializer.h"
-#include "yaml-cpp/yaml.h"
 
 
 namespace YAML {

@@ -4,8 +4,9 @@
 
 #ifndef ENGINE_TUTORIAL_APPLICATIONEVENT_H
 #define ENGINE_TUTORIAL_APPLICATIONEVENT_H
-#include "Event.h"
 #include <sstream>
+
+#include "Z/Events/Event.h"
 namespace Z{
 	class WindowResizeEvent:public Event{
 		int width,height;

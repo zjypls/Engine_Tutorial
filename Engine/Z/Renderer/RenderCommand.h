@@ -5,10 +5,11 @@
 #ifndef ENGINE_TUTORIAL_RENDERCOMMAND_H
 #define ENGINE_TUTORIAL_RENDERCOMMAND_H
 
+#include "Include/glm/glm/glm.hpp"
+
 #include "Z/Core/Core.h"
-#include "glm/glm.hpp"
-#include "VertexArray.h"
-#include "RenderAPI.h"
+#include "Z/Renderer/VertexArray.h"
+#include "Z/Renderer/RenderAPI.h"
 
 namespace Z {
 	class Z_API RenderCommand {

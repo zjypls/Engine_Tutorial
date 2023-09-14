@@ -5,8 +5,9 @@
 #ifndef ENGINE_TUTORIAL_SUBTEX2D_H
 #define ENGINE_TUTORIAL_SUBTEX2D_H
 
-#include "Texture.h"
-#include "glm/glm.hpp"
+#include "Include/glm/glm/glm.hpp"
+
+#include "Z/Renderer/Texture.h"
 
 namespace Z {
 	class SubTex2D {

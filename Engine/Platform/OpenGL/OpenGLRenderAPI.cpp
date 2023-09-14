@@ -17,8 +17,8 @@ namespace Z {
 
 	void OpenGLRenderAPI::DrawIndexed(const Ref<VertexArray> &vertexArray,unsigned int count) {
 		vertexArray->Bind();
-		//Fixme:out of range bug
-		//count = (count == 0) ? vertexArray->GetIndexBuffer()->GetCount() : count;
+		//Fixme:out of range bug   //Random Happened???
+		count = (count == 0) ? vertexArray->GetIndexBuffer()->GetCount() : count;
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
 

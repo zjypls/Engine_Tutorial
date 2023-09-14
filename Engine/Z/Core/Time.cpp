@@ -2,8 +2,8 @@
 // Created by 32725 on 2023/3/17.
 //
 
-#include "Time.h"
-#include "GLFW/glfw3.h"
+#include "Z/Core/Time.h"
+#include "Include/GLFW/include/GLFW/glfw3.h"
 
 namespace Z {
 	float Time::lastTime = GetTime();

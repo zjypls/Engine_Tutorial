@@ -4,10 +4,10 @@
 
 #ifndef ENGINE_TUTORIAL_LAYERSTACKS_H
 #define ENGINE_TUTORIAL_LAYERSTACKS_H
-#include "Layer.h"
+#include "Z/Core/Layer.h"
 #include <vector>
 namespace Z {
-	class LayerStacks {
+	class Z_API LayerStacks {
 	public:
 		LayerStacks();
 		~LayerStacks();
@@ -15,11 +15,17 @@ namespace Z {
 		void PopLayer(Layer* layer);
 		void PushOverlay(Layer* overlay);
 		void PopOverlay(Layer* overlay);
+		void PopAllLayer(){
+			for(const auto&layer:Layers)
+				layer->OnDetach();
+			Layers.clear();
+			LayerIndex=0;
+		}
 		inline std::vector<Layer*>::iterator begin() { return Layers.begin(); }
 		inline std::vector<Layer*>::iterator end() { return Layers.end(); }
 	private:
 		std::vector<Layer*> Layers;
-		unsigned  int LayerIndex;
+		unsigned int LayerIndex;
 	};
 
 }

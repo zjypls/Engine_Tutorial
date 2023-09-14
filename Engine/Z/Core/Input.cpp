@@ -2,9 +2,10 @@
 // Created by 32725 on 2023/3/14.
 //
 
-#include "Input.h"
+#include "Include/GLFW/include/GLFW/glfw3.h"
+
+#include "Z/Core/Input.h"
 #include "Z/Core/Application.h"
-#include "GLFW/glfw3.h"
 
 namespace Z {
 	bool Input::IsKeyPressed(Z::KeyCode keycode) {

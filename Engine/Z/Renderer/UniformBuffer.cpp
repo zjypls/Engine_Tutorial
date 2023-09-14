@@ -2,9 +2,9 @@
 // Created by 32725 on 2023/4/3.
 //
 
-#include "UniformBuffer.h"
+#include "Z/Renderer/UniformBuffer.h"
+#include "Z/Renderer/RenderAPI.h"
 #include "Platform/OpenGL/OpenGLUniformBuffer.h"
-#include "RenderAPI.h"
 
 namespace Z {
 

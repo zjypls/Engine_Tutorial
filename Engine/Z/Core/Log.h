@@ -15,8 +15,8 @@
 
 namespace Z {
 	class Z_API Log {
-		static std::shared_ptr<spdlog::logger> z_CoreLog;
-		static std::shared_ptr<spdlog::logger> z_ClientLog;
+		static Ref<spdlog::logger> z_CoreLog;
+		static Ref<spdlog::logger> z_ClientLog;
 	public:
 		static void Init();
 		inline static auto& GetCoreLog(){return Log::z_CoreLog;}

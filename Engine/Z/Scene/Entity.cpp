@@ -6,7 +6,7 @@
 #include "Z/Scene/Components.h"
 
 namespace Z {
-	zGUID::Type Entity::GetUID() {
+	zGUID Entity::GetUID() {
 		return GetComponent<IDComponent>().ID;
 	}
 

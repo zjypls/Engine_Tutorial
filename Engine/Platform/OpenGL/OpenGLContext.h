@@ -11,6 +11,7 @@ namespace Z {
 		GLFWwindow* windowHandle;
 	public:
 		static void PreInit();
+		void DeviceSynchronize();
 		OpenGLContext(GLFWwindow*);
 		void SwapBuffers() override;
 		void Init() override;

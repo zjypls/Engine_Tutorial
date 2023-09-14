@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-
+#set(CMAKE_BUILD_TYPE RELEASE)
 project(EngineAll)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_definitions(-w)
 
 set(DynamicLink OFF)
-#this flags open mean msvc generator only because cmake build C# only support msvc generator
+#this flags open mean msvc generator only because cmake project with C# language only support msvc generator
 set(ReBuildScriptsCore ON)
 set(UseVulkan OFF)
 

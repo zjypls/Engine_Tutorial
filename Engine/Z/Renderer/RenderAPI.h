@@ -5,8 +5,8 @@
 #ifndef ENGINE_TUTORIAL_RENDERAPI_H
 #define ENGINE_TUTORIAL_RENDERAPI_H
 #include <memory>
-#include "glm/glm.hpp"
-#include "VertexArray.h"
+#include "Include/glm/glm/glm.hpp"
+#include "Z/Renderer/VertexArray.h"
 
 namespace Z{
 	class RenderAPI {

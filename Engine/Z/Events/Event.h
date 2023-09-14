@@ -4,10 +4,11 @@
 
 #ifndef ENGINE_TUTORIAL_EVENT_H
 #define ENGINE_TUTORIAL_EVENT_H
-#include "Z/Core/Core.h"
 #include <iostream>
 #include <string>
 #include <functional>
+
+#include "Z/Core/Core.h"
 
 namespace Z{
 	enum class EventType{

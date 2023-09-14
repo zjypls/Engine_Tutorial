@@ -26,7 +26,7 @@ namespace Z {
 		}
 		else {
 			Z_CORE_INFO("Open Path:{}",initialDir);
-			ofn.lpstrInitialDir = initialDir;
+			ofn.lpstrInitialDir =(std::filesystem::current_path()/initialDir).string().c_str();
 		}
 		if (GetOpenFileNameA(&ofn)) {
 			return ofn.lpstrFile;

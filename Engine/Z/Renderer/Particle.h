@@ -6,7 +6,7 @@
 #define ENGINE_TUTORIAL_PARTICLE_H
 #include <vector>
 #include <list>
-#include "glm/glm.hpp"
+#include "Include/glm/glm/glm.hpp"
 /*namespace Z {
 	struct ParticleProp{
 		glm::vec3 position;
