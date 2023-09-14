@@ -366,6 +366,11 @@ namespace Z {
 	}
 
 	template<>
+	void Scene::OnComponentAdd<MeshRendererComponent>(Z::Entity entity, MeshRendererComponent &component) {
+
+	}
+
+	template<>
 	void Scene::OnComponentAdd<SpriteRendererComponent>(Entity entity, SpriteRendererComponent &component) {
 
 	}

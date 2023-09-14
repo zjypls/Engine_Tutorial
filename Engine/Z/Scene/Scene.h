@@ -24,6 +24,7 @@ namespace Z {
 		bool Running=false,Paused=false;
 		int FrameStepCount=0;
 		std::unordered_map<zGUID, Entity> entities;
+		//TODO:optimize
 		template<class Ty>
 		void OnComponentAdd(Entity entity, Ty &component);
 		void Render2D();
