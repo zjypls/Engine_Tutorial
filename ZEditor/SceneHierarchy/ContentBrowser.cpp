@@ -13,8 +13,8 @@ namespace Z {
 	const std::filesystem::path RootPath("./");
 
 	ContentBrowser::ContentBrowser() : currentPath(Project::GetProjectRootDir()) {
-		loadIcons({ZSTRCAT(Z_SOURCE_DIR,"Assets/Icons/DirectoryIcon.png"),
-				   ZSTRCAT(Z_SOURCE_DIR,"Assets/Icons/FileIcon.png")});
+		loadIcons({ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/DirectoryIcon.png"),
+		           ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/FileIcon.png")});
 	}
 
 	void ContentBrowser::OnImGuiRender() {
@@ -22,12 +22,12 @@ namespace Z {
 		auto [x, y] = ImGui::GetWindowSize();
 		int width = 128;
 		int columns = std::max(int(x / width), 1);
-		ImGui::Columns(columns, 0, false);
+		ImGui::Columns(columns, nullptr, false);
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 		if (currentPath != Project::GetProjectRootDir()) {
 			ImGui::ImageButton((ImTextureID) icons[0]->GetRendererID(),
 			                   ImVec2{static_cast<float>(width), static_cast<float>(width)},
-			                   {0,1},{1,0});
+			                   {0, 1}, {1, 0});
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
 				currentPath = currentPath.has_parent_path() ? currentPath.parent_path() : currentPath;
 			}
@@ -37,8 +37,10 @@ namespace Z {
 
 		for (const auto &file: std::filesystem::directory_iterator(currentPath)) {
 			ImGui::PushID(file.path().string().c_str());
-			int index = file.is_directory() ? 0 : 1;
-			ImGui::ImageButton(ImTextureID(icons[index]->GetRendererID()),
+			auto texture=AssetsSystem::Get(file.path().string());
+			unsigned int id=file.is_directory()?icons[0]->GetRendererID():(
+					texture== nullptr?icons[1]->GetRendererID():texture->GetRendererID());
+			ImGui::ImageButton(ImTextureID(id),
 			                   ImVec2{static_cast<float>(width), static_cast<float>(width)}, {0, 1}, {1, 0});
 			if (ImGui::BeginDragDropSource()) {
 				const auto &filePath = file.path().string();
@@ -64,7 +66,7 @@ namespace Z {
 		Z_CORE_ASSERT(paths.size() == 2, "Icon size must be 2");
 		int i = 0;
 		for (const auto &path: paths) {
-			icons[i++] = AssetsSystem::LoadTexture(path,true) ;//Texture2D::CreateTexture(path);
+			icons[i++] = AssetsSystem::LoadTexture(path, true);//Texture2D::CreateTexture(path);
 		}
 	}
 }

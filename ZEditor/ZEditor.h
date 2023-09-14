@@ -5,12 +5,12 @@
 #ifndef ENGINE_TUTORIAL_SANBOX2D_H
 #define ENGINE_TUTORIAL_ZEDITOR_H
 
+#include <unordered_map>
 #include "z.h"
-#include "SceneHierarchy/SceneHierarchyPlane.h"
-#include "SceneHierarchy/ContentBrowser.h"
 #include "Include/ImGuizmo/ImGuizmo.h"
 #include "Z/Renderer/EditorCamera.h"
-#include <unordered_map>
+#include "SceneHierarchy/SceneHierarchyPlane.h"
+#include "SceneHierarchy/ContentBrowser.h"
 
 namespace Z {
 	class EditorLayer : public Layer {
@@ -35,6 +35,8 @@ namespace Z {
 		Entity selectedEntity;
 		bool scriptReload = false,nextStep=false;
 		int stepFrames=1;
+
+		Entity testModel;
 
 		void InnerSave(const std::string &path);
 

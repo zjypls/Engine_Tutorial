@@ -125,10 +125,10 @@ namespace Z {
 	}
 
 	WindowsWindow::~WindowsWindow() {
-		Shutdown();
 	}
 
 	void WindowsWindow::Shutdown() {
+		Z_CORE_WARN("Window Shutdown");
 		Context->Destroy();
 		glfwDestroyWindow(window);
 		glfwTerminate();

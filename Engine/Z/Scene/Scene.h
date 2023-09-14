@@ -27,6 +27,7 @@ namespace Z {
 		template<class Ty>
 		void OnComponentAdd(Entity entity, Ty &component);
 		void Render2D();
+		void Render3D();
 		void NativeScriptUpdate(float deltaTime);
 		void ScriptUpdate(float deltaTime);
 		void OnScriptStart();

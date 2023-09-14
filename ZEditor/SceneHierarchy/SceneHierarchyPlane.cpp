@@ -196,7 +196,16 @@ namespace Z {
 						                                   spriteRenderer.texture = AssetsSystem::LoadTexture(path);
 				                                       }
 				                                       ImGui::EndDragDropTarget();
-			                                       }
+			                                       }else if(ImGui::IsItemHovered()&&
+														   ImGui::IsMouseClicked(ImGuiMouseButton_::ImGuiMouseButton_Right)){
+													   ImGui::OpenPopup("ImageMenuPop");
+												   }
+													if(ImGui::BeginPopup("ImageMenuPop")){
+														if(ImGui::MenuItem("Remove Image")){
+															spriteRenderer.texture = nullptr;
+														}
+														ImGui::EndPopup();
+													}
 		                                       });
 		DrawComponent<CircleRendererComponent>("CircleRenderer", entity,
 		                                       [](Entity entity, CircleRendererComponent &component) {

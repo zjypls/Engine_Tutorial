@@ -7,6 +7,8 @@
 #include "Include/glm/glm/gtx/matrix_decompose.hpp"
 #include "Include/filewatch/filewatch.h"
 
+#include "Z/Utils/Model.h"
+
 #include "./ZEditor.h"
 
 
@@ -79,6 +81,11 @@ namespace Z {
 		ScriptEngine::LoadAssembly("Bin-C/scripts.dll");
 		LoadScene(Project::GetProjectRootDir() / Project::GetStartScene());
 
+		//a Test for mesh Renderer
+		testModel=scene->CreateEntity("Model");
+		testModel.AddComponent<MeshRendererComponent>(Mesh::LoadMesh(Project::GetProjectRootDir()/"Assets/Models/TinyRoom.obj")->vertexArray);
+
+
 	}
 
 	void EditorLayer::OnDetach() {
@@ -91,7 +98,6 @@ namespace Z {
 			ScriptEngine::SetReLoadApp(false);
 		}
 		frameBuffer->Bind();
-
 		RenderCommand::SetClearValue(clearValue);
 		RenderCommand::Clear();
 

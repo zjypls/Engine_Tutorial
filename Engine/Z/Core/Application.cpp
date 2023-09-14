@@ -1,16 +1,16 @@
 //
 // Created by 32725 on 2023/3/11.
 //
-
-#include "Application.h"
-#include "Z/Events/ApplicationEvent.h"
-#include "Log.h"
-#include "Input.h"
-#include "Time.h"
-#include "Z/Renderer/Renderer.h"
-#include "KeyCodes.h"
-#include "Z/Script/ScriptEngine.h"
 #include <filesystem>
+
+#include "Z/Core/Application.h"
+#include "Z/Core/Log.h"
+#include "Z/Core/Input.h"
+#include "Z/Core/Time.h"
+#include "Z/Core/KeyCodes.h"
+#include "Z/Events/ApplicationEvent.h"
+#include "Z/Renderer/Renderer.h"
+#include "Z/Script/ScriptEngine.h"
 
 namespace Z {
 	Application *Application::application = nullptr;
@@ -41,6 +41,8 @@ namespace Z {
 
 
 	Application::~Application() {
+		window->Shutdown();
+		Renderer::ShutDown();
 		if(Z::ScriptEngine::GetContext()!=nullptr){
 			Z_CORE_WARN("Close Application in Running!!!");
 		}
@@ -70,6 +72,8 @@ namespace Z {
 
 			window->Update();
 		}
+		window->GetContext()->DeviceSynchronize();
+		LayerStack.PopAllLayer();
 	}
 
 	void Application::EventCall(Event &e) {

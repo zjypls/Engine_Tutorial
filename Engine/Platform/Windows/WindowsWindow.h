@@ -10,7 +10,7 @@
 #include "Z/Renderer/GraphicContext.h"
 
 namespace Z {
-	class WindowsWindow: public zWindow{
+	class Z_API WindowsWindow final : public zWindow{
 	public:
 		WindowsWindow(const WindowProps&);
 
@@ -23,9 +23,10 @@ namespace Z {
 		~WindowsWindow();
 		virtual void Update() override;
 		inline virtual void* GetNativeWindow() override{return window;}
+		virtual Scope<GraphicContext>& GetContext(){return Context;}
+		virtual void Shutdown();
 	protected:
 		virtual void Init(const WindowProps&);
-		virtual void Shutdown();
 	private:
 		using WData = struct WindowData {
 			std::string title;

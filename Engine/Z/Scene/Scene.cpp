@@ -12,7 +12,9 @@
 #include "Z/Scene/Scene.h"
 #include "Z/Scene/ScriptEntity.h"
 #include "Z/Script/ScriptEngine.h"
+#include "Z/Renderer/Renderer.h"
 #include "Z/Renderer/Renderer2D.h"
+#include "Z/Renderer/Renderer3D.h"
 
 namespace Z {
 
@@ -162,17 +164,40 @@ namespace Z {
 	}
 
 	void Scene::OnEditorUpdate(float deltaTime, EditorCamera &camera) {
-		Renderer2D::BeginScene(camera);
+		//TODO:This should be optimized
+		Renderer::BeginScene(camera);
+		Renderer3D::BeginScene();
+		Renderer2D::BeginScene();
 		Render2D();
+		Render3D();
 		Renderer2D::EndScene();
+		Renderer3D::EndScene();
+		Renderer::EndScene();
 	}
 
 	void Scene::OnSimulateUpdate(float deltaTime, EditorCamera &camera) {
 		if (!Paused||FrameStepCount-->0)
 			OnPhysics2DUpdate(deltaTime);
-		Renderer2D::BeginScene(camera);
+		Renderer::BeginScene(camera);
+		Renderer3D::BeginScene();
+		Renderer2D::BeginScene();
 		Render2D();
+		Render3D();
 		Renderer2D::EndScene();
+		Renderer3D::EndScene();
+		Renderer::EndScene();
+	}
+
+	void Scene::OnPreviewUpdate(float deltaTime, Camera &camera, glm::mat4 transform) {
+		//Renderer2D::BeginScene(camera, transform);
+		Renderer::BeginScene(camera,transform);
+		Renderer3D::BeginScene();
+		Renderer2D::BeginScene();
+		Render2D();
+		Render3D();
+		Renderer2D::EndScene();
+		Renderer3D::EndScene();
+		Renderer::EndScene();
 	}
 
 	void Scene::OnUpdate(float deltaTime) {
@@ -184,17 +209,17 @@ namespace Z {
 		}
 		mainCamera = GetMainCamera();
 		if (!mainCamera)return;
-		Renderer2D::BeginScene(mainCamera.GetComponent<CameraComponent>().camera,
+		Renderer::BeginScene(mainCamera.GetComponent<CameraComponent>().camera,
 		                       mainCamera.GetComponent<TransformComponent>().GetTransform());
+		Renderer3D::BeginScene();
+		Renderer2D::BeginScene();
 		Render2D();
+		Render3D();
 		Renderer2D::EndScene();
+		Renderer3D::EndScene();
+		Renderer::EndScene();
 	}
 
-	void Scene::OnPreviewUpdate(float deltaTime, Camera &camera, glm::mat4 transform) {
-		Renderer2D::BeginScene(camera, transform);
-		Render2D();
-		Renderer2D::EndScene();
-	}
 
 	void Scene::Render2D() {
 		std::for_each(registry.view<TransformComponent, SpriteRendererComponent>().begin(),
@@ -206,6 +231,15 @@ namespace Z {
 		              registry.view<TransformComponent, CircleRendererComponent>().end(), [&](const auto &item) {
 					Renderer2D::DrawCircle(registry.get<TransformComponent>(item).GetTransform(),
 					                       registry.get<CircleRendererComponent>(item), uint32_t(item));
+				});
+	}
+
+
+	void Scene::Render3D() {
+		std::for_each(registry.view<TransformComponent, MeshRendererComponent>().begin(),
+		              registry.view<TransformComponent, MeshRendererComponent>().end(), [&](const auto &item) {
+					Renderer3D::Draw(registry.get<TransformComponent>(item).GetTransform(),
+					                       registry.get<MeshRendererComponent>(item), uint32_t(item));
 				});
 	}
 
@@ -318,6 +352,7 @@ namespace Z {
 			}
 		});
 	}
+
 
 
 	template<class Ty>
