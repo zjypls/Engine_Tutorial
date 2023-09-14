@@ -52,7 +52,7 @@ namespace Z {
 					Vertexes[vert]=vertexes.size();
 					vertexes.push_back(vert);
 				}
-				indexes.push_back(Vertexes.size());
+				indexes.push_back(Vertexes[vert]);
 			}
 		}
 		auto vertexBuffer=VertexBuffer::Create((float*)vertexes.data(),vertexes.size()*sizeof(Vertex));
