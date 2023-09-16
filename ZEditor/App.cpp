@@ -3,7 +3,7 @@
 //
 #include "./ZEditor.h"
 #include "Z/Core/Entry.h"
-/*
+
 //make application use discrete GPU
 extern "C" {
 // http://developer.download.nvidia.com/devzone/devcenter/gamegraphics/files/OptimusRenderingPolicies.pdf
@@ -15,7 +15,7 @@ __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
 // Also has to be .exe module to be correctly detected.
 __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 0x00000001;
 }
-*/
+
 class Editor : public Z::Application {
 public:
 	Editor(const Z::ApplicationSpec &spec) : Application(spec) {

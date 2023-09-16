@@ -46,6 +46,7 @@ namespace Z {
 		Z_CORE_ASSERT(Icon.pixels!= nullptr,"Failed to load icon");
 		glfwSetWindowIcon(window,1,&Icon);
 		stbi_image_free(Icon.pixels);
+		stbi_set_flip_vertically_on_load(1);
 		Context=GraphicContext::Create(window);
 		Context->Init();
 		glfwSetWindowUserPointer(window,&WinData);
