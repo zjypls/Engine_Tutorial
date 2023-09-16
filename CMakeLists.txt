@@ -21,7 +21,7 @@ set(monoPath ${CMAKE_SOURCE_DIR}/Engine/Include/mono)
 set(glmPath ${CMAKE_SOURCE_DIR}/Engine/Include/glm)
 set(spdlogPath ${CMAKE_SOURCE_DIR}/Engine/Include/spdlog)
 set(box2DPath ${CMAKE_SOURCE_DIR}/Engine/Include/box2d)
-set(VK_PATH $ENV{VULKAN_SDK})
+set(VK_PATH ${CMAKE_SOURCE_DIR}/Engine/Include/vulkanSDK)
 
 set(EDITOR_RC ${CMAKE_SOURCE_DIR}/Assets/Configs/AppIcon.rc)
 
