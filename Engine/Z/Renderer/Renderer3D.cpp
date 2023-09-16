@@ -21,7 +21,7 @@ namespace Z {
 //		renderData->EasySample->Bind();
 //		RenderCommand::DrawIndexed(meshRenderer->vertexArray);
 		//TODO:may be recognized with a better way?
-		Models.emplace_back(transform, meshRenderer, entityID);
+		Models.emplace_back(transform, meshRenderer.mesh, entityID);
 		if(Models.size()>=maxRecord)
 			Flush();
 	}
@@ -60,7 +60,7 @@ namespace Z {
 			renderData->uboData->model = model.transform;
 			renderData->uboData->index = model.entityID;
 			renderData->ubo->SetData(renderData->uboData, sizeof(UBO));
-			RenderCommand::DrawIndexed(model.meshRender.vertexArray);
+			RenderCommand::DrawIndexed(model.MeshRenderer->vertexArray);
 		}
 		Models.clear();
 	}

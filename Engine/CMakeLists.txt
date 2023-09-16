@@ -49,7 +49,8 @@ add_definitions(-DZ_ENABLE_PROFILING=1)
 target_compile_definitions(Z PUBLIC
         Z_PLATFORM_WIN32 Z_SOURCE_DIR Z_USE_OPENGL
         Z_ENABLE_PROFILING
-        GLFW_INCLUDE_NONE)
+        GLFW_INCLUDE_NONE
+        Z_CONF_EXTENSION=".zConf")
 
 if (CMAKE_BUILD_TYPE MATCHES DEBUG)
     message("Core:Debug mode")

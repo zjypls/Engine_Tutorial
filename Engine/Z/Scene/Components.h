@@ -13,6 +13,7 @@
 #include "Z/Scene/SceneCamera.h"
 #include "Z/Renderer/Texture.h"
 #include "Z/Renderer/VertexArray.h"
+#include "Z/Utils/Model.h"
 
 namespace Z {
 
@@ -40,7 +41,7 @@ namespace Z {
 
 	struct SpriteRendererComponent {
 		glm::vec4 color{1.f};
-		Ref<Texture2D> texture = nullptr;
+		Ref<Texture> texture = nullptr;
 
 		SpriteRendererComponent() = default;
 
@@ -102,10 +103,10 @@ namespace Z {
 		ScriptEntity* (*onConstruct)();
 		void (*onDestruct)(ScriptEntity*);
 
-		template<class _Ty>
+		template<class Ty>
 		void Bind() {
-			onConstruct=[]()->ScriptEntity*{auto res=(new _Ty());return res;};
-			onDestruct=[](ScriptEntity* ins){delete (_Ty*)ins;ins= nullptr;};
+			onConstruct=[]()->ScriptEntity*{auto res=(new Ty());return res;};
+			onDestruct=[](ScriptEntity* ins){delete (Ty*)ins;ins= nullptr;};
 		}
 	};
 
@@ -155,7 +156,7 @@ namespace Z {
 
 	//TODO:Add a GUID for each component?
 	struct MeshRendererComponent{
-		Ref<VertexArray> vertexArray;
+		Ref<Mesh> mesh;
 	};
 
 	template<class... T>

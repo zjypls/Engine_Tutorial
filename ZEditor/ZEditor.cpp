@@ -40,7 +40,7 @@ namespace Z {
 			Z_CORE_ASSERT(false, "Project Init Failed!");
 			return;
 		}
-		AssetsSystem::Init(Project::GetProjectRootDir());
+		AssetsSystem::InitWithProject(Project::GetProjectRootDir());
 		//Fixme:no effect
 //		if(auto&configuration=Project::GetEditorLayoutConfiguration();!configuration.empty()) {
 //			ImGui::GetIO().IniFilename=configuration.string().c_str();
@@ -59,15 +59,16 @@ namespace Z {
 		scene = CreateRef<Scene>();
 		editorCamera = Z::EditorCamera(45.f, 1.f, 0.1f, 1000.f);
 		//Todo:optimize with a project system
-		playButtonIcon = AssetsSystem::LoadTexture(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/PlayButton.png"), true);
+		playButtonIcon = AssetsSystem::Load<Texture>(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/PlayButton.png"), true);
 		//Texture2D::CreateTexture("Assets/Icons/PlayButton.png");
-		stopButtonIcon = AssetsSystem::LoadTexture(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/StopButton.png"), true);
+		stopButtonIcon = AssetsSystem::Load<Texture>(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/StopButton.png"), true);
 		//Texture2D::CreateTexture("Assets/Icons/StopButton.png");
-		simulateButtonIcon = AssetsSystem::LoadTexture(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/SimulateButton.png"), true);
+		simulateButtonIcon = AssetsSystem::Load<Texture>(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/SimulateButton.png"),
+		                                                 true);
 		//Texture2D::CreateTexture("Assets/Icons/SimulateButton.png");
-		pauseButtonIcon = AssetsSystem::LoadTexture(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/PauseButton.png"), true);
+		pauseButtonIcon = AssetsSystem::Load<Texture>(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/PauseButton.png"), true);
 		//Texture2D::CreateTexture("Assets/Icons/PauseButton.png");
-		stepButtonIcon = AssetsSystem::LoadTexture(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/StepButton.png"), true);
+		stepButtonIcon = AssetsSystem::Load<Texture>(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/StepButton.png"), true);
 		//Texture2D::CreateTexture("Assets/Icons/StepButton.png");
 		toolButtons[0] = playButtonIcon;
 		toolButtons[1] = simulateButtonIcon;
@@ -82,8 +83,9 @@ namespace Z {
 		LoadScene(Project::GetProjectRootDir() / Project::GetStartScene());
 
 		//a Test for mesh Renderer
-		testModel=scene->CreateEntity("Model");
-		testModel.AddComponent<MeshRendererComponent>(Mesh::LoadMesh(Project::GetProjectRootDir()/"Assets/Models/TinyRoom.obj")->vertexArray);
+		testModel = scene->CreateEntity("Model");
+		testModel.AddComponent<MeshRendererComponent>(AssetsSystem::Load<Mesh>(
+				(Project::GetProjectRootDir() / "Assets/Models/TinyRoom.obj").string()));
 
 
 	}
@@ -274,17 +276,19 @@ namespace Z {
 		uint32_t textureID = frameBuffer->GetAttachmentID(0);
 		ImGui::Image((void *) textureID, viewSize, ImVec2{0, 1}, ImVec2{1, 0});
 
-		if ((viewportSize != *(glm::vec2 *) &viewSize) && !Input::IsMouseButtonPressed(MouseCode::ButtonLeft)) {
-			viewportSize = glm::vec2{viewSize.x, viewSize.y};
-			previewFrame->Resize(viewportSize.x / 4.f, viewportSize.y / 4.f);
-			frameBuffer->Resize(viewportSize.x, viewportSize.y);
-			scene->OnViewportResize(viewportSize.x, viewportSize.y);
-			editorCamera.SetViewportSize(viewportSize.x, viewportSize.y);
+		if ((viewportSize != *(glm::vec2 *) &viewSize)) {
+			Application::Get().SubmitFunc([this, viewSize]() {
+				this->viewportSize = glm::vec2{viewSize.x, viewSize.y};
+				this->previewFrame->Resize(viewportSize.x / 4.f, viewportSize.y / 4.f);
+				this->frameBuffer->Resize(viewportSize.x, viewportSize.y);
+				this->scene->OnViewportResize(viewportSize.x, viewportSize.y);
+				this->editorCamera.SetViewportSize(viewportSize.x, viewportSize.y);
+			});
 		}
 		if (ImGui::BeginDragDropTarget()) {
 			if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")) {
 				std::filesystem::path path = (const char *) payload->Data;
-				if(path.extension()==".zscene") {
+				if (path.extension() == ".zscene") {
 					LoadScene(path);
 					ImGui::PopStyleVar();
 					ImGui::End();
@@ -325,15 +329,37 @@ namespace Z {
 			ImGuizmo::Manipulate(glm::value_ptr(cameraProjection), glm::value_ptr(editorCamera.GetProjectionMatrix()),
 			                     (ImGuizmo::OPERATION) currentGizmoOperation, ImGuizmo::MODE::LOCAL,
 			                     glm::value_ptr(Transform));
+			//TODO:Optimize
+			static int8_t SavePreTrans = 1;
 			if (ImGuizmo::IsUsing()) {
-				glm::vec3 translation, scale, skew;
-				glm::quat rotation;
-				glm::vec4 perspective;
-				glm::decompose(Transform, scale, rotation, translation, skew, perspective);
-				selectTransform.translation = translation;
-				selectTransform.rotation = (glm::eulerAngles(rotation));
-				selectTransform.scale = scale;
-			}
+				static glm::quat BefRotation;
+				static glm::vec3 BefTranslation, BefScale;
+				if (SavePreTrans == 1) {
+					//Save transform
+					BefRotation = selectTransform.rotation;
+					BefTranslation = selectTransform.translation;
+					BefScale = selectTransform.scale;
+					SavePreTrans = 0;
+				}
+				if (Input::IsMouseButtonPressed(MouseCode::ButtonRight)) {
+					//Set transform back
+					selectTransform.translation = BefTranslation;
+					selectTransform.rotation = glm::eulerAngles(BefRotation);
+					selectTransform.scale = BefScale;
+					SavePreTrans = -1;
+				} else if (SavePreTrans == 0) {
+					//decompose and apply transform with transform gizmos
+					glm::vec3 translation, scale, skew;
+					glm::quat rotation;
+					glm::vec4 perspective;
+					glm::decompose(Transform, scale, rotation, translation, skew, perspective);
+					selectTransform.translation = translation;
+					selectTransform.rotation = (glm::eulerAngles(rotation));
+					selectTransform.scale = scale;
+				}
+			}else if (SavePreTrans==-1&&!Input::IsMouseButtonPressed(MouseCode::ButtonLeft))
+				//Set gizmos enable
+				SavePreTrans = 1;
 		}
 
 		ImGui::PopStyleVar();
@@ -509,6 +535,7 @@ namespace Z {
 	bool EditorLayer::OnKeyPressed(KeyPressEvent &event) {
 		bool control = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
 		bool shift = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
+		bool RightMouseClicked = Input::IsMouseButtonPressed(MouseCode::ButtonRight);
 		switch (event.GetKey()) {
 			case Key::N:
 				if (control) NewScene();
@@ -528,19 +555,19 @@ namespace Z {
 						SaveHotKey();
 				break;
 			case Key::Q:
-				if (IsViewportFocused && IsViewportHovered)
+				if (IsViewportFocused && IsViewportHovered && !RightMouseClicked)
 					currentGizmoOperation = -1;
 				break;
 			case Key::W:
-				if (IsViewportFocused && IsViewportHovered)
+				if (IsViewportFocused && IsViewportHovered && !RightMouseClicked)
 					currentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 				break;
 			case Key::E:
-				if (IsViewportFocused && IsViewportHovered)
+				if (IsViewportFocused && IsViewportHovered && !RightMouseClicked)
 					currentGizmoOperation = ImGuizmo::OPERATION::SCALE;
 				break;
 			case Key::R:
-				if (IsViewportFocused && IsViewportHovered)
+				if (IsViewportFocused && IsViewportHovered && !RightMouseClicked)
 					currentGizmoOperation = ImGuizmo::OPERATION::ROTATE;
 				break;
 			case Key::D:

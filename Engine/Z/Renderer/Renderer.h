@@ -7,6 +7,7 @@
 #include "Z/Renderer/RenderAPI.h"
 #include "Z/Renderer/OrithGraphicCamera.h"
 #include "Z/Renderer/Shader.h"
+#include "Z/Renderer/Texture.h"
 #include "Z/Renderer/Camera.h"
 #include "Z/Renderer/EditorCamera.h"
 #include "Z/Renderer/UniformBuffer.h"
@@ -23,6 +24,8 @@ namespace Z{
 		static void BeginScene(const EditorCamera&camera);
 		static void BeginScene(const SceneCamera&camera,const glm::mat4 &transform);
 		static void EndScene();
+		static void RenderSkyBox();
+		[[deprecated("May be delete")]]
 		static void Submit(Z::Ref<Shader>& shader,const Z::Ref<VertexArray>& vertexArray,const glm::mat4& transform=glm::mat4(1.0f));
 	private:
 		struct SceneData {
@@ -33,6 +36,9 @@ namespace Z{
 		};
 		static SceneData* sceneData;
 		static RenderData* renderData;
+		static Ref<Shader> skyBoxShader;
+		static Ref<Texture> skyBox;
+		static Ref<VertexArray> cube;
 	};
 }
 

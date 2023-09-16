@@ -36,6 +36,8 @@ namespace Z {
 		}
 
 		for (const auto &file: std::filesystem::directory_iterator(currentPath)) {
+			if(file.is_regular_file()&&(file.path().extension()!=".zConf"))
+				continue;
 			ImGui::PushID(file.path().string().c_str());
 			auto texture=AssetsSystem::Get(file.path().string());
 			unsigned int id=file.is_directory()?icons[0]->GetRendererID():(
@@ -66,7 +68,7 @@ namespace Z {
 		Z_CORE_ASSERT(paths.size() == 2, "Icon size must be 2");
 		int i = 0;
 		for (const auto &path: paths) {
-			icons[i++] = AssetsSystem::LoadTexture(path, true);//Texture2D::CreateTexture(path);
+			icons[i++] = AssetsSystem::Load<Texture>(path, true);//Texture2D::CreateTexture(path);
 		}
 	}
 }

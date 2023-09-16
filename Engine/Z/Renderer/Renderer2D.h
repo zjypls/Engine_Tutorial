@@ -68,7 +68,7 @@ namespace Z {
 			unsigned int lineIndexCount=0;
 			LineVertex *lineVertexBufferBase=nullptr;
 			LineVertex *lineVertexBufferPtr=nullptr;
-			std::array<Ref<Texture2D>,MaxTextureSlot> textureSlots;
+			std::array<Ref<Texture>,MaxTextureSlot> textureSlots;
 			unsigned int textureSlotIndex=1;
 
 			glm::vec4 quadVertexPositions[4];

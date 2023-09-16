@@ -23,10 +23,10 @@ namespace Z {
 		};
 		struct ModelData{
 			glm::mat4 transform;
-			MeshRendererComponent meshRender;
+			Ref<Mesh> MeshRenderer;
 			uint32_t entityID;
-			ModelData(glm::mat4 PTrans,const MeshRendererComponent&mesh,uint32_t id)
-			:transform(PTrans), meshRender(mesh),entityID(id){}
+			ModelData(glm::mat4 PTrans,const Ref<Mesh>&mesh,uint32_t id)
+			:transform(PTrans), MeshRenderer(mesh),entityID(id){}
 		};
 
 		static RenderData* renderData;

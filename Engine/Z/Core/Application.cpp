@@ -8,6 +8,7 @@
 #include "Z/Core/Input.h"
 #include "Z/Core/Time.h"
 #include "Z/Core/KeyCodes.h"
+#include "Z/Core/AssetsSystem.h"
 #include "Z/Events/ApplicationEvent.h"
 #include "Z/Renderer/Renderer.h"
 #include "Z/Script/ScriptEngine.h"
@@ -30,6 +31,7 @@ namespace Z {
 		}
 		window = Z::Scope<zWindow>(zWindow::Create(WindowProps(Spec.Name)));
 		window->SetEventCallFunc(Z_BIND_EVENT_FUNC(Application::EventCall));
+		AssetsSystem::PreInit();
 
 		Z::ScriptEngine::Init();
 		Renderer::Init();

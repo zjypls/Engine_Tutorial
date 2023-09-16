@@ -193,7 +193,7 @@ namespace Z {
 					                                       const char *path = (const char *) payload->Data;
 					                                       Z_CORE_ASSERT(std::filesystem::exists(path),
 					                                                     "Path does not exist!");
-						                                   spriteRenderer.texture = AssetsSystem::LoadTexture(path);
+						                                   spriteRenderer.texture = AssetsSystem::Load<Texture>(path,true);
 				                                       }
 				                                       ImGui::EndDragDropTarget();
 			                                       }else if(ImGui::IsItemHovered()&&
@@ -428,6 +428,11 @@ namespace Z {
 						}
 					}
 				}
+		});
+		DrawComponent<MeshRendererComponent>("MeshRenderer",entity,[](Entity entity,MeshRendererComponent&component){
+			ImGui::Text("Model:");
+			ImGui::SameLine();
+			ImGui::Text(component.mesh->name.c_str());
 		});
 	}
 

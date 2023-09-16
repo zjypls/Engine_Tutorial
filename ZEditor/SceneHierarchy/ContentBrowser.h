@@ -21,7 +21,7 @@ namespace Z {
 
 	private:
 		std::filesystem::path currentPath;
-		Ref<Texture2D> icons[2];
+		Ref<Texture> icons[2];
 	};
 
 }

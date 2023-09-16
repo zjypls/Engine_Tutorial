@@ -29,8 +29,8 @@ namespace Z {
 		int currentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 		Z::EditorCamera editorCamera;
 		Scope<ContentBrowser> contentBrowser;
-		Ref<Z::Texture2D> playButtonIcon, stopButtonIcon, simulateButtonIcon,pauseButtonIcon,stepButtonIcon;
-		Ref<Z::Texture2D> toolButtons[3];
+		Ref<Z::Texture> playButtonIcon, stopButtonIcon, simulateButtonIcon,pauseButtonIcon,stepButtonIcon;
+		Ref<Z::Texture> toolButtons[3];
 		std::filesystem::path WorkPath{};
 		Entity selectedEntity;
 		bool scriptReload = false,nextStep=false;

@@ -170,6 +170,7 @@ namespace Z {
 		Renderer2D::BeginScene();
 		Render2D();
 		Render3D();
+		//Renderer::RenderSkyBox();
 		Renderer2D::EndScene();
 		Renderer3D::EndScene();
 		Renderer::EndScene();
@@ -183,6 +184,7 @@ namespace Z {
 		Renderer2D::BeginScene();
 		Render2D();
 		Render3D();
+		//Renderer::RenderSkyBox();
 		Renderer2D::EndScene();
 		Renderer3D::EndScene();
 		Renderer::EndScene();
@@ -195,6 +197,7 @@ namespace Z {
 		Renderer2D::BeginScene();
 		Render2D();
 		Render3D();
+		//Renderer::RenderSkyBox();
 		Renderer2D::EndScene();
 		Renderer3D::EndScene();
 		Renderer::EndScene();
@@ -215,6 +218,7 @@ namespace Z {
 		Renderer2D::BeginScene();
 		Render2D();
 		Render3D();
+		//Renderer::RenderSkyBox();
 		Renderer2D::EndScene();
 		Renderer3D::EndScene();
 		Renderer::EndScene();
