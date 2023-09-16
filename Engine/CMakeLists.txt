@@ -13,7 +13,7 @@ include_directories(${spdlogPath}/include
                     ${ImGuiPath}
                     ${ImGuiPath}/backends
                     ${monoPath}/include
-                    ${VK_PATH}/Include
+                    ${VK_PATH}/include
                     ${box2DPath}/include
                     ${CMAKE_CURRENT_SOURCE_DIR}
                     depends)
@@ -32,7 +32,7 @@ add_compile_definitions(GLFW_INCLUDE_NONE)
 file(GLOB_RECURSE src CONFIGURE_DEPENDS Z/*.* Platform/*.* ${ImGuizmoPath}/ImGuizmo.cpp)
 
 
-link_directories(${VK_PATH}/Lib ${CMAKE_SOURCE_DIR}/Lib/${CMAKE_BUILD_TYPE})
+link_directories(${VK_PATH}/lib ${CMAKE_SOURCE_DIR}/Lib/${CMAKE_BUILD_TYPE})
 add_library(Z STATIC ${src})
 
 
