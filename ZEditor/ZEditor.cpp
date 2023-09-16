@@ -340,8 +340,7 @@ namespace Z {
 					BefTranslation = selectTransform.translation;
 					BefScale = selectTransform.scale;
 					SavePreTrans = 0;
-				}
-				if (Input::IsMouseButtonPressed(MouseCode::ButtonRight)) {
+				}else if (Input::IsMouseButtonPressed(MouseCode::ButtonRight)) {
 					//Set transform back
 					selectTransform.translation = BefTranslation;
 					selectTransform.rotation = glm::eulerAngles(BefRotation);
@@ -357,9 +356,10 @@ namespace Z {
 					selectTransform.rotation = (glm::eulerAngles(rotation));
 					selectTransform.scale = scale;
 				}
-			}else if (SavePreTrans==-1&&!Input::IsMouseButtonPressed(MouseCode::ButtonLeft))
+			}else if (SavePreTrans!=1) {
 				//Set gizmos enable
 				SavePreTrans = 1;
+			}
 		}
 
 		ImGui::PopStyleVar();

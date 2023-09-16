@@ -40,6 +40,7 @@ namespace Z {
 	}
 
 	void Renderer3D::Shutdown() {
+		Z_CORE_WARN("Renderer3D Shutdown!!!");
 		delete renderData->uboData;
 		delete renderData;
 	}

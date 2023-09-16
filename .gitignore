@@ -3,6 +3,10 @@ cmake-build-build/
 *.exe
 #build libarary
 Lib/
+#self define config file
+*.zConf
+#except skybox config file
++Projects/Test001/Assets/Textures/skybox/skybox.zConf
 #jetbrain toolchain config folder
 .idea/
 #temp file
