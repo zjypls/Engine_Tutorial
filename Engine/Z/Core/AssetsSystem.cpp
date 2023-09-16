@@ -259,6 +259,11 @@ namespace Z {
 	}
 
 	Ref<Texture> AssetsSystem::Get(const std::string &name) {
+		//TODO:optimize
+		auto firstPoint=name.find_first_of('.');
+		auto ext=name.substr(firstPoint,name.find_last_of('.')-firstPoint);
+		if(!Tools::TextureSheets.count(ext))
+			return nullptr;
 		if(IsExisting(name))
 			return instance->TextureLibrary.at(instance->PathToUID[name]);
 		else
@@ -325,7 +330,7 @@ namespace Z {
 		instance->UIDToPath[id]=_path.string();
 		//auto result=instance->LoadTextureInner(id);
 		//TODO:Optimized 6 with sizeof(Z_CONF_EXTENSION)
-		auto result=Texture2D::CreateTexture(pathSTR.substr(0,pathSTR.size()-6));
+		auto result=Texture2D::CreateTexture(pathSTR.substr(0,pathSTR.find_last_of('.')));
 		Z_CORE_ASSERT(result,std::string("failed to load texture:").append(_path.string()));
 		return result;
 	}
@@ -348,9 +353,9 @@ namespace Z {
 		instance->PathToUID[pathSTR]=id;
 		instance->UIDToPath[id]=pathSTR;
 		//TODO:Optimized 6 with sizeof(Z_CONF_EXTENSION)
-		auto mesh=Tools::LoadMesh(pathSTR.substr(0,pathSTR.size()-6));
+		auto mesh=Tools::LoadMesh(pathSTR.substr(0,pathSTR.find_last_of('.')));
 		auto filename=_path.filename().string();
-		mesh->name=filename.substr(0,filename.rfind('.',filename.size()-7));
+		mesh->name=filename.substr(0,filename.find_first_of('.'));
 		instance->MeshLibrary[id]=mesh;
 		return mesh;
 	}

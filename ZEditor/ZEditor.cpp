@@ -183,7 +183,7 @@ namespace Z {
 		ImGuiIO &io = ImGui::GetIO();
 		auto &style = ImGui::GetStyle();
 		auto miniSize = style.WindowMinSize.x;
-		style.WindowMinSize.x = 350;
+		style.WindowMinSize.x = 250;
 		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
 			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
@@ -245,9 +245,12 @@ namespace Z {
 		ImGui::Begin("Settings");
 		ImGui::Checkbox("Editor Visualize Collider", &EditorVisualizeCollider);
 		ImGui::Checkbox("RunTime Visualize Collider", &RunTimeVisualizeCollider);
-		ImGui::DragFloat4("Collider ActiveColor", glm::value_ptr(ActiveColor), 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat4("Collider InActiveColor", glm::value_ptr(InactiveColor), 0.01f, 0.0f, 1.0f);
-		ImGui::DragInt("StepFrameCount", &stepFrames, 1, 1, 100);
+		ImGui::Text("Collider ActiveColor:");
+		ImGui::DragFloat4("##Collider ActiveColor", glm::value_ptr(ActiveColor), 0.01f, 0.0f, 1.0f);
+		ImGui::Text("Collider InActiveColor:");
+		ImGui::DragFloat4("##Collider InActiveColor", glm::value_ptr(InactiveColor), 0.01f, 0.0f, 1.0f);
+		ImGui::Text("StepFrameCount:");
+		ImGui::DragInt("##StepFrameCount", &stepFrames, 1, 1, 100);
 
 		sceneHierarchyPlane->OnImGuiRender();
 		contentBrowser->OnImGuiRender();

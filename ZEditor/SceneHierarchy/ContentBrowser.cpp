@@ -36,26 +36,33 @@ namespace Z {
 		}
 
 		for (const auto &file: std::filesystem::directory_iterator(currentPath)) {
-			if(file.is_regular_file()&&(file.path().extension()!=".zConf"))
+			bool IsFile=file.is_regular_file();
+			if(IsFile&&(file.path().extension()!=".zConf"))
 				continue;
-			ImGui::PushID(file.path().string().c_str());
-			auto texture=AssetsSystem::Get(file.path().string());
-			unsigned int id=file.is_directory()?icons[0]->GetRendererID():(
-					texture== nullptr?icons[1]->GetRendererID():texture->GetRendererID());
+			std::string filePath=file.path().string();
+			ImGui::PushID(filePath.c_str());
+			unsigned int id=icons[0]->GetRendererID();
+//			=!IsFile?icons[0]->GetRendererID():(
+//					texture== nullptr?icons[1]->GetRendererID():texture->GetRendererID()
+//					);
+			if(IsFile){
+				auto texture=AssetsSystem::Get(filePath);
+				id=texture== nullptr?icons[1]->GetRendererID():texture->GetRendererID();
+			}
 			ImGui::ImageButton(ImTextureID(id),
 			                   ImVec2{static_cast<float>(width), static_cast<float>(width)}, {0, 1}, {1, 0});
 			if (ImGui::BeginDragDropSource()) {
-				const auto &filePath = file.path().string();
 				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", filePath.c_str(), filePath.size() + 1,
 				                          ImGuiCond_Once);
 				ImGui::EndDragDropSource();
 			}
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-				if (file.is_directory()) {
+				if (!IsFile) {
 					currentPath = file.path();
 				}
 			}
-			ImGui::TextWrapped(file.path().filename().string().c_str());
+			auto firstPos=filePath.find_last_of('\\')+1;
+			ImGui::TextWrapped(filePath.substr(firstPos,filePath.find_last_of('.')-firstPos).c_str());
 			ImGui::NextColumn();
 			ImGui::PopID();
 		}
