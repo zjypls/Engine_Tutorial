@@ -13,7 +13,6 @@
 
 
 namespace Z {
-	class Entity;
 	class Scene {
 		entt::registry registry;
 		uint32_t viewportWidth = 0, viewportHeight = 0;

@@ -4,6 +4,7 @@ cmake-build-build/
 #build libarary except vulkanSDK
 Lib
 !Engine/Include/vulkanSDK/lib
+!Assets/mono/lib
 #self define config file except skybox config file
 *.zConf
 !Projects/Test001/Assets/Textures/skybox/skybox.zConf
@@ -23,6 +24,4 @@ build/
 #a test folder
 Application
 #build dynamic libraries
-Bin-C/Scripts/*.dll
-Bin-C/*.dll
-Bin-C/MSVC
+Bin-C

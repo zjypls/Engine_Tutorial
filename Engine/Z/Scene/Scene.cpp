@@ -13,8 +13,6 @@
 #include "Z/Scene/ScriptEntity.h"
 #include "Z/Script/ScriptEngine.h"
 #include "Z/Renderer/Renderer.h"
-#include "Z/Renderer/Renderer2D.h"
-#include "Z/Renderer/Renderer3D.h"
 
 namespace Z {
 

@@ -4,6 +4,7 @@
 
 #ifndef ENGINE_TUTORIAL_RENDERER_H
 #define ENGINE_TUTORIAL_RENDERER_H
+#pragma once
 #include "Z/Renderer/RenderAPI.h"
 #include "Z/Renderer/OrithGraphicCamera.h"
 #include "Z/Renderer/Shader.h"
@@ -12,6 +13,9 @@
 #include "Z/Renderer/EditorCamera.h"
 #include "Z/Renderer/UniformBuffer.h"
 #include "Z/Scene/SceneCamera.h"
+#include "Z/Renderer/Renderer2D.h"
+#include "Z/Renderer/Renderer3D.h"
+
 namespace Z{
 	class Renderer {
 	public:

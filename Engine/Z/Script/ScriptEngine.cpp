@@ -131,6 +131,7 @@ namespace Z {
 		Ref<ScriptClass> Class = nullptr;
 		MonoImage *image = nullptr, *appImage = nullptr;
 		Scene *scene = nullptr;
+		std::string domainName="ZAppDomain";
 		std::filesystem::path CoreAssemblyPath,AppAssemblyPath;
 
 		std::unordered_map<std::string, Ref<ScriptClass>> EntityClasses;
@@ -212,9 +213,9 @@ namespace Z {
 	void ScriptEngine::MonoInit() {
 		scriptData->CoreAssemblyPath="Bin-C/ScriptCore.dll";
 		scriptData->AppAssemblyPath="Bin-C/scripts.dll";
-		mono_set_assemblies_path("mono/lib/4.5");
+		mono_set_assemblies_path("Assets/mono/lib/4.5");
 		scriptData->rootDomain = mono_jit_init("ZJIT");
-		scriptData->appDomain = mono_domain_create_appdomain("ZAppDomain", nullptr);
+		scriptData->appDomain = mono_domain_create_appdomain(scriptData->domainName.data(), nullptr);
 		mono_domain_set(scriptData->appDomain, false);
 	}
 
@@ -225,7 +226,7 @@ namespace Z {
 	void ScriptEngine::ReCreateDomain() {
 		scriptData->appImage= nullptr;
 		mono_domain_set(mono_get_root_domain(), false);
-		scriptData->appDomain = mono_domain_create_appdomain("ZAppDomain", nullptr);
+		scriptData->appDomain = mono_domain_create_appdomain(scriptData->domainName.data(), nullptr);
 		mono_domain_set(scriptData->appDomain, false);
 		LoadCoreAssembly(Tools::LoadMonoAssembly(scriptData->CoreAssemblyPath));
 		ScriptReg::Reg();

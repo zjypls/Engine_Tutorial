@@ -53,7 +53,7 @@ namespace Z {
 //				Z_CORE_WARN("Path:{0},UID:{1}",pair.first,pair.second);
 //			}
 			#if __cplusplus >= 202002L
-			return instance->PathToUID.contain(name);
+			return instance->PathToUID.contains(name);
 			#else
 			return instance->PathToUID.find(name) != instance->PathToUID.end();
 			#endif
@@ -61,7 +61,7 @@ namespace Z {
 
 		inline static bool IsExisting(const zGUID &id) {
 			#if __cplusplus >= 202002L
-			return instance->UIDToPath.contain(id);
+			return instance->UIDToPath.contains(id);
 			#else
 			return instance->UIDToPath.find(id) != instance->UIDToPath.end();
 			#endif

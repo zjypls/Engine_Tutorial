@@ -36,7 +36,7 @@ namespace Z {
 		std::set<std::string> TextureSheet{".jpg",".png",".bmp",".jpeg"};
 		inline bool IsTexture(const std::string& extension){
 			#if __cplusplus>=202002L
-				return TextureSheet.contain(extension);
+				return TextureSheet.contains(extension);
 			#else
 			return TextureSheet.find(extension)!=TextureSheet.end();
 			#endif

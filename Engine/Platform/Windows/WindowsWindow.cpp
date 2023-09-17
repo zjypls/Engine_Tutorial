@@ -6,14 +6,13 @@
 
 #include "Include/stb/stb_image.h"
 
-#include "Platform/Windows/WindowsWindow.h"
-
 #include "Z/Events/ApplicationEvent.h"
 #include "Z/Events/KeyEvent.h"
 #include "Z/Events/MouseEvent.h"
-#include "Z/Renderer/Renderer.h"
 #include "Z/Core/Random.h"
 #include "Z/Renderer/Particle.h"
+
+#include "Platform/Windows/WindowsWindow.h"
 #include "Platform/OpenGL/OpenGLContext.h"
 
 

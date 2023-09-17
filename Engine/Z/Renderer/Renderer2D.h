@@ -4,6 +4,7 @@
 
 #ifndef ENGINE_TUTORIAL_RENDERER2D_H
 #define ENGINE_TUTORIAL_RENDERER2D_H
+#pragma once
 #include "Include/glm/glm/glm.hpp"
 #include "Include/glm/glm/gtc/matrix_transform.hpp"
 #include "Z/Renderer/Texture.h"
@@ -12,9 +13,9 @@
 #include "Z/Renderer/OrithGraphicCamera.h"
 #include "Z/Renderer/Camera.h"
 #include "Z/Renderer/EditorCamera.h"
-#include "Z/Scene/Components.h"
 #include "Z/Renderer/UniformBuffer.h"
 #include "Z/Renderer/SubTex2D.h"
+#include "Z/Scene/Components.h"
 
 namespace Z {
 	class Renderer2D {

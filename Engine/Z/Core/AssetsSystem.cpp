@@ -198,7 +198,7 @@ namespace Z {
 	static const std::set<std::string> registerTypes{".png",".jpg",".jpeg",".bmp",".obj"};
 	inline bool IsRegistered(const std::string& extension){
 		#if __cplusplus>=202002L
-			return registerTypes.contain(extension);
+			return registerTypes.contains(extension);
 		#else
 			return registerTypes.find(extension)!=registerTypes.end();
 		#endif

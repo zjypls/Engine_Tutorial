@@ -5,8 +5,6 @@
 #include "Z/Core/AssetsSystem.h"
 #include "Z/Renderer/Renderer.h"
 #include "Z/Renderer/RenderCommand.h"
-#include "Z/Renderer/Renderer2D.h"
-#include "Z/Renderer/Renderer3D.h"
 
 namespace Z {
 	Renderer::SceneData *Renderer::sceneData;

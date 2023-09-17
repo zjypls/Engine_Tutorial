@@ -4,10 +4,13 @@
 
 #ifndef ENGINE_TUTORIAL_WINDOWSWINDOW_H
 #define ENGINE_TUTORIAL_WINDOWSWINDOW_H
+#pragma once
+#include "Include/glfw/include/GLFW/glfw3.h"
+
 #include "Z/Core/zWindow.h"
 #include "Z/Core/Log.h"
-#include "GLFW/glfw3.h"
 #include "Z/Renderer/GraphicContext.h"
+#include "Z/Renderer/Renderer.h"
 
 namespace Z {
 	class Z_API WindowsWindow final : public zWindow{
