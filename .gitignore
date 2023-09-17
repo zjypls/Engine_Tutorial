@@ -1,12 +1,12 @@
 ﻿#build folder
 cmake-build-build/
 *.exe
-#build libarary
-Lib/
-#self define config file
+#build libarary except vulkanSDK
+Lib
+!Engine/Include/vulkanSDK/lib
+#self define config file except skybox config file
 *.zConf
-#except skybox config file
-+Projects/Test001/Assets/Textures/skybox/skybox.zConf
+!Projects/Test001/Assets/Textures/skybox/skybox.zConf
 #jetbrain toolchain config folder
 .idea/
 #temp file
