@@ -14,7 +14,7 @@
 
 namespace Z {
 
-	namespace Temp {
+	namespace Tools {
 
 		template<class T>
 		std::string GetTypeName() {
@@ -32,6 +32,16 @@ namespace Z {
 				}
 			}(), ...);
 		}
+
+		std::set<std::string> TextureSheet{".jpg",".png",".bmp",".jpeg"};
+		inline bool IsTexture(const std::string& extension){
+			#if __cplusplus>=202002L
+				return TextureSheet.contain(extension);
+			#else
+			return TextureSheet.find(extension)!=TextureSheet.end();
+			#endif
+		}
+
 	}
 
 	static void
@@ -169,7 +179,7 @@ namespace Z {
 			ImGui::OpenPopup("AddComponent");
 		}
 		if (ImGui::BeginPopup("AddComponent")) {
-			Temp::AddComponentMenu(AllTypes{}, entity);
+			Tools::AddComponentMenu(AllTypes{}, entity);
 			ImGui::EndPopup();
 		}
 		ImGui::PopItemWidth();
@@ -190,7 +200,10 @@ namespace Z {
 			                                       if (ImGui::BeginDragDropTarget()) {
 				                                       if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(
 						                                       "CONTENT_BROWSER_ITEM")) {
-					                                       const char *path = (const char *) payload->Data;
+					                                       std::string path = (const char *) payload->Data;
+														   auto pos=path.find_first_of('.');
+														   if(!Tools::IsTexture(path.substr(pos,path.find_last_of('.')-pos)))
+															   return;
 					                                       Z_CORE_ASSERT(std::filesystem::exists(path),
 					                                                     "Path does not exist!");
 						                                   spriteRenderer.texture = AssetsSystem::Load<Texture>(path,true);

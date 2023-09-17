@@ -51,7 +51,7 @@ namespace Z {
 			}
 			ImGui::ImageButton(ImTextureID(id),
 			                   ImVec2{static_cast<float>(width), static_cast<float>(width)}, {0, 1}, {1, 0});
-			if (ImGui::BeginDragDropSource()) {
+			if (IsFile&&ImGui::BeginDragDropSource()) {
 				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", filePath.c_str(), filePath.size() + 1,
 				                          ImGuiCond_Once);
 				ImGui::EndDragDropSource();

@@ -18,7 +18,7 @@
 
 namespace Z {
 
-	namespace Temp {
+	namespace Tools {
 		b2BodyType GetBox2DType(RigidBody2DComponent::BodyType type) {
 			switch (type) {
 				case RigidBody2DComponent::BodyType::Static:
@@ -69,7 +69,7 @@ namespace Z {
 			Entity entity{id, this};
 			auto &transform = entity.GetComponent<TransformComponent>();
 			b2BodyDef bodyDef;
-			bodyDef.type = Temp::GetBox2DType(rigidBody.bodyType);
+			bodyDef.type = Tools::GetBox2DType(rigidBody.bodyType);
 			bodyDef.position.Set(transform.translation.x, transform.translation.y);
 			bodyDef.angle = transform.rotation.z;
 			bodyDef.fixedRotation = rigidBody.fixedRotation;
@@ -313,7 +313,7 @@ namespace Z {
 			auto entity = res->CreateEntityWithGuid(idComponent.ID, srcRegistry.get<TagComponent>(id).tag);
 			auto &trans = srcEntity.GetComponent<TransformComponent>();
 			resRegistry.emplace_or_replace<TransformComponent>(entity, trans);
-			Temp::CopyEntity(NoBaseTypes{}, srcEntity, entity);
+			Tools::CopyEntity(NoBaseTypes{}, srcEntity, entity);
 		});
 		return res;
 	}
@@ -321,7 +321,7 @@ namespace Z {
 
 	void Scene::CopyEntity(Entity entity) {
 		Entity res = CreateEntity(entity.GetName());
-		Temp::CopyEntity(NoBaseTypes{}, entity, res);
+		Tools::CopyEntity(NoBaseTypes{}, entity, res);
 	}
 
 	void Scene::ScriptUpdate(float deltaTime) {

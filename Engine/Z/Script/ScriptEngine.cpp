@@ -74,7 +74,7 @@ std::string Z::FieldTypeToString(ScriptFieldType type) {
 
 namespace Z {
 
-	namespace Temp {
+	namespace Tools {
 		std::string ReadBytes(const std::filesystem::path &path) {
 			std::ifstream file(path, std::ios::ate | std::ios::binary);
 			Z_CORE_ASSERT(file.is_open(), "Failed to open file!");
@@ -146,7 +146,7 @@ namespace Z {
 	void ScriptEngine::Init() {
 		scriptData = new ScriptEngineData();
 		MonoInit();
-		LoadCoreAssembly(Temp::LoadMonoAssembly(scriptData->CoreAssemblyPath));
+		LoadCoreAssembly(Tools::LoadMonoAssembly(scriptData->CoreAssemblyPath));
 		ScriptReg::Reg();
 		ScriptReg::RegComponents();
 		scriptData->AppCoreWatch= CreateScope<filewatch::FileWatch<std::string>>(scriptData->AppAssemblyPath.string(),
@@ -227,7 +227,7 @@ namespace Z {
 		mono_domain_set(mono_get_root_domain(), false);
 		scriptData->appDomain = mono_domain_create_appdomain("ZAppDomain", nullptr);
 		mono_domain_set(scriptData->appDomain, false);
-		LoadCoreAssembly(Temp::LoadMonoAssembly(scriptData->CoreAssemblyPath));
+		LoadCoreAssembly(Tools::LoadMonoAssembly(scriptData->CoreAssemblyPath));
 		ScriptReg::Reg();
 		ScriptReg::RegComponents();
 	}
@@ -236,7 +236,7 @@ namespace Z {
 		scriptData->EntityInstances.clear();
 		scriptData->EntityFields.clear();
 		scriptData->EntityClasses.clear();
-		auto assembly = Temp::LoadMonoAssembly(path);
+		auto assembly = Tools::LoadMonoAssembly(path);
 		scriptData->appImage = mono_assembly_get_image(assembly);
 		Z_CORE_ASSERT(scriptData->appImage, "ScriptEngine:LoadAssembly: Failed to load assembly");
 		GetClasses(assembly);
