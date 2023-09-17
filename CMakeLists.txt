@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-#set(CMAKE_BUILD_TYPE RELEASE)
+
 project(EngineAll)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -21,7 +21,14 @@ set(monoPath ${CMAKE_SOURCE_DIR}/Engine/Include/mono)
 set(glmPath ${CMAKE_SOURCE_DIR}/Engine/Include/glm)
 set(spdlogPath ${CMAKE_SOURCE_DIR}/Engine/Include/spdlog)
 set(box2DPath ${CMAKE_SOURCE_DIR}/Engine/Include/box2d)
-set(VK_PATH ${CMAKE_SOURCE_DIR}/Engine/Include/vulkanSDK)
+
+if (DEFINED $ENV{VULKAN_SDK})
+    set(VK_PATH $ENV{VULKAN_SDK})
+elseif (DEFINED $ENV{VK_SDK_PATH})
+    set(VK_PATH $ENV{VK_SDK_PATH})
+else ()
+    set(VK_PATH ${CMAKE_SOURCE_DIR}/Engine/Include/vulkanSDK)
+endif ()
 
 set(EDITOR_RC ${CMAKE_SOURCE_DIR}/Assets/Configs/AppIcon.rc)
 
@@ -47,7 +54,7 @@ add_subdirectory(Engine)
 
 add_dependencies(Z glad glfw imgui Box2D)
 add_subdirectory(ZEditor)
-if(ReBuildScriptsCore)
+if (ReBuildScriptsCore)
     add_subdirectory(scripts)
     add_dependencies(scripts ScriptCore)
 endif ()
