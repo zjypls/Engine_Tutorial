@@ -12,7 +12,6 @@ set(ReBuildScriptsCore ON)
 set(UseVulkan OFF)
 
 set(gladPath ${CMAKE_SOURCE_DIR}/Engine/Include/glad)
-set(GLFWPath ${CMAKE_SOURCE_DIR}/Engine/Include/GLFW)
 set(GLFWPath ${CMAKE_SOURCE_DIR}/Engine/Include/glfw)
 set(ImGuiPath ${CMAKE_SOURCE_DIR}/Engine/Include/imgui)
 set(enttPath ${CMAKE_SOURCE_DIR}/Engine/Include/entt/include)
