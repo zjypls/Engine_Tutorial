@@ -1,5 +1,5 @@
 ﻿#build folder
-cmake-build-build/
+cmake-build-*/
 *.exe
 #build libarary except vulkanSDK
 Lib
@@ -25,3 +25,5 @@ build/
 Application
 #build dynamic libraries
 Bin-C
+#other config files
+.clang-tidy

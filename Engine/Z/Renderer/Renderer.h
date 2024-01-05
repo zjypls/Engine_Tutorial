@@ -15,12 +15,15 @@
 #include "Z/Scene/SceneCamera.h"
 #include "Z/Renderer/Renderer2D.h"
 #include "Z/Renderer/Renderer3D.h"
+#include "Z/Renderer/FrameBuffer.h"
 
 namespace Z{
 	class Renderer {
 	public:
+        static inline Ref<FrameBuffer> GetDefaultFrameBuffer(){return frameBuffer;}
 		static void Init();
 		static void ShutDown();
+        static void FrameResize(uint32_t wid,uint32_t  hig);
 		static RenderAPI::API GetAPI() { return RenderAPI::GetAPI(); }
 		static void OnWindowResize(uint32_t width, uint32_t height);
 		static void BeginScene(const Ref<OrithGraphicCamera>& camera);
@@ -43,6 +46,7 @@ namespace Z{
 		static Ref<Shader> skyBoxShader;
 		static Ref<Texture> skyBox;
 		static Ref<VertexArray> cube;
+        static Ref<FrameBuffer> frameBuffer;
 	};
 }
 

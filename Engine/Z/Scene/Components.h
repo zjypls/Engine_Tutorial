@@ -2,7 +2,7 @@
 // Created by 32725 on 2023/3/27.
 //
 
-#ifndef ENGINE_TUTORIAL_COMPENENTS_H
+#ifndef ENGINE_TUTORIAL_COMPONENTS_H
 #define ENGINE_TUTORIAL_COMPONENTS_H
 #pragma once
 #include "Include/glm/glm/glm.hpp"
@@ -130,7 +130,7 @@ namespace Z {
 		glm::vec2 offset{0.f,0.f};
 		glm::vec2 size{1.f,1.f};
 		bool isTrigger{false};
-		//Todo : change
+		//Todo : change !!!!
 		void* ptr= new int{1};
 
 		float density{0.5f};
@@ -144,7 +144,7 @@ namespace Z {
 		glm::vec2 offset{0.f,0.f};
 		float radius{.5f};
 		bool isTrigger{false};
-		//Todo : change
+		//Todo : change !!!!
 		void* ptr= new int{1};
 
 		float density{0.5f};
@@ -154,7 +154,7 @@ namespace Z {
 		CircleCollider2DComponent()=default;
 	};
 
-	//TODO:Add a GUID for each component?
+	//TODO:Add a GUID for each component ?
 	struct MeshRendererComponent{
 		Ref<Mesh> mesh;
 	};

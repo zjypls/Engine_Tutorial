@@ -6,6 +6,7 @@
 #ifndef ENGINE_TUTORIAL_CORE_H
 #define ENGINE_TUTORIAL_CORE_H
 #include <memory>
+#include <string>
 #ifdef Z_PLATFORM_WIN32
 	#ifdef Z_DYNAMIC_LINK
 		#ifdef Z_BUILD_DLL
@@ -33,6 +34,10 @@
 #define Z_BIND_EVENT_FUNC(func) [this](auto&&... args) -> decltype(auto) { return this->func(std::forward<decltype(args)>(args)...); }
 
 namespace Z{
+    // Z_SOURCE_DIR means #define Z_SOURCE_DIR "{CMAKE_SOURCE_DIR}" provide with cmake
+    static const std::string ROOT_PATH=Z_SOURCE_DIR"/";
+
+
 	template<typename T>
 	using Scope=std::unique_ptr<T>;
 	template<typename T,typename ... Args>

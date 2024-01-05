@@ -445,7 +445,8 @@ namespace Z {
 		DrawComponent<MeshRendererComponent>("MeshRenderer",entity,[](Entity entity,MeshRendererComponent&component){
 			ImGui::Text("Model:");
 			ImGui::SameLine();
-			ImGui::Text(component.mesh->name.c_str());
+            if(component.mesh) ImGui::Text(component.mesh->name.c_str());
+            else ImGui::Text("No model loaded!");
 		});
 	}
 

@@ -12,8 +12,11 @@ namespace Z {
 	Ref<Shader> Renderer::skyBoxShader;
 	Ref<Texture> Renderer::skyBox;
 	Ref<VertexArray> Renderer::cube;
+    Ref<FrameBuffer> Renderer::frameBuffer;
 
+    [[deprecated("To be improved!!!")]]
 	void Renderer::BeginScene(const Ref<OrithGraphicCamera> &camera) {
+        Z_CORE_ASSERT(false,"not completed yet!!!");
 		sceneData->ViewProjectionMatrix = camera->GetViewProjectionMatrix();
 	}
 
@@ -34,6 +37,16 @@ namespace Z {
 		RenderCommand::Init();
 		Renderer3D::Init();
 		Renderer2D::Init();
+
+        FrameBufferSpecification spec;
+        spec.width = 1200;
+        spec.height = 800;
+        spec.attachments = {FrameBufferTextureFormat::RGBA8, //BaseColorAttachment
+                            FrameBufferTextureFormat::R32I, //Object Index
+                            FrameBufferTextureFormat::DEPTH //DepthStencil Attachment
+        };
+        frameBuffer = FrameBuffer::Create(spec);
+
 		sceneData = new SceneData{};
 		sceneData->ViewProjectionMatrix = glm::mat4{1};
 		renderData = new RenderData{};
@@ -97,9 +110,9 @@ namespace Z {
 
 	void Renderer::BeginScene(const EditorCamera &camera) {
 		//TODO:optimize
-		auto& viewMat=camera.GetViewMatrix();
+		const auto& viewMat=camera.GetViewMatrix();
 		auto viewSky=glm::mat4(glm::mat3(viewMat));
-		auto& projectMat=camera.GetProjectionMatrix();
+		const auto& projectMat=camera.GetProjectionMatrix();
 		sceneData->ViewProjectionMatrix = projectMat*viewSky;
 		renderData->ubo->SetData(sceneData, sizeof(SceneData));
 		RenderSkyBox();
@@ -108,6 +121,7 @@ namespace Z {
 	}
 
 	void Renderer::BeginScene(const SceneCamera &camera, const glm::mat4 &transform) {
+        //Todo:should to be improved !!!
 		BeginScene(Camera(camera), transform);
 	}
 
@@ -118,4 +132,8 @@ namespace Z {
 		RenderCommand::DrawIndexed(cube);
 		RenderCommand::ChangeDepthTest();
 	}
+
+    void Renderer::FrameResize(uint32_t wid, uint32_t hig) {
+        frameBuffer->Resize(wid,hig);
+    }
 }

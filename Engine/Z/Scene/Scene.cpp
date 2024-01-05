@@ -189,13 +189,11 @@ namespace Z {
 	}
 
 	void Scene::OnPreviewUpdate(float deltaTime, Camera &camera, glm::mat4 transform) {
-		//Renderer2D::BeginScene(camera, transform);
 		Renderer::BeginScene(camera,transform);
 		Renderer3D::BeginScene();
 		Renderer2D::BeginScene();
 		Render2D();
 		Render3D();
-		//Renderer::RenderSkyBox();
 		Renderer2D::EndScene();
 		Renderer3D::EndScene();
 		Renderer::EndScene();
@@ -240,6 +238,8 @@ namespace Z {
 	void Scene::Render3D() {
 		std::for_each(registry.view<TransformComponent, MeshRendererComponent>().begin(),
 		              registry.view<TransformComponent, MeshRendererComponent>().end(), [&](const auto &item) {
+                    MeshRendererComponent component=registry.get<MeshRendererComponent>(item);
+                    if(component.mesh)
 					Renderer3D::Draw(registry.get<TransformComponent>(item).GetTransform(),
 					                       registry.get<MeshRendererComponent>(item), uint32_t(item));
 				});

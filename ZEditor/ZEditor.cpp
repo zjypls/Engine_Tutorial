@@ -33,46 +33,40 @@ namespace Z {
 
 	}
 
-	void EditorLayer::OnAttach() {
-		Z_CORE_INFO("Layer:{0} Attach!", GetName());
-		std::filesystem::path ProjectPath = Z::Utils::FileOpen("*.zPrj\0", "Test001.zPrj\0", ".\\Projects\\Test001\0");
-		if (!Project::Init(ProjectPath)) {
-			Z_CORE_ASSERT(false, "Project Init Failed!");
-			return;
-		}
-		AssetsSystem::InitWithProject(Project::GetProjectRootDir());
-		//Fixme:no effect
-//		if(auto&configuration=Project::GetEditorLayoutConfiguration();!configuration.empty()) {
-//			ImGui::GetIO().IniFilename=configuration.string().c_str();
-//		}
+    void EditorLayer::OnAttach() {
+        Z_CORE_INFO("Layer:{0} Attach!", GetName());
+        std::filesystem::path ProjectPath = Z::Utils::FileOpen("*.zPrj\0", "Test001.zPrj\0", ".\\Projects\\Test001\0");
 
-		FrameBufferSpecification spec;
-		spec.width = 1200;
-		spec.height = 800;
-		spec.attachments = {FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::R32I,
-		                    FrameBufferTextureFormat::DEPTH};
-		frameBuffer = FrameBuffer::Create(spec);
-		spec.width = spec.width / 5.f;
-		spec.height = spec.height / 5.f;
-		spec.attachments = {FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::DEPTH};
-		previewFrame = FrameBuffer::Create(spec);
-		scene = CreateRef<Scene>();
-		editorCamera = Z::EditorCamera(45.f, 1.f, 0.1f, 1000.f);
-		//Todo:optimize with a project system
-		playButtonIcon = AssetsSystem::Load<Texture>(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/PlayButton.png"), true);
-		//Texture2D::CreateTexture("Assets/Icons/PlayButton.png");
-		stopButtonIcon = AssetsSystem::Load<Texture>(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/StopButton.png"), true);
-		//Texture2D::CreateTexture("Assets/Icons/StopButton.png");
-		simulateButtonIcon = AssetsSystem::Load<Texture>(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/SimulateButton.png"),
-		                                                 true);
-		//Texture2D::CreateTexture("Assets/Icons/SimulateButton.png");
-		pauseButtonIcon = AssetsSystem::Load<Texture>(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/PauseButton.png"), true);
-		//Texture2D::CreateTexture("Assets/Icons/PauseButton.png");
-		stepButtonIcon = AssetsSystem::Load<Texture>(ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/StepButton.png"), true);
-		//Texture2D::CreateTexture("Assets/Icons/StepButton.png");
-		toolButtons[0] = playButtonIcon;
-		toolButtons[1] = simulateButtonIcon;
-		toolButtons[2] = stepButtonIcon;
+        if (!Project::Init(ProjectPath)) {
+            Z_CORE_ASSERT(false, "Project Init Failed!");
+            return;
+        }
+        AssetsSystem::InitWithProject(Project::GetProjectRootDir());
+        //Fixme
+		if(const auto&configuration=Project::GetEditorLayoutConfiguration();!configuration.empty()) {
+			//ImGui::GetIO().IniFilename=configuration.string().c_str();
+            Z_CORE_WARN("Ini config file find : "+configuration.string());
+		}
+
+        frameBuffer = Renderer::GetDefaultFrameBuffer();
+
+        auto& spec=frameBuffer->GetSpecification();
+        spec.width = spec.width / 5.f; //NOLINT
+        spec.height = spec.height / 5.f; //NOLINT
+        spec.attachments = {FrameBufferTextureFormat::RGBA8, //BaseColorAttachment
+                            FrameBufferTextureFormat::DEPTH //DepthStencil Attachment
+        };
+        previewFrame = FrameBuffer::Create(spec);
+        scene = CreateRef<Scene>();
+        editorCamera = Z::EditorCamera(45.f, 1.f, 0.1f, 1000.f);
+        playButtonIcon = AssetsSystem::Load<Texture>(ROOT_PATH + "Assets/Icons/PlayButton.png", true);
+        stopButtonIcon = AssetsSystem::Load<Texture>(ROOT_PATH + "Assets/Icons/StopButton.png", true);
+        simulateButtonIcon = AssetsSystem::Load<Texture>(ROOT_PATH + "Assets/Icons/SimulateButton.png", true);
+        pauseButtonIcon = AssetsSystem::Load<Texture>(ROOT_PATH + "Assets/Icons/PauseButton.png", true);
+        stepButtonIcon = AssetsSystem::Load<Texture>(ROOT_PATH + "Assets/Icons/StepButton.png", true);
+        toolButtons[0] = playButtonIcon;
+        toolButtons[1] = simulateButtonIcon;
+        toolButtons[2] = stepButtonIcon;
 
 
 		sceneHierarchyPlane = CreateScope<SceneHierarchyPlane>(scene);
