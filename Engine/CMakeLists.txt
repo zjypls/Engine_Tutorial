@@ -21,6 +21,7 @@ include_directories(${spdlogPath}/include
 
 
 add_subdirectory(Include/GLFW)
+add_subdirectory(Include/glfw)
 add_subdirectory(Include/glad)
 add_subdirectory(Include/imgui)
 add_subdirectory(Include/yaml-cpp)
