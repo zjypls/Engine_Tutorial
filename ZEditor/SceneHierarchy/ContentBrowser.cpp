@@ -9,16 +9,18 @@
 #include "ContentBrowser.h"
 
 namespace Z {
-	//constexpr char *RootPath = Z_SOURCE_DIR;
-	const std::filesystem::path RootPath("./");
 
-	ContentBrowser::ContentBrowser() : currentPath(Project::GetProjectRootDir()) {
-		loadIcons({ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/DirectoryIcon.png"),
-		           ZSTRCAT(Z_SOURCE_DIR, "Assets/Icons/FileIcon.png")});
+	ContentBrowser::ContentBrowser() : currentPath(Project::IsInited()?Project::GetProjectRootDir():"") {
+		loadIcons({ROOT_PATH + "Assets/Icons/DirectoryIcon.png",
+		           ROOT_PATH + "Assets/Icons/FileIcon.png"});
 	}
 
 	void ContentBrowser::OnImGuiRender() {
 		ImGui::Begin("Content Browser");
+        if(currentPath.empty()){
+            ImGui::End();
+            return;
+        }
 		auto [x, y] = ImGui::GetWindowSize();
 		int width = 128;
 		int columns = std::max(int(x / width), 1);

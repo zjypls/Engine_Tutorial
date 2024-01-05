@@ -10,6 +10,7 @@
 namespace Z {
 
 	Ref<Project> Project::project= nullptr;
+    bool Project::p_Inited = false;
 	bool Project::Init(std::filesystem::path &projectFile) {
 		YAML::Node data;
 		try{
@@ -37,6 +38,7 @@ namespace Z {
 			configure.ProjectName = nodeData["ProjectName"].as<std::string>();
 		else
 			configure.ProjectName = projectFile.filename().string().substr(0, projectFile.filename().string().find_last_of('.'));
+        p_Inited=true;
 		return true;
 	}
 

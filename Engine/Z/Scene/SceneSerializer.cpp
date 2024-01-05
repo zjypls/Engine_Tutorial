@@ -322,13 +322,14 @@ namespace Z {
 			if (cameraComponent) {
 				auto &camera = entity.AddComponent<CameraComponent>();
 				auto cameraProps = cameraComponent["Camera"];
-				camera.camera.SetProjectionType((SceneCamera::ProjectionType) cameraProps["ProjectionType"].as<int>());
+                camera.camera.SetAspectRatio(cameraProps["AspectRatio"].as<float>());
 				camera.camera.SetPerspectiveFOV(cameraProps["PerspectiveFOV"].as<float>());
 				camera.camera.SetPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
 				camera.camera.SetPerspectiveFarClip(cameraProps["PerspectiveFar"].as<float>());
 				camera.camera.SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
 				camera.camera.SetOrthographicNearClip(cameraProps["OrthographicNear"].as<float>());
 				camera.camera.SetOrthographicFarClip(cameraProps["OrthographicFar"].as<float>());
+                camera.camera.SetProjectionType((SceneCamera::ProjectionType) cameraProps["ProjectionType"].as<int>());
 				camera.primary = cameraProps["Primary"].as<bool>();
 			}
 			auto spriteRendererComponent = Entity["SpriteRendererComponent"];

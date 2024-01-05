@@ -68,6 +68,8 @@ namespace Z {
 
 		void LoadScene();
 
+        void LoadProjects();
+
 		void LoadScene(const std::filesystem::path &path);
 
 		void NewScene();

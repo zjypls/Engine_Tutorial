@@ -22,6 +22,7 @@ namespace Z {
 	class Project {
 	public:
 		static bool Init(std::filesystem::path &projectFile);
+        static inline bool IsInited(){return p_Inited;}
 		static void Save();
 		static auto GetProject() { return project; }
 		static std::filesystem::path GetProjectRootDir() { return project->configure.ProjectRootDir; }
@@ -33,6 +34,7 @@ namespace Z {
 		static ProjectConfigure GetConfigure() { return project->configure; }
 		static const std::filesystem::path& GetEditorLayoutConfiguration(){return project->configure.editorLayout;}
 	private:
+        static bool p_Inited;
 		ProjectConfigure configure;
 		static Ref<Project> project;
 	};

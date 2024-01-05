@@ -43,7 +43,7 @@ namespace Z {
         }
         AssetsSystem::InitWithProject(Project::GetProjectRootDir());
         //Fixme
-		if(const auto&configuration=Project::GetEditorLayoutConfiguration();!configuration.empty()) {
+		if(const auto&configuration=Project::IsInited()?Project::GetEditorLayoutConfiguration():"";!configuration.empty()) {
 			//ImGui::GetIO().IniFilename=configuration.string().c_str();
             Z_CORE_WARN("Ini config file find : "+configuration.string());
 		}
@@ -217,7 +217,7 @@ namespace Z {
 
 		ImGui::Begin("Statics");
 
-		auto stats = Renderer2D::GetStats();
+		auto *stats = Renderer2D::GetStats();
 		ImGui::Text("Renderer2D Stats:");
 		ImGui::Text("Draw Calls: %u", stats->DrawCalls);
 		ImGui::Text("Quads: %u", stats->QuadCount);
@@ -477,13 +477,13 @@ namespace Z {
 			OnStop();
 		}
 		scene = CreateRef<Scene>();
+        SceneSerializer serializer(scene);
+        if (serializer.Deserialize(path.string())) {
+            WorkPath = path;
+        }
 		scene->OnViewportResize(viewportSize.x, viewportSize.y);
+        sceneHierarchyPlane->SetContext(scene);
 		sceneHierarchyPlane->SetSelectedEntity(-1);
-		sceneHierarchyPlane->SetContext(scene);
-		SceneSerializer serializer(scene);
-		if (serializer.Deserialize(path.string())) {
-			WorkPath = path;
-		}
 	}
 
 	void EditorLayer::NewScene() {
@@ -638,5 +638,16 @@ namespace Z {
 		sceneHierarchyPlane->SetContext(scene);
 		scene->OnSimulateStart();
 	}
+
+    void EditorLayer::LoadProjects() {
+        std::filesystem::path path=Utils::FileOpen("*.zPrj", "Test001.zPrj", (ROOT_PATH + "Projects/Test001").c_str());
+        if(Project::Init(path)){
+            AssetsSystem::InitWithProject(Project::GetProjectRootDir());
+            LoadScene(Project::GetProjectRootDir()/Project::GetStartScene());
+            contentBrowser->SetWorkPath(Project::GetProjectRootDir().string());
+        }else{
+            Z_CORE_ERROR("illegal project file : {1}",path);
+        }
+    }
 
 }

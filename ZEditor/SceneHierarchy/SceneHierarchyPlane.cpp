@@ -90,20 +90,22 @@ namespace Z {
 
 	void SceneHierarchyPlane::OnImGuiRender() {
 		ImGui::Begin("Scene Hierarchy");
-		context->registry.each([&](auto entityID) {
-			Entity entity{entityID, context.get()};
-			DrawEntity(entity);
-		});
-		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered()) {
-			selectedEntity = {};
-		}
-		if (ImGui::BeginPopupContextWindow(nullptr,
-		                                   ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems)) {
-			if (ImGui::MenuItem("Create Empty Entity")) {
-				context->CreateEntity("Empty Entity");
-			}
-			ImGui::EndPopup();
-		}
+        if(context){
+            context->registry.each([&](auto entityID) {
+                Entity entity{entityID, context.get()};
+                DrawEntity(entity);
+            });
+            if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered()) {
+                selectedEntity = {};
+            }
+            if (ImGui::BeginPopupContextWindow(nullptr,
+                                               ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems)) {
+                if (ImGui::MenuItem("Create Empty Entity")) {
+                    context->CreateEntity("Empty Entity");
+                }
+                ImGui::EndPopup();
+            }
+        }
 		ImGui::End();
 
 		ImGui::Begin("Inspector");

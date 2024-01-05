@@ -16,22 +16,22 @@ namespace Z {
 
 		void DrawComponents(Entity entity);
 
-		template<typename _Ty>
-		void DrawComponent(const std::string &, Entity entity, void (*drawFunc)(Entity,_Ty &));
+		template<typename Ty>
+		void DrawComponent(const std::string &, Entity entity, void (*drawFunc)(Entity,Ty &));
 
 	public:
 		SceneHierarchyPlane() = default;
 
 		SceneHierarchyPlane(const Ref<Scene> &context) : context(context) {}
 
+        [[deprecated("Should Use SetContext !!!")]]
 		inline void SetScene(const Ref<Scene> &context) {
-			this->context = context;
-			selectedEntity = {};
+            SetContext(context);
 		}
 
 		inline void SetContext(const Ref<Scene> &context) {
+            selectedEntity = {};
 			this->context = context;
-			selectedEntity = {};
 		}
 
 		inline Entity GetSelectedEntity() const { return selectedEntity; }
