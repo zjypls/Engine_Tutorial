@@ -12,4 +12,4 @@ Learning:
 Editor:
 ![EditorMain](./Assets/ReadMe/Gif/Editor.gif)
 
-notices:can build with msvc or clang15(must off ReBuildScriptsCore flags in CMakeLists.txt)
+notices:can build with msvc or clang(must off ReBuildScriptsCore flags in CMakeLists.txt)
