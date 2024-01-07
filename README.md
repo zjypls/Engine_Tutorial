@@ -7,12 +7,18 @@ git clone --recursive https://github.com/zjypls/Engine_Tutorial.git
 ## or
 ```
 git clone https://github.com/zjypls/Engine_Tutorial.git
+```
+```
 cd Engine_Tutorial
+```
+```
 git submodule update --init --recursive
 ```
 ## build with 
 ```
 cmake -B build
+```
+```
 cmake --build build
 ```
 Learning:  
