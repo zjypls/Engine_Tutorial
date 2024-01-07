@@ -6,7 +6,7 @@ git clone --recursive https://github.com/zjypls/Engine_Tutorial.git
 ```
 ## or
 ```
-git clone https://https://github.com/zjypls/Engine_Tutorial.git
+git clone https://github.com/zjypls/Engine_Tutorial.git
 cd Engine_Tutorial
 git submodule update --init --recursive
 ```

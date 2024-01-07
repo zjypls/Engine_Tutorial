@@ -33,7 +33,7 @@ namespace Z {
 		window->SetEventCallFunc(Z_BIND_EVENT_FUNC(Application::EventCall));
 		AssetsSystem::PreInit();
 
-		Z::ScriptEngine::Init();
+		ScriptEngine::Init();
 		Renderer::Init();
 
 		window->SetVSync(false);
@@ -45,17 +45,17 @@ namespace Z {
 	Application::~Application() {
 		window->Shutdown();
 		Renderer::ShutDown();
-		if(Z::ScriptEngine::GetContext()!=nullptr){
+		if(ScriptEngine::GetContext()!=nullptr){
 			Z_CORE_WARN("Close Application in Running!!!");
 		}
-		Z::ScriptEngine::ShutDown();
+		ScriptEngine::ShutDown();
 
 		Z_CORE_INFO("Application closed!");
 	}
 
 	void Application::Run() {
 		while (Running) {
-			Z::Time::Update();
+			Time::Update();
 			imguiLayer->Begin();
 			if (!MinSize) {
 				for (Layer *layer: LayerStack) {

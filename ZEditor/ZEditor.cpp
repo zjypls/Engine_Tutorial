@@ -35,30 +35,28 @@ namespace Z {
 
     void EditorLayer::OnAttach() {
         Z_CORE_INFO("Layer:{0} Attach!", GetName());
-        std::filesystem::path ProjectPath = Z::Utils::FileOpen("*.zPrj\0", "Test001.zPrj\0", ".\\Projects\\Test001\0");
+
+#if 0
+        std::filesystem::path ProjectPath = Utils::FileOpen("*.zPrj\0", "Test001.zPrj\0", ".\\Projects\\Test001\0");
 
         if (!Project::Init(ProjectPath)) {
             Z_CORE_ASSERT(false, "Project Init Failed!");
             return;
         }
         AssetsSystem::InitWithProject(Project::GetProjectRootDir());
-        //Fixme
-		if(const auto&configuration=Project::IsInited()?Project::GetEditorLayoutConfiguration():"";!configuration.empty()) {
-			//ImGui::GetIO().IniFilename=configuration.string().c_str();
-            Z_CORE_WARN("Ini config file find : "+configuration.string());
-		}
+#endif
 
         frameBuffer = Renderer::GetDefaultFrameBuffer();
 
         auto& spec=frameBuffer->GetSpecification();
-        spec.width = spec.width / 5.f; //NOLINT
-        spec.height = spec.height / 5.f; //NOLINT
+        spec.width = spec.width / 5.f;
+        spec.height = spec.height / 5.f;
         spec.attachments = {FrameBufferTextureFormat::RGBA8, //BaseColorAttachment
                             FrameBufferTextureFormat::DEPTH //DepthStencil Attachment
         };
         previewFrame = FrameBuffer::Create(spec);
         scene = CreateRef<Scene>();
-        editorCamera = Z::EditorCamera(45.f, 1.f, 0.1f, 1000.f);
+        editorCamera = EditorCamera(45.f, 1.f, 0.1f, 1000.f);
         playButtonIcon = AssetsSystem::Load<Texture>(ROOT_PATH + "Assets/Icons/PlayButton.png", true);
         stopButtonIcon = AssetsSystem::Load<Texture>(ROOT_PATH + "Assets/Icons/StopButton.png", true);
         simulateButtonIcon = AssetsSystem::Load<Texture>(ROOT_PATH + "Assets/Icons/SimulateButton.png", true);
@@ -69,30 +67,36 @@ namespace Z {
         toolButtons[2] = stepButtonIcon;
 
 
-		sceneHierarchyPlane = CreateScope<SceneHierarchyPlane>(scene);
+		sceneHierarchyPlane = CreateScope<SceneHierarchyPlane>();
 		contentBrowser = CreateScope<ContentBrowser>();
 
 		//Todo:change this to a better way
 		ScriptEngine::LoadAssembly("Bin-C/scripts.dll");
-		LoadScene(Project::GetProjectRootDir() / Project::GetStartScene());
+		ScriptEngine::RegisterFileWatch();
+		//LoadScene(Project::GetProjectRootDir() / Project::GetStartScene());
 
 		//a Test for mesh Renderer
+        /*
 		testModel = scene->CreateEntity("Model");
 		testModel.AddComponent<MeshRendererComponent>(AssetsSystem::Load<Mesh>(
 				(Project::GetProjectRootDir() / "Assets/Models/TinyRoom.obj").string()));
+         */
 
 
 	}
 
 	void EditorLayer::OnDetach() {
+		if(selfDefLayout) {
+			ImGui::SaveIniSettingsToDisk(selfDefLayoutFilePath.c_str());
+			Z_CORE_WARN("Layout config file save at : {0}",selfDefLayoutFilePath);
+		}
 	}
 
 	void EditorLayer::OnUpdate() {
-		//Todo : change this to a better way
-		if (ScriptEngine::HasReLoadApp()) {
-			ScriptEngine::ReCreateFields(scene);
-			ScriptEngine::SetReLoadApp(false);
-		}
+
+		ScriptEngine::CheckLoad(scene);
+
+		//Todo:move to renderer
 		frameBuffer->Bind();
 		RenderCommand::SetClearValue(clearValue);
 		RenderCommand::Clear();
@@ -186,16 +190,15 @@ namespace Z {
 
 		if (ImGui::BeginMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
-
 				if (ImGui::MenuItem("New", "Ctrl+N")) {
 					NewScene();
 				}
-
 				if (ImGui::MenuItem("Save", "Ctrl+Shift+S")) {
 					SaveScene();
 				}
 				if (ImGui::MenuItem("Load", "Ctrl+O")) {
-					LoadScene();
+					//LoadScene();
+                    LoadProjects();
 				}
 				if (ImGui::MenuItem("Exit")) Application::Get().Close();
 				ImGui::EndMenu();
@@ -259,7 +262,7 @@ namespace Z {
 		IsViewportHovered = ImGui::IsWindowHovered();
 		auto viewSize = ImGui::GetContentRegionAvail();
 		if (IsViewportFocused && IsViewportHovered && viewportSize.y != 0 && viewportSize.x != 0 &&
-		    Z::Input::IsMouseButtonPressed(Z::MouseCode::ButtonLeft)) {
+		    Input::IsMouseButtonPressed(MouseCode::ButtonLeft)) {
 
 			auto cursorPos = ImGui::GetMousePos();
 			auto offset = ImGui::GetWindowPos();
@@ -439,7 +442,7 @@ namespace Z {
 	}
 
 	void EditorLayer::SaveScene() {
-		auto path = Z::Utils::FileSave("*.zscene");
+		auto path = Utils::FileSave("*.zscene");
 		if (!path.empty()) {
 			WorkPath = path;
 			if (WorkPath.extension() != ".zscene")
@@ -466,7 +469,7 @@ namespace Z {
 	}
 
 	void EditorLayer::LoadScene() {
-		auto path = Z::Utils::FileOpen("*.zscene");
+		auto path = Utils::FileOpen("*.zscene");
 		if (!path.empty()) {
 			LoadScene(path);
 		}
@@ -640,13 +643,26 @@ namespace Z {
 	}
 
     void EditorLayer::LoadProjects() {
+		if(selfDefLayout) {
+			ImGui::SaveIniSettingsToDisk(selfDefLayoutFilePath.c_str());
+			selfDefLayout=false;
+		}
         std::filesystem::path path=Utils::FileOpen("*.zPrj", "Test001.zPrj", (ROOT_PATH + "Projects/Test001").c_str());
         if(Project::Init(path)){
             AssetsSystem::InitWithProject(Project::GetProjectRootDir());
             LoadScene(Project::GetProjectRootDir()/Project::GetStartScene());
             contentBrowser->SetWorkPath(Project::GetProjectRootDir().string());
+        	if(const auto&configuration=Project::GetEditorLayoutConfiguration();!configuration.empty()) {
+        		this->selfDefLayout=true;
+        		selfDefLayoutFilePath=configuration.string();
+				//avoid reload ini file when imgui recording command
+				Application::Get().SubmitFunc([this] {
+					ImGui::LoadIniSettingsFromDisk("Assets/Configs/editorLayout.ini");
+				});
+        		Z_CORE_WARN("Ini config file find : {0}",configuration.string());
+        	}
         }else{
-            Z_CORE_ERROR("illegal project file : {1}",path);
+            Z_CORE_ERROR("illegal project file : {0}",path);
         }
     }
 

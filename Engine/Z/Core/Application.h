@@ -50,7 +50,7 @@ namespace Z {
 		std::mutex QueueMutex;
 
         ApplicationSpec Spec;
-        Z::Scope<zWindow> window;
+        Scope<zWindow> window;
         bool Running=true;
         bool MinSize=false;
         LayerStacks LayerStack;

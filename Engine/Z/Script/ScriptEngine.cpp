@@ -150,6 +150,9 @@ namespace Z {
 		LoadCoreAssembly(Tools::LoadMonoAssembly(scriptData->CoreAssemblyPath));
 		ScriptReg::Reg();
 		ScriptReg::RegComponents();
+	}
+
+	void ScriptEngine::RegisterFileWatch() {
 		scriptData->AppCoreWatch= CreateScope<filewatch::FileWatch<std::string>>(scriptData->AppAssemblyPath.string(),
 				[&](auto&str,auto action){
 			//Todo : prevent runtime reload
@@ -163,6 +166,7 @@ namespace Z {
 			}
 		});
 	}
+
 
 	void ScriptEngine::ShutDown() {
 		MonoShutDown();

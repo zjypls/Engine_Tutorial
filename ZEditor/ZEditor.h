@@ -13,7 +13,7 @@
 #include "SceneHierarchy/ContentBrowser.h"
 
 namespace Z {
-	class EditorLayer : public Layer {
+	class EditorLayer final : public Layer {
 		enum class SceneState {
 			Edit, Play, Simulate,Pause
 		};
@@ -27,13 +27,14 @@ namespace Z {
 		Ref<Scene> scene, BackScene;
 		Scope<SceneHierarchyPlane> sceneHierarchyPlane;
 		int currentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
-		Z::EditorCamera editorCamera;
+		EditorCamera editorCamera;
 		Scope<ContentBrowser> contentBrowser;
-		Ref<Z::Texture> playButtonIcon, stopButtonIcon, simulateButtonIcon,pauseButtonIcon,stepButtonIcon;
-		Ref<Z::Texture> toolButtons[3];
+		Ref<Texture> playButtonIcon, stopButtonIcon, simulateButtonIcon,pauseButtonIcon,stepButtonIcon;
+		Ref<Texture> toolButtons[3];
 		std::filesystem::path WorkPath{};
 		Entity selectedEntity;
-		bool scriptReload = false,nextStep=false;
+		bool scriptReload = false,nextStep=false,selfDefLayout=false;
+		std::string selfDefLayoutFilePath;
 		int stepFrames=1;
 
 		Entity testModel;

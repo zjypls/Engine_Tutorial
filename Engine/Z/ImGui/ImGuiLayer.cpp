@@ -52,7 +52,9 @@ namespace Z {
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
 		ImGuiIO &io = ImGui::GetIO();
-		io.IniFilename="Assets/Configs/editorLayout.ini";
+		io.IniFilename=nullptr;//"Assets/Configs/editorLayout.ini";
+		ImGui::LoadIniSettingsFromDisk("Assets/Configs/editorLayout.ini");
+
 
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;      //Necessary for docking
