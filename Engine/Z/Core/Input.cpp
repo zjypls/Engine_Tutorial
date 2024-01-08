@@ -2,7 +2,7 @@
 // Created by 32725 on 2023/3/14.
 //
 
-#include "Include/GLFW/include/GLFW/glfw3.h"
+#include "Include/glfw/include/GLFW/glfw3.h"
 
 #include "Z/Core/Input.h"
 #include "Z/Core/Application.h"

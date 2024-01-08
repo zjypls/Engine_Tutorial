@@ -24,7 +24,7 @@ add_subdirectory(Include/glfw)
 add_subdirectory(Include/glad)
 add_subdirectory(Include/imgui)
 add_subdirectory(Include/yaml-cpp)
-add_subdirectory(Include/Box2D)
+add_subdirectory(Include/box2d)
 add_subdirectory(Include/tinyobjloader)
 
 add_compile_definitions(GLFW_INCLUDE_NONE)
@@ -52,7 +52,7 @@ target_compile_definitions(Z PUBLIC
         GLFW_INCLUDE_NONE
         Z_CONF_EXTENSION=".zConf")
 
-if (CMAKE_BUILD_TYPE MATCHES DEBUG)
+if (CMAKE_BUILD_TYPE MATCHES Debug)
     message("Core:Debug mode")
     target_compile_definitions(Z PUBLIC Z_DEBUG)
 endif ()

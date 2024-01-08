@@ -6,9 +6,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_definitions(-w)
 
+# noticed by pls 2024/1/8 23:22 on archlinux
+message(WARNING "there is a bug cause an segmentation fault when application closed that try to call OpenGL func after Destroy Context !!!")
+
 set(DynamicLink OFF)
 #this flags open mean msvc generator only because cmake project with C# language only support msvc generator
 set(ReBuildScriptsCore ON)
+# Vulkan support not finish yet
 set(UseVulkan OFF)
 
 set(gladPath ${CMAKE_SOURCE_DIR}/Engine/Include/glad)

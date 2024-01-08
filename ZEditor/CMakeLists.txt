@@ -20,7 +20,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC depends)
 target_link_libraries(${PROJECT_NAME} PUBLIC Z)
 target_compile_definitions(${PROJECT_NAME} PUBLIC Z_PLATFORM_WIN32 Z_SOURCE_DIR Z_CONF_EXTENSION=".zConf")
 
-if (${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
+if (CMAKE_BUILD_TYPE MATCHES Debug)
     message("ZEditor: Debug mode")
     target_compile_definitions(${PROJECT_NAME} PUBLIC Z_DEBUG)
 endif ()

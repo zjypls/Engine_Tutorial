@@ -27,3 +27,5 @@ Application
 Bin-C
 #other config files
 .clang-tidy
+#mono crash json file
+mono_crash*
