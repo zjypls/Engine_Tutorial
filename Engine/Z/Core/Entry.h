@@ -13,7 +13,8 @@ __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
 // Also has to be .exe module to be correctly detected.
 __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 0x00000001;
 }
-#elifdef Z_PLATFORM_LINUX
+#endif
+#ifdef Z_PLATFORM_LINUX
 void SetEnvForLinux(){
     // https://us.download.nvidia.cn/XFree86/Linux-x86_64/525.78.01/README/primerenderoffload.html
     // noticed : it works well at my machine with Nvidia GeForce 1660Ti
