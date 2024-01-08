@@ -647,7 +647,7 @@ namespace Z {
 			ImGui::SaveIniSettingsToDisk(selfDefLayoutFilePath.c_str());
 			selfDefLayout=false;
 		}
-        std::filesystem::path path=Utils::FileOpen("*.zPrj", "Test001.zPrj", (ROOT_PATH + "Projects/Test001").c_str());
+        std::filesystem::path path=Utils::FileOpen("*.zPrj\0", "Test001.zPrj", (ROOT_PATH + "Projects/Test001").c_str());
         if(Project::Init(path)){
             AssetsSystem::InitWithProject(Project::GetProjectRootDir());
             LoadScene(Project::GetProjectRootDir()/Project::GetStartScene());
