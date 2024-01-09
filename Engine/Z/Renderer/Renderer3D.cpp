@@ -27,10 +27,7 @@ namespace Z {
 	}
 
 	void Renderer3D::Init() {
-		if (renderData) {
-			Z_CORE_WARN("Renderer3D Has Inited!!!");
-			return;
-		}
+        Z_CORE_ASSERT(!renderData,"Renderer3D Has Inited!!!");
 		renderData = new RenderData{};
 		renderData->uboData = new UBO{};
 		renderData->EasySample = Shader::CreateShader("Shaders/EasySample.glsl");

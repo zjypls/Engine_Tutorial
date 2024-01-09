@@ -94,6 +94,12 @@ namespace Z {
 	}
 
 	void Renderer::ShutDown() {
+        cube= nullptr;
+        frameBuffer= nullptr;
+        skyBox= nullptr;
+        skyBoxShader= nullptr;
+        delete renderData;
+        delete sceneData;
 		Renderer2D::Shutdown();
 		Renderer3D::Shutdown();
 	}

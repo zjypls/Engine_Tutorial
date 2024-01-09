@@ -96,6 +96,7 @@ namespace Z {
 		delete[] data->quadVertexBufferBase;
 		delete[] data->circleVertexBufferBase;
 		delete[] data->lineVertexBufferBase;
+        delete stats;
 		delete data;
 	}
 
