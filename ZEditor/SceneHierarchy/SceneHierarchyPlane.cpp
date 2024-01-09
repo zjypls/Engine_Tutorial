@@ -1,6 +1,9 @@
 //
 // Created by 32725 on 2023/3/28.
 //
+#ifdef __GNUC__
+#include <cxxabi.h>
+#endif
 #include <filesystem>
 
 #include "Include/imgui/imgui.h"
@@ -18,7 +21,12 @@ namespace Z {
 
 		template<class T>
 		std::string GetTypeName() {
-			auto temp = std::string(typeid(T).name());
+            std::string  temp;
+#ifdef __GNUC__
+            temp = abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, nullptr);
+#else
+            temp = typeid(T).name();
+#endif
 			auto space = temp.rfind(':');
 			auto end = temp.rfind("Component");
 			return temp.substr(space + 1, end - space - 1);

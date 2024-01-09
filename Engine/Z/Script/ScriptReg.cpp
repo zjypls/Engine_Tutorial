@@ -1,11 +1,11 @@
 //
 // Created by 32725 on 2023/4/7.
 //
+#ifdef __GNUC__
+#include <cxxabi.h>
+#endif
 
 #include "Z/Script/ScriptReg.h"
-//#include "Z/Core/Core.h"
-//#include "Z/Core/Log.h"
-//#include "Z/Core/GUID.h"
 #include "Z/Script/ScriptEngine.h"
 #include "Z/Scene/Entity.hpp"
 #include "Z/Core/Input.h"
@@ -130,7 +130,13 @@ namespace Z {
 	void RegComponent(Type<T...>) {
 		(
 				[]() {
-					std::string_view OriginName = typeid(T).name();
+					std::string_view OriginName;
+#ifdef __GNUC__
+                    OriginName = abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, nullptr);
+#else
+                    OriginName = typeid(T).name();
+#endif
+                    Z_CORE_WARN("Register Type : {0} !",OriginName);
 					auto space = OriginName.rfind(':');
 					auto name = fmt::format("Z.{}", OriginName.substr(space + 1));
 					MonoType *type = mono_reflection_type_from_name(name.data(), ScriptEngine::GetCoreImage());
