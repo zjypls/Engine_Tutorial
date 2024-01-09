@@ -63,7 +63,7 @@ namespace Z {
 					currentPath = file.path();
 				}
 			}
-			auto firstPos=filePath.find_last_of('\\')+1;
+			auto firstPos=filePath.find_last_of(Z_SEPEARATOR)+1;
 			ImGui::TextWrapped(filePath.substr(firstPos,filePath.find_last_of('.')-firstPos).c_str());
 			ImGui::NextColumn();
 			ImGui::PopID();

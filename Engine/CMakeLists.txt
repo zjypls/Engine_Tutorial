@@ -6,10 +6,14 @@ if(ReBuildScriptsCore)
     add_subdirectory(ZScriptCore)
 endif ()
 
+if(NOT UseVulkan)
+    include_directories(${gladPath}/include)
+    add_subdirectory(Include/glad)
+endif ()
+
 include_directories(${spdlogPath}/include
                     ${GLFWPath}/include
                     ${glmPath}
-                    ${gladPath}/include
                     ${ImGuiPath}
                     ${ImGuiPath}/backends
                     ${monoPath}/include
@@ -19,9 +23,7 @@ include_directories(${spdlogPath}/include
                     depends)
 
 
-
 add_subdirectory(Include/glfw)
-add_subdirectory(Include/glad)
 add_subdirectory(Include/imgui)
 add_subdirectory(Include/yaml-cpp)
 add_subdirectory(Include/box2d)
@@ -29,7 +31,11 @@ add_subdirectory(Include/tinyobjloader)
 
 add_compile_definitions(GLFW_INCLUDE_NONE)
 
-file(GLOB_RECURSE src CONFIGURE_DEPENDS Z/*.* Platform/*.* ${ImGuizmoPath}/ImGuizmo.cpp)
+file(GLOB_RECURSE src CONFIGURE_DEPENDS Z/*.*
+                                        Platform/OpenGL/*.*
+                                        Platform/Vulkan/*.*
+                                        Platform/${Z_PLATFORM}/*.*
+                                        ${ImGuizmoPath}/ImGuizmo.cpp)
 
 
 link_directories(${VK_PATH}/lib ${CMAKE_SOURCE_DIR}/Lib/${CMAKE_BUILD_TYPE})
@@ -39,9 +45,12 @@ add_library(Z STATIC ${src})
 target_include_directories(Z PUBLIC depends)
 #Todo: change
 target_link_libraries(Z PUBLIC
-        glfw glad imgui yaml Box2D tinyobjloader
+        glfw imgui yaml Box2D tinyobjloader
         vulkan shaderc_shared spirv-cross-core spirv-cross-glsl
         )
+if(NOT UseVulkan)
+    target_link_libraries(Z PUBLIC glad)
+endif ()
 
 if (CMAKE_HOST_LINUX)
     # build by pls on arch 6.6.10 zen kernel
@@ -65,7 +74,7 @@ add_definitions(-DZ_ENABLE_PROFILING=1)
 target_compile_definitions(Z PUBLIC
         ${PLATFORM_SYMBOL}
         Z_SOURCE_DIR
-        Z_USE_OPENGL
+        ${RENDERER_BACKEND_FLAG}
         GLFW_INCLUDE_NONE
         Z_CONF_EXTENSION=".zConf")
 

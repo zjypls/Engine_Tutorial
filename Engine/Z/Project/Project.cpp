@@ -17,12 +17,12 @@ namespace Z {
 			 data= YAML::LoadFile(projectFile.string());
 		}catch (std::exception& e){
 			Z_CORE_ERROR("Error:{0}",e.what());
-			Z_CORE_ERROR("Project::Init:Failed to load project file:{0}",projectFile.string());
+			Z_CORE_ERROR("Project::Init:Failed to load project file : {0}",projectFile.string());
 			return false;
 		}
 		auto nodeData=data["Project"];
 		if(!nodeData){
-			Z_CORE_ERROR("Project::Init:Failed to load project file:{0}",projectFile.string());
+			Z_CORE_ERROR("Project::Init:Failed to load project file : {0}",projectFile.string());
 			return false;
 		}
 		project = CreateRef<Project>();
@@ -33,7 +33,6 @@ namespace Z {
 		configure.AssetsDir = nodeData["AssetsDirectory"].as<std::string>();
 		configure.ScriptsDir = nodeData["ScriptsDirectory"].as<std::string>();
 		configure.editorLayout = configure.ProjectRootDir/nodeData["EditorLayout"].as<std::string>();
-		Z_CORE_WARN(configure.editorLayout);
 		if (nodeData["ProjectName"])
 			configure.ProjectName = nodeData["ProjectName"].as<std::string>();
 		else

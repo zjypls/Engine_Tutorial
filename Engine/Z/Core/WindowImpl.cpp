@@ -12,15 +12,15 @@
 #include "Z/Core/Random.h"
 #include "Z/Renderer/Particle.h"
 
-#include "Platform/Windows/WindowsWindow.h"
+#include "Z/Core/WindowImpl.h"
 #include "Platform/OpenGL/OpenGLContext.h"
 
 
 namespace Z {
-	bool WindowsWindow::IsGLFWInit=false;
-	WindowsWindow::WindowsWindow(const WindowProps &props) {
+	bool WindowImpl::IsGLFWInit=false;
+	WindowImpl::WindowImpl(const WindowProps &props) {
 		Random::Init();
-		Z::Particle::Init();
+		Particle::Init();
 		Init(props);
 	}
 
@@ -29,7 +29,7 @@ namespace Z {
 		Z_CORE_ERROR("GLFW Error ({0}):{1}",error,description);
 	}
 
-	void WindowsWindow::Init(const WindowProps &props) {
+	void WindowImpl::Init(const WindowProps &props) {
 		WinData.title=props.title;
 		WinData.width=props.width;
 		WinData.height=props.height;
@@ -119,31 +119,27 @@ namespace Z {
 		glfwSetErrorCallback(GLFWErrorCallback);
 	}
 
-	void WindowsWindow::Update() {
+	void WindowImpl::Update() {
 		glfwPollEvents();
 		Context->SwapBuffers();
 	}
 
-	WindowsWindow::~WindowsWindow() {
+	WindowImpl::~WindowImpl() {
 	}
 
-	void WindowsWindow::Shutdown() {
+	void WindowImpl::Shutdown() {
 		Z_CORE_WARN("Window Shutdown");
 		Context->Destroy();
 		glfwDestroyWindow(window);
 		glfwTerminate();
 	}
 
-	void WindowsWindow::SetVSync(bool enable) {
-		//TODO:may can be optimized
-		if(enable)
-			glfwSwapInterval(1);
-		else
-			glfwSwapInterval(0);
+	void WindowImpl::SetVSync(bool enable) {
+		glfwSwapInterval(enable);
 		WinData.VSync=enable;
 
 	}
 	zWindow* zWindow::Create(const WindowProps &props) {
-		return new WindowsWindow(props);
+		return new WindowImpl(props);
 	}
 }

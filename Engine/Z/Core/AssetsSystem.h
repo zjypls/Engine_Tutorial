@@ -49,9 +49,6 @@ namespace Z {
 
 	public:
 		inline static bool IsExisting(const std::string &name) {
-//			for(const auto&pair:instance->PathToUID){
-//				Z_CORE_WARN("Path:{0},UID:{1}",pair.first,pair.second);
-//			}
 			#if __cplusplus >= 202002L
 			return instance->PathToUID.contains(name);
 			#else
@@ -72,6 +69,9 @@ namespace Z {
 		static void InitWithProject(const std::filesystem::path &projectPath);
 		//Init Path with Source dir and create instance
 		static void PreInit();
+		static void Destroy() {
+			instance=nullptr;
+		}
 
 		static Ref<Texture> Get(const std::string &name);
 

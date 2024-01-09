@@ -7,6 +7,7 @@
 #define ENGINE_TUTORIAL_CORE_H
 #include <memory>
 #include <string>
+#include <cassert>
 #ifdef Z_PLATFORM_WIN32
 	#ifdef Z_DYNAMIC_LINK
 		#ifdef Z_BUILD_DLL
@@ -32,8 +33,9 @@
 #endif
 
 #ifndef Z_ENABLE_ASSERT
-	#define Z_ASSERT(x, ...) do{if(!(x)){Z_ERROR("Assertion Failed!:{0}",__VA_ARGS__);__debugbreak();}}while(0)
-	#define Z_CORE_ASSERT(x, ...) do{if(!(x)){Z_CORE_ERROR("Assertion Failed!:{0}",__VA_ARGS__);__debugbreak();}}while(0)
+	//Todo:improve
+	#define Z_ASSERT(x, ...) do{if(!(x)){Z_ERROR("Assertion Failed!:{0}",__VA_ARGS__);assert(false);}}while(0)
+	#define Z_CORE_ASSERT(x, ...) do{if(!(x)){Z_CORE_ERROR("Assertion Failed!:{0}",__VA_ARGS__);assert(false);}}while(0)
 #else
 	#define Z_ASSERT(x,...)
 	#define Z_CORE_ASSERT(x,...)
@@ -45,6 +47,13 @@
 namespace Z{
     // Z_SOURCE_DIR means #define Z_SOURCE_DIR "{CMAKE_SOURCE_DIR}" provide with cmake
     static const std::string ROOT_PATH=Z_SOURCE_DIR"/";
+#ifdef Z_PLATFORM_LINUX
+	static constexpr char Z_SEPEARATOR='/';
+#endif
+#ifdef Z_PLATFORM_WIN32
+	static constexpr char Z_SEPEARATOR='\\';
+#endif
+
 
 
 	template<typename T>

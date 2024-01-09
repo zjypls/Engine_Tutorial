@@ -76,6 +76,7 @@ namespace Z {
 		}
 		window->GetContext()->DeviceSynchronize();
 		LayerStack.PopAllLayer();
+		AssetsSystem::Destroy();
 	}
 
 	void Application::EventCall(Event &e) {
