@@ -24,7 +24,10 @@ build/
 #a test folder
 Application
 #build dynamic libraries
-Bin-C
+bin/*.exe
+bin/ZEditor
+!bin/scripts.dll
+!bin/ScriptCore.dll
 #other config files
 .clang-tidy
 #mono crash json file

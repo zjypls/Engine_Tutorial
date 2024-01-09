@@ -40,19 +40,37 @@ target_include_directories(Z PUBLIC depends)
 #Todo: change
 target_link_libraries(Z PUBLIC
         glfw glad imgui yaml Box2D tinyobjloader
-        vulkan-1 shaderc_shared spirv-cross-core spirv-cross-glsl
-        libmono-static-sgen
-        Ws2_32 winmm Version Bcrypt
+        vulkan shaderc_shared spirv-cross-core spirv-cross-glsl
         )
+
+if (CMAKE_HOST_LINUX)
+    # build by pls on arch 6.6.10 zen kernel
+    # with mono source : https://github.com/mono/mono
+    target_link_libraries(Z PUBLIC monosgen-2.0)
+    if(CMAKE_BUILD_TYPE MATCHES Debug)
+        # needed by monosgen for symbol "inflate" and "inflateInit2_" ?
+        find_package(ZLIB REQUIRED)
+        target_link_libraries(Z PUBLIC ZLIB::ZLIB)
+    endif ()
+elseif (CMAKE_HOST_WIN32)
+    target_link_libraries(Z PUBLIC libmono-static-sgen
+                                    Ws2_32 winmm Version Bcrypt)
+else ()
+    message(FATAL_ERROR "not supported platform : ${CMAKE_HOST_SYSTEM_NAME}")
+endif ()
+
+
 add_definitions(-DZ_ENABLE_PROFILING=1)
 
 target_compile_definitions(Z PUBLIC
-        Z_PLATFORM_WIN32 Z_SOURCE_DIR Z_USE_OPENGL
-        Z_ENABLE_PROFILING
+        ${PLATFORM_SYMBOL}
+        Z_SOURCE_DIR
+        Z_USE_OPENGL
         GLFW_INCLUDE_NONE
         Z_CONF_EXTENSION=".zConf")
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
     message("Core:Debug mode")
-    target_compile_definitions(Z PUBLIC Z_DEBUG)
+    target_compile_definitions(Z PUBLIC Z_DEBUG
+                                        Z_ENABLE_PROFILING)
 endif ()

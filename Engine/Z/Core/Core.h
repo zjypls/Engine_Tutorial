@@ -17,8 +17,18 @@
 	#else
 		#define Z_API
 	#endif
-#else
-	#error Supports Windows Only!
+#endif
+#ifdef Z_PLATFORM_LINUX
+    #ifdef Z_DYNAMIC_LINK
+        #error "not finished yet"
+		#ifdef Z_BUILD_DLL
+			#define Z_API __declspec(dllexport)
+		#else
+			#define Z_API __declspec(dllimport)
+		#endif
+	#else
+		#define Z_API
+	#endif
 #endif
 
 #ifndef Z_ENABLE_ASSERT
@@ -29,7 +39,6 @@
 	#define Z_CORE_ASSERT(x,...)
 #endif
 
-#define ZSTRCAT(str1,str2) str1 "/" str2
 #define BIT(x) (1<<x)
 #define Z_BIND_EVENT_FUNC(func) [this](auto&&... args) -> decltype(auto) { return this->func(std::forward<decltype(args)>(args)...); }
 

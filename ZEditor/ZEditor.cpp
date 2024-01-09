@@ -71,7 +71,7 @@ namespace Z {
 		contentBrowser = CreateScope<ContentBrowser>();
 
 		//Todo:change this to a better way
-		ScriptEngine::LoadAssembly("Bin-C/scripts.dll");
+		ScriptEngine::LoadAssembly("bin/scripts.dll");
 		ScriptEngine::RegisterFileWatch();
 		//LoadScene(Project::GetProjectRootDir() / Project::GetStartScene());
 
@@ -515,6 +515,7 @@ namespace Z {
 	}
 
 	void EditorLayer::OnStop() {
+        //Fixme : mono crashed when stop // marked on arch
 		auto state = sceneState;
 		if (state == SceneState::Pause)
 			state = BackState;

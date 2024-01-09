@@ -9,7 +9,7 @@ add_definitions(-w)
 
 set(DynamicLink OFF)
 #this flags open mean msvc generator only because cmake project with C# language only support msvc generator
-set(ReBuildScriptsCore ON)
+set(ReBuildScriptsCore OFF)
 # Vulkan support not finish yet
 set(UseVulkan OFF)
 
@@ -40,15 +40,23 @@ set(CMAKE_PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/PDBs/${CMAKE_BUILD_TYPE})
 
 if (${CMAKE_GENERATOR} MATCHES "Visual Studio")
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ZEditor)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_SOURCE_DIR}/Bin-C>)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_SOURCE_DIR}/bin>)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 else ()
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Bin-C)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 endif ()
 
 
 link_directories(Engine/Include/mono/lib/${CMAKE_BUILD_TYPE})
-add_compile_definitions(Z_PLATFORM_WIN32)
+if(CMAKE_HOST_WIN32)
+    message("Platform Windows")
+    set(PLATFORM_SYMBOL Z_PLATFORM_WIN32)
+elseif(CMAKE_HOST_LINUX)
+    message("Platform Linux")
+    set(PLATFORM_SYMBOL Z_PLATFORM_LINUX)
+else ()
+    message(FATAL_ERROR "not support at ${CMAKE_HOST_SYSTEM_NAME}")
+endif ()
 add_compile_definitions(Z_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 
 
