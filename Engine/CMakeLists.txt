@@ -55,12 +55,9 @@ endif ()
 if (CMAKE_HOST_LINUX)
     # build by pls on arch 6.6.10 zen kernel
     # with mono source : https://github.com/mono/mono
-    target_link_libraries(Z PUBLIC monosgen-2.0)
-    if(CMAKE_BUILD_TYPE MATCHES Debug)
-        # needed by monosgen for symbol "inflate" and "inflateInit2_" ?
-        find_package(ZLIB REQUIRED)
-        target_link_libraries(Z PUBLIC ZLIB::ZLIB)
-    endif ()
+    # needed by monosgen for symbol "inflate" and "inflateInit2_"
+    find_package(ZLIB REQUIRED)
+    target_link_libraries(Z PUBLIC monosgen-2.0 ZLIB::ZLIB)
 elseif (CMAKE_HOST_WIN32)
     target_link_libraries(Z PUBLIC libmono-static-sgen
                                     Ws2_32 winmm Version Bcrypt)

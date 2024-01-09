@@ -219,8 +219,8 @@ namespace Z {
 		scriptData->AppAssemblyPath="bin/scripts.dll";
 		mono_set_assemblies_path("Assets/mono/lib/4.5");
 		scriptData->rootDomain = mono_jit_init("ZJIT");
-		scriptData->appDomain = mono_domain_create_appdomain(scriptData->domainName.data(), nullptr);
-		mono_domain_set(scriptData->appDomain, false);
+		//scriptData->appDomain = mono_domain_create_appdomain(scriptData->domainName.data(), nullptr);
+		//mono_domain_set(scriptData->appDomain, false);
 	}
 
 	void ScriptEngine::MonoShutDown() {
@@ -264,6 +264,7 @@ namespace Z {
 	}
 
 	void ScriptEngine::OnRuntimeStart(Scene *scene) {
+        scriptData->appDomain = mono_domain_create_appdomain(scriptData->domainName.data(), nullptr);
 		mono_domain_set(scriptData->appDomain, false);
 		scriptData->scene = scene;
 	}
@@ -276,8 +277,13 @@ namespace Z {
 	}
 
 	void ScriptEngine::OnRuntimeStop() {
-		scriptData->EntityInstances.clear();
-		mono_domain_finalize(scriptData->appDomain, 1000);
+        // change domain
+        mono_domain_set(scriptData->rootDomain,false);
+        // call destructor func defined in C# scripts load by mono
+        mono_domain_finalize(scriptData->appDomain,false);
+        // unload appdomain
+        mono_domain_unload(scriptData->appDomain);
+        scriptData->EntityInstances.clear();
 		scriptData->scene = nullptr;
 	}
 

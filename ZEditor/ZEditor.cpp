@@ -515,7 +515,6 @@ namespace Z {
 	}
 
 	void EditorLayer::OnStop() {
-        //Fixme : mono crashed when stop // marked on arch
 		auto state = sceneState;
 		if (state == SceneState::Pause)
 			state = BackState;

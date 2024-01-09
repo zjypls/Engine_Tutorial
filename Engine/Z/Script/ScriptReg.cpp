@@ -16,7 +16,7 @@
 #include "Include/box2d/include/box2d/b2_body.h"
 
 namespace Z {
-	const void InternalCallPRT(MonoString *str) {
+	void InternalCallPRT(MonoString *str) {
 		Z_CORE_WARN("C#: {0}", mono_string_to_utf8(str));
 	}
 
