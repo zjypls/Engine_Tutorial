@@ -7,12 +7,12 @@ namespace Z
     {
         public static void log(string text)
         {
-            Internal.InternalCallPRT(text);
+            Internal.InternalCallLog(text);
         }
 
         public static void log(Vector3 vec)
         {
-            Internal.InternalCallWARN(ref vec);
+            Internal.InternalCallWarn(ref vec);
         }
 
         public static void log(Vector3 a, Vector3 b, out Vector3 vout)

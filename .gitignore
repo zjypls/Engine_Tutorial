@@ -25,9 +25,10 @@ build/
 Application
 #build dynamic libraries
 bin/*.exe
+bin/*.pdb
 bin/ZEditor
 !bin/scripts.dll
-!bin/ScriptCore.dll
+!bin/ScriptsCore.dll
 #other config files
 .clang-tidy
 #mono crash json file

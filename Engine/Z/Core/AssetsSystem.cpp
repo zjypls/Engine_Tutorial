@@ -329,14 +329,12 @@ namespace Z {
 		instance->PathToUID[_path.string()]=id;
 		instance->UIDToPath[id]=_path.string();
 		//auto result=instance->LoadTextureInner(id);
-		//TODO:Optimized 6 with sizeof(Z_CONF_EXTENSION)
 		auto result=Texture2D::CreateTexture(pathSTR.substr(0,pathSTR.find_last_of('.')));
 		Z_CORE_ASSERT(result,std::string("failed to load texture:").append(_path.string()));
 		return result;
 	}
 
 
-	//TODO:move to assets system
 	template<>
 	Ref<Mesh> AssetsSystem::Load(const std::string &path,bool absolute) {
 		auto _path=std::filesystem::path(path);
@@ -352,7 +350,6 @@ namespace Z {
 		auto id=zGUID();
 		instance->PathToUID[pathSTR]=id;
 		instance->UIDToPath[id]=pathSTR;
-		//TODO:Optimized 6 with sizeof(Z_CONF_EXTENSION)
 		auto mesh=Tools::LoadMesh(pathSTR.substr(0,pathSTR.find_last_of('.')));
 		auto filename=_path.filename().string();
 		mesh->name=filename.substr(0,filename.find_first_of('.'));

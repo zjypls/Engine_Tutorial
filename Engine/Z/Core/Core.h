@@ -7,6 +7,7 @@
 #define ENGINE_TUTORIAL_CORE_H
 #include <memory>
 #include <string>
+#include <cstring>
 #include <cassert>
 #ifdef Z_PLATFORM_WIN32
 	#ifdef Z_DYNAMIC_LINK
@@ -45,14 +46,14 @@
 #define Z_BIND_EVENT_FUNC(func) [this](auto&&... args) -> decltype(auto) { return this->func(std::forward<decltype(args)>(args)...); }
 
 namespace Z{
-    // Z_SOURCE_DIR means #define Z_SOURCE_DIR "{CMAKE_SOURCE_DIR}" provide with cmake
-    static const std::string ROOT_PATH=Z_SOURCE_DIR"/";
 #ifdef Z_PLATFORM_LINUX
 	static constexpr char Z_SEPEARATOR='/';
 #endif
 #ifdef Z_PLATFORM_WIN32
 	static constexpr char Z_SEPEARATOR='\\';
 #endif
+    // Z_SOURCE_DIR means #define Z_SOURCE_DIR "{CMAKE_SOURCE_DIR}" provide with cmake
+    static const std::string ROOT_PATH=std::string(Z_SOURCE_DIR)+Z_SEPEARATOR;
 
 
 

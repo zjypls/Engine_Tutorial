@@ -17,9 +17,6 @@ namespace Z {
 		Ref<VertexArray> vertexArray;
 		std::string name;
 
-		//TODO:clean
-		//static Ref<Mesh> LoadMesh(const std::filesystem::path &path);
-
 	};
 
 }

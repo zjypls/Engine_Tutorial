@@ -7,4 +7,4 @@ project(scripts CSharp)
 file(GLOB srcs *.cs)
 
 add_library(scripts SHARED ${srcs})
-target_link_libraries(scripts ScriptCore)
+target_link_libraries(scripts ScriptsCore)

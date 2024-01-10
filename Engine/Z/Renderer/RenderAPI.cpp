@@ -4,7 +4,7 @@
 #include "Z/Renderer/RenderAPI.h"
 
 namespace Z{
-	//ToDo:optimize
+	//ToDo:Vulkan support
 	#ifdef Z_USE_OPENGL
 	RenderAPI::API RenderAPI::api= RenderAPI::API::OpenGL;
 	#else

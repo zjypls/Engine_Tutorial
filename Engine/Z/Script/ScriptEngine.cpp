@@ -215,7 +215,7 @@ namespace Z {
 	}
 
 	void ScriptEngine::MonoInit() {
-		scriptData->CoreAssemblyPath="bin/ScriptCore.dll";
+		scriptData->CoreAssemblyPath="bin/ScriptsCore.dll";
 		scriptData->AppAssemblyPath="bin/scripts.dll";
 		mono_set_assemblies_path("Assets/mono/lib/4.5");
 		scriptData->rootDomain = mono_jit_init("ZJIT");

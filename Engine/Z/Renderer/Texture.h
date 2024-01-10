@@ -9,7 +9,6 @@
 #include "Z/Core/Core.h"
 
 namespace Z {
-	//Todo:Fix that load high resolution texture will crash
 	class Z_API Texture {
 	public:
 		virtual unsigned int GetWidth()const = 0;

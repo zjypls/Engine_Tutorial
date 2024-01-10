@@ -5,22 +5,24 @@
 #include <cxxabi.h>
 #endif
 
-#include "Z/Script/ScriptReg.h"
-#include "Z/Script/ScriptEngine.h"
-#include "Z/Scene/Entity.hpp"
-#include "Z/Core/Input.h"
-#include "Z/Scene/Components.h"
 #include "Include/glm/glm/glm.hpp"
 #include "Include/mono/include/mono/jit/jit.h"
 #include "Include/mono/include/mono/metadata/reflection.h"
 #include "Include/box2d/include/box2d/b2_body.h"
 
+#define Z_INTERNAL_FUNC(Name) mono_add_internal_call("Z.Internal::"#Name,(void*)Name)
+#include "Z/Script/ScriptReg.h"
+#include "Z/Script/ScriptEngine.h"
+#include "Z/Scene/Entity.hpp"
+#include "Z/Core/Input.h"
+#include "Z/Scene/Components.h"
+
 namespace Z {
-	void InternalCallPRT(MonoString *str) {
+	void InternalCallLog(MonoString *str) {
 		Z_CORE_WARN("C#: {0}", mono_string_to_utf8(str));
 	}
 
-	void InternalCallWARN(glm::vec3 *v) {
+	void InternalCallWarn(glm::vec3 *v) {
 		//Z_CORE_WARN("C#: {0}", *v);
 	}
 
@@ -153,8 +155,8 @@ namespace Z {
 
 
 	void ScriptReg::Reg() {
-		Z_INTERNAL_FUNC(InternalCallPRT);
-		Z_INTERNAL_FUNC(InternalCallWARN);
+		Z_INTERNAL_FUNC(InternalCallLog);
+		Z_INTERNAL_FUNC(InternalCallWarn);
 		Z_INTERNAL_FUNC(InternalCallDot);
 		Z_INTERNAL_FUNC(GetTranslation);
 		Z_INTERNAL_FUNC(SetTranslation);

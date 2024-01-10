@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.22)
 project(Z)
 
 if(ReBuildScriptsCore)
-    add_subdirectory(ZScriptCore)
+    add_subdirectory(ZScriptsCore)
 endif ()
 
 if(NOT UseVulkan)
@@ -43,7 +43,7 @@ add_library(Z STATIC ${src})
 
 
 target_include_directories(Z PUBLIC depends)
-#Todo: change
+
 target_link_libraries(Z PUBLIC
         glfw imgui yaml Box2D tinyobjloader
         vulkan shaderc_shared spirv-cross-core spirv-cross-glsl
@@ -76,7 +76,6 @@ target_compile_definitions(Z PUBLIC
         Z_CONF_EXTENSION=".zConf")
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
-    message("Core:Debug mode")
     target_compile_definitions(Z PUBLIC Z_DEBUG
                                         Z_ENABLE_PROFILING)
 endif ()

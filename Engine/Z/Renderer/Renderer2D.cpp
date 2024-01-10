@@ -74,7 +74,7 @@ namespace Z {
 			data->lineVertexBuffer->SetLayout(*layout);
 		}
 		data->lineVertexArray->AddVertexBuffer(data->lineVertexBuffer);
-		data->lineVertexArray->SetIndexBuffer(indexBuffer);//TODO: 为什么这里不用重新创建一个indexBuffer
+		data->lineVertexArray->SetIndexBuffer(indexBuffer);
 		data->lineVertexArray->Unbind();
 
 		delete[] indices;

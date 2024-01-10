@@ -6,10 +6,10 @@ namespace Z
     internal class Internal
     {
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern void InternalCallPRT(string a);
+        public static extern void InternalCallLog(string a);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern void InternalCallWARN(ref Vector3 a);
+        public static extern void InternalCallWarn(ref Vector3 a);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern void InternalCallDot(ref Vector3 a, ref Vector3 b, out Vector3 c);

@@ -21,7 +21,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Z)
 target_compile_definitions(${PROJECT_NAME} PUBLIC ${PLATFORM_SYMBOL} Z_SOURCE_DIR Z_CONF_EXTENSION=".zConf")
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
-    message("ZEditor: Debug mode")
     add_definitions(-DZ_ENABLE_PROFILING=1)
     target_compile_definitions(${PROJECT_NAME} PUBLIC Z_DEBUG Z_ENABLE_PROFILING)
 endif ()
