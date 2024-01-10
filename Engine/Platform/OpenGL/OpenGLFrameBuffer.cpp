@@ -2,7 +2,7 @@
 // Created by 32725 on 2023/3/23.
 //
 
-#include "OpenGLFrameBuffer.h"
+#include "Platform/OpenGL/OpenGLFrameBuffer.h"
 
 constexpr unsigned int MAX_FRAMEBUFFER_SIZE = 8192;
 namespace Z {

@@ -36,16 +36,6 @@ namespace Z {
     void EditorLayer::OnAttach() {
         Z_CORE_INFO("Layer:{0} Attach!", GetName());
 
-#if 0
-        std::filesystem::path ProjectPath = Utils::FileOpen("*.zPrj\0", "Test001.zPrj\0", ".\\Projects\\Test001\0");
-
-        if (!Project::Init(ProjectPath)) {
-            Z_CORE_ASSERT(false, "Project Init Failed!");
-            return;
-        }
-        AssetsSystem::InitWithProject(Project::GetProjectRootDir());
-#endif
-
         frameBuffer = Renderer::GetDefaultFrameBuffer();
 
         auto& spec=frameBuffer->GetSpecification();
@@ -73,7 +63,6 @@ namespace Z {
 		//Todo:change this to a better way
 		ScriptEngine::LoadAssembly("bin/scripts.dll");
 		ScriptEngine::RegisterFileWatch();
-		//LoadScene(Project::GetProjectRootDir() / Project::GetStartScene());
 
 		//a Test for mesh Renderer
         /*
@@ -96,13 +85,7 @@ namespace Z {
 
 		ScriptEngine::CheckLoad(scene);
 
-		//Todo:move to renderer
-		frameBuffer->Bind();
-		RenderCommand::SetClearValue(clearValue);
-		RenderCommand::Clear();
-
-		frameBuffer->ClearAttachment(1, -1);
-
+		Renderer::BeginRecord();
 		{
 			SceneState state = sceneState;
 			if (state == SceneState::Pause)
@@ -137,16 +120,14 @@ namespace Z {
 			auto value = frameBuffer->GetPixel(CursorPos.x, CursorPos.y);
 			selectedEntity = sceneHierarchyPlane->SetSelectedEntity(value);
 		}
-		frameBuffer->UnBind();
+		Renderer::EndRecord();
 		if ((sceneState != SceneState::Play) && selectedEntity && selectedEntity.HasComponent<CameraComponent>()) {
-			previewFrame->Bind();
-			RenderCommand::SetClearValue(clearValue);
-			RenderCommand::Clear();
+			Renderer::BeginRecord(previewFrame);
 			scene->OnPreviewUpdate(Time::DeltaTime(), selectedEntity.GetComponent<CameraComponent>().camera,
 			                       selectedEntity.GetComponent<TransformComponent>().GetTransform());
 			OnDebugShow(true);
 			Renderer2D::EndScene();
-			previewFrame->UnBind();
+			Renderer::EndRecord();
 		}
 	}
 
@@ -541,7 +522,7 @@ namespace Z {
 				if (control) NewScene();
 				break;
 			case Key::O:
-				if (control) LoadScene();
+				if (control) LoadProjects();
 				break;
 			case Key::S:
 				if (control)

@@ -32,7 +32,10 @@ namespace Z{
 		static void BeginScene(const SceneCamera&camera,const glm::mat4 &transform);
 		static void EndScene();
 		static void RenderSkyBox();
-		[[deprecated("May be delete")]]
+		static void BeginRecord();
+		static void EndRecord();
+		static void BeginRecord(const Ref<FrameBuffer>&fb);
+		[[deprecated("May delete")]]
 		static void Submit(Z::Ref<Shader>& shader,const Z::Ref<VertexArray>& vertexArray,const glm::mat4& transform=glm::mat4(1.0f));
 	private:
 		struct SceneData {

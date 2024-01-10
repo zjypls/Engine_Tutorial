@@ -34,6 +34,9 @@ namespace Z {
 		static void ChangeDepthTest(RenderAPI::DepthTestState state = RenderAPI::DepthTestState::Less){
 			s_RenderAPI->ChangeDepthTest(state);
 		}
+		static void DetachFrameBuffer() {
+			s_RenderAPI->DetachFrameBuffer();
+		}
 	};
 
 }

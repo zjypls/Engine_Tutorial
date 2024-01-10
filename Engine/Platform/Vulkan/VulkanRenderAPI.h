@@ -18,6 +18,8 @@ namespace Z {
 
 		void ChangeDepthTest(DepthTestState state) override;
 
+		void DetachFrameBuffer()override;
+
 		void SetLineWidth(float d) override;
 
 		void DrawIndexed(const Ref<VertexArray> &vertexArray, unsigned int count) override;

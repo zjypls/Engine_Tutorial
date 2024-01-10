@@ -5,8 +5,8 @@
 #ifndef ENGINE_TUTORIAL_OPENGLTEXTURES_H
 #define ENGINE_TUTORIAL_OPENGLTEXTURES_H
 
-#include"Z/Renderer/Texture.h"
-#include "glad/glad.h"
+#include "Include/glad/include/glad/glad.h"
+#include "Z/Renderer/Texture.h"
 namespace Z {
 	class Z_API OpenGLTexture2D final : public Texture2D {
 		unsigned int width,height;
@@ -18,11 +18,11 @@ namespace Z {
 		~OpenGLTexture2D() override;
 		void SetData(void* data, unsigned int size) override;
 		bool operator==(const Texture& other) const override{return ID==other.GetRendererID();}
-		inline unsigned int GetRendererID()const override{ return ID;}
+		[[nodiscard]] unsigned int GetRendererID()const override{ return ID;}
 
-		inline unsigned int GetWidth()const override{ return width;}
-		inline unsigned int GetHeight()const override{ return height;}
-		void Bind(unsigned int unit=0)const override{glBindTextureUnit(unit,ID);}
+		unsigned int GetWidth()const override{ return width;}
+		unsigned int GetHeight()const override{ return height;}
+		void Bind(unsigned int unit)const override{glBindTextureUnit(unit,ID);}
 	};
 
 	class Z_API OpenGLTexture3D final : public Texture3D{
@@ -31,11 +31,11 @@ namespace Z {
 		GLenum internalFormat, dataFormat;
 	public:
 		OpenGLTexture3D(int width,int height,int depth);
-		inline unsigned int GetWidth() const override {
+		unsigned int GetWidth() const override {
 			return width;
 		}
 
-		inline unsigned int GetHeight() const override {
+		unsigned int GetHeight() const override {
 			return height;
 		}
 
@@ -45,7 +45,7 @@ namespace Z {
 
 		void SetData(void *data, unsigned int size) override;
 
-		inline unsigned int GetRendererID() const override {return ID;}
+		unsigned int GetRendererID() const override {return ID;}
 
 		bool operator==(const Texture &other) const override {return ID==other.GetRendererID();}
 	};
@@ -59,15 +59,15 @@ namespace Z {
 		OpenGLSkyBox(const std::vector<std::string>& paths);
 		OpenGLSkyBox(unsigned int width, unsigned int height);
 
-		inline unsigned int GetWidth() const override{return width;}
+		unsigned int GetWidth() const override{return width;}
 
-		inline unsigned int GetHeight() const override{return height;}
+		unsigned int GetHeight() const override{return height;}
 
 		void Bind(unsigned int unit) const override{glBindTextureUnit(unit,ID);}
 
 		void SetData(void *data, unsigned int size) override;
 
-		inline unsigned int GetRendererID() const override{return ID;}
+		unsigned int GetRendererID() const override{return ID;}
 
 		bool operator==(const Texture &other) const override{return ID==other.GetRendererID();}
 	};

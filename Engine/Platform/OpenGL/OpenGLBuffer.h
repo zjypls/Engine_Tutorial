@@ -7,8 +7,8 @@
 
 
 #include <cstdint>
+#include "Include/glad/include/glad/glad.h"
 #include "Z/Renderer/Buffer.h"
-#include "glad/glad.h"
 namespace Z{
 
 	class OpenGLVertexBuffer:public VertexBuffer {
@@ -18,12 +18,12 @@ namespace Z{
 		OpenGLVertexBuffer(float* vertices, uint32_t size);
 		OpenGLVertexBuffer(uint32_t size);
 
-		virtual ~OpenGLVertexBuffer();
-		virtual void Bind() const override;
-		virtual void Unbind() const override;
-		virtual void SetLayout(const BufferLayout& layout) override { Layout = layout; }
-		virtual void SetData(const void* data, uint32_t size) override;
-		virtual const BufferLayout& GetLayout() const override { return Layout; }
+		~OpenGLVertexBuffer() override;
+		void Bind() const override;
+		void Unbind() const override;
+		void SetLayout(const BufferLayout& layout) override { Layout = layout; }
+		void SetData(const void* data, uint32_t size) override;
+		[[nodiscard]] const BufferLayout& GetLayout() const override { return Layout; }
 	};
 
 	class OpenGLIndexBuffer:public IndexBuffer {

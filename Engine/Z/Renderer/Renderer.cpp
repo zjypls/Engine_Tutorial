@@ -139,7 +139,24 @@ namespace Z {
 		RenderCommand::ChangeDepthTest();
 	}
 
-    void Renderer::FrameResize(uint32_t wid, uint32_t hig) {
+	void Renderer::BeginRecord() {
+		frameBuffer->Bind();
+		RenderCommand::SetClearValue(glm::vec4{0,0,0,1});
+		RenderCommand::Clear();
+		frameBuffer->ClearAttachment(1, -1);
+	}
+
+	void Renderer::EndRecord() {
+		RenderCommand::DetachFrameBuffer();
+    }
+
+	void Renderer::BeginRecord(const Ref<FrameBuffer> &fb) {
+    	fb->Bind();
+    	RenderCommand::SetClearValue(glm::vec4{0,0,0,1});
+    	RenderCommand::Clear();
+	}
+
+	void Renderer::FrameResize(uint32_t wid, uint32_t hig) {
         frameBuffer->Resize(wid,hig);
     }
 }

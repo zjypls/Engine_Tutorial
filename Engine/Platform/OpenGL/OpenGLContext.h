@@ -4,8 +4,8 @@
 
 #ifndef ENGINE_TUTORIAL_ZOPENGLCONTEXT_H
 #define ENGINE_TUTORIAL_ZOPENGLCONTEXT_H
+#include "Include/glfw/include/GLFW/glfw3.h"
 #include "Z/Renderer/GraphicContext.h"
-#include "GLFW/glfw3.h"
 namespace Z {
 	class OpenGLContext final: public GraphicContext {
 		GLFWwindow* windowHandle;

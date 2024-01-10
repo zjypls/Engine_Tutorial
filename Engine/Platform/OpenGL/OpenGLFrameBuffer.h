@@ -4,11 +4,11 @@
 
 #ifndef ENGINE_TUTORIAL_OPENGLFRAMEBUFFER_H
 #define ENGINE_TUTORIAL_OPENGLFRAMEBUFFER_H
+#include "Include/glm/glm/glm.hpp"
+#include "Include/glad/include/glad/glad.h"
 
-#include "Z/Renderer/FrameBuffer.h"
-#include "glm/glm.hpp"
-#include "glad/glad.h"
 #include "Z/Core/Log.h"
+#include "Z/Renderer/FrameBuffer.h"
 
 namespace Z {
 

@@ -19,8 +19,6 @@ namespace Z {
 		zImGuiGlobalIO->BackendPlatformName = "imgui_impl_glfw";
 		//io.SetAppAcceptingEvents(true);
 
-		//set platform and renderer
-		//Todo : move to platform
 		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow *) Application::Get().GetWindow().GetNativeWindow(), true);
 		ImGui_ImplOpenGL3_Init("#version 450");
 	}

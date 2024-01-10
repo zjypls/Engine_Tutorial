@@ -1,10 +1,11 @@
 //
 // Created by 32725 on 2023/3/14.
 //
+#include "Include/glad/include/glad/glad.h"
+
 #include "Z/Core/Log.h"
 #include "Z/Core/Core.h"
 #include "Platform/OpenGL/OpenGLContext.h"
-#include "glad/glad.h"
 namespace  Z{
 
 	void OpenGLContext::Init() {

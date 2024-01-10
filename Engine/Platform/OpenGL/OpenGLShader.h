@@ -4,7 +4,7 @@
 
 #ifndef ENGINE_TUTORIAL_OPENGLSHADER_H
 #define ENGINE_TUTORIAL_OPENGLSHADER_H
-#include "glm/glm.hpp"
+#include "Include/glm/glm/glm.hpp"
 #include "Z/Renderer/Shader.h"
 namespace Z {
 	class OpenGLShader:public Shader {

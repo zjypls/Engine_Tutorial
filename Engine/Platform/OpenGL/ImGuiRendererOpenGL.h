@@ -10,10 +10,11 @@
 namespace Z {
 	class ImGuiRendererOpenGL final: public ImGuiRendererPlatform {
 	public:
-		void Begin();
-		void End();
-		void PlatformInit();
-		void Shutdown();
+		void Begin() override;
+		void End() override;
+		void PlatformInit() override;
+		void Shutdown() override;
+		virtual ~ImGuiRendererOpenGL()= default;
 	};
 
 }

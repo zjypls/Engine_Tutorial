@@ -2,9 +2,9 @@
 // Created by 32725 on 2023/3/17.
 //
 
-#include "OpenGLRenderAPI.h"
-#include "glad/glad.h"
 #include <iostream>
+#include "Include/glad/include/glad/glad.h"
+#include "Platform/OpenGL/OpenGLRenderAPI.h"
 
 namespace Z {
 	void OpenGLRenderAPI::SetClearValue(const glm::vec4 &color) {
@@ -78,4 +78,7 @@ namespace Z {
 		}
 	}
 
+	void OpenGLRenderAPI::DetachFrameBuffer() {
+		glBindFramebuffer(GL_FRAMEBUFFER,0);
+	}
 }

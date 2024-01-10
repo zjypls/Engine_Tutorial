@@ -3,17 +3,16 @@
 //
 
 #include <filesystem>
-#include "OpenGLShader.h"
-#include "glad/glad.h"
+#include <fstream>
+#include <unordered_map>
+#include "Include/glad/include/glad/glad.h"
+#include "Include/glm/glm/gtc/type_ptr.hpp"
+#include "Include/vulkanSDK/include/shaderc/shaderc.hpp"
+#include "Include/vulkanSDK/include/spirv_cross/spirv_cross.hpp"
 #include "Z/Core/Log.h"
 #include "Z/Core/Core.h"
-#include "glm/gtc/type_ptr.hpp"
-#include <fstream>
-#include<unordered_map>
-#include "shaderc/shaderc.hpp"
 #include "Z/Core/Time.h"
-#include "spirv_cross/spirv_cross.hpp"
-#include "spirv_cross/spirv_glsl.hpp"
+#include "Platform/OpenGL/OpenGLShader.h"
 
 namespace Z {
 	const std::string ShaderCacheDir = "Shaders/Cache/OpenGL";
@@ -217,6 +216,7 @@ namespace Z {
 				Z_CORE_ERROR("Shader Compile Error:{0}", module.GetErrorMessage());
 				Z_CORE_ASSERT(false, "Shader Compile Error");
 			}
+
 			std::ofstream out;
 			out.open(ShaderCacheDir + "/" + std::to_string(hash) + "." + Tools::spirvShaderTypeToString(spvType), std::ios::binary);
 			out.write((char *) module.cbegin(), (module.cend()-module.cbegin())*sizeof (unsigned int));
