@@ -317,9 +317,10 @@ namespace Z {
 	}
 
 
-	void Scene::CopyEntity(Entity entity) {
+	Entity Scene::InstantiateEntity(Entity entity) {
 		Entity res = CreateEntity(entity.GetName());
 		Tools::CopyEntity(NoBaseTypes{}, entity, res);
+		return res;
 	}
 
 	void Scene::ScriptUpdate(float deltaTime) {

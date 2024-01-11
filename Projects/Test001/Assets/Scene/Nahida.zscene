@@ -130,7 +130,7 @@ Entities:
     TagComponent:
       Tag: SceneCamera
     TransformComponent:
-      Translation: [0, -1.10000002, 5.5]
+      Translation: [0, 6.5, 25]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
     CameraComponent:

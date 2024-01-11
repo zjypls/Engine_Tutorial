@@ -91,6 +91,11 @@
                 Internal.Entity_SetTag(Entity.ID,value);
             }
         }
+
+        public override string ToString()
+        {
+            return Tag;
+        }
     }
     
     public class ScriptComponent:Component

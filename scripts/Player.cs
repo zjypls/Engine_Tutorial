@@ -2,24 +2,27 @@ using Z;
 
 public class Player : EntityCore
 {
-    TransformComponent _transform;
-    RigidBody2DComponent _rigidBody;
+    TransformComponent transform;
+    RigidBody2DComponent rigidBody;
     public float Mass = 1.0f;
     public float Force = 980.0f;
     public Vector2 Velicity = Vector2.Zero;
+    private string name;
 
     void OnCreate()
     {
-        _transform = GetComponent<TransformComponent>();
-        _rigidBody = GetComponent<RigidBody2DComponent>();
-        if (_rigidBody != null)
+        name = GetComponent<TagComponent>().Tag;
+        Log.Info($"Player : {name} !");
+        transform = GetComponent<TransformComponent>();
+        rigidBody = GetComponent<RigidBody2DComponent>();
+        if (rigidBody != null)
         {
-            Mass = _rigidBody.Mass;
+            Mass = rigidBody.Mass;
         }
         else
         {
-            _rigidBody = AddComponent<RigidBody2DComponent>();
-            Mass = _rigidBody.Mass;
+            rigidBody = AddComponent<RigidBody2DComponent>();
+            Mass = rigidBody.Mass;
         }
     }
 
@@ -44,8 +47,8 @@ public class Player : EntityCore
             vec.x = 1;
         }
 
-        Velicity = _rigidBody.velocity;
-        _transform.translation +=new Vector3(vec * deltaTime,0);
+        Velicity = rigidBody.velocity;
+        transform.translation +=new Vector3(vec * deltaTime,0);
     }
 
     ~Player()

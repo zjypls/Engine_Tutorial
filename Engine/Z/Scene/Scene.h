@@ -38,8 +38,8 @@ namespace Z {
 	public:
 		Scene() = default;
 		Entity GetMainCamera();
-		inline bool isRunning(){return Running;}
-		inline void SetFrameStepCount(int count){FrameStepCount=count;}
+		bool isRunning(){return Running;}
+		void SetFrameStepCount(int count){FrameStepCount=count;}
 
 		static Ref<Scene> Copy(Ref<Scene>);
 
@@ -50,8 +50,8 @@ namespace Z {
 		void OnRuntimeStop();
 		void OnSimulateStart();
 		void OnSimulateStop();
-		inline bool IsPaused(){return Paused;}
-		inline void SetPaused(bool paused){Paused=paused;}
+		bool IsPaused() const{return Paused;}
+		void SetPaused(bool paused){Paused=paused;}
 		void OnPhysics2DStart();
 		void OnPhysics2DStop();
 		template<class... T>
@@ -61,7 +61,8 @@ namespace Z {
 
 		void OnViewportResize(unsigned int width, unsigned int height);
 		void DestroyEntity(Entity entity);
-		void CopyEntity(Entity entity);
+		[[nodiscard]]
+		Entity InstantiateEntity(Entity entity);
 		Entity GetEntityWithGUID(zGUID guid);
 
 		void GetEntitiesByName(const std::string& name, std::vector<zGUID>& ids);

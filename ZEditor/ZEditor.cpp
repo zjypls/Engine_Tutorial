@@ -554,7 +554,7 @@ namespace Z {
 			case Key::D:
 				if (sceneState == SceneState::Edit)
 					if (auto et = sceneHierarchyPlane->GetSelectedEntity();shift && et) {
-						scene->CopyEntity(et);
+						scene->InstantiateEntity(et);
 					}
 				break;
 		}

@@ -18,8 +18,8 @@
 #include "Z/Scene/Components.h"
 
 namespace Z {
-	void InternalCallLog(MonoString *str) {
-		Z_CORE_WARN("C#: {0}", mono_string_to_utf8(str));
+	void InternalCallInfo(MonoString *str) {
+		Z_CORE_INFO(" Log from C# script : {0}", mono_string_to_utf8(str));
 	}
 
 	void InternalCallWarn(glm::vec3 *v) {
@@ -91,6 +91,16 @@ namespace Z {
 		}
 		return array;
 	}
+	MonoString* Entity_GetTag(zGUID id) {
+		auto name= ScriptEngine::GetContext()->GetEntityWithGUID(id).GetName();
+		return mono_string_new(ScriptEngine::GetDomain(),name.c_str());
+	}
+
+	void Entity_SetTag(zGUID id,MonoString* newTag) {
+		auto entity=ScriptEngine::GetContext()->GetEntityWithGUID(id);
+		entity.GetComponent<TagComponent>().tag=mono_string_to_utf8(newTag);
+	}
+
 	glm::vec3 Entity_GetRigidBody2DPosition(zGUID id){
 		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
 		auto pos=body->GetPosition();
@@ -131,7 +141,7 @@ namespace Z {
 	template<class... T>
 	void RegComponent(Type<T...>) {
 		(
-				[]() {
+				[] {
 					std::string_view OriginName;
 #ifdef __GNUC__
                     OriginName = abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, nullptr);
@@ -155,7 +165,7 @@ namespace Z {
 
 
 	void ScriptReg::Reg() {
-		Z_INTERNAL_FUNC(InternalCallLog);
+		Z_INTERNAL_FUNC(InternalCallInfo);
 		Z_INTERNAL_FUNC(InternalCallWarn);
 		Z_INTERNAL_FUNC(InternalCallDot);
 		Z_INTERNAL_FUNC(GetTranslation);
@@ -167,6 +177,8 @@ namespace Z {
 		Z_INTERNAL_FUNC(Entity_SetVelocity);
 		Z_INTERNAL_FUNC(Entity_ApplyForce);
 		Z_INTERNAL_FUNC(Entity_ApplyForceCenter);
+		Z_INTERNAL_FUNC(Entity_GetTag);
+		Z_INTERNAL_FUNC(Entity_SetTag);
 		Z_INTERNAL_FUNC(Entity_GetByName);
 		Z_INTERNAL_FUNC(Entity_GetRigidBody2DPosition);
 		Z_INTERNAL_FUNC(Entity_SetRigidBody2DPosition);

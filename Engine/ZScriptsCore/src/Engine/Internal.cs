@@ -3,10 +3,10 @@ using System.Runtime.CompilerServices;
 
 namespace Z
 {
-    internal class Internal
+    internal abstract class Internal
     {
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern void InternalCallLog(string a);
+        public static extern void InternalCallInfo(string a);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern void InternalCallWarn(ref Vector3 a);

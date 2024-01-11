@@ -1,23 +1,12 @@
 using System;
-using System.Runtime.CompilerServices;
 
 namespace Z
 {
     public static class Log
     {
-        public static void log(string text)
+        public static void Info(string text)
         {
-            Internal.InternalCallLog(text);
-        }
-
-        public static void log(Vector3 vec)
-        {
-            Internal.InternalCallWarn(ref vec);
-        }
-
-        public static void log(Vector3 a, Vector3 b, out Vector3 vout)
-        {
-            Internal.InternalCallDot(ref a, ref b, out vout);
+            Internal.InternalCallInfo(text);
         }
     }
 
@@ -61,7 +50,7 @@ namespace Z
         {
             if (HasComponent<T>()) return GetComponent<T>();
             Internal.Entity_AddComponent(ID, typeof(T));
-            return new T() { Entity = this };
+            return new T { Entity = this };
         }
 
         //Todo:Instantiate

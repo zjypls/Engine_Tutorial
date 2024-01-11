@@ -28,7 +28,7 @@ public class Camera : EntityCore
         }
         if(_player==null)
         {
-            Log.log("Player not found,You may need to add a player to the scene to make the camera follow it," +
+            Log.Info("Player not found,You may need to add a player to the scene to make the camera follow it," +
                     "and named it Player with a script named Player too");
         }
         else
@@ -39,7 +39,7 @@ public class Camera : EntityCore
 
     void OnUpdate(float deltaTime)
     {
-        Log.log($"deltaTime : {deltaTime} ms");
+        Log.Info($"Delta time : {deltaTime} ms !");
         var playerPos=_player?.GetComponent<TransformComponent>().translation;
         if(playerPos!=null)
         {
