@@ -32,6 +32,8 @@ public class Player : EntityCore
         }
         else
         {
+            Log.Info($"{example[0].ID}");
+            Log.Info($"{example[0].GetComponent<TagComponent>()}");
             var newPlay = Instantiate(example[0]);
         }
     }

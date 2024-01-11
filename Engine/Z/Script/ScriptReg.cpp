@@ -141,9 +141,30 @@ namespace Z {
 		return body->GetType();
 	}
 
-	zGUID Entity_SingleClone(zGUID origin) {
+	zGUID Entity_SingleClone(zGUID originID) {
+		// Fixme:value different with C# script give on Windows but work well on Linux ????
+		// a log output on windows(2024/01/12 3:20):
+		/*
+		 [03:09:28] Z: Log from C# script : 13666765057558020482
+		 [03:09:28] Z: Log from C# script : example
+		 [03:09:28] Z: Log from C# script : Test Log : Call EntityCore::Instantiate for go named example,id :13666765057558020482
+
+		 [03:09:28] Z:SingleClone recive id : 140695316822416
+		 [03:09:28] Z:Found GO named example total Size (C++ execute): 1
+		 [03:09:28] Z:go[0] 13666765057558020482
+		 */
+		// noticed by pls
+		Z_CORE_INFO("SingleClone recive id : {0}",originID);
 		const auto& context=ScriptEngine::GetContext();
-		auto entity=context->InstantiateEntity(context->GetEntityWithGUID(origin));
+		std::vector<zGUID> ids;
+		context->GetEntitiesByName("example",ids);
+		Z_CORE_INFO("Found GO named example total Size (C++ execute): {0}",ids.size());
+		int i=0;
+		for(const auto&id:ids) {
+			Z_CORE_INFO("go[{0}] {1}",i++,id);
+		}
+		const auto OriginEntity=context->GetEntityWithGUID(originID);
+		auto entity=context->InstantiateEntity(OriginEntity);
 		return entity.ID();
 	}
 

@@ -75,7 +75,7 @@ namespace Z
         public static EntityCore Instantiate<T>(T instance) where T : EntityCore, new()
         {
             if (instance is null) throw new Exception();
-            Log.Info($"Test Log : Call EntityCore::Instantiate for go named {instance.GetComponent<TagComponent>()}");
+            Log.Info($"Test Log : Call EntityCore::Instantiate for go named {instance.GetComponent<TagComponent>()},id :{instance.ID}");
             return new EntityCore(Internal.Entity_SingleClone(instance.ID));
         }
     }
