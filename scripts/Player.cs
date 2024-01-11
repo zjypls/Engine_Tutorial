@@ -24,6 +24,16 @@ public class Player : EntityCore
             rigidBody = AddComponent<RigidBody2DComponent>();
             Mass = rigidBody.Mass;
         }
+
+        var example = GetEntitiesByName("example");
+        if(example is null || example.Length<=0)
+        {
+            Log.Warn("Need a go named example to test Instantiate func !");
+        }
+        else
+        {
+            var newPlay = Instantiate(example[0]);
+        }
     }
 
     void OnUpdate(float deltaTime)
@@ -53,5 +63,6 @@ public class Player : EntityCore
 
     ~Player()
     {
+        Log.Warn($"Destructor call from {GetComponent<TagComponent>()}");
     }
 }

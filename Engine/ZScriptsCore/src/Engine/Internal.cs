@@ -9,7 +9,10 @@ namespace Z
         public static extern void InternalCallInfo(string a);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern void InternalCallWarn(ref Vector3 a);
+        public static extern void InternalCallWarn(string a);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern void InternalCallError(string a);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern void InternalCallDot(ref Vector3 a, ref Vector3 b, out Vector3 c);
@@ -25,7 +28,7 @@ namespace Z
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern bool Entity_HasComponent(ulong id, Type component);
-        
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern void Entity_AddComponent(ulong id,Type component);
 
@@ -43,33 +46,37 @@ namespace Z
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern ulong[] Entity_GetByName(string name);
-        
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern string Entity_GetTag(ulong id);
-        
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern void Entity_SetTag(ulong id,string tag);
-        
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern Vector3 Entity_GetRigidBody2DPosition(ulong id);
-        
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern void Entity_SetRigidBody2DPosition(ulong id,ref Vector3 pos);
-        
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern string[] Entity_GetScripts(ulong id);
-        
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern float Entity_GetMass(ulong id);
-        
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern float Entity_SetMass(ulong id,float mass);
-        
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern void Entity_SetRigidBody2DType(ulong id,int type);
-        
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern int Entity_GetRigidBody2DType(ulong id);
+
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern ulong Entity_SingleClone(ulong id);
         
     }
 }

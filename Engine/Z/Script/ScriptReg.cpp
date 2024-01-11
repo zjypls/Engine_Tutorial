@@ -22,8 +22,12 @@ namespace Z {
 		Z_CORE_INFO(" Log from C# script : {0}", mono_string_to_utf8(str));
 	}
 
-	void InternalCallWarn(glm::vec3 *v) {
-		//Z_CORE_WARN("C#: {0}", *v);
+	void InternalCallWarn(MonoString* str) {
+		Z_CORE_WARN(" Warn from C# script : {0}", mono_string_to_utf8(str));
+	}
+
+	void InternalCallError(MonoString* str) {
+		Z_CORE_ERROR(" Error from C# script : {0}", mono_string_to_utf8(str));
 	}
 
 	void InternalCallDot(glm::vec3 *v, glm::vec3 *u, glm::vec3 *o) {
@@ -137,6 +141,12 @@ namespace Z {
 		return body->GetType();
 	}
 
+	zGUID Entity_SingleClone(zGUID origin) {
+		const auto& context=ScriptEngine::GetContext();
+		auto entity=context->InstantiateEntity(context->GetEntityWithGUID(origin));
+		return entity.ID();
+	}
+
 
 	template<class... T>
 	void RegComponent(Type<T...>) {
@@ -167,6 +177,7 @@ namespace Z {
 	void ScriptReg::Reg() {
 		Z_INTERNAL_FUNC(InternalCallInfo);
 		Z_INTERNAL_FUNC(InternalCallWarn);
+		Z_INTERNAL_FUNC(InternalCallError);
 		Z_INTERNAL_FUNC(InternalCallDot);
 		Z_INTERNAL_FUNC(GetTranslation);
 		Z_INTERNAL_FUNC(SetTranslation);
@@ -186,6 +197,7 @@ namespace Z {
 		Z_INTERNAL_FUNC(Entity_GetMass);
 		Z_INTERNAL_FUNC(Entity_GetRigidBody2DType);
 		Z_INTERNAL_FUNC(Entity_SetRigidBody2DType);
+		Z_INTERNAL_FUNC(Entity_SingleClone);
 	}
 
 	void ScriptReg::RegComponents() {

@@ -8,6 +8,16 @@ namespace Z
         {
             Internal.InternalCallInfo(text);
         }
+
+        public static void Warn(string text)
+        {
+            Internal.InternalCallWarn(text);
+        }
+
+        public static void Error(string text)
+        {
+            Internal.InternalCallError(text);
+        }
     }
 
 
@@ -15,7 +25,7 @@ namespace Z
     {
         public readonly ulong ID;
 
-        protected EntityCore()
+        public EntityCore()
         {
             ID = 0;
         }
@@ -36,10 +46,18 @@ namespace Z
             return null;
         }
 
-        public ulong[] GetEntitiesByName(string name)
+        public EntityCore[] GetEntitiesByName(string name)
         {
-            return Internal.Entity_GetByName(name);
+            var iRes= Internal.Entity_GetByName(name);
+            var res = new EntityCore[iRes.Length];
+            for (int i = 0; i < iRes.Length; ++i)
+            {
+                res[i] = new EntityCore(iRes[i]);
+            }
+
+            return res;
         }
+
 
         public EntityCore GetEntity(ulong id)
         {
@@ -54,8 +72,11 @@ namespace Z
         }
 
         //Todo:Instantiate
-        public static void Instantiate<T>() where T : EntityCore, new()
+        public static EntityCore Instantiate<T>(T instance) where T : EntityCore, new()
         {
+            if (instance is null) throw new Exception();
+            Log.Info($"Test Log : Call EntityCore::Instantiate for go named {instance.GetComponent<TagComponent>()}");
+            return new EntityCore(Internal.Entity_SingleClone(instance.ID));
         }
     }
 }

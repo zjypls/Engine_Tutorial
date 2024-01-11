@@ -14,9 +14,8 @@ public class Camera : EntityCore
     {
         _transform = GetComponent<TransformComponent>();
         var entities = GetEntitiesByName(PlayerName);
-        foreach (var id in entities)
+        foreach (var entity in entities)
         {
-            var entity = GetEntity(id);
             if (entity.HasComponent<ScriptComponent>())
             {
                 if(entity.GetComponent<ScriptComponent>().scriptName[0]=="Player")
