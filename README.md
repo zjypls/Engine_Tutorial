@@ -22,8 +22,8 @@ cmake -B build
 cmake --build build
 ```
 Learning:  
->The Cherno's GameEngine Series  
->https://www.youtube.com/playlist?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT  
+>[The Cherno's GameEngine Series-YouTube](https://www.youtube.com/playlist?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT)
+>
 >
   
 ## Screen Shot:
