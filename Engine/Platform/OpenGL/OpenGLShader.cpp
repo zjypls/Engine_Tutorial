@@ -227,7 +227,18 @@ namespace Z {
 			Z_CORE_WARN("Compile Shader spend time:{1}s",Name,spend);
 		}
 
-		//std::vector<unsigned int> spirv(module.cbegin(), module.cend());
+		//Fixme:unknown reason crashed on Linux (gcc13) but work well on Windows (VS 17.8)
+		//call stack
+		/*
+		 *spirv_cross::ShaderResources::~ShaderResources
+		 *			 ::SmallVector::~SmallVector
+		 *						  ::clear
+		 *			 ::BuiltInResource::~BuiltInResource
+		 *			 ::Resource::~Resource
+		 *free
+		 */
+		//spirv_cross::Compiler compiler((uint32_t*)spirv.data(),spirv.size()/sizeof(uint32_t));
+		//spirv_cross::ShaderResources resources= compiler.get_shader_resources();
 
 		unsigned int shader = glCreateShader(Tools::ShaderTypeToOpenGLType(shaderType));
 		glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V, spirv.data(), spirv.size());
@@ -240,11 +251,6 @@ namespace Z {
 	}
 
 	void OpenGLShader::Bind() const {
-
-		auto warn = glGetError();
-		if (warn != 0) {
-			Z_CORE_ERROR("{1}:{2},OpenGL ERROR {0}", warn, __FILE__, __LINE__);
-		}
 		glUseProgram(ProgramID);
 	}
 
@@ -254,9 +260,6 @@ namespace Z {
 
 	void OpenGLShader::Compile() {
 		glLinkProgram(ProgramID);
-		auto warn = glGetError();
-		if (warn != 0)
-			Z_CORE_WARN("{1}:{2},Warn {0}", warn, __FILE__, __LINE__);
 		int success = 0;
 		glGetProgramiv(ProgramID, GL_LINK_STATUS, &success);
 

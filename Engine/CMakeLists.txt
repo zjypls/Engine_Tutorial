@@ -47,8 +47,8 @@ target_include_directories(Z PUBLIC depends)
 target_link_libraries(Z PUBLIC
         glfw imgui yaml Box2D tinyobjloader
         vulkan
-        shaderc_shared # noticed : some symbol lose error when link with shaderc (static library)
-        spirv-cross-core spirv-cross-glsl
+        shaderc shaderc_combined
+        spirv-cross-core spirv-cross-glsl SPIRV-Tools
         )
 if(NOT UseVulkan)
     target_link_libraries(Z PUBLIC glad)

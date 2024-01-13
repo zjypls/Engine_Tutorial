@@ -135,7 +135,9 @@ namespace Z {
 	void EditorLayer::OnImGuiRender() {
 		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
-		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking|
+                ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+                ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 		{
 			ImGuiViewport *viewport = ImGui::GetMainViewport();
 			ImGui::SetNextWindowPos(viewport->Pos);
@@ -143,13 +145,7 @@ namespace Z {
 			ImGui::SetNextWindowViewport(viewport->ID);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-			                ImGuiWindowFlags_NoMove;
-			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 		}
-
-		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-			window_flags |= ImGuiWindowFlags_NoBackground;
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		static bool dockspaceOpen = true;
@@ -158,15 +154,11 @@ namespace Z {
 
 		ImGui::PopStyleVar(3);
 
-
-		ImGuiIO &io = ImGui::GetIO();
 		auto &style = ImGui::GetStyle();
 		auto miniSize = style.WindowMinSize.x;
 		style.WindowMinSize.x = 250;
-		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
-			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-		}
+        ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 		style.WindowMinSize.x = miniSize;
 
 		if (ImGui::BeginMenuBar()) {
@@ -254,10 +246,11 @@ namespace Z {
 		}
 		Application::Get().GetImGuiLayer()->SetBlockEvents(!IsViewportFocused && !IsViewportHovered);
 
-		uint32_t textureID = frameBuffer->GetAttachmentID(0);
+		auto textureID = frameBuffer->GetAttachmentID(0);
 		ImGui::Image((void *) textureID, viewSize, ImVec2{0, 1}, ImVec2{1, 0});
 
 		if ((viewportSize != *(glm::vec2 *) &viewSize)) {
+            //avoid resize when frame haven't show to viewport yet
 			Application::Get().SubmitFunc([this, viewSize]() {
 				this->viewportSize = glm::vec2{viewSize.x, viewSize.y};
 				this->previewFrame->Resize(viewportSize.x / 4.f, viewportSize.y / 4.f);
@@ -289,9 +282,8 @@ namespace Z {
 			             ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollWithMouse |
 			             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
 			             ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
-			             ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
-			             ImGuiWindowFlags_NoBackground
-			             | ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNav);
+			             ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoMouseInputs |
+                         ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNav);
 			ImGui::Image((void *) previewFrame->GetAttachmentID(0),
 			             ImVec2{ImGui::GetWindowSize().x, ImGui::GetWindowSize().y}, ImVec2{0, 1},
 			             ImVec2{1, 0});

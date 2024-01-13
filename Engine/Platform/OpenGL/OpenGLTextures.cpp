@@ -106,6 +106,7 @@ namespace Z {
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	}
 
+    [[deprecated("Not finished yet!")]]
 	void OpenGLTexture3D::SetData(void *data, unsigned int size) {
 
 	}
