@@ -227,7 +227,8 @@ namespace Z {
 			Z_CORE_WARN("Compile Shader spend time:{1}s",Name,spend);
 		}
 
-		//Fixme:unknown reason crashed on Linux (gcc13) but work well on Windows (VS 17.8)
+		//unknown reason crashed on Linux (gcc13) but work well on Windows (VS 17.8) //solved
+        //caused by an error value of resources.builtin_outputs.buffer_size when it calls clear
 		//call stack
 		/*
 		 *spirv_cross::ShaderResources::~ShaderResources
@@ -237,6 +238,8 @@ namespace Z {
 		 *			 ::Resource::~Resource
 		 *free
 		 */
+        //note:do nothing,disappear by an unknown reason ???
+
 		//spirv_cross::Compiler compiler((uint32_t*)spirv.data(),spirv.size()/sizeof(uint32_t));
 		//spirv_cross::ShaderResources resources= compiler.get_shader_resources();
 
