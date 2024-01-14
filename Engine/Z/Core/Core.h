@@ -34,9 +34,15 @@
 #endif
 
 #ifndef Z_ENABLE_ASSERT
-	//Todo:improve
-	#define Z_ASSERT(x, ...) do{if(!(x)){Z_ERROR("Assertion Failed!:{0}",__VA_ARGS__);assert(false);}}while(0)
-	#define Z_CORE_ASSERT(x, ...) do{if(!(x)){Z_CORE_ERROR("Assertion Failed!:{0}",__VA_ARGS__);assert(false);}}while(0)
+
+    #ifdef __GNUC__
+        #define DEBUG_BREAK __builtin_trap
+    #else
+        #define DEBUG_BREAK __debugbreak
+    #endif
+
+	#define Z_ASSERT(x, ...) do{if(!(x)){Z_ERROR("Assertion Failed!:{0}",__VA_ARGS__);DEBUG_BREAK();}}while(0)
+	#define Z_CORE_ASSERT(x, ...) do{if(!(x)){Z_CORE_ERROR("Assertion Failed!:{0}",__VA_ARGS__);DEBUG_BREAK();}}while(0)
 #else
 	#define Z_ASSERT(x,...)
 	#define Z_CORE_ASSERT(x,...)
@@ -47,16 +53,20 @@
 
 namespace Z{
 #ifdef Z_PLATFORM_LINUX
-	static constexpr char Z_SEPEARATOR='/';
+	static constexpr char Z_SEPARATOR='/';
 #endif
 #ifdef Z_PLATFORM_WIN32
-	static constexpr char Z_SEPEARATOR='\\';
+	static constexpr char Z_SEPARATOR='\\';
 #endif
     // Z_SOURCE_DIR means #define Z_SOURCE_DIR "{CMAKE_SOURCE_DIR}" provide with cmake
-    static const std::string ROOT_PATH=std::string(Z_SOURCE_DIR)+Z_SEPEARATOR;
-
-
-
+    static const std::string ROOT_PATH= std::string(Z_SOURCE_DIR) + Z_SEPARATOR;
+    static const char* BUILD_VERSION=
+#ifdef Z_DEBUG
+    "Debug"
+#else
+     "Release"
+#endif
+    ;
 	template<typename T>
 	using Scope=std::unique_ptr<T>;
 	template<typename T,typename ... Args>

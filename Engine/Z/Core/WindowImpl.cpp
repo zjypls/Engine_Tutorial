@@ -39,7 +39,11 @@ namespace Z {
 			IsGLFWInit=true;
 		}
 		GraphicContext::PreInitForRenderAPI();
-		window= glfwCreateWindow(WinData.width,WinData.height,(WinData.title +"(" + RenderAPI::GetApiStr()+")").c_str(), nullptr, nullptr);
+		window= glfwCreateWindow(WinData.width,WinData.height,(WinData.title +"-[" + RenderAPI::GetApiStr()+"]"
+#ifdef Z_DEBUG
+        "-[Debug-Build]"
+#endif
+        ).c_str(), nullptr, nullptr);
 		GLFWimage Icon{};
 		Icon.pixels=stbi_load("Assets/Configs/AppIcon.png",&Icon.width,&Icon.height, nullptr,STBI_rgb_alpha);
 		Z_CORE_ASSERT(Icon.pixels!= nullptr,"Failed to load icon");

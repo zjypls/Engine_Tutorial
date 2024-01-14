@@ -33,7 +33,7 @@ namespace Z {
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
 				currentPath = currentPath.has_parent_path() ? currentPath.parent_path() : currentPath;
 			}
-			ImGui::TextWrapped("../");
+			ImGui::TextWrapped("..");
 			ImGui::NextColumn();
 		}
 
@@ -44,9 +44,6 @@ namespace Z {
 			std::string filePath=file.path().string();
 			ImGui::PushID(filePath.c_str());
 			unsigned int id=icons[0]->GetRendererID();
-//			=!IsFile?icons[0]->GetRendererID():(
-//					texture== nullptr?icons[1]->GetRendererID():texture->GetRendererID()
-//					);
 			if(IsFile){
 				auto texture=AssetsSystem::Get(filePath);
 				id=texture== nullptr?icons[1]->GetRendererID():texture->GetRendererID();
@@ -63,7 +60,7 @@ namespace Z {
 					currentPath = file.path();
 				}
 			}
-			auto firstPos=filePath.find_last_of(Z_SEPEARATOR)+1;
+			auto firstPos= filePath.find_last_of(Z_SEPARATOR) + 1;
 			ImGui::TextWrapped(filePath.substr(firstPos,filePath.find_last_of('.')-firstPos).c_str());
 			ImGui::NextColumn();
 			ImGui::PopID();

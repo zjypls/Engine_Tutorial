@@ -221,7 +221,7 @@ namespace Z {
 		ImGui::DragFloat4("##Collider InActiveColor", glm::value_ptr(InactiveColor), 0.01f, 0.0f, 1.0f);
 		ImGui::Text("StepFrameCount:");
 		ImGui::DragInt("##StepFrameCount", &stepFrames, 1, 1, 100);
-
+        ImGui::Text("Build Version : %s",BUILD_VERSION);
 		sceneHierarchyPlane->OnImGuiRender();
 		contentBrowser->OnImGuiRender();
 

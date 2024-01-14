@@ -46,9 +46,13 @@ target_include_directories(Z PUBLIC depends)
 
 target_link_libraries(Z PUBLIC
         glfw imgui yaml Box2D tinyobjloader
-        shaderc shaderc_combined
-        spirv-cross-core spirv-cross-glsl SPIRV-Tools
+        spirv-cross-glsl
         )
+if(${CMAKE_BUILD_TYPE} MATCHES Debug AND CMAKE_HOST_WIN32)
+    target_link_libraries(Z PUBLIC shadercd shaderc_combinedd  SPIRV-Toolsd)
+else ()
+    target_link_libraries(Z PUBLIC shaderc shaderc_combined  SPIRV-Tools)
+endif ()
 if(NOT UseVulkan)
     target_link_libraries(Z PUBLIC glad)
 endif ()

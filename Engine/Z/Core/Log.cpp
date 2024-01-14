@@ -12,8 +12,8 @@ namespace Z{
 	Ref<spdlog::logger> Log::z_CoreLog;
 	Ref<spdlog::logger> Log::z_ClientLog;
 	void Log::Init() {
-		spdlog::set_pattern("%^[%T] %n:%v%$");
-		Log::z_CoreLog=spdlog::stdout_color_mt("Z");
+		spdlog::set_pattern("%^[%T] [%n] [%=7l] : %v%$");
+		Log::z_CoreLog=spdlog::stdout_color_mt("ZCore");
 		Log::z_CoreLog->set_level(spdlog::level::trace);
 
 		Log::z_ClientLog=spdlog::stdout_color_mt("Client");

@@ -67,6 +67,7 @@ endif ()
 message("Using Backend API : ${RENDERER_BACKEND}")
 message("Host Platform : ${Z_PLATFORM}")
 message("Set Rebuild Scripts : ${ReBuildScriptsCore}")
+message("Build Type : ${CMAKE_BUILD_TYPE}")
 
 add_compile_definitions(Z_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 
