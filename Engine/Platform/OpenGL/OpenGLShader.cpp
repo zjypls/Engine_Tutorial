@@ -5,10 +5,10 @@
 #include <filesystem>
 #include <fstream>
 #include <unordered_map>
+#include "shaderc/shaderc.hpp"
+#include "spirv_cross/spirv_cross.hpp"
 #include "Include/glad/include/glad/glad.h"
 #include "Include/glm/glm/gtc/type_ptr.hpp"
-#include "Include/vulkanSDK/include/shaderc/shaderc.hpp"
-#include "Include/vulkanSDK/include/spirv_cross/spirv_cross.hpp"
 #include "Z/Core/Log.h"
 #include "Z/Core/Core.h"
 #include "Z/Core/Time.h"

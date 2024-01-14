@@ -46,7 +46,6 @@ target_include_directories(Z PUBLIC depends)
 
 target_link_libraries(Z PUBLIC
         glfw imgui yaml Box2D tinyobjloader
-        vulkan
         shaderc shaderc_combined
         spirv-cross-core spirv-cross-glsl SPIRV-Tools
         )
@@ -60,9 +59,10 @@ if (CMAKE_HOST_LINUX)
     message(WARNING "Suppose to use system mono")
     find_package(   ZLIB # needed by monosgen for symbols "inflate" and "inflateInit2_"
                     REQUIRED)
-    target_link_libraries(Z PUBLIC monosgen-2.0 ZLIB::ZLIB)
+    target_link_libraries(Z PUBLIC vulkan monosgen-2.0 ZLIB::ZLIB)
 elseif (CMAKE_HOST_WIN32)
-    target_link_libraries(Z PUBLIC libmono-static-sgen
+    # noticed that vulkan lib named different on Windows
+    target_link_libraries(Z PUBLIC vulkan-1 libmono-static-sgen
                                     Ws2_32 winmm Version Bcrypt)
 else ()
     message(FATAL_ERROR "not supported platform : ${CMAKE_HOST_SYSTEM_NAME}")

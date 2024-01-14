@@ -25,16 +25,14 @@ set(EDITOR_RC ${CMAKE_SOURCE_DIR}/Assets/Configs/AppIcon.rc)
 
 set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Lib/${CMAKE_BUILD_TYPE})
 set(CMAKE_PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/PDBs/${CMAKE_BUILD_TYPE})
-if(CMAKE_HOST_WIN32)
-    set(VK_PATH ${CMAKE_SOURCE_DIR}/Engine/Include/vulkanSDK)
-elseif (DEFINED ENV{VULKAN_SDK})
+
+if (DEFINED ENV{VULKAN_SDK})
     set(VK_PATH $ENV{VULKAN_SDK})
 elseif (DEFINED ENV{VK_SDK_PATH})
     set(VK_PATH $ENV{VK_SDK_PATH})
 else ()
     # noticed that some IDE like Jetbrains CLion will not load environment that export by .bashrc on Linux
-    message(WARNING "Suppose to use environment sdk instead of project's and expose system vulkan sdk by set environment like VULKAN_SDK")
-    set(VK_PATH ${CMAKE_SOURCE_DIR}/Engine/Include/vulkanSDK)
+    message(FATAL_ERROR "Vulkan SDK not found and you should expose it by set environment value like VULKAN_SDK")
 endif ()
 
 if(UseVulkan)
