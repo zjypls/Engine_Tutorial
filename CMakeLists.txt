@@ -10,7 +10,7 @@ add_definitions(-w)
 set(DynamicLink OFF)
 #this flags open mean msvc generator only because cmake project with C# language only support msvc generator
 set(ReBuildScriptsCore OFF)
-set(UseVulkan OFF) # Vulkan support not finish yet
+set(UseVulkan ON) # Vulkan support not finish yet
 set(gladPath ${CMAKE_SOURCE_DIR}/Engine/Include/glad)
 set(GLFWPath ${CMAKE_SOURCE_DIR}/Engine/Include/glfw)
 set(ImGuiPath ${CMAKE_SOURCE_DIR}/Engine/Include/imgui)

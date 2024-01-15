@@ -8,9 +8,6 @@
 #include "Z/Core/LayerStacks.h"
 #include "Z/Events/Event.h"
 #include "Z/ImGui/ImGuiLayer.h"
-#include "Z/Renderer/Shader.h"
-#include "Z/Renderer/Buffer.h"
-#include "Z/Renderer/VertexArray.h"
 #include "Z/Renderer/OrithGraphicCamera.h"
 #include "Z/Scene/Scene.h"
 

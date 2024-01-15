@@ -4,23 +4,21 @@
 
 #include <filesystem>
 
+#define STB_IMAGE_IMPLEMENTATION
 #include "Include/stb/stb_image.h"
 
 #include "Z/Events/ApplicationEvent.h"
 #include "Z/Events/KeyEvent.h"
 #include "Z/Events/MouseEvent.h"
 #include "Z/Core/Random.h"
-#include "Z/Renderer/Particle.h"
 
 #include "Z/Core/WindowImpl.h"
-#include "Platform/OpenGL/OpenGLContext.h"
 
 
 namespace Z {
 	bool WindowImpl::IsGLFWInit=false;
 	WindowImpl::WindowImpl(const WindowProps &props) {
 		Random::Init();
-		Particle::Init();
 		Init(props);
 	}
 
@@ -30,28 +28,19 @@ namespace Z {
 	}
 
 	void WindowImpl::Init(const WindowProps &props) {
+        Z_CORE_ASSERT(!IsGLFWInit,"ReInit failed!");
 		WinData.title=props.title;
 		WinData.width=props.width;
 		WinData.height=props.height;
-		if(!IsGLFWInit){
-			int res=glfwInit();
-			Z_ASSERT(res,"failed to Init GLFW!!!");
-			IsGLFWInit=true;
-		}
-		GraphicContext::PreInitForRenderAPI();
-		window= glfwCreateWindow(WinData.width,WinData.height,(WinData.title +"-[" + RenderAPI::GetApiStr()+"]"
-#ifdef Z_DEBUG
-        "-[Debug-Build]"
-#endif
-        ).c_str(), nullptr, nullptr);
+		int res=glfwInit();
+		Z_ASSERT(res,"failed to Init GLFW!!!");
+		window= glfwCreateWindow(WinData.width,WinData.height,(WinData.title +"-[Vulkan]").c_str(), nullptr, nullptr);
 		GLFWimage Icon{};
 		Icon.pixels=stbi_load("Assets/Configs/AppIcon.png",&Icon.width,&Icon.height, nullptr,STBI_rgb_alpha);
 		Z_CORE_ASSERT(Icon.pixels!= nullptr,"Failed to load icon");
 		glfwSetWindowIcon(window,1,&Icon);
 		stbi_image_free(Icon.pixels);
 		stbi_set_flip_vertically_on_load(1);
-		Context=GraphicContext::Create(window);
-		Context->Init();
 		glfwSetWindowUserPointer(window,&WinData);
 		SetVSync(false);
 
@@ -125,7 +114,6 @@ namespace Z {
 
 	void WindowImpl::Update() {
 		glfwPollEvents();
-		Context->SwapBuffers();
 	}
 
 	WindowImpl::~WindowImpl() {
@@ -133,7 +121,6 @@ namespace Z {
 
 	void WindowImpl::Shutdown() {
 		Z_CORE_WARN("Window Shutdown");
-		Context->Destroy();
 		glfwDestroyWindow(window);
 		glfwTerminate();
 	}

@@ -11,8 +11,6 @@
 
 #include "Z/Core/Core.h"
 #include "Z/Core/zGUID.h"
-#include "Z/Renderer/Texture.h"
-#include "Z/Renderer/Shader.h"
 #include "Z/Utils/Model.h"
 
 
@@ -32,9 +30,7 @@ namespace Z {
 
 	private:
 
-		std::unordered_map<zGUID, Ref<Texture>> TextureLibrary{};
 		std::unordered_map<zGUID, Ref<Mesh>> MeshLibrary{};
-		std::unordered_map<zGUID, Ref<Shader>> ShaderLibrary{};
 		std::unordered_map<zGUID, std::string> UIDToPath{};
 		std::unordered_map<std::string, zGUID> PathToUID{};
 
@@ -43,7 +39,6 @@ namespace Z {
 
 		auto LoadTextureInner(const zGUID &id);
 
-		void PushResource(Ref<Texture> &texture, const std::string &name);
 
 		static void LoadWithMetaData(const MetaData &data, const std::string &path);
 
@@ -73,7 +68,6 @@ namespace Z {
 			instance=nullptr;
 		}
 
-		static Ref<Texture> Get(const std::string &name);
 
 		template<class Ty>
 		static Ref<Ty> Load(const std::string &path, bool absolute = false);

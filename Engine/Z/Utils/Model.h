@@ -7,14 +7,12 @@
 #include <filesystem>
 
 #include "Z/Core/Core.h"
-#include "Z/Renderer/VertexArray.h"
 #include "Include/glm/glm/gtx/hash.hpp"
 
 namespace Z {
 
 
 	struct Z_API Mesh {
-		Ref<VertexArray> vertexArray;
 		std::string name;
 
 	};

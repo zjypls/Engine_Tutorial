@@ -10,7 +10,6 @@
 #include "Z/Core/KeyCodes.h"
 #include "Z/Core/AssetsSystem.h"
 #include "Z/Events/ApplicationEvent.h"
-#include "Z/Renderer/Renderer.h"
 #include "Z/Script/ScriptEngine.h"
 
 namespace Z {
@@ -27,7 +26,6 @@ namespace Z {
 		AssetsSystem::PreInit();
 
 		ScriptEngine::Init();
-		Renderer::Init();
 
 		window->SetVSync(false);
 		imguiLayer = new ImGuiLayer();
@@ -37,7 +35,6 @@ namespace Z {
 
 	Application::~Application() {
 		window->Shutdown();
-		Renderer::ShutDown();
 		if(ScriptEngine::GetContext()!=nullptr){
 			Z_CORE_WARN("Close Application in Running!!!");
 		}
@@ -67,7 +64,6 @@ namespace Z {
 
 			window->Update();
 		}
-		window->GetContext()->DeviceSynchronize();
 		LayerStack.PopAllLayer();
 		AssetsSystem::Destroy();
 	}
@@ -110,7 +106,6 @@ namespace Z {
 			return false;
 		}
 		MinSize = false;
-		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
 		return false;
 	}
 

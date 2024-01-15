@@ -204,9 +204,6 @@ namespace Z {
 		DrawComponent<SpriteRendererComponent>("SpriteRenderer", entity,
 		                                       [](Entity entity, SpriteRendererComponent &spriteRenderer) {
 			                                       ImGui::ColorEdit4("Color", &spriteRenderer.color[0]);
-			                                       ImGui::Image(spriteRenderer.texture.get() == nullptr ? nullptr :
-			                                                    (void *) spriteRenderer.texture->GetRendererID(),
-			                                                    ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
 			                                       if (ImGui::BeginDragDropTarget()) {
 				                                       if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(
 						                                       "CONTENT_BROWSER_ITEM")) {
@@ -216,7 +213,6 @@ namespace Z {
 															   return;
 					                                       Z_CORE_ASSERT(std::filesystem::exists(path),
 					                                                     "Path does not exist!");
-						                                   spriteRenderer.texture = AssetsSystem::Load<Texture>(path,true);
 				                                       }
 				                                       ImGui::EndDragDropTarget();
 			                                       }else if(ImGui::IsItemHovered()&&
@@ -225,7 +221,6 @@ namespace Z {
 												   }
 													if(ImGui::BeginPopup("ImageMenuPop")){
 														if(ImGui::MenuItem("Remove Image")){
-															spriteRenderer.texture = nullptr;
 														}
 														ImGui::EndPopup();
 													}

@@ -7,7 +7,6 @@
 #include "Z/Core/Core.h"
 #include "Z/Events/Event.h"
 
-#include "Z/Renderer/GraphicContext.h"
 
 namespace Z{
 	struct WindowProps{
@@ -31,7 +30,6 @@ namespace Z{
 		inline virtual void SetEventCallFunc(const EventCallFunc&)=0;
 		virtual void Update()=0;
 		inline virtual void* GetNativeWindow()=0;
-		virtual Scope<GraphicContext>& GetContext()=0;
 		virtual void Shutdown()=0;
 
 		static zWindow* Create(const WindowProps&props=WindowProps{});

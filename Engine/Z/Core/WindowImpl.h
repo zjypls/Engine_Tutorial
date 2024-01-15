@@ -9,8 +9,6 @@
 
 #include "Z/Core/zWindow.h"
 #include "Z/Core/Log.h"
-#include "Z/Renderer/GraphicContext.h"
-#include "Z/Renderer/Renderer.h"
 
 namespace Z {
 	class Z_API WindowImpl final : public zWindow{
@@ -26,7 +24,6 @@ namespace Z {
 		~WindowImpl() override;
 		void Update() override;
 		inline void* GetNativeWindow() override{return window;}
-		Scope<GraphicContext>& GetContext() override{return Context;}
 		void Shutdown() override;
 	protected:
 		void Init(const WindowProps&);
@@ -41,7 +38,6 @@ namespace Z {
 		WData WinData;
 		static bool IsGLFWInit;
 		GLFWwindow* window;
-		Scope<GraphicContext> Context;
 	};
 
 }

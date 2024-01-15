@@ -8,7 +8,6 @@
 
 #include "Include/imgui/imgui.h"
 
-#include "Z/Renderer/Texture.h"
 namespace Z {
 	class ContentBrowser {
 	public:
@@ -23,7 +22,6 @@ namespace Z {
 
 	private:
 		std::filesystem::path currentPath;
-		Ref<Texture> icons[2];
 	};
 
 }

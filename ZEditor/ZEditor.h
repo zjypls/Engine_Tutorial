@@ -21,7 +21,6 @@ namespace Z {
 		glm::vec4 clearValue{0.1f, 0.1f, 0.1f, 1.0f};
 		glm::vec4 ActiveColor{0.3f, 0.8f, 0.1f, 1.0f}, InactiveColor{0.4f, 0.4f, 0.1f, 1.0f};
 		bool IsViewportFocused = false, IsViewportHovered = false, RunTimeVisualizeCollider = true, EditorVisualizeCollider = true;
-		Ref<FrameBuffer> frameBuffer, previewFrame;
 		glm::vec2 viewportSize{1200, 800};
 		glm::vec2 CursorPos{0, 0};
 		Ref<Scene> scene, BackScene;
@@ -29,8 +28,6 @@ namespace Z {
 		int currentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 		EditorCamera editorCamera;
 		Scope<ContentBrowser> contentBrowser;
-		Ref<Texture> playButtonIcon, stopButtonIcon, simulateButtonIcon,pauseButtonIcon,stepButtonIcon;
-		Ref<Texture> toolButtons[3];
 		std::filesystem::path WorkPath{};
 		Entity selectedEntity;
 		bool scriptReload = false,nextStep=false,selfDefLayout=false;

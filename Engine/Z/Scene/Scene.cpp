@@ -12,7 +12,7 @@
 #include "Z/Scene/Scene.h"
 #include "Z/Scene/ScriptEntity.h"
 #include "Z/Script/ScriptEngine.h"
-#include "Z/Renderer/Renderer.h"
+#include "Z/Scene/Components.h"
 
 namespace Z {
 
@@ -163,40 +163,20 @@ namespace Z {
 
 	void Scene::OnEditorUpdate(float deltaTime, EditorCamera &camera) {
 		//TODO:This should be optimized
-		Renderer::BeginScene(camera);
-		Renderer3D::BeginScene();
-		Renderer2D::BeginScene();
 		Render2D();
 		Render3D();
-		//Renderer::RenderSkyBox();
-		Renderer2D::EndScene();
-		Renderer3D::EndScene();
-		Renderer::EndScene();
 	}
 
 	void Scene::OnSimulateUpdate(float deltaTime, EditorCamera &camera) {
 		if (!Paused||FrameStepCount-->0)
 			OnPhysics2DUpdate(deltaTime);
-		Renderer::BeginScene(camera);
-		Renderer3D::BeginScene();
-		Renderer2D::BeginScene();
 		Render2D();
 		Render3D();
-		//Renderer::RenderSkyBox();
-		Renderer2D::EndScene();
-		Renderer3D::EndScene();
-		Renderer::EndScene();
 	}
 
 	void Scene::OnPreviewUpdate(float deltaTime, Camera &camera, glm::mat4 transform) {
-		Renderer::BeginScene(camera,transform);
-		Renderer3D::BeginScene();
-		Renderer2D::BeginScene();
 		Render2D();
 		Render3D();
-		Renderer2D::EndScene();
-		Renderer3D::EndScene();
-		Renderer::EndScene();
 	}
 
 	void Scene::OnUpdate(float deltaTime) {
@@ -208,29 +188,17 @@ namespace Z {
 		}
 		mainCamera = GetMainCamera();
 		if (!mainCamera)return;
-		Renderer::BeginScene(mainCamera.GetComponent<CameraComponent>().camera,
-		                       mainCamera.GetComponent<TransformComponent>().GetTransform());
-		Renderer3D::BeginScene();
-		Renderer2D::BeginScene();
 		Render2D();
 		Render3D();
-		//Renderer::RenderSkyBox();
-		Renderer2D::EndScene();
-		Renderer3D::EndScene();
-		Renderer::EndScene();
 	}
 
 
 	void Scene::Render2D() {
 		std::for_each(registry.view<TransformComponent, SpriteRendererComponent>().begin(),
 		              registry.view<TransformComponent, SpriteRendererComponent>().end(), [&](const auto &item) {
-					Renderer2D::DrawQuad(registry.get<TransformComponent>(item).GetTransform(),
-					                     registry.get<SpriteRendererComponent>(item), uint32_t(item));
 				});
 		std::for_each(registry.view<TransformComponent, CircleRendererComponent>().begin(),
 		              registry.view<TransformComponent, CircleRendererComponent>().end(), [&](const auto &item) {
-					Renderer2D::DrawCircle(registry.get<TransformComponent>(item).GetTransform(),
-					                       registry.get<CircleRendererComponent>(item), uint32_t(item));
 				});
 	}
 
@@ -239,9 +207,9 @@ namespace Z {
 		std::for_each(registry.view<TransformComponent, MeshRendererComponent>().begin(),
 		              registry.view<TransformComponent, MeshRendererComponent>().end(), [&](const auto &item) {
                     MeshRendererComponent component=registry.get<MeshRendererComponent>(item);
-                    if(component.mesh)
-					Renderer3D::Draw(registry.get<TransformComponent>(item).GetTransform(),
-					                       registry.get<MeshRendererComponent>(item), uint32_t(item));
+                    if(component.mesh){
+
+                    }
 				});
 	}
 

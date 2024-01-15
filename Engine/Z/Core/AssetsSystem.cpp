@@ -150,36 +150,8 @@ namespace Z {
 					indexes.push_back(Vertexes[vert]);
 				}
 			}
-			auto vertexBuffer = VertexBuffer::Create((float *) vertexes.data(), vertexes.size() * sizeof(Vertex));
-			vertexBuffer->SetLayout(BufferLayout{
-					{Z::ShaderDataType::Float3, "vertex"},
-					{Z::ShaderDataType::Float2, "texCoord"},
-					{Z::ShaderDataType::Float3, "normal"}
-			});
 
-			auto indexBuffer = IndexBuffer::Create(indexes.data(), indexes.size());
-			mesh->vertexArray = VertexArray::Create();
-			mesh->vertexArray->AddVertexBuffer(vertexBuffer);
-			mesh->vertexArray->SetIndexBuffer(indexBuffer);
 			return mesh;
-		}
-
-		Ref<CubeMap> LoadSkyBox(const std::filesystem::path& dir){
-			//auto _it=std::filesystem::recursive_directory_iterator(dir);
-			//TODO:Optimized!!!
-			std::vector<std::string> paths{
-					(dir/"right.jpg").string(),
-					(dir/"left.jpg").string(),
-					(dir/"top.jpg").string(),
-					(dir/"bottom.jpg").string(),
-					(dir/"front.jpg").string(),
-					(dir/"back.jpg").string(),
-			};
-//			for(;_it!=std::filesystem::recursive_directory_iterator();++_it){
-//				paths.push_back(_it->path().string());
-//			}
-			auto cubeMap=CubeMap::CreateTexture(paths);
-			return cubeMap;
 		}
 
 		static const std::set<std::string> TextureSheets{".png",".jpg",".jpeg",".bmp"};
@@ -207,7 +179,6 @@ namespace Z {
 	Scope<AssetsSystem> AssetsSystem::instance;
 
 	auto AssetsSystem::LoadTextureInner(const zGUID &id) {
-		return TextureLibrary.insert({id,Texture2D::CreateTexture(UIDToPath[id])});
 	}
 
 
@@ -252,52 +223,13 @@ namespace Z {
 	}
 
 
-	void AssetsSystem::PushResource(Ref<Texture> &texture,const std::string&name) {
-		PathToUID[name]=zGUID();
-		UIDToPath[PathToUID[name]]=name;
-		TextureLibrary[PathToUID[name]]=texture;
-	}
-
-	Ref<Texture> AssetsSystem::Get(const std::string &name) {
-		//TODO:optimize
-		auto firstPoint=name.find_first_of('.');
-		auto ext=name.substr(firstPoint,name.find_last_of('.')-firstPoint);
-		if(!Tools::TextureSheets.count(ext))
-			return nullptr;
-		if(IsExisting(name))
-			return instance->TextureLibrary.at(instance->PathToUID[name]);
-		else
-			return nullptr;
-	}
 
 	void AssetsSystem::LoadWithMetaData(const AssetsSystem::MetaData &data,const std::string& path) {
 		Z_CORE_ASSERT(!IsExisting(data.id),"Import using a existing id");
 		instance->PathToUID[path+".zConf"]=data.id;
 		instance->UIDToPath[data.id]=path+".zConf";
 		switch(data.importer){
-			case ImporterType::Texture2D:
-				instance->TextureLibrary[data.id]=Texture2D::CreateTexture(path);
-				break;
-			case ImporterType::Mesh:
-				instance->MeshLibrary[data.id]=Tools::LoadMesh(path);
-				break;
-			case ImporterType::Shader:
-				instance->ShaderLibrary[data.id]=Shader::CreateShader(path);
-				break;
-			case ImporterType::SkyBox:{
-				instance->TextureLibrary[data.id]=Tools::LoadSkyBox(std::filesystem::path(path).parent_path());
-				instance->UIDToPath[data.id]=path;
-				break;
-			}
 		}
-	}
-
-	template<>
-	Ref<Texture> AssetsSystem::Get(const zGUID &id) {
-		if(IsExisting(id))
-			return instance->TextureLibrary.at(id);
-		else
-			return nullptr;
 	}
 
 	template<>
@@ -312,28 +244,6 @@ namespace Z {
 	Ref<Ty> AssetsSystem::Load(const std::string &,bool){
 		Z_CORE_ASSERT(false,"fatal error");
 	}
-
-	template<>
-	Ref<Texture> AssetsSystem::Load(const std::string &path, bool absolute) {
-		auto _path=std::filesystem::path(path);
-		if(!absolute){
-			_path=instance->ProjectPath/path;
-		}
-		if(_path.extension()!=Z_CONF_EXTENSION)
-			_path+=".zConf";
-		if(IsExisting(_path.string())){
-			return instance->TextureLibrary.at(instance->PathToUID[_path.string()]);
-		}
-		auto pathSTR=_path.string();
-		auto id=zGUID{};
-		instance->PathToUID[_path.string()]=id;
-		instance->UIDToPath[id]=_path.string();
-		//auto result=instance->LoadTextureInner(id);
-		auto result=Texture2D::CreateTexture(pathSTR.substr(0,pathSTR.find_last_of('.')));
-		Z_CORE_ASSERT(result,std::string("failed to load texture:").append(_path.string()));
-		return result;
-	}
-
 
 	template<>
 	Ref<Mesh> AssetsSystem::Load(const std::string &path,bool absolute) {

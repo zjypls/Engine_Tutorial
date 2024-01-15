@@ -27,9 +27,6 @@ namespace Z {
 		ImGui::Columns(columns, nullptr, false);
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 		if (currentPath != Project::GetProjectRootDir()) {
-			ImGui::ImageButton((ImTextureID) icons[0]->GetRendererID(),
-			                   ImVec2{static_cast<float>(width), static_cast<float>(width)},
-			                   {0, 1}, {1, 0});
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
 				currentPath = currentPath.has_parent_path() ? currentPath.parent_path() : currentPath;
 			}
@@ -43,13 +40,8 @@ namespace Z {
 				continue;
 			std::string filePath=file.path().string();
 			ImGui::PushID(filePath.c_str());
-			unsigned int id=icons[0]->GetRendererID();
 			if(IsFile){
-				auto texture=AssetsSystem::Get(filePath);
-				id=texture== nullptr?icons[1]->GetRendererID():texture->GetRendererID();
 			}
-			ImGui::ImageButton(ImTextureID(id),
-			                   ImVec2{static_cast<float>(width), static_cast<float>(width)}, {0, 1}, {1, 0});
 			if (IsFile&&ImGui::BeginDragDropSource()) {
 				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", filePath.c_str(), filePath.size() + 1,
 				                          ImGuiCond_Once);
@@ -74,7 +66,6 @@ namespace Z {
 		Z_CORE_ASSERT(paths.size() == 2, "Icon size must be 2");
 		int i = 0;
 		for (const auto &path: paths) {
-			icons[i++] = AssetsSystem::Load<Texture>(path, true);//Texture2D::CreateTexture(path);
 		}
 	}
 }
