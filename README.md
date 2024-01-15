@@ -14,7 +14,7 @@ cd Engine_Tutorial
 ```
 git submodule update --init --recursive
 ```
-## build with 
+## build with (need vulkanSDK)
 ```
 cmake -B build
 ```
