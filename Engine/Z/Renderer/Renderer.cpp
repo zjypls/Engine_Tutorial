@@ -51,7 +51,7 @@ namespace Z {
 		sceneData->ViewProjectionMatrix = glm::mat4{1};
 		renderData = new RenderData{};
 		renderData->ubo = UniformBuffer::Create(sizeof(SceneData), 1);
-		skyBoxShader = Shader::CreateShader("Shaders/SkyBox.glsl");
+		skyBoxShader = Shader::CreateShader("Assets/Shaders/SkyBox.glsl");
 		cube = VertexArray::Create();
 
 		float verts[]{

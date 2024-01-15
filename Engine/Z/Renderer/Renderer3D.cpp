@@ -30,7 +30,7 @@ namespace Z {
         Z_CORE_ASSERT(!renderData,"Renderer3D Has Inited!!!");
 		renderData = new RenderData{};
 		renderData->uboData = new UBO{};
-		renderData->EasySample = Shader::CreateShader("Shaders/EasySample.glsl");
+		renderData->EasySample = Shader::CreateShader("Assets/Shaders/EasySample.glsl");
 		renderData->ubo = UniformBuffer::Create(sizeof(UBO), 3);
 		renderData->uboData->index = -1;
 		renderData->uboData->model = glm::mat4{1};

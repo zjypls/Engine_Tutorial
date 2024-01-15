@@ -15,7 +15,7 @@
 #include "Platform/OpenGL/OpenGLShader.h"
 
 namespace Z {
-	const std::string ShaderCacheDir = "Shaders/Cache/OpenGL";
+	const std::string ShaderCacheDir = "ShaderCaches/Cache/OpenGL";
 	namespace Tools {
 
 		std::string spirvShaderTypeToString(shaderc_shader_kind type) {

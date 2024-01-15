@@ -13,9 +13,9 @@ namespace Z {
 
 	void Renderer2D::Init() {
 		data = new RenderData();
-		data->QuadShader = Shader::CreateShader( "Shaders/Quad.glsl");
-		data->CircleShader = Shader::CreateShader( "Shaders/Circle.glsl");
-		data->LineShader = Shader::CreateShader( "Shaders/Line.glsl");
+		data->QuadShader = Shader::CreateShader( "Assets/Shaders/Quad.glsl");
+		data->CircleShader = Shader::CreateShader( "Assets/Shaders/Circle.glsl");
+		data->LineShader = Shader::CreateShader( "Assets/Shaders/Line.glsl");
 		stats = new StatisticData{0, 0, 0};
 		data->quadVertexArray = VertexArray::Create();
 		data->quadVertexBufferBase = new QuadVertex[data->MaxVertexCount];
