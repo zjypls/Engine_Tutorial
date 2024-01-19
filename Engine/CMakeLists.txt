@@ -86,3 +86,6 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
     target_compile_definitions(Z PUBLIC Z_DEBUG
                                         Z_ENABLE_PROFILING)
 endif ()
+if(UseVulkan)
+    target_compile_definitions(Z PUBLIC VK_USE_PLATFORM_${Z_WM_FLAG}_KHR)
+endif ()
