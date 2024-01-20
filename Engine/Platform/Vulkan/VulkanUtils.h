@@ -3,7 +3,10 @@
 //
 #define VK_INFO(TYPE,ACT) VK_STRUCTURE_TYPE_##TYPE##_##ACT##_INFO
 #define VK_CHECK(value,str) Z_CORE_ASSERT(value==VK_SUCCESS,str)
+#include <optional>
 #include <vulkan/vulkan.h>
+
+#include "Include/glfw/include/GLFW/glfw3.h"
 
 #include "Z/Core/Core.h"
 #include "Z/Core/Log.h"
@@ -12,6 +15,120 @@
 
 namespace Z{
     namespace VulkanUtils{
+
+        VkResult CreateDebugUtils(VkInstance                                instance,
+                                  const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+                                  const VkAllocationCallbacks*              pAllocator,
+                                  VkDebugUtilsMessengerEXT*                 pDebugMessenger){
+            auto func=(PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance,"vkCreateDebugUtilsMessengerEXT");
+            if(func){
+                return func(instance,pCreateInfo,pAllocator,pDebugMessenger);
+            }
+            return VK_ERROR_UNKNOWN;
+        }
+        void DestroyDebugUtils(VkInstance instance,VkDebugUtilsMessengerEXT utils,const VkAllocationCallbacks* pAllocator){
+            auto func=(PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance,"vkDestroyDebugUtilsMessengerEXT");
+            if(func)
+                func(instance,utils,pAllocator);
+        }
+
+        QueueFamilyIndices findQueueFamily(VkPhysicalDevice device,VkSurfaceKHR surface){
+            uint32 count=0;
+            vkGetPhysicalDeviceQueueFamilyProperties(device,&count, nullptr);
+            std::vector<VkQueueFamilyProperties> properties(count);
+            vkGetPhysicalDeviceQueueFamilyProperties(device,&count,properties.data());
+            QueueFamilyIndices indices{};
+            for(int i=0;i<properties.size();++i){
+                if(properties[i].queueFlags&VK_QUEUE_GRAPHICS_BIT)
+                    indices.graphics=i;
+
+                if(properties[i].queueFlags&VK_QUEUE_COMPUTE_BIT)
+                    indices.compute=i;
+
+                VkBool32 support=VK_FALSE;
+                vkGetPhysicalDeviceSurfaceSupportKHR(device,i,surface,&support);
+                if(support)
+                    indices.present=i;
+
+                if(indices.isComplete())
+                    break;
+            }
+            return indices;
+        }
+
+        VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates,
+                                     VkImageTiling                tiling,
+                                     VkFormatFeatureFlags         features,
+                                     VkPhysicalDevice device)
+        {
+            for (VkFormat format : candidates)
+            {
+                VkFormatProperties props;
+                vkGetPhysicalDeviceFormatProperties(device, format, &props);
+
+                if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
+                {
+                    return format;
+                }
+                else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
+                {
+                    return format;
+                }
+            }
+
+            Z_CORE_ERROR("findSupportedFormat failed");
+            return VkFormat();
+        }
+
+        VkFormat findDepthFormat(VkPhysicalDevice device)
+        {
+            return findSupportedFormat({VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
+                                       VK_IMAGE_TILING_OPTIMAL,
+                                       VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,device);
+        }
+
+
+        VkBool32 VKAPI_PTR DefaultDebugCall(
+                VkDebugUtilsMessageSeverityFlagBitsEXT           messageSeverity,
+                VkDebugUtilsMessageTypeFlagsEXT                  messageTypes,
+                const VkDebugUtilsMessengerCallbackDataEXT*      pCallbackData,
+                void*                                            pUserData){
+            switch(messageSeverity){
+                case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+                    Z_CORE_ERROR("Vulkan Error({0}):{1}",pCallbackData->pMessageIdName,pCallbackData->pMessage);
+                    break;
+                case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+                    Z_CORE_WARN("Vulkan Warning({0}):{1}",pCallbackData->pMessageIdName,pCallbackData->pMessage);
+                    break;
+                default:
+                    Z_CORE_INFO("Vulkan Info({0}):{1}",pCallbackData->pMessageIdName,pCallbackData->pMessage);
+                    break;
+            }
+            return VK_FALSE;
+        }
+
+        void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo,bool UsingDefaultDebugCall=true)
+        {
+            createInfo       = {};
+            createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+            createInfo.messageSeverity =
+                    VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+            createInfo.messageType =
+                    VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+            if(UsingDefaultDebugCall)
+                createInfo.pfnUserCallback = DefaultDebugCall;
+        }
+
+        auto GetRequireExtensions(bool debug){
+            uint32 count=0;
+            const char** extensions= glfwGetRequiredInstanceExtensions(&count);
+            std::vector<const char*> results(count);
+            for(int i=0;i<count;++i)
+                results[i]=extensions[i];
+            if(debug)
+                results.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+            return results;
+        }
 
         uint findMemoryType(uint32_t typeFilter,VkPhysicalDevice device, VkMemoryPropertyFlags properties) {
             VkPhysicalDeviceMemoryProperties memProperties;

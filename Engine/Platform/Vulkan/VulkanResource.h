@@ -31,6 +31,7 @@ namespace Z {
     VULKAN_IMPL_RESOURCE(CommandBuffer);
     VULKAN_IMPL_RESOURCE(CommandPool);
     VULKAN_IMPL_RESOURCE(Device);
+    VULKAN_IMPL_RESOURCE(Queue);
 
 }
 

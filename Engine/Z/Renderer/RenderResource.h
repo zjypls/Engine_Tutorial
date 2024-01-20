@@ -5,6 +5,7 @@
 #ifndef ENGINEALL_RENDERRESOURCE_H
 #define ENGINEALL_RENDERRESOURCE_H
 
+#include <optional>
 
 #include "Z/Core/Core.h"
 
@@ -297,6 +298,14 @@ namespace Z {
         ResourceSize          size;
         BufferUsageFlag    usage;
         MemoryPropertyFlag properties;
+    };
+    struct QueueFamilyIndices
+    {
+        std::optional<uint32_t> graphics;
+        std::optional<uint32_t> present;
+        std::optional<uint32_t> compute;
+
+        bool isComplete() { return graphics.has_value() && present.has_value() && compute.has_value();; }
     };
 }
 
