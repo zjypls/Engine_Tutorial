@@ -33,7 +33,7 @@ namespace Z {
 		WinData.width=props.width;
 		WinData.height=props.height;
 		int res=glfwInit();
-        glfwInitHint(GLFW_CLIENT_API,GLFW_NO_API);
+        glfwWindowHint(GLFW_CLIENT_API,GLFW_NO_API);
 		Z_ASSERT(res,"failed to Init GLFW!!!");
 		window= glfwCreateWindow(WinData.width,WinData.height,(WinData.title +"-[Vulkan]").c_str(), nullptr, nullptr);
 		GLFWimage Icon{};

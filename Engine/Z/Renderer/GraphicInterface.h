@@ -17,7 +17,6 @@ namespace Z {
     public:
         virtual void Init(const GraphicSpec &initInfo) = 0;
 
-        virtual void prepare() = 0;
 
         virtual void CreateImage(const ImageInfo &info, Image* &image, DeviceMemory* &memory) = 0;
 
