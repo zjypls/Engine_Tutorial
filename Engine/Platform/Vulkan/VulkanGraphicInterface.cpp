@@ -100,7 +100,7 @@ namespace Z {
     void VulkanGraphicInterface::CreateLogicalDevice() {
         familyIndices=VulkanUtils::findQueueFamily(physicalDevice,surface);
 
-        std::vector indices{familyIndices.graphics.value(),familyIndices.compute.value(),familyIndices.present.value()};
+        std::set indices{familyIndices.graphics.value(),familyIndices.compute.value(),familyIndices.present.value()};
 
         std::vector<VkDeviceQueueCreateInfo> deviceQueueInfos{};
         float priority=1.f;
@@ -140,9 +140,10 @@ namespace Z {
         graphicsQueue=new VulkanQueue{};
         ((VulkanQueue*)graphicsQueue)->Set(graphicqueue);
 
-        VkQueue computqueue;
-        vkGetDeviceQueue(device,familyIndices.compute.value(),0,&computqueue);
-        ((VulkanQueue*)computeQueue)->Set(computqueue);
+        VkQueue computequeue;
+        vkGetDeviceQueue(device,familyIndices.compute.value(),0,&computequeue);
+        computeQueue=new VulkanQueue{};
+        ((VulkanQueue*)computeQueue)->Set(computequeue);
     }
 
     void VulkanGraphicInterface::CreateCommandPool() {
