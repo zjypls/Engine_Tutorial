@@ -25,9 +25,4 @@ Learning:
 >[The Cherno's GameEngine Series-YouTube](https://www.youtube.com/playlist?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT)
 >
 >
-  
-## Screen Shot:
-Editor:
-![EditorMain](./Assets/ReadMe/Gif/Editor.gif)
-
 notices:can build with msvc or clang(must off ReBuildScriptsCore flags in CMakeLists.txt)
