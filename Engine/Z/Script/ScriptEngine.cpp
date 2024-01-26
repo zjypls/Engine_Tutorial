@@ -88,7 +88,7 @@ namespace Z {
 
 
 		MonoAssembly *LoadMonoAssembly(const std::filesystem::path &assemblyPath) {
-			uint32_t fileSize = 0;
+			uint32 fileSize = 0;
 			auto fileData = ReadBytes(assemblyPath);
 
 			MonoImageOpenStatus status;
@@ -108,7 +108,7 @@ namespace Z {
 			int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
 
 			for (int32_t i = 0; i < numTypes; i++) {
-				uint32_t cols[MONO_TYPEDEF_SIZE];
+				uint32 cols[MONO_TYPEDEF_SIZE];
 				mono_metadata_decode_row(typeDefinitionsTable, i, cols, MONO_TYPEDEF_SIZE);
 
 				std::string nameSpace = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAMESPACE]);
@@ -179,7 +179,7 @@ namespace Z {
 		int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
 
 		for (int32_t i = 0; i < numTypes; i++) {
-			uint32_t cols[MONO_TYPEDEF_SIZE];
+			uint32 cols[MONO_TYPEDEF_SIZE];
 			mono_metadata_decode_row(typeDefinitionsTable, i, cols, MONO_TYPEDEF_SIZE);
 
 			const char *nameSpace = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAMESPACE]);
@@ -194,7 +194,7 @@ namespace Z {
 				continue;
 			scriptData->EntityClasses[className] = klass;
 			Z_CORE_INFO("ScriptEngine:AssemblyTypes Subclass: Type: {0}", className);
-			uint32_t count = klass->GetMethodCount();
+			uint32 count = klass->GetMethodCount();
 			Z_CORE_INFO("ScriptEngine:AssemblyTypes Subclass: MethodCount: {0}", count);
 			MonoClass *monoClass = klass->GetClass();
 			void *iter = nullptr;
@@ -395,7 +395,7 @@ namespace Z {
 		return mono_class_is_subclass_of(Class, klass->Class, false);
 	}
 
-	uint32_t ScriptClass::GetMethodCount() {
+	uint32 ScriptClass::GetMethodCount() {
 		return mono_class_num_fields(Class);
 	}
 

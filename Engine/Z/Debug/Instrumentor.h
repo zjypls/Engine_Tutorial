@@ -12,12 +12,13 @@
 #include <fstream>
 
 #include <thread>
+#include "Z/Core/Core.h"
 
 namespace Z {
 	struct ProfileResult {
 		std::string Name;
 		long long Start, End;
-		uint32_t ThreadID;
+		uint32 ThreadID;
 	};
 
 	struct InstrumentationSession {
@@ -104,7 +105,7 @@ namespace Z {
 			long long end = std::chrono::time_point_cast<std::chrono::microseconds>(
 					endTimepoint).time_since_epoch().count();
 
-			uint32_t threadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
+			uint32 threadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
 			Instrumentor::Get().WriteProfile({m_Name, start, end, threadID});
 
 			m_Stopped = true;

@@ -285,7 +285,7 @@ namespace Z {
         uint32 width,height,depth;
     };
     struct ImageInfo {
-        uint arrayLayers,mipMapLevels;
+        uint32 arrayLayers,mipMapLevels;
         Extent3D extent;
         ImageLayout initialLayout;
         Format format;

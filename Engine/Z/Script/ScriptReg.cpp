@@ -42,7 +42,7 @@ namespace Z {
 		ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<TransformComponent>().translation = *o;
 	}
 
-	bool IsKeyPressed(uint16_t keycode) {
+	bool IsKeyPressed(uint16 keycode) {
 		return Input::IsKeyPressed((KeyCode) keycode);
 	}
 
@@ -91,7 +91,7 @@ namespace Z {
 		ScriptEngine::GetContext()->GetEntitiesByName(mono_string_to_utf8(name),ids);
 		auto array=mono_array_new(ScriptEngine::GetDomain(),mono_get_uint64_class(),ids.size());
 		for(int i=0;i<ids.size();i++){
-			mono_array_set(array, uint64_t, i,ids[i]);
+			mono_array_set(array, uint64, i,ids[i]);
 		}
 		return array;
 	}
@@ -141,7 +141,7 @@ namespace Z {
 		return body->GetType();
 	}
 
-	uint64_t Entity_SingleClone(zGUID originID) {
+	uint64 Entity_SingleClone(zGUID originID) {
 		// Fixme:value different with C# script give on Windows but work well on Linux ???? //solved (2024/01/12 13:50)
 		// a log output on windows(2024/01/12 3:20):
 		/*
@@ -156,7 +156,7 @@ namespace Z {
 		// noticed by pls
         // solved (2024/01/12 13:50)
         // noticed that the return value type of mono internal function should be base type or MonoType !
-        // speculate that it works well on Linux because gcc optimize zGUID as uint64_t ?
+        // speculate that it works well on Linux because gcc optimize zGUID as uint64 ?
 		const auto& context=ScriptEngine::GetContext();
 		const auto OriginEntity=context->GetEntityWithGUID(originID);
 		auto entity=context->InstantiateEntity(OriginEntity);

@@ -129,7 +129,7 @@ namespace Z {
 		ImGuiTreeNodeFlags flags =
 				((selectedEntity == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow |
 				ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-		bool opened = ImGui::TreeNodeEx((void *) (uint64_t) (uint32_t) entity, flags, tag.c_str());
+		bool opened = ImGui::TreeNodeEx((void *) (uint64) (uint32) entity, flags, tag.c_str());
 		if (ImGui::IsItemClicked()) {
 			selectedEntity = entity;
 		}

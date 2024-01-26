@@ -173,7 +173,7 @@ namespace Z {
 		ImGui::Text("Renderer2D Stats:");
 		static float fps = 1.f / Time::DeltaTime();
 		static float dt = Time::DeltaTime() * 1000.f;
-		static uint32_t frameCount = 0;
+		static uint32 frameCount = 0;
 		if (++frameCount >= 500) {
 			fps = frameCount / Time::GetFlushTime();
 			frameCount = 0;

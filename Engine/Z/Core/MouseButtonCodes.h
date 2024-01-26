@@ -1,9 +1,10 @@
 #ifndef MOUSEBUTTON
 #define MOUSEBUTTON
 #include <iostream>
+#include "Z/Core/Core.h"
 namespace Z
 {
-	typedef enum class MouseCode : uint16_t
+	typedef enum class MouseCode : uint16
 	{
 		// From glfw3.h
 		Button1                = 0,

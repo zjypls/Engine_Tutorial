@@ -21,9 +21,9 @@ namespace Z {
 
 		operator bool() const { return handle != entt::null && scene; }
 
-		[[nodiscard]] uint32_t ID() const { return (uint32_t) handle; }
+		[[nodiscard]] uint32 ID() const { return (uint32) handle; }
 
-		operator uint32_t() const { return (uint32_t) handle; }
+		operator uint32() const { return (uint32) handle; }
 
 		operator entt::entity() const { return handle; }
 		Scene* GetContext()const{return scene;}

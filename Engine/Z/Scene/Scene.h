@@ -15,7 +15,7 @@
 namespace Z {
 	class Scene {
 		entt::registry registry;
-		uint32_t viewportWidth = 0, viewportHeight = 0;
+		uint32 viewportWidth = 0, viewportHeight = 0;
 		friend class Entity;
 		friend class SceneHierarchyPlane;
 		friend class SceneSerializer;

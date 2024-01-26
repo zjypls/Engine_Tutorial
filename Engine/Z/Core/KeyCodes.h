@@ -1,9 +1,10 @@
 #ifndef KEYCODE_H
 #define KEYCODE_H
 #include <iostream>
+#include "Z/Core/Core.h"
 namespace Z
 {
-	typedef enum class KeyCode : uint16_t
+	typedef enum class KeyCode : uint16
 	{
 		// From glfw3.h
 		Space               = 32,

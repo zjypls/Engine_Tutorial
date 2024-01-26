@@ -62,7 +62,8 @@ namespace Z {
 	}
 
 	void Scene::OnPhysics2DStart() {
-		PhysicalWorld = new b2World(b2Vec2(0.0f, -9.8f));
+/*
+        PhysicalWorld = new b2World(b2Vec2(0.0f, -9.8f));
 		registry.view<RigidBody2DComponent>().each([&](auto id, auto &rigidBody) {
 			Entity entity{id, this};
 			auto &transform = entity.GetComponent<TransformComponent>();
@@ -104,11 +105,12 @@ namespace Z {
 				*(int *) collider.ptr = {body->GetType() != b2_staticBody};
 			}
 		});
+*/
 	}
 
 	void Scene::OnPhysics2DStop() {
-		delete PhysicalWorld;
-		PhysicalWorld = nullptr;
+/*		delete PhysicalWorld;
+		PhysicalWorld = nullptr;*/
 	}
 
 	Entity Scene::CreateEntity(const std::string &name) {
@@ -225,6 +227,7 @@ namespace Z {
 	}
 
 	void Scene::OnPhysics2DUpdate(float deltaTime) {
+/*
 		((b2World *) PhysicalWorld)->Step(deltaTime, 8, 3);
 		registry.view<RigidBody2DComponent>().each([&](auto id, auto &rigidBody) {
 			if (rigidBody.bodyType != RigidBody2DComponent::BodyType::Static) {
@@ -253,6 +256,7 @@ namespace Z {
 				transform.rotation.z = body->GetAngle();
 			}
 		});
+        */
 	}
 
 	void Scene::OnSimulateStart() {
@@ -326,7 +330,7 @@ namespace Z {
 
 
 
-	template<class Ty>
+    template<class Ty>
 	void Scene::OnComponentAdd(Entity entity, Ty &component) {
 
 	}

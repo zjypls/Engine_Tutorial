@@ -96,7 +96,7 @@ namespace Z {
 				Z_CORE_ASSERT(false,"Conf Load failed");
 				return{0,AssetsSystem::ImporterType::None};
 			}
-			auto id=node["GUID"].as<uint64_t>();
+			auto id=node["GUID"].as<uint64>();
 			auto importer=node["Importer"].as<AssetsSystem::ImporterType>();
 			return {id,importer};
 		}
@@ -126,9 +126,9 @@ namespace Z {
 				Z_CORE_ERROR("Loader give errors : {0}", errors);
 				return mesh;
 			}
-			std::unordered_map<Vertex, uint32_t> Vertexes{};
+			std::unordered_map<Vertex, uint32> Vertexes{};
 			std::vector<Vertex> vertexes;
-			std::vector<uint32_t> indexes;
+			std::vector<uint32> indexes;
 			for (const auto &shape: shapes) {
 				for (const auto &indices: shape.mesh.indices) {
 					Vertex vert{};

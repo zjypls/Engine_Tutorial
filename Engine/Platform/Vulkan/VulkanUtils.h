@@ -88,6 +88,60 @@ namespace Z{
         }
 
 
+        SwapChainSupportDetails GetSwapChainDetails(VkPhysicalDevice device,VkSurfaceKHR surface){
+            SwapChainSupportDetails details{};
+            vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device,surface,&details.capabilities);
+
+            uint32 count=0;
+            vkGetPhysicalDeviceSurfaceFormatsKHR(device,surface,&count, nullptr);
+            Z_CORE_ASSERT(count>0,"error: no surface format support !");
+            details.formats.resize(count);
+            vkGetPhysicalDeviceSurfaceFormatsKHR(device,surface,&count,details.formats.data());
+            count=0;
+            vkGetPhysicalDeviceSurfacePresentModesKHR(device,surface,&count, nullptr);
+            Z_CORE_ASSERT(count>0,"error: no present mode support !");
+            details.presentModes.resize(count);
+            vkGetPhysicalDeviceSurfacePresentModesKHR(device,surface,&count,details.presentModes.data());
+            return details;
+        }
+
+        VkSurfaceFormatKHR chooseSwapChainFormat(const std::vector<VkSurfaceFormatKHR>&formats){
+            for(auto format:formats){
+                if(format.format==VK_FORMAT_R8G8B8A8_SRGB&&format.colorSpace==VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+                    return format;
+            }
+            return formats[0];
+        }
+
+        VkPresentModeKHR chooseSwapChainPresentMode(const std::vector<VkPresentModeKHR>&modes){
+            for(auto mode:modes){
+                if(mode==VK_PRESENT_MODE_MAILBOX_KHR)return mode;
+            }
+            return VK_PRESENT_MODE_FIFO_KHR;
+        }
+
+        VkExtent2D chooseSwapchainExtentFromDetails(const VkSurfaceCapabilitiesKHR& capabilities,GLFWwindow*window)
+        {
+            if (capabilities.currentExtent.width != UINT32_MAX)
+            {
+                return capabilities.currentExtent;
+            }
+            else
+            {
+                int width, height;
+                glfwGetFramebufferSize(window, &width, &height);
+
+                VkExtent2D actualExtent = {static_cast<uint32>(width), static_cast<uint32>(height)};
+
+                actualExtent.width =
+                        std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+                actualExtent.height =
+                        std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+
+                return actualExtent;
+            }
+        }
+
         VkBool32 VKAPI_PTR DefaultDebugCall(
                 VkDebugUtilsMessageSeverityFlagBitsEXT           messageSeverity,
                 VkDebugUtilsMessageTypeFlagsEXT                  messageTypes,
@@ -130,11 +184,11 @@ namespace Z{
             return results;
         }
 
-        uint findMemoryType(uint32_t typeFilter,VkPhysicalDevice device, VkMemoryPropertyFlags properties) {
+        uint32 findMemoryType(uint32 typeFilter,VkPhysicalDevice device, VkMemoryPropertyFlags properties) {
             VkPhysicalDeviceMemoryProperties memProperties;
             vkGetPhysicalDeviceMemoryProperties(device, &memProperties);
 
-            for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+            for (uint32 i = 0; i < memProperties.memoryTypeCount; i++) {
                 if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
                     return i;
                 }
@@ -145,8 +199,8 @@ namespace Z{
 
         void CreateVulkanImage(VkPhysicalDevice      physical_device,
                                VkDevice              device,
-                               uint32_t              image_width,
-                               uint32_t              image_height,
+                               uint32              image_width,
+                               uint32              image_height,
                                VkFormat              format,
                                VkImageTiling         image_tiling,
                                VkImageUsageFlags     image_usage_flags,
@@ -154,8 +208,8 @@ namespace Z{
                                VkImage&              image,
                                VkDeviceMemory&       memory,
                                VkImageCreateFlags    image_create_flags,
-                               uint32_t              array_layers,
-                               uint32_t              miplevels){
+                               uint32              array_layers,
+                               uint32              miplevels){
             auto createInfo=VkImageCreateInfo{};
             createInfo.sType=VK_INFO(IMAGE,CREATE);
             createInfo.extent={image_width,image_height,1};
@@ -191,15 +245,15 @@ namespace Z{
                              VkFormat           format,
                              VkImageAspectFlags image_aspect_flags,
                              VkImageViewType    view_type,
-                             uint32_t           layout_count,
-                             uint32_t           miplevels){
+                             uint32           layer_count,
+                             uint32           miplevels){
             auto viewInfo=VkImageViewCreateInfo{};
             viewInfo.sType=VK_INFO(IMAGE_VIEW,CREATE);
             viewInfo.image=image;
             viewInfo.format=format;
             viewInfo.viewType=view_type;
             viewInfo.subresourceRange.aspectMask=image_aspect_flags;
-            viewInfo.subresourceRange.layerCount=layout_count;
+            viewInfo.subresourceRange.layerCount=layer_count;
             viewInfo.subresourceRange.levelCount=miplevels;
             viewInfo.subresourceRange.baseArrayLayer=0;
             viewInfo.subresourceRange.baseMipLevel=0;

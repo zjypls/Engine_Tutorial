@@ -80,7 +80,7 @@ namespace Z {
 
 		bool IsSubClassOf(const Ref<ScriptClass> &klass);
 
-		uint32_t GetMethodCount();
+		uint32 GetMethodCount();
 
 		const auto &GetFields() const { return Fields; }
 

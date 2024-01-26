@@ -8,11 +8,13 @@
 #include <functional>
 #include <random>
 
+#include "Z/Core/Core.h"
+
 namespace Z {
 
 	class zGUID {
 	public:
-		using Type = uint64_t;
+		using Type = uint64;
 
 		zGUID();
 

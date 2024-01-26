@@ -306,7 +306,7 @@ namespace Z {
 		Z_CORE_INFO("Deserializing scene {0}", sceneName);
 		auto Entities = root["Entities"];
 		for (auto Entity: Entities) {
-			auto id = Entity["Entity"].as<uint64_t>();
+			auto id = Entity["Entity"].as<uint64>();
 			std::string name;
 			auto tagComponent = Entity["TagComponent"];
 			name = tagComponent["Tag"].as<std::string>();
