@@ -5,10 +5,16 @@
 #ifndef ENGINEALL_RENDERMANAGER_H
 #define ENGINEALL_RENDERMANAGER_H
 
+#include "Z/Renderer/GraphicInterface.h"
+
 namespace Z {
 
-    class RenderManager {
-
+    class Z_API RenderManager final{
+    public:
+        static void Init();
+        static auto GetInstance(){return m_Context;}
+    private:
+        static Ref<GraphicInterface> m_Context;
     };
 
 } // Z

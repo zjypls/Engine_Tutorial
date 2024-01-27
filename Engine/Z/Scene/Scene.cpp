@@ -60,7 +60,7 @@ namespace Z {
 		OnPhysics2DStop();
 		OnScriptStop();
 	}
-
+    [[deprecated("should use 3D version !")]]
 	void Scene::OnPhysics2DStart() {
 /*
         PhysicalWorld = new b2World(b2Vec2(0.0f, -9.8f));
@@ -108,6 +108,7 @@ namespace Z {
 */
 	}
 
+    [[deprecated("should use 3D version !")]]
 	void Scene::OnPhysics2DStop() {
 /*		delete PhysicalWorld;
 		PhysicalWorld = nullptr;*/

@@ -20,6 +20,7 @@ namespace Z {
     public:
         void CreateImage(const ImageInfo& info,Image*& image,DeviceMemory*& memory)override;
         void CreateBuffer(const BufferInfo& info,Buffer*&buffer,DeviceMemory*& memory)override;
+        void Init(const GraphicSpec&spec)override;
         auto GetInstance(){return instance;}
         auto GetPhysicalDevice(){return physicalDevice;}
         auto GetDevice(){return device;}

@@ -12,6 +12,8 @@
 #include "Z/Events/ApplicationEvent.h"
 #include "Z/Script/ScriptEngine.h"
 
+#include "Z/Renderer/RenderManager.h"
+
 namespace Z {
 	Application *Application::application = nullptr;
 
@@ -23,6 +25,7 @@ namespace Z {
 
 		window = Z::Scope<zWindow>(zWindow::Create(WindowProps(Spec.Name)));
 		window->SetEventCallFunc(Z_BIND_EVENT_FUNC(Application::EventCall));
+        RenderManager::Init();
 		AssetsSystem::PreInit();
 
 		ScriptEngine::Init();
