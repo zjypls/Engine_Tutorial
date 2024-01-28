@@ -16,14 +16,11 @@ namespace Z {
     class DescriptorPool {};
     class DescriptorSet {};
     class DescriptorSetLayout {};
-    class Device {};
     class DeviceMemory {};
     class Framebuffer {};
     class Image {};
     class ImageView {};
-    class GraphicContext {};
     class Queue {};
-    class PhysicalDevice {};
     class ShaderModule {};
 
 
@@ -276,6 +273,105 @@ namespace Z {
         MICROMAP_STORAGE = 0x01000000,
         MAX_ENUM = 0x7FFFFFFF
     } ;
+    enum class SampleCountFlagBits {
+        e1_BIT = 0x00000001,
+        e2_BIT = 0x00000002,
+        e4_BIT = 0x00000004,
+        e8_BIT = 0x00000008,
+        e16_BIT = 0x00000010,
+        e32_BIT = 0x00000020,
+        e64_BIT = 0x00000040,
+        MAX_ENUM = 0x7FFFFFFF
+    };
+    enum class AttachmentLoadOp {
+        LOAD = 0,
+        CLEAR = 1,
+        DONT_CARE = 2,
+        NONE_EXT = 1000400000,
+        MAX_ENUM = 0x7FFFFFFF
+    };
+    enum class AttachmentStoreOp {
+        STORE = 0,
+        DONT_CARE = 1,
+        NONE = 1000301000,
+        MAX_ENUM = 0x7FFFFFFF
+    };
+    enum class PipelineBindPoint {
+        GRAPHICS = 0,
+        COMPUTE = 1,
+        RAY_TRACING = 1000165000,
+        SUBPASS_SHADING_HUAWEI = 1000369003,
+        MAX_ENUM = 0x7FFFFFFF
+    };
+    enum class PipelineStageFlags {
+        TOP_OF_PIPE = 0x00000001,
+        DRAW_INDIRECT = 0x00000002,
+        VERTEX_INPUT = 0x00000004,
+        VERTEX_SHADER = 0x00000008,
+        TESSELLATION_CONTROL_SHADER = 0x00000010,
+        TESSELLATION_EVALUATION_SHADER = 0x00000020,
+        GEOMETRY_SHADER = 0x00000040,
+        FRAGMENT_SHADER = 0x00000080,
+        EARLY_FRAGMENT_TESTS = 0x00000100,
+        LATE_FRAGMENT_TESTS = 0x00000200,
+        COLOR_ATTACHMENT_OUTPUT = 0x00000400,
+        COMPUTE_SHADER = 0x00000800,
+        TRANSFER = 0x00001000,
+        BOTTOM_OF_PIPE = 0x00002000,
+        HOST = 0x00004000,
+        ALL_GRAPHICS = 0x00008000,
+        ALL_COMMANDS = 0x00010000,
+        NONE = 0,
+        TRANSFORM_FEEDBACK = 0x01000000,
+        CONDITIONAL_RENDERING = 0x00040000,
+        ACCELERATION_STRUCTURE_BUILD = 0x02000000,
+        RAY_TRACING_SHADER_KHR = 0x00200000,
+        FRAGMENT_DENSITY_PROCESS = 0x00800000,
+        FRAGMENT_SHADING_RATE_ATTACHMENT = 0x00400000,
+        COMMAND_PREPROCESS = 0x00020000,
+        TASK_SHADER = 0x00080000,
+        MESH_SHADER = 0x00100000,
+        FLAGS_MAX_ENUM = 0x7FFFFFFF
+    };
+    enum class AccessFlags {
+        INDIRECT_COMMAND_READ = 0x00000001,
+        INDEX_READ = 0x00000002,
+        VERTEX_ATTRIBUTE_READ = 0x00000004,
+        UNIFORM_READ = 0x00000008,
+        INPUT_ATTACHMENT_READ = 0x00000010,
+        SHADER_READ = 0x00000020,
+        SHADER_WRITE = 0x00000040,
+        COLOR_ATTACHMENT_READ = 0x00000080,
+        COLOR_ATTACHMENT_WRITE = 0x00000100,
+        DEPTH_STENCIL_ATTACHMENT_READ = 0x00000200,
+        DEPTH_STENCIL_ATTACHMENT_WRITE = 0x00000400,
+        TRANSFER_READ = 0x00000800,
+        TRANSFER_WRITE = 0x00001000,
+        HOST_READ = 0x00002000,
+        HOST_WRITE = 0x00004000,
+        MEMORY_READ = 0x00008000,
+        MEMORY_WRITE = 0x00010000,
+        NONE = 0,
+        TRANSFORM_FEEDBACK_WRITE = 0x02000000,
+        TRANSFORM_FEEDBACK_COUNTER_READ = 0x04000000,
+        TRANSFORM_FEEDBACK_COUNTER_WRITE = 0x08000000,
+        CONDITIONAL_RENDERING_READ = 0x00100000,
+        COLOR_ATTACHMENT_READ_NONCOHERENT = 0x00080000,
+        ACCELERATION_STRUCTURE_READ = 0x00200000,
+        ACCELERATION_STRUCTURE_WRITE = 0x00400000,
+        FRAGMENT_DENSITY_MAP_READ = 0x01000000,
+        FRAGMENT_SHADING_RATE_ATTACHMENT_READ = 0x00800000,
+        COMMAND_PREPROCESS_READ = 0x00020000,
+        COMMAND_PREPROCESS_WRITE = 0x00040000,
+        FLAGS_MAX_ENUM = 0x7FFFFFFF
+    };
+    enum class DependencyFlags {
+        BY_REGION = 0x00000001,
+        DEVICE_GROUP = 0x00000004,
+        VIEW_LOCAL = 0x00000002,
+        FEEDBACK_LOOP = 0x00000008,
+        MAX_ENUM = 0x7FFFFFFF
+    };
 
     struct Extent2D{
         uint32 width,height;
@@ -304,6 +400,54 @@ namespace Z {
         uint32 imageCount;
         uint32 minImageCount;
         uint32 maxImageCount;
+    };
+
+    struct AttachmentReference {
+        uint32_t         attachment;
+        ImageLayout    layout;
+    };
+
+    struct AttachmentDescription {
+        Format                        format;
+        SampleCountFlagBits           samples;
+        AttachmentLoadOp              loadOp;
+        AttachmentStoreOp             storeOp;
+        AttachmentLoadOp              stencilLoadOp;
+        AttachmentStoreOp             stencilStoreOp;
+        ImageLayout                   initialLayout;
+        ImageLayout                   finalLayout;
+    };
+
+    struct SubpassDescription {
+        PipelineBindPoint             pipelineBindPoint;
+        uint32                        inputAttachmentCount;
+        const AttachmentReference*    pInputAttachments;
+        uint32                        colorAttachmentCount;
+        const AttachmentReference*    pColorAttachments;
+        const AttachmentReference*    pResolveAttachments;
+        const AttachmentReference*    pDepthStencilAttachment;
+        uint32                        preserveAttachmentCount;
+        const uint32*                 pPreserveAttachments;
+    };
+
+    struct SubpassDependency {
+        uint32                srcSubpass;
+        uint32                dstSubpass;
+        PipelineStageFlags    srcStageMask;
+        PipelineStageFlags    dstStageMask;
+        AccessFlags           srcAccessMask;
+        AccessFlags           dstAccessMask;
+        DependencyFlags       dependencyFlags;
+    };
+
+    struct RenderPassCreateInfo {
+        const void*                     pNext;
+        uint32                          attachmentCount;
+        const AttachmentDescription*    pAttachments;
+        uint32                          subpassCount;
+        const SubpassDescription*       pSubpasses;
+        uint32                          dependencyCount;
+        const SubpassDependency*        pDependencies;
     };
 
 }
