@@ -27,6 +27,7 @@ namespace Z {
         auto GetDescriptorPool(){return descriptorPool;}
         auto GetGraphicQueue(){return graphicsQueue;}
         auto GetQueueFamily(){return familyIndices;}
+        const auto& GetSwapChainInfo(){return swapChainInfo;}
     private:
 
 
@@ -64,6 +65,7 @@ namespace Z {
         bool enableValidationLayer=true,enableDebugUtils=true;
         std::vector<VkImage> swapchainImages;
         std::vector<VkImageView> swapchainImageViews;
+        SwapChainInfo swapChainInfo;
         VkFormat swapchainFormat;
         VkExtent2D swapchainExtent;
         VkRect2D scissor;

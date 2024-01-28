@@ -235,6 +235,10 @@ namespace Z {
         uint32 swapchainImageCount=swapchainDetails.capabilities.minImageCount+1;
         if(swapchainDetails.capabilities.maxImageCount>0&&swapchainImageCount>swapchainDetails.capabilities.maxImageCount)
             swapchainImageCount=swapchainDetails.capabilities.maxImageCount;
+        swapChainInfo.imageCount=swapchainImageCount;
+        swapChainInfo.minImageCount=swapchainDetails.capabilities.minImageCount;
+        swapChainInfo.maxImageCount=swapchainDetails.capabilities.maxImageCount;
+        swapChainInfo.swapchainImageFormat=(Format)swapchainformat.format;
 
         auto swapchainInfo=VkSwapchainCreateInfoKHR{};
         swapchainInfo.sType=VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -243,6 +247,7 @@ namespace Z {
         swapchainInfo.imageFormat=swapchainformat.format;
         swapchainInfo.imageColorSpace=swapchainformat.colorSpace;
         swapchainInfo.minImageCount=swapchainImageCount;
+        swapchainInfo.presentMode=presentMode;
 
         swapchainInfo.compositeAlpha=VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
         swapchainInfo.preTransform=swapchainDetails.capabilities.currentTransform;

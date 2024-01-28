@@ -24,8 +24,6 @@ namespace Z {
     class GraphicContext {};
     class Queue {};
     class PhysicalDevice {};
-    class Pipeline {};
-    class RenderPass {};
     class ShaderModule {};
 
 
@@ -33,6 +31,7 @@ namespace Z {
     struct Extent2D;
     struct Extent3D;
     struct BufferInfo;
+    struct SwapChainInfo;
 
 
     using ResourceSize=uint64;
@@ -299,6 +298,14 @@ namespace Z {
         BufferUsageFlag    usage;
         MemoryPropertyFlag properties;
     };
+
+    struct SwapChainInfo {
+        Format swapchainImageFormat;
+        uint32 imageCount;
+        uint32 minImageCount;
+        uint32 maxImageCount;
+    };
+
 }
 
 #endif //ENGINEALL_RENDERRESOURCE_H

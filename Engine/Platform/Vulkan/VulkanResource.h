@@ -26,8 +26,6 @@ namespace Z {
     VULKAN_IMPL_RESOURCE(DescriptorPool);
     VULKAN_IMPL_RESOURCE(DescriptorSet);
     VULKAN_IMPL_RESOURCE(Framebuffer);
-    VULKAN_IMPL_RESOURCE(RenderPass);
-    VULKAN_IMPL_RESOURCE(Pipeline);
     VULKAN_IMPL_RESOURCE(CommandBuffer);
     VULKAN_IMPL_RESOURCE(CommandPool);
     VULKAN_IMPL_RESOURCE(Device);

@@ -16,7 +16,7 @@ namespace Z {
 		virtual void PlatformInit()=0;
 		virtual void Shutdown()=0;
 		[[nodiscard("This is the imGui init tool for different platforms")]]
-		inline static auto& GetRenderer(){return renderer;}
+		static auto& GetRenderer(){return renderer;}
 	private:
 		static Ref<ImGuiRendererPlatform> renderer;
 	};
