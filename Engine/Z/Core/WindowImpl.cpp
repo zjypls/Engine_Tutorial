@@ -26,6 +26,8 @@ namespace Z {
 
 	//create glfw error callback func
 	static void GLFWErrorCallback(int error,const char* description){
+		//todo:glfw always throw an error when using Wayland : "Wayland: The platform does not provide the window position"
+		if(error==65548)return;
 		Z_CORE_ERROR("GLFW Error ({0}):{1}",error,description);
 	}
 
