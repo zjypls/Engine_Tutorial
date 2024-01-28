@@ -80,7 +80,8 @@ target_compile_definitions(Z PUBLIC
         Z_SOURCE_DIR
         ${RENDERER_BACKEND_FLAG}
         GLFW_INCLUDE_NONE
-        Z_CONF_EXTENSION=".zConf")
+        Z_CONF_EXTENSION=".zConf"
+        ${Z_WM_FLAG})
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
     target_compile_definitions(Z PUBLIC Z_DEBUG

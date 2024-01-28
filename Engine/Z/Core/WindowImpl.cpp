@@ -27,7 +27,13 @@ namespace Z {
 	//create glfw error callback func
 	static void GLFWErrorCallback(int error,const char* description){
 		//todo:glfw always throw an error when using Wayland : "Wayland: The platform does not provide the window position"
+		//noticed that , if don't use imgui,this error disappear
+		//marked at 2024/1/28 20.
+
+		//skip an error when using wayland that may caused by imgui Docking window
+#ifdef Z_USING_WAYLAND
 		if(error==65548)return;
+#endif
 		Z_CORE_ERROR("GLFW Error ({0}):{1}",error,description);
 	}
 
