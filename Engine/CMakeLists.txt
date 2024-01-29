@@ -80,6 +80,7 @@ target_compile_definitions(Z PUBLIC
         Z_SOURCE_DIR
         ${RENDERER_BACKEND_FLAG}
         GLFW_INCLUDE_NONE
+        GLM_ENABLE_EXPERIMENTAL
         Z_CONF_EXTENSION=".zConf")
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
