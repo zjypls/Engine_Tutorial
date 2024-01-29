@@ -17,6 +17,7 @@
 #include "Z/Core/Random.h"
 #include "Z/Core/Time.h"
 #include "Z/Debug/Instrumentor.h"
+#include "Z/ImGui/ImGuiContent.h"
 #include "Z/Project/Project.h"
 #include "Z/Renderer/CameraController.h"
 #include "Z/Renderer/OrithGraphicCamera.h"

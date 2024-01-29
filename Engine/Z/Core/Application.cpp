@@ -30,7 +30,7 @@ namespace Z {
 
 		ScriptEngine::Init();
 
-		window->SetVSync(false);
+		//window->SetVSync(false);
 		imguiLayer = new ImGuiLayer();
 		PushLayer(imguiLayer);
 	}

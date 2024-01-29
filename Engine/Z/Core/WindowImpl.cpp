@@ -24,6 +24,7 @@ namespace Z {
 
 	//create glfw error callback func
 	static void GLFWErrorCallback(int error,const char* description){
+		if(error==65548)return;
 		Z_CORE_ERROR("GLFW Error ({0}):{1}",error,description);
 	}
 
@@ -43,7 +44,7 @@ namespace Z {
 		stbi_image_free(Icon.pixels);
 		stbi_set_flip_vertically_on_load(1);
 		glfwSetWindowUserPointer(window,&WinData);
-		SetVSync(false);
+		//SetVSync(false);
 
 		//set window resize call back for glfw
 		glfwSetFramebufferSizeCallback(window,[](GLFWwindow* win,int w,int h){

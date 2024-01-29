@@ -13,7 +13,7 @@ namespace Z {
 
     };
 
-    class GraphicInterface {
+    class Z_API GraphicInterface {
     public:
         virtual void Init(const GraphicSpec &initInfo) = 0;
 
@@ -21,6 +21,8 @@ namespace Z {
         virtual void CreateImage(const ImageInfo &info, Image* &image, DeviceMemory* &memory) = 0;
 
         virtual void CreateBuffer(const BufferInfo &info, Buffer* &buffer, DeviceMemory* &memory) = 0;
+
+        virtual void CreateRenderPass(const RenderPassCreateInfo& info,RenderPassInterface*&interface)=0;
     };
 
 } // Z

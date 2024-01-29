@@ -34,6 +34,33 @@ namespace Z {
         ((VulkanDeviceMemory*)memory)->Set(resMemory);
     }
 
+    VkCommandBuffer VulkanGraphicInterface::BeginOnceSubmit() {
+
+        auto allocateInfo = VkCommandBufferAllocateInfo{};
+        allocateInfo.sType=VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocateInfo.level=VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocateInfo.commandPool=transientCommandPool;
+        allocateInfo.commandBufferCount=1;
+        VkCommandBuffer buffer{};
+        vkAllocateCommandBuffers(device,&allocateInfo,&buffer);
+        auto beginInfo = VkCommandBufferBeginInfo{};
+        beginInfo.sType=VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags=VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+        vkBeginCommandBuffer(buffer,&beginInfo);
+        return buffer;
+    }
+
+    void VulkanGraphicInterface::EndOnceSubmit(VkCommandBuffer buffer) {
+        vkEndCommandBuffer(buffer);
+        auto submitInfo = VkSubmitInfo{};
+        submitInfo.sType=VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount=1;
+        submitInfo.pCommandBuffers=&buffer;
+        vkQueueSubmit(((VulkanQueue*)graphicsQueue)->Get(),1,&submitInfo,VK_NULL_HANDLE);
+        vkDeviceWaitIdle(device);
+        vkFreeCommandBuffers(device,transientCommandPool,1,&buffer);
+    }
+
     void VulkanGraphicInterface::CreateInstance(){
         VkApplicationInfo applicationInfo{};
         applicationInfo.sType=VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -323,5 +350,76 @@ namespace Z {
         CreateSwapchainImageViews();
         CreateFramebufferImageAndView();
         CreateVmaAllocator();
+    }
+    void VulkanGraphicInterface::CreateRenderPass(const RenderPassCreateInfo &info, RenderPassInterface *&interface) {
+        VkRenderPassCreateInfo Info{};
+        Info.sType=VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        std::vector<VkAttachmentDescription> descriptions(info.attachmentCount);
+        int index=0;
+        if(info.pAttachments!=nullptr)
+        for(auto&description:descriptions) {
+            auto&attachment=info.pAttachments[index];
+            description.format=(VkFormat)attachment.format;
+            description.initialLayout=(VkImageLayout)attachment.initialLayout;
+            description.finalLayout=(VkImageLayout)attachment.finalLayout;
+            description.loadOp=(VkAttachmentLoadOp)attachment.loadOp;
+            description.storeOp=(VkAttachmentStoreOp)attachment.storeOp;
+            description.stencilLoadOp=(VkAttachmentLoadOp)attachment.stencilLoadOp;
+            description.stencilStoreOp=(VkAttachmentStoreOp)attachment.stencilStoreOp;
+            description.samples=(VkSampleCountFlagBits)attachment.samples;
+            ++index;
+        }
+        index=0;
+        std::vector<VkSubpassDependency> dependencies(info.dependencyCount);
+        if(info.pDependencies!=nullptr)
+        for(auto&dependency:dependencies) {
+            const auto&dep=info.pDependencies[index];
+            dependency.dstSubpass=dep.dstSubpass;
+            dependency.srcSubpass=dep.srcSubpass;
+            dependency.dstAccessMask=(VkAccessFlags)dep.dstAccessMask;
+            dependency.srcAccessMask=(VkAccessFlags)dep.srcAccessMask;
+            dependency.dstStageMask=(VkPipelineStageFlags)dep.dstAccessMask;
+            dependency.srcAccessMask=(VkPipelineStageFlags)dep.srcAccessMask;
+            dependency.dependencyFlags=(VkDependencyFlags)dep.dependencyFlags;
+            ++index;
+        }
+        index=0;
+        std::vector<VkSubpassDescription> subpasses(info.subpassCount);
+        std::vector<std::vector<VkAttachmentReference>> attachmentsReferences(info.subpassCount);
+        std::vector<std::vector<VkAttachmentReference>> inputReferences(info.subpassCount);
+        if(info.pSubpasses!=nullptr)
+        for(auto&subpass:subpasses) {
+            const auto& des=info.pSubpasses[index];
+            auto&attachmentRef=attachmentsReferences[index];
+            auto&inputRef=inputReferences[index];
+            attachmentRef.resize(des.colorAttachmentCount);
+            inputRef.resize(des.inputAttachmentCount);
+            for(int i=0;i<des.colorAttachmentCount;++i) {
+                attachmentRef[i].attachment=des.pColorAttachments[i].attachment;
+                attachmentRef[i].layout=(VkImageLayout)des.pColorAttachments[i].layout;
+            }
+            for(int i=0;i<des.inputAttachmentCount;++i) {
+                inputRef[i].attachment=des.pInputAttachments[i].attachment;
+                inputRef[i].layout=(VkImageLayout)des.pInputAttachments[i].layout;
+            }
+            subpass.colorAttachmentCount=des.colorAttachmentCount;
+            subpass.inputAttachmentCount=des.inputAttachmentCount;
+            subpass.pipelineBindPoint=(VkPipelineBindPoint)des.pipelineBindPoint;
+            subpass.pColorAttachments=attachmentRef.data();
+            subpass.pInputAttachments=inputRef.data();
+            ++index;
+        }
+        Info.pAttachments=descriptions.data();
+        Info.attachmentCount=descriptions.size();
+        Info.dependencyCount=dependencies.size();
+        Info.pDependencies=dependencies.data();
+        Info.pSubpasses=subpasses.data();
+        Info.subpassCount=subpasses.size();
+
+        interface=new VulkanRenderPass{};
+        VkRenderPass renderpass{};
+        auto res=vkCreateRenderPass(device,&Info,nullptr,&renderpass);
+        VK_CHECK(res,"failed to create RenderPass !");
+        ((VulkanRenderPass*)interface)->Set(renderpass);
     }
 } // Z

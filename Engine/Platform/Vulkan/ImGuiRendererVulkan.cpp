@@ -23,11 +23,12 @@ namespace Z {
 	}
 
 	void ImGuiRendererVulkan::Begin() {
-
+		ImGui_ImplVulkan_NewFrame();
 	}
 
 	void ImGuiRendererVulkan::End() {
-
+		auto data=ImGui::GetDrawData();
+		ImGui_ImplVulkan_RenderDrawData(data,((VulkanGraphicInterface*)RenderManager::GetInstance().get())->GetCurrentCommandBuffer());
 	}
 
 

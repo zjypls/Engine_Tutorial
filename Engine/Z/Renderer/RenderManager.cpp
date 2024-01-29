@@ -14,4 +14,7 @@ namespace Z {
         m_Context= CreateRef<VulkanGraphicInterface>();
         m_Context->Init({});
     }
+
+    void RenderManager::Update(float deltaTime) {
+    }
 } // Z

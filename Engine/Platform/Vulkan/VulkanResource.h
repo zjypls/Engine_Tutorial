@@ -21,6 +21,7 @@ private:                                                                        
 namespace Z {
     VULKAN_IMPL_RESOURCE(Buffer);
     VULKAN_IMPL_RESOURCE(Image);
+    VULKAN_IMPL_RESOURCE(ImageView);
     VULKAN_IMPL_RESOURCE(ShaderModule);
     VULKAN_IMPL_RESOURCE(DeviceMemory);
     VULKAN_IMPL_RESOURCE(DescriptorPool);
@@ -29,6 +30,16 @@ namespace Z {
     VULKAN_IMPL_RESOURCE(CommandBuffer);
     VULKAN_IMPL_RESOURCE(CommandPool);
     VULKAN_IMPL_RESOURCE(Queue);
+    VULKAN_IMPL_RESOURCE(PipelineLayout);
+    VULKAN_IMPL_RESOURCE(Pipeline);
+
+    class VulkanRenderPass:public RenderPassInterface {
+    public:
+        void Set(VkRenderPass renderpass){m_RenderPass=renderpass;}
+        [[nodiscard]]auto Get(){return m_RenderPass;}
+    private:
+        VkRenderPass m_RenderPass;
+    };
 
 
 

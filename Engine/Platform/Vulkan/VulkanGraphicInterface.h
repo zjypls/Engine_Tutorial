@@ -16,11 +16,16 @@ namespace Z {
     constexpr uint32 maxFlightFrames=2;
     constexpr uint32 maxVertexBlendCount=128,maxMaterialCount=128;
 
-    class VulkanGraphicInterface final : public GraphicInterface{
+    class Z_API VulkanGraphicInterface final : public GraphicInterface{
     public:
+        //Render Interface
+        void Init(const GraphicSpec&spec)override;
+        //Resource create interface
         void CreateImage(const ImageInfo& info,Image*& image,DeviceMemory*& memory)override;
         void CreateBuffer(const BufferInfo& info,Buffer*&buffer,DeviceMemory*& memory)override;
-        void Init(const GraphicSpec&spec)override;
+        void CreateRenderPass(const RenderPassCreateInfo &info, RenderPassInterface *&interface) override;
+
+
         auto GetInstance(){return instance;}
         auto GetPhysicalDevice(){return physicalDevice;}
         auto GetDevice(){return device;}
@@ -28,6 +33,11 @@ namespace Z {
         auto GetGraphicQueue(){return graphicsQueue;}
         auto GetQueueFamily(){return familyIndices;}
         const auto& GetSwapChainInfo(){return swapChainInfo;}
+
+        auto GetCurrentCommandBuffer(){return commandBuffers[currentFrameIndex];}
+
+        VkCommandBuffer BeginOnceSubmit();
+        void EndOnceSubmit(VkCommandBuffer buffer);
     private:
 
 
@@ -51,12 +61,14 @@ namespace Z {
         VkPhysicalDevice physicalDevice;
         VkDevice device;
         VkSwapchainKHR swapchain;
+        uint32 currentSwapChainImageIndex=0;
         QueueFamilyIndices familyIndices;
         VkFormat depthFormat;
         Queue* graphicsQueue,*computeQueue;
         VkCommandPool transientCommandPool;
         VkCommandPool commandPools[maxFlightFrames];
         VkCommandBuffer commandBuffers[maxFlightFrames];
+        uint32 currentFrameIndex=0;
         VkDescriptorPool descriptorPool;
         VmaAllocator vmaAllocator;
         VkFence frameFences[maxFlightFrames];
@@ -72,7 +84,6 @@ namespace Z {
 
         const std::vector<char const*> validationLayers {"VK_LAYER_KHRONOS_validation"};
     };
-
 } // Z
 
 #endif //ENGINEALL_VULKANGRACPHICINTERFACE_H

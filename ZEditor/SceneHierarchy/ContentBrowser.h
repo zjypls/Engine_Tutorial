@@ -4,9 +4,9 @@
 
 #ifndef ENGINE_TUTORIAL_CONTENTBROWSER_H
 #define ENGINE_TUTORIAL_CONTENTBROWSER_H
-#include <filesystem>
+#include "z.h"
 
-#include "Include/imgui/imgui.h"
+
 
 namespace Z {
 	class ContentBrowser {
@@ -18,7 +18,7 @@ namespace Z {
 
 		void OnImGuiRender();
 
-        inline void SetWorkPath(const std::string& path){currentPath=path;}
+		void SetWorkPath(const std::string& path){currentPath=path;}
 
 	private:
 		std::filesystem::path currentPath;
