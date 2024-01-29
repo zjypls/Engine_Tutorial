@@ -2,8 +2,8 @@
 // Created by 32725 on 2023/3/17.
 //
 
-#include "OpenGLVertexArray.h"
-#include"glad/glad.h"
+#include "Include/glad/include/glad/glad.h"
+#include "Platform/OpenGL/OpenGLVertexArray.h"
 
 namespace Z {
 
@@ -42,7 +42,7 @@ namespace Z {
 		for (const auto &vertexBuffer: m_VertexBuffers) {
 			vertexBuffer->Bind();
 		}
-		m_IndexBuffers->Bind();//Fixme:这里有问题
+		m_IndexBuffers->Bind();
 	}
 
 	void OpenGLVertexArray::Unbind() const {

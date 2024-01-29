@@ -2,8 +2,8 @@
 // Created by 32725 on 2023/4/3.
 //
 
-#include "OpenGLUniformBuffer.h"
-#include "glad/glad.h"
+#include "Include/glad/include/glad/glad.h"
+#include "Platform/OpenGL/OpenGLUniformBuffer.h"
 
 namespace Z {
 

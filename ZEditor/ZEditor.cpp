@@ -7,8 +7,9 @@
 #include "Include/glm/glm/gtx/matrix_decompose.hpp"
 #include "Include/filewatch/filewatch.h"
 
-#include "./ZEditor.h"
+#include "Z/Utils/Model.h"
 
+#include "./ZEditor.h"
 
 
 ImVec2 operator-(const ImVec2 &lhs, const ImVec2 &rhs) {
@@ -32,66 +33,59 @@ namespace Z {
 
 	}
 
-	void EditorLayer::OnAttach() {
-		Z_CORE_INFO("Layer:{0} Attach!", GetName());
-		std::filesystem::path ProjectPath = Z::Utils::FileOpen("*.zPrj\0", "Test001.zPrj\0", ".\\Projects\\Test001\0");
-		if (!Project::Init(ProjectPath)) {
-			Z_CORE_ASSERT(false, "Project Init Failed!");
-			return;
-		}
-		//Fixme:no effect
-//		if(auto&configuration=Project::GetEditorLayoutConfiguration();!configuration.empty()) {
-//			ImGui::GetIO().IniFilename=configuration.string().c_str();
-//		}
+    void EditorLayer::OnAttach() {
+        Z_CORE_INFO("Layer:{0} Attach!", GetName());
 
-		FrameBufferSpecification spec;
-		spec.width = 1200;
-		spec.height = 800;
-		spec.attachments = {FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::R32I,
-		                    FrameBufferTextureFormat::DEPTH};
-		frameBuffer = FrameBuffer::Create(spec);
-		spec.width = spec.width / 5.f;
-		spec.height = spec.height / 5.f;
-		spec.attachments = {FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::DEPTH};
-		previewFrame = FrameBuffer::Create(spec);
-		scene = CreateRef<Scene>();
-		editorCamera = Z::EditorCamera(45.f, 1.f, 0.1f, 1000.f);
-		//Todo:optimize with a project system
-		playButtonIcon = Texture2D::CreateTexture("Assets/Icons/PlayButton.png");
-		stopButtonIcon = Texture2D::CreateTexture("Assets/Icons/StopButton.png");
-		simulateButtonIcon = Texture2D::CreateTexture("Assets/Icons/SimulateButton.png");
-		pauseButtonIcon = Texture2D::CreateTexture("Assets/Icons/PauseButton.png");
-		stepButtonIcon = Texture2D::CreateTexture("Assets/Icons/StepButton.png");
-		toolButtons[0] = playButtonIcon;
-		toolButtons[1] = simulateButtonIcon;
-		toolButtons[2] = stepButtonIcon;
+        frameBuffer = Renderer::GetDefaultFrameBuffer();
+
+        auto& spec=frameBuffer->GetSpecification();
+        spec.width = spec.width / 5.f;
+        spec.height = spec.height / 5.f;
+        spec.attachments = {FrameBufferTextureFormat::RGBA8, //BaseColorAttachment
+                            FrameBufferTextureFormat::DEPTH //DepthStencil Attachment
+        };
+        previewFrame = FrameBuffer::Create(spec);
+        scene = CreateRef<Scene>();
+        editorCamera = EditorCamera(45.f, 1.f, 0.1f, 1000.f);
+        playButtonIcon = AssetsSystem::Load<Texture>(ROOT_PATH + "Assets/Icons/PlayButton.png", true);
+        stopButtonIcon = AssetsSystem::Load<Texture>(ROOT_PATH + "Assets/Icons/StopButton.png", true);
+        simulateButtonIcon = AssetsSystem::Load<Texture>(ROOT_PATH + "Assets/Icons/SimulateButton.png", true);
+        pauseButtonIcon = AssetsSystem::Load<Texture>(ROOT_PATH + "Assets/Icons/PauseButton.png", true);
+        stepButtonIcon = AssetsSystem::Load<Texture>(ROOT_PATH + "Assets/Icons/StepButton.png", true);
+        toolButtons[0] = playButtonIcon;
+        toolButtons[1] = simulateButtonIcon;
+        toolButtons[2] = stepButtonIcon;
 
 
-		sceneHierarchyPlane = CreateScope<SceneHierarchyPlane>(scene);
+		sceneHierarchyPlane = CreateScope<SceneHierarchyPlane>();
 		contentBrowser = CreateScope<ContentBrowser>();
 
 		//Todo:change this to a better way
-		ScriptEngine::LoadAssembly("Bin-C/scripts.dll");
-		LoadScene(Project::GetProjectRootDir() / Project::GetStartScene());
+		ScriptEngine::LoadAssembly("bin/scripts.dll");
+		ScriptEngine::RegisterFileWatch();
+
+		//a Test for mesh Renderer
+        /*
+		testModel = scene->CreateEntity("Model");
+		testModel.AddComponent<MeshRendererComponent>(AssetsSystem::Load<Mesh>(
+				(Project::GetProjectRootDir() / "Assets/Models/TinyRoom.obj").string()));
+         */
+
 
 	}
 
 	void EditorLayer::OnDetach() {
+		if(selfDefLayout) {
+			ImGui::SaveIniSettingsToDisk(selfDefLayoutFilePath.c_str());
+			Z_CORE_WARN("Layout config file save at : {0}",selfDefLayoutFilePath);
+		}
 	}
 
 	void EditorLayer::OnUpdate() {
-		//Todo : change this to a better way
-		if (ScriptEngine::HasReLoadApp()) {
-			ScriptEngine::ReCreateFields(scene);
-			ScriptEngine::SetReLoadApp(false);
-		}
-		frameBuffer->Bind();
 
-		RenderCommand::SetClearValue(clearValue);
-		RenderCommand::Clear();
+		ScriptEngine::CheckLoad(scene);
 
-		frameBuffer->ClearAttachment(1, -1);
-
+		Renderer::BeginRecord();
 		{
 			SceneState state = sceneState;
 			if (state == SceneState::Pause)
@@ -126,16 +120,14 @@ namespace Z {
 			auto value = frameBuffer->GetPixel(CursorPos.x, CursorPos.y);
 			selectedEntity = sceneHierarchyPlane->SetSelectedEntity(value);
 		}
-		frameBuffer->UnBind();
+		Renderer::EndRecord();
 		if ((sceneState != SceneState::Play) && selectedEntity && selectedEntity.HasComponent<CameraComponent>()) {
-			previewFrame->Bind();
-			RenderCommand::SetClearValue(clearValue);
-			RenderCommand::Clear();
+			Renderer::BeginRecord(previewFrame);
 			scene->OnPreviewUpdate(Time::DeltaTime(), selectedEntity.GetComponent<CameraComponent>().camera,
 			                       selectedEntity.GetComponent<TransformComponent>().GetTransform());
 			OnDebugShow(true);
 			Renderer2D::EndScene();
-			previewFrame->UnBind();
+			Renderer::EndRecord();
 		}
 	}
 
@@ -143,7 +135,9 @@ namespace Z {
 	void EditorLayer::OnImGuiRender() {
 		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
-		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking|
+                ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+                ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 		{
 			ImGuiViewport *viewport = ImGui::GetMainViewport();
 			ImGui::SetNextWindowPos(viewport->Pos);
@@ -151,13 +145,7 @@ namespace Z {
 			ImGui::SetNextWindowViewport(viewport->ID);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-			                ImGuiWindowFlags_NoMove;
-			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 		}
-
-		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-			window_flags |= ImGuiWindowFlags_NoBackground;
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		static bool dockspaceOpen = true;
@@ -166,29 +154,24 @@ namespace Z {
 
 		ImGui::PopStyleVar(3);
 
-
-		ImGuiIO &io = ImGui::GetIO();
 		auto &style = ImGui::GetStyle();
 		auto miniSize = style.WindowMinSize.x;
-		style.WindowMinSize.x = 350;
-		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
-			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-		}
+		style.WindowMinSize.x = 250;
+        ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 		style.WindowMinSize.x = miniSize;
 
 		if (ImGui::BeginMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
-
 				if (ImGui::MenuItem("New", "Ctrl+N")) {
 					NewScene();
 				}
-
 				if (ImGui::MenuItem("Save", "Ctrl+Shift+S")) {
 					SaveScene();
 				}
 				if (ImGui::MenuItem("Load", "Ctrl+O")) {
-					LoadScene();
+					//LoadScene();
+                    LoadProjects();
 				}
 				if (ImGui::MenuItem("Exit")) Application::Get().Close();
 				ImGui::EndMenu();
@@ -210,7 +193,7 @@ namespace Z {
 
 		ImGui::Begin("Statics");
 
-		auto stats = Renderer2D::GetStats();
+		auto *stats = Renderer2D::GetStats();
 		ImGui::Text("Renderer2D Stats:");
 		ImGui::Text("Draw Calls: %u", stats->DrawCalls);
 		ImGui::Text("Quads: %u", stats->QuadCount);
@@ -232,10 +215,13 @@ namespace Z {
 		ImGui::Begin("Settings");
 		ImGui::Checkbox("Editor Visualize Collider", &EditorVisualizeCollider);
 		ImGui::Checkbox("RunTime Visualize Collider", &RunTimeVisualizeCollider);
-		ImGui::DragFloat4("Collider ActiveColor", glm::value_ptr(ActiveColor), 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat4("Collider InActiveColor", glm::value_ptr(InactiveColor), 0.01f, 0.0f, 1.0f);
-		ImGui::DragInt("StepFrameCount", &stepFrames, 1, 1, 100);
-
+		ImGui::Text("Collider ActiveColor:");
+		ImGui::DragFloat4("##Collider ActiveColor", glm::value_ptr(ActiveColor), 0.01f, 0.0f, 1.0f);
+		ImGui::Text("Collider InActiveColor:");
+		ImGui::DragFloat4("##Collider InActiveColor", glm::value_ptr(InactiveColor), 0.01f, 0.0f, 1.0f);
+		ImGui::Text("StepFrameCount:");
+		ImGui::DragInt("##StepFrameCount", &stepFrames, 1, 1, 100);
+        ImGui::Text("Build Version : %s",BUILD_VERSION);
 		sceneHierarchyPlane->OnImGuiRender();
 		contentBrowser->OnImGuiRender();
 
@@ -249,7 +235,7 @@ namespace Z {
 		IsViewportHovered = ImGui::IsWindowHovered();
 		auto viewSize = ImGui::GetContentRegionAvail();
 		if (IsViewportFocused && IsViewportHovered && viewportSize.y != 0 && viewportSize.x != 0 &&
-		    Z::Input::IsMouseButtonPressed(Z::MouseCode::ButtonLeft)) {
+		    Input::IsMouseButtonPressed(MouseCode::ButtonLeft)) {
 
 			auto cursorPos = ImGui::GetMousePos();
 			auto offset = ImGui::GetWindowPos();
@@ -260,24 +246,29 @@ namespace Z {
 		}
 		Application::Get().GetImGuiLayer()->SetBlockEvents(!IsViewportFocused && !IsViewportHovered);
 
-		uint32_t textureID = frameBuffer->GetAttachmentID(0);
+		auto textureID = frameBuffer->GetAttachmentID(0);
 		ImGui::Image((void *) textureID, viewSize, ImVec2{0, 1}, ImVec2{1, 0});
 
-		if ((viewportSize != *(glm::vec2 *) &viewSize) && !Input::IsMouseButtonPressed(MouseCode::ButtonLeft)) {
-			viewportSize = glm::vec2{viewSize.x, viewSize.y};
-			previewFrame->Resize(viewportSize.x / 4.f, viewportSize.y / 4.f);
-			frameBuffer->Resize(viewportSize.x, viewportSize.y);
-			scene->OnViewportResize(viewportSize.x, viewportSize.y);
-			editorCamera.SetViewportSize(viewportSize.x, viewportSize.y);
+		if ((viewportSize != *(glm::vec2 *) &viewSize)) {
+            //avoid resize when frame haven't show to viewport yet
+			Application::Get().SubmitFunc([this, viewSize]() {
+				this->viewportSize = glm::vec2{viewSize.x, viewSize.y};
+				this->previewFrame->Resize(viewportSize.x / 4.f, viewportSize.y / 4.f);
+				this->frameBuffer->Resize(viewportSize.x, viewportSize.y);
+				this->scene->OnViewportResize(viewportSize.x, viewportSize.y);
+				this->editorCamera.SetViewportSize(viewportSize.x, viewportSize.y);
+			});
 		}
 		if (ImGui::BeginDragDropTarget()) {
 			if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")) {
-				const char *path = (const char *) payload->Data;
-				LoadScene(path);
-				ImGui::PopStyleVar();
-				ImGui::End();
-				ImGui::End();
-				return;
+				std::filesystem::path path = (const char *) payload->Data;
+				if (path.extension() == ".zscene") {
+					LoadScene(path);
+					ImGui::PopStyleVar();
+					ImGui::End();
+					ImGui::End();
+					return;
+				}
 			}
 		}
 		if (selectedEntity = sceneHierarchyPlane->GetSelectedEntity();
@@ -291,9 +282,8 @@ namespace Z {
 			             ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollWithMouse |
 			             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
 			             ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
-			             ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
-			             ImGuiWindowFlags_NoBackground
-			             | ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNav);
+			             ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoMouseInputs |
+                         ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNav);
 			ImGui::Image((void *) previewFrame->GetAttachmentID(0),
 			             ImVec2{ImGui::GetWindowSize().x, ImGui::GetWindowSize().y}, ImVec2{0, 1},
 			             ImVec2{1, 0});
@@ -312,14 +302,36 @@ namespace Z {
 			ImGuizmo::Manipulate(glm::value_ptr(cameraProjection), glm::value_ptr(editorCamera.GetProjectionMatrix()),
 			                     (ImGuizmo::OPERATION) currentGizmoOperation, ImGuizmo::MODE::LOCAL,
 			                     glm::value_ptr(Transform));
+			//TODO:Optimize
+			static int8_t SavePreTrans = 1;
 			if (ImGuizmo::IsUsing()) {
-				glm::vec3 translation, scale, skew;
-				glm::quat rotation;
-				glm::vec4 perspective;
-				glm::decompose(Transform, scale, rotation, translation, skew, perspective);
-				selectTransform.translation = translation;
-				selectTransform.rotation = (glm::eulerAngles(rotation));
-				selectTransform.scale = scale;
+				static glm::quat BefRotation;
+				static glm::vec3 BefTranslation, BefScale;
+				if (SavePreTrans == 1) {
+					//Save transform
+					BefRotation = selectTransform.rotation;
+					BefTranslation = selectTransform.translation;
+					BefScale = selectTransform.scale;
+					SavePreTrans = 0;
+				}else if (Input::IsMouseButtonPressed(MouseCode::ButtonRight)) {
+					//Set transform back
+					selectTransform.translation = BefTranslation;
+					selectTransform.rotation = glm::eulerAngles(BefRotation);
+					selectTransform.scale = BefScale;
+					SavePreTrans = -1;
+				} else if (SavePreTrans == 0) {
+					//decompose and apply transform with transform gizmos
+					glm::vec3 translation, scale, skew;
+					glm::quat rotation;
+					glm::vec4 perspective;
+					glm::decompose(Transform, scale, rotation, translation, skew, perspective);
+					selectTransform.translation = translation;
+					selectTransform.rotation = (glm::eulerAngles(rotation));
+					selectTransform.scale = scale;
+				}
+			}else if (SavePreTrans!=1) {
+				//Set gizmos enable
+				SavePreTrans = 1;
 			}
 		}
 
@@ -403,7 +415,7 @@ namespace Z {
 	}
 
 	void EditorLayer::SaveScene() {
-		auto path = Z::Utils::FileSave("*.zscene");
+		auto path = Utils::FileSave("*.zscene");
 		if (!path.empty()) {
 			WorkPath = path;
 			if (WorkPath.extension() != ".zscene")
@@ -430,7 +442,7 @@ namespace Z {
 	}
 
 	void EditorLayer::LoadScene() {
-		auto path = Z::Utils::FileOpen("*.zscene");
+		auto path = Utils::FileOpen("*.zscene");
 		if (!path.empty()) {
 			LoadScene(path);
 		}
@@ -441,13 +453,13 @@ namespace Z {
 			OnStop();
 		}
 		scene = CreateRef<Scene>();
+        SceneSerializer serializer(scene);
+        if (serializer.Deserialize(path.string())) {
+            WorkPath = path;
+        }
 		scene->OnViewportResize(viewportSize.x, viewportSize.y);
+        sceneHierarchyPlane->SetContext(scene);
 		sceneHierarchyPlane->SetSelectedEntity(-1);
-		sceneHierarchyPlane->SetContext(scene);
-		SceneSerializer serializer(scene);
-		if (serializer.Deserialize(path.string())) {
-			WorkPath = path;
-		}
 	}
 
 	void EditorLayer::NewScene() {
@@ -496,12 +508,13 @@ namespace Z {
 	bool EditorLayer::OnKeyPressed(KeyPressEvent &event) {
 		bool control = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
 		bool shift = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
+		bool RightMouseClicked = Input::IsMouseButtonPressed(MouseCode::ButtonRight);
 		switch (event.GetKey()) {
 			case Key::N:
 				if (control) NewScene();
 				break;
 			case Key::O:
-				if (control) LoadScene();
+				if (control) LoadProjects();
 				break;
 			case Key::S:
 				if (control)
@@ -515,25 +528,25 @@ namespace Z {
 						SaveHotKey();
 				break;
 			case Key::Q:
-				if (IsViewportFocused && IsViewportHovered)
+				if (IsViewportFocused && IsViewportHovered && !RightMouseClicked)
 					currentGizmoOperation = -1;
 				break;
 			case Key::W:
-				if (IsViewportFocused && IsViewportHovered)
+				if (IsViewportFocused && IsViewportHovered && !RightMouseClicked)
 					currentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 				break;
 			case Key::E:
-				if (IsViewportFocused && IsViewportHovered)
+				if (IsViewportFocused && IsViewportHovered && !RightMouseClicked)
 					currentGizmoOperation = ImGuizmo::OPERATION::SCALE;
 				break;
 			case Key::R:
-				if (IsViewportFocused && IsViewportHovered)
+				if (IsViewportFocused && IsViewportHovered && !RightMouseClicked)
 					currentGizmoOperation = ImGuizmo::OPERATION::ROTATE;
 				break;
 			case Key::D:
 				if (sceneState == SceneState::Edit)
 					if (auto et = sceneHierarchyPlane->GetSelectedEntity();shift && et) {
-						scene->CopyEntity(et);
+						scene->InstantiateEntity(et);
 					}
 				break;
 		}
@@ -601,5 +614,29 @@ namespace Z {
 		sceneHierarchyPlane->SetContext(scene);
 		scene->OnSimulateStart();
 	}
+
+    void EditorLayer::LoadProjects() {
+		if(selfDefLayout) {
+			ImGui::SaveIniSettingsToDisk(selfDefLayoutFilePath.c_str());
+			selfDefLayout=false;
+		}
+        std::filesystem::path path=Utils::FileOpen("*.zPrj\0", "Test001.zPrj", (ROOT_PATH + "Projects/Test001").c_str());
+        if(Project::Init(path)){
+            AssetsSystem::InitWithProject(Project::GetProjectRootDir());
+            LoadScene(Project::GetProjectRootDir()/Project::GetStartScene());
+            contentBrowser->SetWorkPath(Project::GetProjectRootDir().string());
+        	if(const auto&configuration=Project::GetEditorLayoutConfiguration();!configuration.empty()) {
+        		this->selfDefLayout=true;
+        		selfDefLayoutFilePath=configuration.string();
+				//avoid reload ini file when imgui recording command
+				Application::Get().SubmitFunc([this] {
+					ImGui::LoadIniSettingsFromDisk("Assets/Configs/editorLayout.ini");
+				});
+        		Z_CORE_WARN("Ini config file find : {0}",configuration.string());
+        	}
+        }else{
+            Z_CORE_ERROR("illegal project file : {0}",path);
+        }
+    }
 
 }

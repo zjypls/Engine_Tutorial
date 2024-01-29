@@ -1,12 +1,11 @@
 //
 // Created by 32725 on 2023/3/31.
 //
+#include "Include/glm/glm/gtx/quaternion.hpp"
 
-#include "./EditorCamera.h"
+#include "Z/Renderer/EditorCamera.h"
 #include "Z/Core/Input.h"
 #include "Z/Core/Time.h"
-#include "Z/Core/Log.h"
-#include "glm/gtx/quaternion.hpp"
 
 
 namespace Z {
@@ -95,16 +94,16 @@ namespace Z {
 			this->position += glm::normalize(this->focus - this->position) * deltaTimeScale;
 		else if (Input::IsKeyPressed(KeyCode::S))
 			this->position -= glm::normalize(this->focus - this->position) * deltaTimeScale;
-		else if (Input::IsKeyPressed(KeyCode::A))
+		if (Input::IsKeyPressed(KeyCode::A))
 			this->position += right * deltaTimeScale;
 		else if (Input::IsKeyPressed(KeyCode::D))
 			this->position -= right * deltaTimeScale;
-		else if (Input::IsKeyPressed(KeyCode::E))
+		if (Input::IsKeyPressed(KeyCode::E))
 			this->position += this->up * deltaTimeScale;
 		else if (Input::IsKeyPressed(KeyCode::Q))
 			this->position -= this->up * deltaTimeScale;
-		else
-			return;
+//		else
+//			return;
 		this->focus += this->position - befPos;
 	}
 }

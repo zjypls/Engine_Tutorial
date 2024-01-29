@@ -5,8 +5,8 @@
 #ifndef ENGINE_TUTORIAL_RENDERAPI_H
 #define ENGINE_TUTORIAL_RENDERAPI_H
 #include <memory>
-#include "glm/glm.hpp"
-#include "VertexArray.h"
+#include "Include/glm/glm/glm.hpp"
+#include "Z/Renderer/VertexArray.h"
 
 namespace Z{
 	class RenderAPI {
@@ -20,6 +20,7 @@ namespace Z{
 		virtual void SetClearValue(const glm::vec4&)=0;
 		virtual void Clear()=0;
 		virtual void ChangeDepthTest(DepthTestState state)=0;
+		virtual void DetachFrameBuffer()=0;
 		virtual void SetLineWidth(float)=0;
 		virtual void DrawIndexed(const Ref<VertexArray>& vertexArray,unsigned int count)=0;
 		virtual void DrawLine(const Ref<VertexArray>& vertexArray,unsigned int count)=0;

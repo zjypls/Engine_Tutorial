@@ -5,7 +5,7 @@
 #ifndef ENGINE_TUTORIAL_VERTEXARRAY_H
 #define ENGINE_TUTORIAL_VERTEXARRAY_H
 #include "Z/Core/Core.h"
-#include "Buffer.h"
+#include "Z/Renderer/Buffer.h"
 namespace Z {
 	class Z_API VertexArray {
 

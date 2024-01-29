@@ -2,25 +2,27 @@
 // Created by 32725 on 2023/6/1.
 //
 
-#include "Project.h"
-#include "yaml-cpp/yaml.h"
+#include "Include/yaml-cpp/include/yaml-cpp/yaml.h"
+
+#include "Z/Project/Project.h"
 #include "Z/Core/Log.h"
 
 namespace Z {
 
 	Ref<Project> Project::project= nullptr;
+    bool Project::p_Inited = false;
 	bool Project::Init(std::filesystem::path &projectFile) {
 		YAML::Node data;
 		try{
 			 data= YAML::LoadFile(projectFile.string());
 		}catch (std::exception& e){
 			Z_CORE_ERROR("Error:{0}",e.what());
-			Z_CORE_ERROR("Project::Init:Failed to load project file:{0}",projectFile.string());
+			Z_CORE_ERROR("Project::Init:Failed to load project file : {0}",projectFile.string());
 			return false;
 		}
 		auto nodeData=data["Project"];
 		if(!nodeData){
-			Z_CORE_ERROR("Project::Init:Failed to load project file:{0}",projectFile.string());
+			Z_CORE_ERROR("Project::Init:Failed to load project file : {0}",projectFile.string());
 			return false;
 		}
 		project = CreateRef<Project>();
@@ -31,11 +33,11 @@ namespace Z {
 		configure.AssetsDir = nodeData["AssetsDirectory"].as<std::string>();
 		configure.ScriptsDir = nodeData["ScriptsDirectory"].as<std::string>();
 		configure.editorLayout = configure.ProjectRootDir/nodeData["EditorLayout"].as<std::string>();
-		Z_CORE_WARN(configure.editorLayout);
 		if (nodeData["ProjectName"])
 			configure.ProjectName = nodeData["ProjectName"].as<std::string>();
 		else
 			configure.ProjectName = projectFile.filename().string().substr(0, projectFile.filename().string().find_last_of('.'));
+        p_Inited=true;
 		return true;
 	}
 

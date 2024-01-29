@@ -4,9 +4,10 @@
 
 #ifndef ENGINE_TUTORIAL_LAYER_H
 #define ENGINE_TUTORIAL_LAYER_H
+#include <string>
+
 #include "Z/Events/Event.h"
 
-#include <string>
 namespace Z {
 	class Z_API Layer {
 	protected:

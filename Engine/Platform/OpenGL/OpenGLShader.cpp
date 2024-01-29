@@ -3,21 +3,20 @@
 //
 
 #include <filesystem>
-#include "OpenGLShader.h"
-#include "glad/glad.h"
+#include <fstream>
+#include <unordered_map>
+#include "shaderc/shaderc.hpp"
+#include "spirv_cross/spirv_cross.hpp"
+#include "Include/glad/include/glad/glad.h"
+#include "Include/glm/glm/gtc/type_ptr.hpp"
 #include "Z/Core/Log.h"
 #include "Z/Core/Core.h"
-#include "glm/gtc/type_ptr.hpp"
-#include <fstream>
-#include<unordered_map>
-#include "shaderc/shaderc.hpp"
 #include "Z/Core/Time.h"
-#include "spirv_cross/spirv_cross.hpp"
-#include "spirv_cross/spirv_glsl.hpp"
+#include "Platform/OpenGL/OpenGLShader.h"
 
 namespace Z {
-	const std::string ShaderCacheDir = "Shaders/Cache/OpenGL";
-	namespace Temp {
+	const std::string ShaderCacheDir = "ShaderCaches/Cache/OpenGL";
+	namespace Tools {
 
 		std::string spirvShaderTypeToString(shaderc_shader_kind type) {
 			switch (type) {
@@ -162,7 +161,7 @@ namespace Z {
 		Name=name;
 		auto src = Src;
 		if (isFile) {
-			src = Temp::ReadFile(Src);
+			src = Tools::ReadFile(Src);
 			if (Name.empty()) {
 				auto lastDot = Src.find_last_of('.');
 				Name = Src.substr(0, lastDot);
@@ -184,8 +183,8 @@ namespace Z {
 		auto vertSrc = VertSrc;
 		auto fragSrc = FragSrc;
 		if (isFile) {
-			vertSrc = Temp::ReadFile(VertSrc);
-			fragSrc = Temp::ReadFile(FragSrc);
+			vertSrc = Tools::ReadFile(VertSrc);
+			fragSrc = Tools::ReadFile(FragSrc);
 		}
 		ProgramID = glCreateProgram();
 		Z_CORE_INFO("Shader Name:\"{0}\",ID:\"{1}\"", Name, ProgramID);
@@ -202,8 +201,8 @@ namespace Z {
 	void OpenGLShader::AddShader(const std::string &shaderSrc, RenderAPI::zShaderType shaderType) {
 		std::vector<char> spirv;
 		auto hash = std::hash<std::string>()(shaderSrc);
-		if (auto spvType= Temp::ShaderTypeToSpirVType(shaderType);
-		!Temp::GetCache(hash, spirv, spvType)){
+		if (auto spvType= Tools::ShaderTypeToSpirVType(shaderType);
+		!Tools::GetCache(hash, spirv, spvType)){
 			Z_CORE_WARN("Can't find shader cache,compile shader:{0}", Name);
 			auto start = Time::GetTime();
 			shaderc::Compiler compiler;
@@ -217,8 +216,9 @@ namespace Z {
 				Z_CORE_ERROR("Shader Compile Error:{0}", module.GetErrorMessage());
 				Z_CORE_ASSERT(false, "Shader Compile Error");
 			}
+
 			std::ofstream out;
-			out.open(ShaderCacheDir+"/"+std::to_string(hash)+"."+Temp::spirvShaderTypeToString(spvType), std::ios::binary);
+			out.open(ShaderCacheDir + "/" + std::to_string(hash) + "." + Tools::spirvShaderTypeToString(spvType), std::ios::binary);
 			out.write((char *) module.cbegin(), (module.cend()-module.cbegin())*sizeof (unsigned int));
 			out.close();
 			spirv.resize((module.cend() - module.cbegin())*sizeof(unsigned int));
@@ -227,9 +227,23 @@ namespace Z {
 			Z_CORE_WARN("Compile Shader spend time:{1}s",Name,spend);
 		}
 
-		//std::vector<unsigned int> spirv(module.cbegin(), module.cend());
+		//unknown reason crashed on Linux (gcc13) but work well on Windows (VS 17.8) //solved
+        //caused by an error value of resources.builtin_outputs.buffer_size when it calls clear
+		//call stack
+		/*
+		 *spirv_cross::ShaderResources::~ShaderResources
+		 *			 ::SmallVector::~SmallVector
+		 *						  ::clear
+		 *			 ::BuiltInResource::~BuiltInResource
+		 *			 ::Resource::~Resource
+		 *free
+		 */
+        //note:do nothing,disappear by an unknown reason ???
 
-		unsigned int shader = glCreateShader(Temp::ShaderTypeToOpenGLType(shaderType));
+		//spirv_cross::Compiler compiler((uint32_t*)spirv.data(),spirv.size()/sizeof(uint32_t));
+		//spirv_cross::ShaderResources resources= compiler.get_shader_resources();
+
+		unsigned int shader = glCreateShader(Tools::ShaderTypeToOpenGLType(shaderType));
 		glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V, spirv.data(), spirv.size());
 		glSpecializeShader(shader, "main", 0, nullptr, nullptr);
 
@@ -240,11 +254,6 @@ namespace Z {
 	}
 
 	void OpenGLShader::Bind() const {
-
-		auto warn = glGetError();
-		if (warn != 0) {
-			Z_CORE_ERROR("{1}:{2},OpenGL ERROR {0}", warn, __FILE__, __LINE__);
-		}
 		glUseProgram(ProgramID);
 	}
 
@@ -254,9 +263,6 @@ namespace Z {
 
 	void OpenGLShader::Compile() {
 		glLinkProgram(ProgramID);
-		auto warn = glGetError();
-		if (warn != 0)
-			Z_CORE_WARN("{1}:{2},Warn {0}", warn, __FILE__, __LINE__);
 		int success = 0;
 		glGetProgramiv(ProgramID, GL_LINK_STATUS, &success);
 
@@ -308,7 +314,7 @@ namespace Z {
 	}
 
 	void OpenGLShader::AddShader(const std::string &Code) {
-		auto map = Temp::PreProcessCode(Code);
+		auto map = Tools::PreProcessCode(Code);
 		for (const auto &[type, code]: map) {
 			AddShader(code, type);
 		}

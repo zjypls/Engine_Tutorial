@@ -12,7 +12,7 @@
 #include "Z/Events/KeyEvent.h"
 #include "Z/Events/MouseEvent.h"
 #include "Z/Events/ApplicationEvent.h"
-#include "Z/Imgui/ImGuiRendererPlatform.h"
+#include "Z/ImGui/ImGuiRendererPlatform.h"
 
 namespace Z {
 	class Z_API ImGuiLayer: public Layer {

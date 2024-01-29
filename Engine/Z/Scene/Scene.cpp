@@ -12,11 +12,11 @@
 #include "Z/Scene/Scene.h"
 #include "Z/Scene/ScriptEntity.h"
 #include "Z/Script/ScriptEngine.h"
-#include "Z/Renderer/Renderer2D.h"
+#include "Z/Renderer/Renderer.h"
 
 namespace Z {
 
-	namespace Temp {
+	namespace Tools {
 		b2BodyType GetBox2DType(RigidBody2DComponent::BodyType type) {
 			switch (type) {
 				case RigidBody2DComponent::BodyType::Static:
@@ -39,6 +39,9 @@ namespace Z {
 		template<class... T>
 		static void CopyEntity(Type<T...>, Entity src, Entity dst) {
 			([&]() {
+				auto& typeID= typeid(T);
+				if(typeID == typeid(IDComponent)||typeID==typeid(TagComponent)||typeID==typeid(TransformComponent))
+					return;
 				if (src.HasComponent<T>())
 					dst.AddOrReplaceComponent<T>(src.GetComponent<T>());
 			}(), ...);
@@ -64,7 +67,7 @@ namespace Z {
 			Entity entity{id, this};
 			auto &transform = entity.GetComponent<TransformComponent>();
 			b2BodyDef bodyDef;
-			bodyDef.type = Temp::GetBox2DType(rigidBody.bodyType);
+			bodyDef.type = Tools::GetBox2DType(rigidBody.bodyType);
 			bodyDef.position.Set(transform.translation.x, transform.translation.y);
 			bodyDef.angle = transform.rotation.z;
 			bodyDef.fixedRotation = rigidBody.fixedRotation;
@@ -159,17 +162,41 @@ namespace Z {
 	}
 
 	void Scene::OnEditorUpdate(float deltaTime, EditorCamera &camera) {
-		Renderer2D::BeginScene(camera);
+		//TODO:This should be optimized
+		Renderer::BeginScene(camera);
+		Renderer3D::BeginScene();
+		Renderer2D::BeginScene();
 		Render2D();
+		Render3D();
+		//Renderer::RenderSkyBox();
 		Renderer2D::EndScene();
+		Renderer3D::EndScene();
+		Renderer::EndScene();
 	}
 
 	void Scene::OnSimulateUpdate(float deltaTime, EditorCamera &camera) {
 		if (!Paused||FrameStepCount-->0)
 			OnPhysics2DUpdate(deltaTime);
-		Renderer2D::BeginScene(camera);
+		Renderer::BeginScene(camera);
+		Renderer3D::BeginScene();
+		Renderer2D::BeginScene();
 		Render2D();
+		Render3D();
+		//Renderer::RenderSkyBox();
 		Renderer2D::EndScene();
+		Renderer3D::EndScene();
+		Renderer::EndScene();
+	}
+
+	void Scene::OnPreviewUpdate(float deltaTime, Camera &camera, glm::mat4 transform) {
+		Renderer::BeginScene(camera,transform);
+		Renderer3D::BeginScene();
+		Renderer2D::BeginScene();
+		Render2D();
+		Render3D();
+		Renderer2D::EndScene();
+		Renderer3D::EndScene();
+		Renderer::EndScene();
 	}
 
 	void Scene::OnUpdate(float deltaTime) {
@@ -181,17 +208,18 @@ namespace Z {
 		}
 		mainCamera = GetMainCamera();
 		if (!mainCamera)return;
-		Renderer2D::BeginScene(mainCamera.GetComponent<CameraComponent>().camera,
+		Renderer::BeginScene(mainCamera.GetComponent<CameraComponent>().camera,
 		                       mainCamera.GetComponent<TransformComponent>().GetTransform());
+		Renderer3D::BeginScene();
+		Renderer2D::BeginScene();
 		Render2D();
+		Render3D();
+		//Renderer::RenderSkyBox();
 		Renderer2D::EndScene();
+		Renderer3D::EndScene();
+		Renderer::EndScene();
 	}
 
-	void Scene::OnPreviewUpdate(float deltaTime, Camera &camera, glm::mat4 transform) {
-		Renderer2D::BeginScene(camera, transform);
-		Render2D();
-		Renderer2D::EndScene();
-	}
 
 	void Scene::Render2D() {
 		std::for_each(registry.view<TransformComponent, SpriteRendererComponent>().begin(),
@@ -203,6 +231,17 @@ namespace Z {
 		              registry.view<TransformComponent, CircleRendererComponent>().end(), [&](const auto &item) {
 					Renderer2D::DrawCircle(registry.get<TransformComponent>(item).GetTransform(),
 					                       registry.get<CircleRendererComponent>(item), uint32_t(item));
+				});
+	}
+
+
+	void Scene::Render3D() {
+		std::for_each(registry.view<TransformComponent, MeshRendererComponent>().begin(),
+		              registry.view<TransformComponent, MeshRendererComponent>().end(), [&](const auto &item) {
+                    MeshRendererComponent component=registry.get<MeshRendererComponent>(item);
+                    if(component.mesh)
+					Renderer3D::Draw(registry.get<TransformComponent>(item).GetTransform(),
+					                       registry.get<MeshRendererComponent>(item), uint32_t(item));
 				});
 	}
 
@@ -272,15 +311,16 @@ namespace Z {
 			auto entity = res->CreateEntityWithGuid(idComponent.ID, srcRegistry.get<TagComponent>(id).tag);
 			auto &trans = srcEntity.GetComponent<TransformComponent>();
 			resRegistry.emplace_or_replace<TransformComponent>(entity, trans);
-			Temp::CopyEntity(AllTypes{}, srcEntity, entity);
+			Tools::CopyEntity(NoBaseTypes{}, srcEntity, entity);
 		});
 		return res;
 	}
 
 
-	void Scene::CopyEntity(Entity entity) {
+	Entity Scene::InstantiateEntity(Entity entity) {
 		Entity res = CreateEntity(entity.GetName());
-		Temp::CopyEntity(AllTypes{}, entity, res);
+		Tools::CopyEntity(NoBaseTypes{}, entity, res);
+		return res;
 	}
 
 	void Scene::ScriptUpdate(float deltaTime) {
@@ -317,6 +357,7 @@ namespace Z {
 	}
 
 
+
 	template<class Ty>
 	void Scene::OnComponentAdd(Entity entity, Ty &component) {
 
@@ -325,6 +366,11 @@ namespace Z {
 	template<>
 	void Scene::OnComponentAdd<CameraComponent>(Entity entity, CameraComponent &component) {
 		component.camera.OnViewportResize(viewportWidth, viewportHeight);
+	}
+
+	template<>
+	void Scene::OnComponentAdd<MeshRendererComponent>(Z::Entity entity, MeshRendererComponent &component) {
+
 	}
 
 	template<>

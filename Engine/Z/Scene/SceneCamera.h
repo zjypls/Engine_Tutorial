@@ -14,8 +14,8 @@ namespace Z {
 		SceneCamera(const glm::mat4& projection):Camera(projection){}
 		SceneCamera(const Camera& camera):Camera(camera){}
 		void OnViewportResize(unsigned int width, unsigned int height);
+        void SetAspectRatio(float asp){aspectRatio=asp;UpdateProjection();}
 		void SetGraphicSize(float size,float nearClip=-1.f,float farClip=1.f);
-		[[nodiscard]] inline ProjectionType GetProjectionType() const { return projectionType; }
 		void SetProjectionType(ProjectionType type){projectionType=type;UpdateProjection();}
 		void SetOrthographicSize(float size){GraphicSize=size;UpdateProjection();}
 		void SetOrthographicNearClip(float nearClip){this->nearClip=nearClip;UpdateProjection();}
@@ -23,6 +23,7 @@ namespace Z {
 		void SetPerspectiveFOV(float fov){this->fov=fov;UpdateProjection();}
 		void SetPerspectiveNearClip(float nearClip){PNearClip=nearClip;UpdateProjection();}
 		void SetPerspectiveFarClip(float farClip){PFarClip=farClip;UpdateProjection();}
+        [[nodiscard]] inline ProjectionType GetProjectionType() const { return projectionType; }
 		[[nodiscard]] inline float GetOrthographicSize() const { return GraphicSize; }
 		[[nodiscard]] inline float GetOrthographicNearClip() const { return nearClip; }
 		[[nodiscard]] inline float GetOrthographicFarClip() const { return farClip; }

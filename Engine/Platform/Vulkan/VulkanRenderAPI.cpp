@@ -23,6 +23,9 @@ namespace Z{
 
 	}
 
+	void VulkanRenderAPI::DetachFrameBuffer() {
+	}
+
 	void VulkanRenderAPI::SetLineWidth(float d) {
 
 	}

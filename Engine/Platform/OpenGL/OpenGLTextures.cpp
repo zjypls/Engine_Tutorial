@@ -11,17 +11,9 @@
 namespace Z {
 	OpenGLTexture2D::OpenGLTexture2D(const std::string &path) {
 		int wid,hig,canal;
-		stbi_set_flip_vertically_on_load(1);
 		stbi_uc* pixels= stbi_load(path.c_str(), &wid, &hig, &canal, 0);
 		Z_CORE_ASSERT(pixels, "Failed to load image!");
 		width=wid,height=hig;
-		//TODO:improve judge logic with a device limits
-		if(wid>5000||hig>5000) {
-			Z_CORE_WARN("Texture size is too large! (width:{0},height:{1})", wid, hig);
-			ID=0;
-			stbi_image_free(pixels);
-			return;
-		}
 		GLenum iFormat=0,dFormat=0;
 		if(canal==4){
 			iFormat=GL_RGBA8;
@@ -47,9 +39,6 @@ namespace Z {
 		glDeleteTextures(1,&ID);
 	}
 
-	void OpenGLTexture2D::Bind(unsigned int unit) const {
-		glBindTextureUnit(unit,ID);
-	}
 
 	OpenGLTexture2D::OpenGLTexture2D(unsigned int width, unsigned int height) {
 		this->width=width;
@@ -70,8 +59,59 @@ namespace Z {
 		glTextureSubImage2D(ID,0,0,0,width,height,dataFormat,GL_UNSIGNED_BYTE,data);
 	}
 
-	bool OpenGLTexture2D::operator==(const Texture &other) const {
-		return ID==((OpenGLTexture2D&)other).ID;
+
+
+	void OpenGLSkyBox::SetData(void *data, unsigned int size) {
+
 	}
 
+	OpenGLSkyBox::OpenGLSkyBox(const std::vector<std::string> &paths) {
+		Z_CORE_ASSERT(paths.size()==6,"Cube map textures sources size should be 6!!");
+		glCreateTextures(GL_TEXTURE_CUBE_MAP,1,&ID);
+		glBindTexture(GL_TEXTURE_CUBE_MAP,ID);
+		int width=0,height=0,comp;
+		stbi_set_flip_vertically_on_load(0);
+		for(int i=0;i<6;++i){
+			stbi_uc *pixels= stbi_load(paths[i].c_str(),&width,&height,&comp,0);
+			Z_CORE_ASSERT(pixels!= nullptr,paths[i]);
+			glTexImage2D(
+					GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+					0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels
+			);
+			stbi_image_free(pixels);
+		}
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+		this->width=width;
+		this->height=height;
+		stbi_set_flip_vertically_on_load(1);
+
+	}
+
+	OpenGLSkyBox::OpenGLSkyBox(unsigned int width, unsigned int height): width(width), height(height) {
+		glCreateTextures(GL_TEXTURE_CUBE_MAP,1,&ID);
+		for(int i=0;i<6;++i){
+			glTexImage2D(
+					GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+					0, GL_RGB,this->width,this->height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+		}
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	}
+
+    [[deprecated("Not finished yet!")]]
+	void OpenGLTexture3D::SetData(void *data, unsigned int size) {
+
+	}
+
+	OpenGLTexture3D::OpenGLTexture3D(int width, int height, int depth)
+	:width(width),height(height),depth(depth){
+	}
 }

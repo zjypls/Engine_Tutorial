@@ -1,16 +1,17 @@
 //
 // Created by 32725 on 2023/3/11.
 //
-
-#include "Application.h"
-#include "Z/Events/ApplicationEvent.h"
-#include "Log.h"
-#include "Input.h"
-#include "Time.h"
-#include "Z/Renderer/Renderer.h"
-#include "KeyCodes.h"
-#include "Z/Script/ScriptEngine.h"
 #include <filesystem>
+
+#include "Z/Core/Application.h"
+#include "Z/Core/Log.h"
+#include "Z/Core/Input.h"
+#include "Z/Core/Time.h"
+#include "Z/Core/KeyCodes.h"
+#include "Z/Core/AssetsSystem.h"
+#include "Z/Events/ApplicationEvent.h"
+#include "Z/Renderer/Renderer.h"
+#include "Z/Script/ScriptEngine.h"
 
 namespace Z {
 	Application *Application::application = nullptr;
@@ -19,19 +20,13 @@ namespace Z {
 		Z_CORE_ASSERT(!application, "Application already exists!");
 		application = this;
 		Z_CORE_WARN("Current path: {0}!", Spec.commandArgs.Args[0]);
-		if (!Spec.RootPath.empty()) {
-			//Fixme : optimize
-//			std::string temp=Spec.commandArgs.Args[0];
-//			std::string::size_type i;
-//			while((i=temp.find_first_of('/'))!=-1)
-//				temp.replace(i,1,"\\");
-//			Z_CORE_ERROR(temp);
-			std::filesystem::current_path(Spec.RootPath);
-		}
+		if (!Spec.RootPath.empty())std::filesystem::current_path(Spec.RootPath);
+
 		window = Z::Scope<zWindow>(zWindow::Create(WindowProps(Spec.Name)));
 		window->SetEventCallFunc(Z_BIND_EVENT_FUNC(Application::EventCall));
+		AssetsSystem::PreInit();
 
-		Z::ScriptEngine::Init();
+		ScriptEngine::Init();
 		Renderer::Init();
 
 		window->SetVSync(false);
@@ -41,17 +36,19 @@ namespace Z {
 
 
 	Application::~Application() {
-		if(Z::ScriptEngine::GetContext()!=nullptr){
+		window->Shutdown();
+		Renderer::ShutDown();
+		if(ScriptEngine::GetContext()!=nullptr){
 			Z_CORE_WARN("Close Application in Running!!!");
 		}
-		Z::ScriptEngine::ShutDown();
+		ScriptEngine::ShutDown();
 
 		Z_CORE_INFO("Application closed!");
 	}
 
 	void Application::Run() {
 		while (Running) {
-			Z::Time::Update();
+			Time::Update();
 			imguiLayer->Begin();
 			if (!MinSize) {
 				for (Layer *layer: LayerStack) {
@@ -70,6 +67,9 @@ namespace Z {
 
 			window->Update();
 		}
+		window->GetContext()->DeviceSynchronize();
+		LayerStack.PopAllLayer();
+		AssetsSystem::Destroy();
 	}
 
 	void Application::EventCall(Event &e) {

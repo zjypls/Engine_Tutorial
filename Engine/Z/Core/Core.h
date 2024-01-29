@@ -6,6 +6,9 @@
 #ifndef ENGINE_TUTORIAL_CORE_H
 #define ENGINE_TUTORIAL_CORE_H
 #include <memory>
+#include <string>
+#include <cstring>
+#include <cassert>
 #ifdef Z_PLATFORM_WIN32
 	#ifdef Z_DYNAMIC_LINK
 		#ifdef Z_BUILD_DLL
@@ -16,13 +19,30 @@
 	#else
 		#define Z_API
 	#endif
-#else
-	#error Supports Windows Only!
+#endif
+#ifdef Z_PLATFORM_LINUX
+    #ifdef Z_DYNAMIC_LINK
+        #error "not finished yet"
+		#ifdef Z_BUILD_DLL
+			#define Z_API __declspec(dllexport)
+		#else
+			#define Z_API __declspec(dllimport)
+		#endif
+	#else
+		#define Z_API
+	#endif
 #endif
 
 #ifndef Z_ENABLE_ASSERT
-	#define Z_ASSERT(x, ...) do{if(!(x)){Z_ERROR("Assertion Failed!:{0}",__VA_ARGS__);__debugbreak();}}while(0)
-	#define Z_CORE_ASSERT(x, ...) do{if(!(x)){Z_CORE_ERROR("Assertion Failed!:{0}",__VA_ARGS__);__debugbreak();}}while(0)
+
+    #ifdef __GNUC__
+        #define DEBUG_BREAK __builtin_trap
+    #else
+        #define DEBUG_BREAK __debugbreak
+    #endif
+
+	#define Z_ASSERT(x, ...) do{if(!(x)){Z_ERROR("Assertion Failed!:{0}",__VA_ARGS__);DEBUG_BREAK();}}while(0)
+	#define Z_CORE_ASSERT(x, ...) do{if(!(x)){Z_CORE_ERROR("Assertion Failed!:{0}",__VA_ARGS__);DEBUG_BREAK();}}while(0)
 #else
 	#define Z_ASSERT(x,...)
 	#define Z_CORE_ASSERT(x,...)
@@ -32,6 +52,21 @@
 #define Z_BIND_EVENT_FUNC(func) [this](auto&&... args) -> decltype(auto) { return this->func(std::forward<decltype(args)>(args)...); }
 
 namespace Z{
+#ifdef Z_PLATFORM_LINUX
+	static constexpr char Z_SEPARATOR='/';
+#endif
+#ifdef Z_PLATFORM_WIN32
+	static constexpr char Z_SEPARATOR='\\';
+#endif
+    // Z_SOURCE_DIR means #define Z_SOURCE_DIR "{CMAKE_SOURCE_DIR}" provide with cmake
+    static const std::string ROOT_PATH= std::string(Z_SOURCE_DIR) + Z_SEPARATOR;
+    static const char* BUILD_VERSION=
+#ifdef Z_DEBUG
+    "Debug"
+#else
+     "Release"
+#endif
+    ;
 	template<typename T>
 	using Scope=std::unique_ptr<T>;
 	template<typename T,typename ... Args>

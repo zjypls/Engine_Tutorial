@@ -14,6 +14,7 @@ namespace Z {
 		void SetClearValue(const glm::vec4& color) override;
 		void Clear() override;
 		void ChangeDepthTest(DepthTestState state) override;
+		void DetachFrameBuffer() override;
 		void SetLineWidth(float width) override;
 		void DrawIndexed(const Ref<VertexArray>& vertexArray,unsigned int count) override;
 		void DrawLine(const Ref<VertexArray>& vertexArray,unsigned int count) override;

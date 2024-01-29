@@ -2,13 +2,13 @@
 // Created by 32725 on 2023/3/23.
 //
 
-#include "OpenGLFrameBuffer.h"
+#include "Platform/OpenGL/OpenGLFrameBuffer.h"
 
 constexpr unsigned int MAX_FRAMEBUFFER_SIZE = 8192;
 namespace Z {
 
 
-	namespace Temp {
+	namespace Tools {
 		static GLenum GetTarget(bool samples) {
 			return samples ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 		}
@@ -70,7 +70,7 @@ namespace Z {
 	OpenGLFrameBuffer::OpenGLFrameBuffer(const FrameBufferSpecification &specification) : specification(specification) {
 
 		for (auto &spec: specification.attachments.formats) {
-			if (!Temp::IsDepthAttachment(spec.format))
+			if (!Tools::IsDepthAttachment(spec.format))
 				AttachmentsSpecs.emplace_back(spec);
 			else
 				depthSpec = spec;
@@ -101,35 +101,35 @@ namespace Z {
 		glBindFramebuffer(GL_FRAMEBUFFER, ID);
 
 		const bool multiSample = specification.samples > 1;
-		Temp::CreateTextures(multiSample, Attachments.data(), Attachments.size());
+		Tools::CreateTextures(multiSample, Attachments.data(), Attachments.size());
 
 		for (int index = 0; index < Attachments.size(); ++index) {
 			switch (AttachmentsSpecs[index].format) {
 				case FrameBufferTextureFormat::R32I:
-					Temp::AttachColor(Attachments[index], GL_R32I, GL_RED_INTEGER, specification.samples,
-					                  specification.width, specification.height, index);
+					Tools::AttachColor(Attachments[index], GL_R32I, GL_RED_INTEGER, specification.samples,
+					                   specification.width, specification.height, index);
 					break;
 				case FrameBufferTextureFormat::R32F:
-					Temp::AttachColor(Attachments[index], GL_R32F, GL_RED, specification.samples, specification.width,
-					                  specification.height, index);
+					Tools::AttachColor(Attachments[index], GL_R32F, GL_RED, specification.samples, specification.width,
+					                   specification.height, index);
 					break;
 				case FrameBufferTextureFormat::RGBA8:
-					Temp::AttachColor(Attachments[index], GL_RGBA, GL_RGBA, specification.samples, specification.width,
-					                  specification.height, index);
+					Tools::AttachColor(Attachments[index], GL_RGBA, GL_RGBA, specification.samples, specification.width,
+					                   specification.height, index);
 					break;
 				case FrameBufferTextureFormat::RGBA32F:
-					Temp::AttachColor(Attachments[index], GL_RGBA32F, GL_RGBA, specification.samples,
-					                  specification.width, specification.height, index);
+					Tools::AttachColor(Attachments[index], GL_RGBA32F, GL_RGBA, specification.samples,
+					                   specification.width, specification.height, index);
 					break;
 				default: Z_CORE_ASSERT(false, "Unknown format");
 			}
 		}
 		if (depthSpec.format != FrameBufferTextureFormat::None) {
-			Temp::CreateTextures(multiSample, &DepthID, 1);
+			Tools::CreateTextures(multiSample, &DepthID, 1);
 			switch (depthSpec.format) {
 				case FrameBufferTextureFormat::DEPTH24STENCIL8:
-					Temp::AttachDepth(DepthID, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, specification.samples,
-					                  specification.width, specification.height);
+					Tools::AttachDepth(DepthID, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, specification.samples,
+					                   specification.width, specification.height);
 					break;
 				default: Z_CORE_ASSERT(false, "Unknown format");
 			}

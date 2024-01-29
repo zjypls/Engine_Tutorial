@@ -3,7 +3,8 @@
 //
 
 #include <algorithm>
-#include "LayerStacks.h"
+
+#include "Z/Core/LayerStacks.h"
 
 namespace Z {
 	LayerStacks::LayerStacks():LayerIndex(0) {

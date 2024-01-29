@@ -2,14 +2,18 @@
 // Created by 32725 on 2023/3/27.
 //
 
-#ifndef ENGINE_TUTORIAL_COMPENENTS_H
+#ifndef ENGINE_TUTORIAL_COMPONENTS_H
 #define ENGINE_TUTORIAL_COMPONENTS_H
+#pragma once
+#include "Include/glm/glm/glm.hpp"
+#include "Include/glm/glm/gtc/matrix_transform.hpp"
+#include "Include/glm/glm/gtx/quaternion.hpp"
+
 #include "Z/Core/zGUID.h"
-#include "SceneCamera.h"
+#include "Z/Scene/SceneCamera.h"
 #include "Z/Renderer/Texture.h"
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtx/quaternion.hpp"
+#include "Z/Renderer/VertexArray.h"
+#include "Z/Utils/Model.h"
 
 namespace Z {
 
@@ -37,7 +41,7 @@ namespace Z {
 
 	struct SpriteRendererComponent {
 		glm::vec4 color{1.f};
-		Ref<Texture2D> texture = nullptr;
+		Ref<Texture> texture = nullptr;
 
 		SpriteRendererComponent() = default;
 
@@ -99,10 +103,10 @@ namespace Z {
 		ScriptEntity* (*onConstruct)();
 		void (*onDestruct)(ScriptEntity*);
 
-		template<class _Ty>
+		template<class Ty>
 		void Bind() {
-			onConstruct=[]()->ScriptEntity*{auto res=(new _Ty());return res;};
-			onDestruct=[](ScriptEntity* ins){delete (_Ty*)ins;ins= nullptr;};
+			onConstruct=[]()->ScriptEntity*{auto res=(new Ty());return res;};
+			onDestruct=[](ScriptEntity* ins){delete (Ty*)ins;ins= nullptr;};
 		}
 	};
 
@@ -126,7 +130,7 @@ namespace Z {
 		glm::vec2 offset{0.f,0.f};
 		glm::vec2 size{1.f,1.f};
 		bool isTrigger{false};
-		//Todo : change
+		//Todo : change !!!!
 		void* ptr= new int{1};
 
 		float density{0.5f};
@@ -140,7 +144,7 @@ namespace Z {
 		glm::vec2 offset{0.f,0.f};
 		float radius{.5f};
 		bool isTrigger{false};
-		//Todo : change
+		//Todo : change !!!!
 		void* ptr= new int{1};
 
 		float density{0.5f};
@@ -150,12 +154,19 @@ namespace Z {
 		CircleCollider2DComponent()=default;
 	};
 
+	//TODO:Add a GUID for each component ?
+	struct MeshRendererComponent{
+		Ref<Mesh> mesh;
+	};
+
 	template<class... T>
 	struct Type{
 	};
 
-	using AllTypes=Type<TransformComponent,SpriteRendererComponent,CircleRendererComponent,TagComponent,
+	using AllTypes=Type<MeshRendererComponent,TransformComponent,SpriteRendererComponent,CircleRendererComponent,TagComponent,
 	CameraComponent,ScriptComponent,NativeScriptComponent,RigidBody2DComponent,BoxCollider2DComponent,CircleCollider2DComponent>;
+	using NoBaseTypes=Type<MeshRendererComponent,SpriteRendererComponent,CircleRendererComponent,
+			CameraComponent,ScriptComponent,NativeScriptComponent,RigidBody2DComponent,BoxCollider2DComponent,CircleCollider2DComponent>;
 
 }
 

@@ -6,7 +6,7 @@
 #include "Include/imgui/backends/imgui_impl_glfw.h"
 #include "Include/ImGuizmo/ImGuizmo.h"
 
-#include "ImGuiLayer.h"
+#include "Z/ImGui/ImGuiLayer.h"
 #include "Z/Core/Application.h"
 
 
@@ -52,7 +52,9 @@ namespace Z {
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
 		ImGuiIO &io = ImGui::GetIO();
-		io.IniFilename="./Assets/Configs/editorLayout.ini";
+		io.IniFilename=nullptr;//"Assets/Configs/editorLayout.ini";
+		ImGui::LoadIniSettingsFromDisk("Assets/Configs/editorLayout.ini");
+
 
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;      //Necessary for docking
@@ -78,7 +80,9 @@ namespace Z {
 	}
 
 	void ImGuiLayer::OnDetach() {
-
+		Z_CORE_WARN("ImGui Layer Destroy!");
+		ImGuiRendererPlatform::GetRenderer()->Shutdown();
+		ImGui::DestroyContext();
 	}
 
 	ImGuiLayer::ImGuiLayer() : Layer("ImGuiLayer") {
@@ -86,9 +90,6 @@ namespace Z {
 	}
 
 	ImGuiLayer::~ImGuiLayer() {
-		Z_CORE_WARN("ImGui Layer Destroy!");
-		ImGuiRendererPlatform::GetRenderer()->Shutdown();
-		ImGui::DestroyContext();
 	}
 
 	void ImGuiLayer::Begin() {

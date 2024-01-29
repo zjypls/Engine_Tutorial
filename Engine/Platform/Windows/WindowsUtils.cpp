@@ -1,20 +1,21 @@
 //
 // Created by 32725 on 2023/3/30.
 //
+
 #include <Windows.h>
 #include "Z/Utils/ZUtils.h"
 #include "Z/Core/Application.h"
 #include "Z/Project/Project.h"
-#include<GLFW/glfw3.h>
+#include "Include/glfw/include/GLFW/glfw3.h"
 #define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
+#include "Include/glfw/include/GLFW/glfw3native.h"
 namespace Z {
 	std::string Utils::FileOpen(const char *filter,const char* defaultOpen,const char* initialDir) {
 		OPENFILENAMEA ofn{};
-		char szFile[260]{};
+		char szFile[256]{};
 		strcpy(szFile,defaultOpen);
 		ofn.lStructSize = sizeof(ofn);
-		ofn.hwndOwner = glfwGetWin32Window((GLFWwindow *) Application::Get().GetWindow().GetNativeWindow());
+		ofn.hwndOwner = glfwGetWin32Window(static_cast<GLFWwindow *>(Application::Get().GetWindow().GetNativeWindow()));
 		ofn.lpstrFile = szFile;
 		ofn.nMaxFile = sizeof(szFile);
 		ofn.lpstrFilter = filter;
@@ -26,7 +27,7 @@ namespace Z {
 		}
 		else {
 			Z_CORE_INFO("Open Path:{}",initialDir);
-			ofn.lpstrInitialDir = initialDir;
+			ofn.lpstrInitialDir =(std::filesystem::current_path()/initialDir).string().c_str();
 		}
 		if (GetOpenFileNameA(&ofn)) {
 			return ofn.lpstrFile;

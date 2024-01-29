@@ -4,17 +4,18 @@
 
 #ifndef ENGINE_TUTORIAL_RENDERER2D_H
 #define ENGINE_TUTORIAL_RENDERER2D_H
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include"Z/Renderer/Texture.h"
-#include"Z/Renderer/VertexArray.h"
+#pragma once
+#include "Include/glm/glm/glm.hpp"
+#include "Include/glm/glm/gtc/matrix_transform.hpp"
+#include "Z/Renderer/Texture.h"
+#include "Z/Renderer/VertexArray.h"
 #include "Z/Renderer/Shader.h"
 #include "Z/Renderer/OrithGraphicCamera.h"
 #include "Z/Renderer/Camera.h"
 #include "Z/Renderer/EditorCamera.h"
-#include "Z/Scene/Components.h"
 #include "Z/Renderer/UniformBuffer.h"
-#include "SubTex2D.h"
+#include "Z/Renderer/SubTex2D.h"
+#include "Z/Scene/Components.h"
 
 namespace Z {
 	class Renderer2D {
@@ -68,7 +69,7 @@ namespace Z {
 			unsigned int lineIndexCount=0;
 			LineVertex *lineVertexBufferBase=nullptr;
 			LineVertex *lineVertexBufferPtr=nullptr;
-			std::array<Ref<Texture2D>,MaxTextureSlot> textureSlots;
+			std::array<Ref<Texture>,MaxTextureSlot> textureSlots;
 			unsigned int textureSlotIndex=1;
 
 			glm::vec4 quadVertexPositions[4];
@@ -97,6 +98,7 @@ namespace Z {
 		static void BeginScene(const Camera&camera,const glm::mat4 &transform);
 		static void BeginScene(const EditorCamera&camera);
 		static void BeginScene(const SceneCamera&camera,const glm::mat4 &transform);
+		static void BeginScene();
 		static void Flush();
 		static void EndScene();
 		static void ChangeDepthTest(RenderAPI::DepthTestState state=RenderAPI::DepthTestState::Less);

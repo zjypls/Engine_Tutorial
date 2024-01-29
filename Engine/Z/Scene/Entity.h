@@ -10,6 +10,7 @@
 
 namespace Z {
 	class Scene;
+	class zGUID;
 	class Entity {
 		entt::entity handle = entt::null;
 		Scene *scene = nullptr;
@@ -34,7 +35,7 @@ namespace Z {
 		template<class Ty>
 		Ty &GetComponent() const;
 
-		unsigned long long GetUID();
+		zGUID GetUID();
 		const std::string& GetName() const ;
 
 		template<class Ty>

@@ -140,6 +140,8 @@ namespace Z {
 
 		static void Init();
 
+		static void RegisterFileWatch();
+
 		static void ShutDown();
 
 		static void LoadAssembly(const std::filesystem::path &path);
@@ -160,8 +162,15 @@ namespace Z {
 		static MonoDomain*GetDomain();
 
 		static void ReCreateFields(Ref<Scene>);
+
 		static bool HasReLoadApp();
 		static void SetReLoadApp(bool);
+		static void CheckLoad(Ref<Scene>&scene_){
+			if(HasReLoadApp()) {
+				if(scene_) ReCreateFields(scene_);
+				SetReLoadApp(false);
+			}
+		}
 
 		static bool ClassExists(const std::string &name);
 		static bool EntityFieldExists(zGUID id, ScriptClass&klass);

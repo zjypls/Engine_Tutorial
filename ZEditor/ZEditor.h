@@ -5,15 +5,15 @@
 #ifndef ENGINE_TUTORIAL_SANBOX2D_H
 #define ENGINE_TUTORIAL_ZEDITOR_H
 
+#include <unordered_map>
 #include "z.h"
-#include "SceneHierarchy/SceneHierarchyPlane.h"
-#include "SceneHierarchy/ContentBrowser.h"
 #include "Include/ImGuizmo/ImGuizmo.h"
 #include "Z/Renderer/EditorCamera.h"
-#include <unordered_map>
+#include "SceneHierarchy/SceneHierarchyPlane.h"
+#include "SceneHierarchy/ContentBrowser.h"
 
 namespace Z {
-	class EditorLayer : public Layer {
+	class EditorLayer final : public Layer {
 		enum class SceneState {
 			Edit, Play, Simulate,Pause
 		};
@@ -27,14 +27,17 @@ namespace Z {
 		Ref<Scene> scene, BackScene;
 		Scope<SceneHierarchyPlane> sceneHierarchyPlane;
 		int currentGizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
-		Z::EditorCamera editorCamera;
+		EditorCamera editorCamera;
 		Scope<ContentBrowser> contentBrowser;
-		Ref<Z::Texture2D> playButtonIcon, stopButtonIcon, simulateButtonIcon,pauseButtonIcon,stepButtonIcon;
-		Ref<Z::Texture2D> toolButtons[3];
+		Ref<Texture> playButtonIcon, stopButtonIcon, simulateButtonIcon,pauseButtonIcon,stepButtonIcon;
+		Ref<Texture> toolButtons[3];
 		std::filesystem::path WorkPath{};
 		Entity selectedEntity;
-		bool scriptReload = false,nextStep=false;
+		bool scriptReload = false,nextStep=false,selfDefLayout=false;
+		std::string selfDefLayoutFilePath;
 		int stepFrames=1;
+
+		Entity testModel;
 
 		void InnerSave(const std::string &path);
 
@@ -65,6 +68,8 @@ namespace Z {
 		void SaveScene();
 
 		void LoadScene();
+
+        void LoadProjects();
 
 		void LoadScene(const std::filesystem::path &path);
 

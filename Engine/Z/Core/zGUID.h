@@ -20,7 +20,7 @@ namespace Z {
 
 		zGUID(const zGUID &other) = default;
 
-		operator uint64_t() const { return value; }
+		operator Type() const { return value; }
 
 	private:
 		Type value;

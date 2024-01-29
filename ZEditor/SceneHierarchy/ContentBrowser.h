@@ -19,9 +19,11 @@ namespace Z {
 
 		void OnImGuiRender();
 
+        inline void SetWorkPath(const std::string& path){currentPath=path;}
+
 	private:
 		std::filesystem::path currentPath;
-		Ref<Texture2D> icons[2];
+		Ref<Texture> icons[2];
 	};
 
 }

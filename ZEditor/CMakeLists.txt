@@ -9,7 +9,8 @@ include_directories(${CMAKE_SOURCE_DIR}/Engine
                     depends)
 
 file(GLOB_RECURSE src CONFIGURE_DEPENDS *.cpp *.h)
-link_directories(${VK_PATH}/Lib)
+link_directories(${VK_PATH}/lib)
+
 add_executable(${PROJECT_NAME} ${src} ${EDITOR_RC})
 if (${CMAKE_GENERATOR} MATCHES "Visual Studio")
     set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
@@ -17,9 +18,9 @@ endif ()
 
 target_include_directories(${PROJECT_NAME} PUBLIC depends)
 target_link_libraries(${PROJECT_NAME} PUBLIC Z)
-target_compile_definitions(${PROJECT_NAME} PUBLIC Z_PLATFORM_WIN32 Z_SOURCE_DIR)
+target_compile_definitions(${PROJECT_NAME} PUBLIC ${PLATFORM_SYMBOL} Z_SOURCE_DIR Z_CONF_EXTENSION=".zConf")
 
-if (${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
-    message("ZEditor: Debug mode")
-    target_compile_definitions(${PROJECT_NAME} PUBLIC Z_DEBUG)
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+    add_definitions(-DZ_ENABLE_PROFILING=1)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC Z_DEBUG Z_ENABLE_PROFILING)
 endif ()

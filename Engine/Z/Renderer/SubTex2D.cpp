@@ -2,7 +2,7 @@
 // Created by 32725 on 2023/3/21.
 //
 
-#include "SubTex2D.h"
+#include "Z/Renderer/SubTex2D.h"
 
 namespace Z {
 	SubTex2D::SubTex2D(const Z::Ref<Z::Texture2D> &tex, glm::vec2 &leftDown, const glm::vec2 &rightUp)

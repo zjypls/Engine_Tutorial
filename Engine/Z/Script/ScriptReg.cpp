@@ -1,27 +1,33 @@
 //
 // Created by 32725 on 2023/4/7.
 //
+#ifdef __GNUC__
+#include <cxxabi.h>
+#endif
 
-#include "ScriptReg.h"
-//#include "Z/Core/Core.h"
-//#include "Z/Core/Log.h"
-//#include "Z/Core/GUID.h"
-#include "ScriptEngine.h"
+#include "Include/glm/glm/glm.hpp"
+#include "Include/mono/include/mono/jit/jit.h"
+#include "Include/mono/include/mono/metadata/reflection.h"
+#include "Include/box2d/include/box2d/b2_body.h"
+
+#define Z_INTERNAL_FUNC(Name) mono_add_internal_call("Z.Internal::"#Name,(void*)Name)
+#include "Z/Script/ScriptReg.h"
+#include "Z/Script/ScriptEngine.h"
 #include "Z/Scene/Entity.hpp"
 #include "Z/Core/Input.h"
 #include "Z/Scene/Components.h"
-#include "glm/glm.hpp"
-#include "mono/jit/jit.h"
-#include "mono/metadata/reflection.h"
-#include "box2d/b2_body.h"
 
 namespace Z {
-	const void InternalCallPRT(MonoString *str) {
-		Z_CORE_WARN("C#: {0}", mono_string_to_utf8(str));
+	void InternalCallInfo(MonoString *str) {
+		Z_CORE_INFO(" Log from C# script : {0}", mono_string_to_utf8(str));
 	}
 
-	void InternalCallWARN(glm::vec3 *v) {
-		//Z_CORE_WARN("C#: {0}", *v);
+	void InternalCallWarn(MonoString* str) {
+		Z_CORE_WARN(" Warn from C# script : {0}", mono_string_to_utf8(str));
+	}
+
+	void InternalCallError(MonoString* str) {
+		Z_CORE_ERROR(" Error from C# script : {0}", mono_string_to_utf8(str));
 	}
 
 	void InternalCallDot(glm::vec3 *v, glm::vec3 *u, glm::vec3 *o) {
@@ -89,6 +95,16 @@ namespace Z {
 		}
 		return array;
 	}
+	MonoString* Entity_GetTag(zGUID id) {
+		auto name= ScriptEngine::GetContext()->GetEntityWithGUID(id).GetName();
+		return mono_string_new(ScriptEngine::GetDomain(),name.c_str());
+	}
+
+	void Entity_SetTag(zGUID id,MonoString* newTag) {
+		auto entity=ScriptEngine::GetContext()->GetEntityWithGUID(id);
+		entity.GetComponent<TagComponent>().tag=mono_string_to_utf8(newTag);
+	}
+
 	glm::vec3 Entity_GetRigidBody2DPosition(zGUID id){
 		b2Body* body = (b2Body*)ScriptEngine::GetContext()->GetEntityWithGUID(id).GetComponent<RigidBody2DComponent>().ptr;
 		auto pos=body->GetPosition();
@@ -125,12 +141,40 @@ namespace Z {
 		return body->GetType();
 	}
 
+	uint64_t Entity_SingleClone(zGUID originID) {
+		// Fixme:value different with C# script give on Windows but work well on Linux ???? //solved (2024/01/12 13:50)
+		// a log output on windows(2024/01/12 3:20):
+		/*
+		 [03:09:28] Z: Log from C# script : 13666765057558020482
+		 [03:09:28] Z: Log from C# script : example
+		 [03:09:28] Z: Log from C# script : Test Log : Call EntityCore::Instantiate for go named example,id :13666765057558020482
+
+		 [03:09:28] Z:SingleClone recive id : 140695316822416
+		 [03:09:28] Z:Found GO named example total Size (C++ execute): 1
+		 [03:09:28] Z:go[0] 13666765057558020482
+		 */
+		// noticed by pls
+        // solved (2024/01/12 13:50)
+        // noticed that the return value type of mono internal function should be base type or MonoType !
+        // speculate that it works well on Linux because gcc optimize zGUID as uint64_t ?
+		const auto& context=ScriptEngine::GetContext();
+		const auto OriginEntity=context->GetEntityWithGUID(originID);
+		auto entity=context->InstantiateEntity(OriginEntity);
+		return entity.GetUID();
+	}
+
 
 	template<class... T>
 	void RegComponent(Type<T...>) {
 		(
-				[]() {
-					std::string_view OriginName = typeid(T).name();
+				[] {
+					std::string_view OriginName;
+#ifdef __GNUC__
+                    OriginName = abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, nullptr);
+#else
+                    OriginName = typeid(T).name();
+#endif
+                    Z_CORE_WARN("Register Type : {0} !",OriginName);
 					auto space = OriginName.rfind(':');
 					auto name = fmt::format("Z.{}", OriginName.substr(space + 1));
 					MonoType *type = mono_reflection_type_from_name(name.data(), ScriptEngine::GetCoreImage());
@@ -147,8 +191,9 @@ namespace Z {
 
 
 	void ScriptReg::Reg() {
-		Z_INTERNAL_FUNC(InternalCallPRT);
-		Z_INTERNAL_FUNC(InternalCallWARN);
+		Z_INTERNAL_FUNC(InternalCallInfo);
+		Z_INTERNAL_FUNC(InternalCallWarn);
+		Z_INTERNAL_FUNC(InternalCallError);
 		Z_INTERNAL_FUNC(InternalCallDot);
 		Z_INTERNAL_FUNC(GetTranslation);
 		Z_INTERNAL_FUNC(SetTranslation);
@@ -159,6 +204,8 @@ namespace Z {
 		Z_INTERNAL_FUNC(Entity_SetVelocity);
 		Z_INTERNAL_FUNC(Entity_ApplyForce);
 		Z_INTERNAL_FUNC(Entity_ApplyForceCenter);
+		Z_INTERNAL_FUNC(Entity_GetTag);
+		Z_INTERNAL_FUNC(Entity_SetTag);
 		Z_INTERNAL_FUNC(Entity_GetByName);
 		Z_INTERNAL_FUNC(Entity_GetRigidBody2DPosition);
 		Z_INTERNAL_FUNC(Entity_SetRigidBody2DPosition);
@@ -166,6 +213,7 @@ namespace Z {
 		Z_INTERNAL_FUNC(Entity_GetMass);
 		Z_INTERNAL_FUNC(Entity_GetRigidBody2DType);
 		Z_INTERNAL_FUNC(Entity_SetRigidBody2DType);
+		Z_INTERNAL_FUNC(Entity_SingleClone);
 	}
 
 	void ScriptReg::RegComponents() {

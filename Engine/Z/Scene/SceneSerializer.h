@@ -5,7 +5,7 @@
 #ifndef ENGINE_TUTORIAL_SCENESERIALIZER_H
 #define ENGINE_TUTORIAL_SCENESERIALIZER_H
 
-#include "Scene.h"
+#include "Z/Scene/Scene.h"
 
 namespace Z {
 	class SceneSerializer {

@@ -21,6 +21,7 @@ namespace Z {
 	public:
 		VulkanContext(GLFWwindow*w);
 		static void PreInit();
+		void DeviceSynchronize();
 		void Init()override;
 
 		void SwapBuffers()override;

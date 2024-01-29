@@ -1,10 +1,9 @@
 //
 // Created by 32725 on 2023/3/19.
 //
-
-#include "Renderer2D.h"
-#include "glm/gtx/transform.hpp"
 #include <thread>
+
+#include "Z/Renderer/Renderer2D.h"
 #include "Z/Renderer/RenderCommand.h"
 
 namespace Z {
@@ -14,9 +13,9 @@ namespace Z {
 
 	void Renderer2D::Init() {
 		data = new RenderData();
-		data->QuadShader = Shader::CreateShader( "Shaders/Quad.glsl");
-		data->CircleShader = Shader::CreateShader( "Shaders/Circle.glsl");
-		data->LineShader = Shader::CreateShader( "Shaders/Line.glsl");
+		data->QuadShader = Shader::CreateShader( "Assets/Shaders/Quad.glsl");
+		data->CircleShader = Shader::CreateShader( "Assets/Shaders/Circle.glsl");
+		data->LineShader = Shader::CreateShader( "Assets/Shaders/Line.glsl");
 		stats = new StatisticData{0, 0, 0};
 		data->quadVertexArray = VertexArray::Create();
 		data->quadVertexBufferBase = new QuadVertex[data->MaxVertexCount];
@@ -75,7 +74,7 @@ namespace Z {
 			data->lineVertexBuffer->SetLayout(*layout);
 		}
 		data->lineVertexArray->AddVertexBuffer(data->lineVertexBuffer);
-		data->lineVertexArray->SetIndexBuffer(indexBuffer);//TODO: 为什么这里不用重新创建一个indexBuffer
+		data->lineVertexArray->SetIndexBuffer(indexBuffer);
 		data->lineVertexArray->Unbind();
 
 		delete[] indices;
@@ -89,35 +88,43 @@ namespace Z {
 		data->quadVertexPositions[2] = glm::vec4{0.5f, 0.5f, 0.0f, 1.0f};
 		data->quadVertexPositions[3] = glm::vec4{-0.5f, 0.5f, 0.0f, 1.0f};
 
-		data->cameraBuffer = UniformBuffer::Create(sizeof(CameraData), 1);
+		//data->cameraBuffer = UniformBuffer::Create(sizeof(CameraData), 1);
 	}
 
 	void Renderer2D::Shutdown() {
+		Z_CORE_WARN("Renderer2D Shutdown!!!");
 		delete[] data->quadVertexBufferBase;
 		delete[] data->circleVertexBufferBase;
 		delete[] data->lineVertexBufferBase;
+        delete stats;
 		delete data;
 	}
 
 	void Renderer2D::BeginScene(const EditorCamera &camera) {
-		data->cameraData.ViewProjectionMatrix = camera.GetViewProjectionMatrix();
-		data->cameraBuffer->SetData(&data->cameraData, sizeof(CameraData));
+//		data->cameraData.ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+//		data->cameraBuffer->SetData(&data->cameraData, sizeof(CameraData));
 		data->quadVertexBufferPtr = data->quadVertexBufferBase;
 		data->circleVertexBufferPtr = data->circleVertexBufferBase;
 		data->lineVertexBufferPtr = data->lineVertexBufferBase;
 	}
 
 	void Renderer2D::BeginScene(const Ref<OrithGraphicCamera> &camera) {
-		data->cameraData.ViewProjectionMatrix = camera->GetViewProjectionMatrix();
-		data->cameraBuffer->SetData(&data->cameraData, sizeof(CameraData));
+//		data->cameraData.ViewProjectionMatrix = camera->GetViewProjectionMatrix();
+//		data->cameraBuffer->SetData(&data->cameraData, sizeof(CameraData));
 		data->quadVertexBufferPtr = data->quadVertexBufferBase;
 		data->circleVertexBufferPtr = data->circleVertexBufferBase;
 		data->lineVertexBufferPtr = data->lineVertexBufferBase;
 	}
 
 	void Renderer2D::BeginScene(const Camera &camera, const glm::mat4 &transform) {
-		data->cameraData.ViewProjectionMatrix = camera() * glm::inverse(transform);
-		data->cameraBuffer->SetData(&data->cameraData, sizeof(CameraData));
+//		data->cameraData.ViewProjectionMatrix = camera() * glm::inverse(transform);
+//		data->cameraBuffer->SetData(&data->cameraData, sizeof(CameraData));
+		data->quadVertexBufferPtr = data->quadVertexBufferBase;
+		data->circleVertexBufferPtr = data->circleVertexBufferBase;
+		data->lineVertexBufferPtr = data->lineVertexBufferBase;
+	}
+
+	void Renderer2D::BeginScene() {
 		data->quadVertexBufferPtr = data->quadVertexBufferBase;
 		data->circleVertexBufferPtr = data->circleVertexBufferBase;
 		data->lineVertexBufferPtr = data->lineVertexBufferBase;
@@ -345,6 +352,7 @@ namespace Z {
 	void Renderer2D::ChangeDepthTest(RenderAPI::DepthTestState state) {
 		RenderCommand::ChangeDepthTest(state);
 	}
+
 
 
 }

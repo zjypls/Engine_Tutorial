@@ -38,4 +38,8 @@ namespace Z {
 		glfwWindowHint(GLFW_CLIENT_API,GLFW_NO_API);
 	}
 
+	void VulkanContext::DeviceSynchronize() {
+		vkDeviceWaitIdle(device);
+	}
+
 }

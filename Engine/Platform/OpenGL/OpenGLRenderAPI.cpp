@@ -2,9 +2,9 @@
 // Created by 32725 on 2023/3/17.
 //
 
-#include "OpenGLRenderAPI.h"
-#include "glad/glad.h"
 #include <iostream>
+#include "Include/glad/include/glad/glad.h"
+#include "Platform/OpenGL/OpenGLRenderAPI.h"
 
 namespace Z {
 	void OpenGLRenderAPI::SetClearValue(const glm::vec4 &color) {
@@ -17,8 +17,8 @@ namespace Z {
 
 	void OpenGLRenderAPI::DrawIndexed(const Ref<VertexArray> &vertexArray,unsigned int count) {
 		vertexArray->Bind();
-		//Fixme:out of range bug
-		//count = (count == 0) ? vertexArray->GetIndexBuffer()->GetCount() : count;
+		//Fixme:out of range bug   //Random Happened???
+		count = (count == 0) ? vertexArray->GetIndexBuffer()->GetCount() : count;
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
 
@@ -78,4 +78,7 @@ namespace Z {
 		}
 	}
 
+	void OpenGLRenderAPI::DetachFrameBuffer() {
+		glBindFramebuffer(GL_FRAMEBUFFER,0);
+	}
 }

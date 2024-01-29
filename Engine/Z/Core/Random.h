@@ -5,9 +5,10 @@
 #ifndef ENGINE_TUTORIAL_RANDOM_H
 #define ENGINE_TUTORIAL_RANDOM_H
 #include <random>
-#include "glm/glm.hpp"
+#include "Include/glm/glm/glm.hpp"
 namespace Z {
 	class Random {
+		static std::random_device randomDevice;
 		static std::mt19937 RandomEngine;
 		static std::uniform_real_distribution<float> Distribution;
 	public:

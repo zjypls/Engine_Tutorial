@@ -4,14 +4,16 @@
 
 #ifndef ENGINE_TUTORIAL_APPLICATION_H
 #define ENGINE_TUTORIAL_APPLICATION_H
+#include "Z/Core/zWindow.h"
+#include "Z/Core/LayerStacks.h"
 #include "Z/Events/Event.h"
-#include "zWindow.h"
-#include "LayerStacks.h"
 #include "Z/ImGui/ImGuiLayer.h"
 #include "Z/Renderer/Shader.h"
 #include "Z/Renderer/Buffer.h"
 #include "Z/Renderer/VertexArray.h"
-#include"Z/Renderer/OrithGraphicCamera.h"
+#include "Z/Renderer/OrithGraphicCamera.h"
+#include "Z/Scene/Scene.h"
+
 namespace Z {
 	struct CommandArgs{
 		int Count;
@@ -27,17 +29,6 @@ namespace Z {
 		std::string RootPath;
 	};
     class Z_API Application {
-
-		ApplicationSpec Spec;
-		Z::Scope<zWindow> window;
-		bool Running=true;
-		bool MinSize=false;
-		LayerStacks LayerStack;
-		ImGuiLayer* imguiLayer;
-
-		bool OnWindowClose(WindowCloseEvent& e);
-		bool OnWindowResize(WindowResizeEvent& e);
-
     public:
         Application(const ApplicationSpec&spec);
 		void PushLayer(Layer* layer);
@@ -52,9 +43,22 @@ namespace Z {
 		inline zWindow& GetWindow(){return *application->window;}
 		inline void SubmitFunc(const std::function<void()>& func){std::scoped_lock<std::mutex> lock(QueueMutex);FuncQueue.push_back(func);}
 	private:
+        static Application* application;
+
+        // an events queue execute at the end per frame
 		std::vector<std::function<void()>> FuncQueue;
 		std::mutex QueueMutex;
-		static Application* application;
+
+        ApplicationSpec Spec;
+        Scope<zWindow> window;
+        bool Running=true;
+        bool MinSize=false;
+        LayerStacks LayerStack;
+        ImGuiLayer* imguiLayer;
+        Ref<Scene> scene;
+
+        bool OnWindowClose(WindowCloseEvent& e);
+        bool OnWindowResize(WindowResizeEvent& e);
 
     };
 	Application* GetApplication(const CommandArgs&);

@@ -7,6 +7,7 @@
 
 
 #include "Z/Core/Application.h"
+#include "Z/Core/AssetsSystem.h"
 #include "Z/Core/Core.h"
 #include "Z/Core/Input.h"
 #include "Z/Core/KeyCodes.h"

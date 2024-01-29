@@ -4,10 +4,11 @@
 
 #ifndef ENGINE_TUTORIAL_INPUT_H
 #define ENGINE_TUTORIAL_INPUT_H
-#include "Core.h"
 #include <unordered_map>
-#include"Z/Core/KeyCodes.h"
-#include"Z/Core/MouseButtonCodes.h"
+
+#include "Z/Core/Core.h"
+#include "Z/Core/KeyCodes.h"
+#include "Z/Core/MouseButtonCodes.h"
 
 namespace Z {
 	class Z_API Input {

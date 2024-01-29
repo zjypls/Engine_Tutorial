@@ -1,6 +1,9 @@
 //
 // Created by 32725 on 2023/3/28.
 //
+#ifdef __GNUC__
+#include <cxxabi.h>
+#endif
 #include <filesystem>
 
 #include "Include/imgui/imgui.h"
@@ -8,15 +11,22 @@
 
 #include "Z/Scene/Components.h"
 #include "Z/Script/ScriptEngine.h"
+#include "Z/Core/AssetsSystem.h"
+
 #include "SceneHierarchyPlane.h"
 
 namespace Z {
 
-	namespace Temp {
+	namespace Tools {
 
 		template<class T>
 		std::string GetTypeName() {
-			auto temp = std::string(typeid(T).name());
+            std::string  temp;
+#ifdef __GNUC__
+            temp = abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, nullptr);
+#else
+            temp = typeid(T).name();
+#endif
 			auto space = temp.rfind(':');
 			auto end = temp.rfind("Component");
 			return temp.substr(space + 1, end - space - 1);
@@ -30,6 +40,16 @@ namespace Z {
 				}
 			}(), ...);
 		}
+
+		std::set<std::string> TextureSheet{".jpg",".png",".bmp",".jpeg"};
+		inline bool IsTexture(const std::string& extension){
+			#if __cplusplus>=202002L
+				return TextureSheet.contains(extension);
+			#else
+			return TextureSheet.find(extension)!=TextureSheet.end();
+			#endif
+		}
+
 	}
 
 	static void
@@ -78,20 +98,22 @@ namespace Z {
 
 	void SceneHierarchyPlane::OnImGuiRender() {
 		ImGui::Begin("Scene Hierarchy");
-		context->registry.each([&](auto entityID) {
-			Entity entity{entityID, context.get()};
-			DrawEntity(entity);
-		});
-		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered()) {
-			selectedEntity = {};
-		}
-		if (ImGui::BeginPopupContextWindow(nullptr,
-		                                   ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems)) {
-			if (ImGui::MenuItem("Create Empty Entity")) {
-				context->CreateEntity("Empty Entity");
-			}
-			ImGui::EndPopup();
-		}
+        if(context){
+            context->registry.each([&](auto entityID) {
+                Entity entity{entityID, context.get()};
+                DrawEntity(entity);
+            });
+            if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered()) {
+                selectedEntity = {};
+            }
+            if (ImGui::BeginPopupContextWindow(nullptr,
+                                               ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems)) {
+                if (ImGui::MenuItem("Create Empty Entity")) {
+                    context->CreateEntity("Empty Entity");
+                }
+                ImGui::EndPopup();
+            }
+        }
 		ImGui::End();
 
 		ImGui::Begin("Inspector");
@@ -167,7 +189,7 @@ namespace Z {
 			ImGui::OpenPopup("AddComponent");
 		}
 		if (ImGui::BeginPopup("AddComponent")) {
-			Temp::AddComponentMenu(AllTypes{}, entity);
+			Tools::AddComponentMenu(AllTypes{}, entity);
 			ImGui::EndPopup();
 		}
 		ImGui::PopItemWidth();
@@ -188,14 +210,25 @@ namespace Z {
 			                                       if (ImGui::BeginDragDropTarget()) {
 				                                       if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(
 						                                       "CONTENT_BROWSER_ITEM")) {
-					                                       const char *path = (const char *) payload->Data;
+					                                       std::string path = (const char *) payload->Data;
+														   auto pos=path.find_first_of('.');
+														   if(!Tools::IsTexture(path.substr(pos,path.find_last_of('.')-pos)))
+															   return;
 					                                       Z_CORE_ASSERT(std::filesystem::exists(path),
 					                                                     "Path does not exist!");
-					                                       auto temp = Texture2D::CreateTexture(path);
-						                                   spriteRenderer.texture = temp;
+						                                   spriteRenderer.texture = AssetsSystem::Load<Texture>(path,true);
 				                                       }
 				                                       ImGui::EndDragDropTarget();
-			                                       }
+			                                       }else if(ImGui::IsItemHovered()&&
+														   ImGui::IsMouseClicked(ImGuiMouseButton_::ImGuiMouseButton_Right)){
+													   ImGui::OpenPopup("ImageMenuPop");
+												   }
+													if(ImGui::BeginPopup("ImageMenuPop")){
+														if(ImGui::MenuItem("Remove Image")){
+															spriteRenderer.texture = nullptr;
+														}
+														ImGui::EndPopup();
+													}
 		                                       });
 		DrawComponent<CircleRendererComponent>("CircleRenderer", entity,
 		                                       [](Entity entity, CircleRendererComponent &component) {
@@ -418,6 +451,12 @@ namespace Z {
 						}
 					}
 				}
+		});
+		DrawComponent<MeshRendererComponent>("MeshRenderer",entity,[](Entity entity,MeshRendererComponent&component){
+			ImGui::Text("Model:");
+			ImGui::SameLine();
+            if(component.mesh) ImGui::Text(component.mesh->name.c_str());
+            else ImGui::Text("No model loaded!");
 		});
 	}
 

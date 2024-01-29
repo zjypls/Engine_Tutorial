@@ -2,8 +2,8 @@
 // Created by 32725 on 2023/3/17.
 //
 #include "Z/Core/Log.h"
-#include "Buffer.h"
-#include "Renderer.h"
+#include "Z/Renderer/Buffer.h"
+#include "Z/Renderer/Renderer.h"
 #include "Platform/OpenGL/OpenGLBuffer.h"
 
 namespace Z{

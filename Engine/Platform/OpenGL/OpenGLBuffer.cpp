@@ -2,7 +2,7 @@
 // Created by 32725 on 2023/3/17.
 //
 
-#include "OpenGLBuffer.h"
+#include "Platform/OpenGL/OpenGLBuffer.h"
 
 namespace Z {
 	OpenGLVertexBuffer::OpenGLVertexBuffer(float *vertices, uint32_t size) {

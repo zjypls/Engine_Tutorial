@@ -1,8 +1,13 @@
 ﻿#build folder
-cmake-build-build/
+cmake-build-*/
 *.exe
-#build libarary
-Lib/
+#build libarary except vulkanSDK
+Lib
+!Engine/Include/vulkanSDK/lib
+!Assets/mono/lib
+#self define config file except skybox config file
+*.zConf
+!Projects/Test001/Assets/Textures/skybox/skybox.zConf
 #jetbrain toolchain config folder
 .idea/
 #temp file
@@ -13,12 +18,20 @@ Lib/
 .vs
 #temp build folder
 build/
+build-*/
 #local shader cache files
+ShaderCaches
 *.shaderc_glsl_vertex_shader
 *.shaderc_glsl_fragment_shader
 #a test folder
 Application
 #build dynamic libraries
-Bin-C/Scripts/*.dll
-Bin-C/*.dll
-Bin-C/MSVC
+bin/*.exe
+bin/*.pdb
+bin/ZEditor
+!bin/scripts.dll
+!bin/ScriptsCore.dll
+#other config files
+.clang-tidy
+#mono crash json file
+mono_crash*

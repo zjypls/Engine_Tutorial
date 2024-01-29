@@ -4,7 +4,6 @@
 
 #ifndef ENGINE_TUTORIAL_SCRIPTREG_H
 #define ENGINE_TUTORIAL_SCRIPTREG_H
-#define Z_INTERNAL_FUNC(Name) mono_add_internal_call("Z.Internal::"#Name,(void*)Name)
 
 namespace Z {
 	class ScriptReg {

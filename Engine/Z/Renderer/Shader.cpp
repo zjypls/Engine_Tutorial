@@ -1,14 +1,15 @@
 //
 // Created by 32725 on 2023/3/16.
 //
+#include <fstream>
+
+#include "Include/glad/include/glad/glad.h"
 #include "Z/Core/Log.h"
 #include "Z/Core/Core.h"
-#include "Shader.h"
-#include "glad/glad.h"
-#include "Renderer.h"
+#include "Z/Renderer/Shader.h"
+#include "Z/Renderer/Renderer.h"
 #include "Platform/OpenGL/OpenGLShader.h"
 
-#include <fstream>
 
 namespace Z {
 	std::unordered_map<std::string, std::shared_ptr<Shader>> ShaderLibrary::Shaders;

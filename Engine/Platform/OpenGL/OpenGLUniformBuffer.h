@@ -7,12 +7,12 @@
 #include "Z/Renderer/UniformBuffer.h"
 
 namespace Z {
-	class OpenGLUniformBuffer: public UniformBuffer {
+	class OpenGLUniformBuffer final: public UniformBuffer {
 		unsigned int ID;
 	public:
 		OpenGLUniformBuffer(unsigned int size, unsigned int binding);
-		virtual ~OpenGLUniformBuffer() override;
-		virtual void SetData(const void* data, unsigned int size,int offset=0) override;
+		~OpenGLUniformBuffer() override;
+		void SetData(const void* data, unsigned int size,int offset) override;
 
 	};
 
