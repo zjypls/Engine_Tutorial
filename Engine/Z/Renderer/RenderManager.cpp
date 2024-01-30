@@ -16,5 +16,8 @@ namespace Z {
     }
 
     void RenderManager::Update(float deltaTime) {
+        m_Context->prepareBeforeRender({});
+
+        m_Context->SubmitTask();
     }
 } // Z

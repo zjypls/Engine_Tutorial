@@ -7,8 +7,11 @@
 #include "Include/ImGuizmo/ImGuizmo.h"
 
 #include "Z/ImGui/ImGuiLayer.h"
-#include "Z/Core/Application.h"
 
+#include "Platform/Vulkan/ImGuiVulkanRenderDocking.h"
+#include "Platform/Vulkan/VulkanGraphicInterface.h"
+#include "Z/Core/Application.h"
+#include "Z/Renderer/RenderManager.h"
 
 
 namespace Z {
@@ -94,6 +97,7 @@ namespace Z {
 
 	void ImGuiLayer::Begin() {
 		ImGuiRendererPlatform::GetRenderer()->Begin();
+		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();
 	}

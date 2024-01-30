@@ -20,6 +20,9 @@ namespace Z {
     public:
         //Render Interface
         void Init(const GraphicSpec&spec)override;
+        bool prepareBeforeRender(const std::function<void()>&funcCallAfterRecreateSwapChain) override;
+        void SubmitTask() override;
+
         //Resource create interface
         void CreateImage(const ImageInfo& info,Image*& image,DeviceMemory*& memory)override;
         void CreateBuffer(const BufferInfo& info,Buffer*&buffer,DeviceMemory*& memory)override;
@@ -55,6 +58,8 @@ namespace Z {
         void CreateFramebufferImageAndView();
         void CreateVmaAllocator();
 
+        void ReCreateSwapChain();
+
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugUtilsMessenger;
         VkSurfaceKHR surface;
@@ -64,7 +69,7 @@ namespace Z {
         uint32 currentSwapChainImageIndex=0;
         QueueFamilyIndices familyIndices;
         VkFormat depthFormat;
-        Queue* graphicsQueue,*computeQueue;
+        Queue* graphicsQueue,*computeQueue,*presentQueue;
         VkCommandPool transientCommandPool;
         VkCommandPool commandPools[maxFlightFrames];
         VkCommandBuffer commandBuffers[maxFlightFrames];

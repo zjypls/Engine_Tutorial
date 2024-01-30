@@ -33,7 +33,7 @@ namespace Z {
 
 
 	void ImGuiRendererVulkan::Shutdown() {
-
+		ImGui::DestroyContext();
 	}
 
 }

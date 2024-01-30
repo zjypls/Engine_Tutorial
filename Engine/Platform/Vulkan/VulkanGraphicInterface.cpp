@@ -56,8 +56,9 @@ namespace Z {
         submitInfo.sType=VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount=1;
         submitInfo.pCommandBuffers=&buffer;
-        vkQueueSubmit(((VulkanQueue*)graphicsQueue)->Get(),1,&submitInfo,VK_NULL_HANDLE);
-        vkDeviceWaitIdle(device);
+        auto queue=((VulkanQueue*)graphicsQueue)->Get();
+        vkQueueSubmit(queue,1,&submitInfo,VK_NULL_HANDLE);
+        vkQueueWaitIdle(queue);
         vkFreeCommandBuffers(device,transientCommandPool,1,&buffer);
     }
 
@@ -117,6 +118,7 @@ namespace Z {
             VkPhysicalDeviceProperties properties{};
             vkGetPhysicalDeviceProperties(phyDevice,&properties);
             if(properties.deviceType==VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU){
+                Z_CORE_INFO("Using GPU : {0}",properties.deviceName);
                 physicalDevice=phyDevice;
             }
         }
@@ -166,6 +168,11 @@ namespace Z {
         vkGetDeviceQueue(device,familyIndices.graphics.value(),0,&graphicqueue);
         graphicsQueue=new VulkanQueue{};
         ((VulkanQueue*)graphicsQueue)->Set(graphicqueue);
+
+        VkQueue presentqueue;
+        vkGetDeviceQueue(device,familyIndices.present.value(),0,&presentqueue);
+        presentQueue=new VulkanQueue();
+        ((VulkanQueue*)presentQueue)->Set(presentqueue);
 
         VkQueue computequeue;
         vkGetDeviceQueue(device,familyIndices.compute.value(),0,&computequeue);
@@ -336,6 +343,9 @@ namespace Z {
         vmaCreateAllocator(&allocatorCreateInfo, &vmaAllocator);
     }
 
+    void VulkanGraphicInterface::ReCreateSwapChain() {
+    }
+
     void VulkanGraphicInterface::Init(const GraphicSpec &spec) {
         CreateInstance();
         initializeDebugMessenger();
@@ -351,6 +361,85 @@ namespace Z {
         CreateFramebufferImageAndView();
         CreateVmaAllocator();
     }
+
+    bool VulkanGraphicInterface::prepareBeforeRender(const std::function<void()> &funcCallAfterRecreateSwapChain) {
+        auto acquireRes=vkAcquireNextImageKHR(device,swapchain,UINT64_MAX,imageAvailable[currentFrameIndex],
+            VK_NULL_HANDLE,&currentSwapChainImageIndex);
+
+        if(VK_SUBOPTIMAL_KHR==acquireRes||VK_ERROR_OUT_OF_DATE_KHR==acquireRes) {
+            ReCreateSwapChain();
+            return true;
+        }else if(VK_SUCCESS!=acquireRes) {
+            Z_CORE_ASSERT(false,"false to acquire next image from swapchain !");
+            return true;
+        }
+
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType=VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags=0;
+
+        auto res=vkBeginCommandBuffer(commandBuffers[currentFrameIndex],&beginInfo);
+
+        VK_CHECK(res,"failed to begin command buffer !");
+
+        return false;
+    }
+
+    void VulkanGraphicInterface::SubmitTask() {
+        auto res=vkEndCommandBuffer(commandBuffers[currentFrameIndex]);
+        VK_CHECK(res,"failed to end command buffer !");
+
+        VkSemaphore semaphores[2]={imageAvailable[currentFrameIndex],imageRenderFinish[currentFrameIndex]};
+
+        VkPipelineStageFlags waitStages[1] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+        VkSubmitInfo         submit_info   = {};
+        submit_info.sType                  = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submit_info.waitSemaphoreCount     = 1;
+        submit_info.pWaitSemaphores        = &imageAvailable[currentFrameIndex];
+        submit_info.pWaitDstStageMask      = waitStages;
+        submit_info.commandBufferCount     = 1;
+        submit_info.pCommandBuffers        = &commandBuffers[currentFrameIndex];
+        submit_info.signalSemaphoreCount = 2;
+        submit_info.pSignalSemaphores = semaphores;
+
+        res = vkResetFences(device, 1, &frameFences[currentFrameIndex]);
+
+        if (VK_SUCCESS != res)
+        {
+            Z_CORE_ERROR("failed to reset fences !");
+            return;
+        }
+        res =
+            vkQueueSubmit(((VulkanQueue*)graphicsQueue)->Get(), 1, &submit_info, frameFences[currentFrameIndex]);
+
+        if (VK_SUCCESS != res)
+        {
+            Z_CORE_ERROR("failed to submit task !");
+            return;
+        }
+
+        VkPresentInfoKHR present_info   = {};
+        present_info.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        present_info.waitSemaphoreCount = 1;
+        present_info.pWaitSemaphores    = &imageRenderFinish[currentFrameIndex];
+        present_info.swapchainCount     = 1;
+        present_info.pSwapchains        = &swapchain;
+        present_info.pImageIndices      = &currentSwapChainImageIndex;
+
+        res = vkQueuePresentKHR(((VulkanQueue*)presentQueue)->Get(), &present_info);
+        if (VK_ERROR_OUT_OF_DATE_KHR == res || VK_SUBOPTIMAL_KHR == res)
+        {
+            ReCreateSwapChain();
+        }
+        else if (VK_SUCCESS != res)
+        {
+            Z_CORE_ERROR("failed to present image !");
+            return;
+        }
+
+        currentFrameIndex = (currentFrameIndex + 1) % maxFlightFrames;
+    }
+
     void VulkanGraphicInterface::CreateRenderPass(const RenderPassCreateInfo &info, RenderPassInterface *&interface) {
         VkRenderPassCreateInfo Info{};
         Info.sType=VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;

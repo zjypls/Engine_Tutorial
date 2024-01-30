@@ -13,42 +13,47 @@ namespace Z {
     struct RenderPassInitInfo {
 
     };
-class RenderPass {
-public:
-    struct FrameBufferAttachment
-    {
-        Image*        image;
-        DeviceMemory* memory;
-        ImageView*    view;
-        Format       format;
+    class RenderPass {
+    public:
+        struct FrameBufferAttachment
+        {
+            Image*        image;
+            DeviceMemory* memory;
+            ImageView*    view;
+            Format       format;
+        };
+
+        struct Framebuffer
+        {
+            int           width;
+            int           height;
+            Framebuffer* framebuffer;
+            RenderPassInterface*  render_pass;
+
+            std::vector<FrameBufferAttachment> attachments;
+        };
+
+        struct Descriptor
+        {
+            DescriptorSetLayout* layout;
+            DescriptorSet*       descriptor_set;
+        };
+
+        struct RenderPipelineBase
+        {
+            PipelineLayout* layout;
+            Pipeline*       pipeline;
+        };
+
+        virtual void Init(RenderPassInitInfo*info)=0;
+        virtual void draw()=0;
+
+    protected:
+        std::vector<Descriptor>         descriptors{};
+        std::vector<RenderPipelineBase> renderPipelines{};
+        Framebuffer                     framebuffer{};
+
     };
-
-    struct Framebuffer
-    {
-        int           width;
-        int           height;
-        Framebuffer* framebuffer;
-        RenderPassInterface*  render_pass;
-
-        std::vector<FrameBufferAttachment> attachments;
-    };
-
-    struct Descriptor
-    {
-        DescriptorSetLayout* layout;
-        DescriptorSet*       descriptor_set;
-    };
-
-    struct RenderPipelineBase
-    {
-        PipelineLayout* layout;
-        Pipeline*       pipeline;
-    };
-
-    virtual void Init(RenderPassInitInfo*info)=0;
-    virtual void draw()=0;
-
-};
 
 } // Z
 

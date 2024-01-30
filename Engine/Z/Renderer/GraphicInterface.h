@@ -5,6 +5,8 @@
 #ifndef ENGINEALL_GRAPHICINTERFACE_H
 #define ENGINEALL_GRAPHICINTERFACE_H
 
+#include <functional>
+
 #include "Z/Renderer/RenderResource.h"
 
 namespace Z {
@@ -17,6 +19,9 @@ namespace Z {
     public:
         virtual void Init(const GraphicSpec &initInfo) = 0;
 
+        virtual bool prepareBeforeRender(const std::function<void()>&funcCallAfterRecreateSwapChain)=0;
+
+        virtual void SubmitTask()=0;
 
         virtual void CreateImage(const ImageInfo &info, Image* &image, DeviceMemory* &memory) = 0;
 

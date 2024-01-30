@@ -14,6 +14,10 @@
 
 namespace Z {
 
+    struct UIPassInitInfo : RenderPassInitInfo {
+        RenderPassInterface* renderpass;
+    };
+
     class Z_API UIPass :public RenderPass{
     public:
         void Init(RenderPassInitInfo*info) override;
