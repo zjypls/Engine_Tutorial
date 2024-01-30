@@ -26,7 +26,7 @@ namespace Z {
         //Resource create interface
         void CreateImage(const ImageInfo& info,Image*& image,DeviceMemory*& memory)override;
         void CreateBuffer(const BufferInfo& info,Buffer*&buffer,DeviceMemory*& memory)override;
-        void CreateRenderPass(const RenderPassCreateInfo &info, RenderPassInterface *&interface) override;
+        void CreateRenderPass(const RenderPassCreateInfo &info, RenderPassInterface *&renderPassInterface) override;
 
 
         auto GetInstance(){return instance;}

@@ -438,7 +438,7 @@ namespace Z {
         currentFrameIndex = (currentFrameIndex + 1) % maxFlightFrames;
     }
 
-    void VulkanGraphicInterface::CreateRenderPass(const RenderPassCreateInfo &info, RenderPassInterface *&interface) {
+    void VulkanGraphicInterface::CreateRenderPass(const RenderPassCreateInfo &info, RenderPassInterface *&renderPassInterface) {
         VkRenderPassCreateInfo Info{};
         Info.sType=VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
         std::vector<VkAttachmentDescription> descriptions(info.attachmentCount);
@@ -503,10 +503,10 @@ namespace Z {
         Info.pSubpasses=subpasses.data();
         Info.subpassCount=subpasses.size();
 
-        interface=new VulkanRenderPass{};
+        renderPassInterface=new VulkanRenderPass{};
         VkRenderPass renderpass{};
         auto res=vkCreateRenderPass(device,&Info,nullptr,&renderpass);
         VK_CHECK(res,"failed to create RenderPass !");
-        ((VulkanRenderPass*)interface)->Set(renderpass);
+        ((VulkanRenderPass*)renderPassInterface)->Set(renderpass);
     }
 } // Z
