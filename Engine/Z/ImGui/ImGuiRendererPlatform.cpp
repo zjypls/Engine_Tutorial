@@ -13,6 +13,6 @@ namespace Z {
 #endif
 
 
-		Z_CORE_ASSERT(renderer==nullptr,"ImGui Renderer Need Init !!");
+		Z_CORE_ASSERT(renderer!=nullptr,"ImGui Renderer Need Init !!");
 	}
 }
