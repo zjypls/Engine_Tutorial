@@ -319,7 +319,7 @@ namespace Z {
     void VulkanGraphicInterface::CreateSwapchainImageViews() {
         swapchainImageViews.resize(swapchainImages.size());
         for(int i=0;i<swapchainImageViews.size();++i){
-            VulkanUtils::CreateImageView(device,swapchainImages[i],swapchainFormat,
+            swapchainImageViews[i]=VulkanUtils::CreateImageView(device,swapchainImages[i],swapchainFormat,
                                          VK_IMAGE_ASPECT_COLOR_BIT,VK_IMAGE_VIEW_TYPE_2D,1,1);
         }
     }
@@ -358,7 +358,6 @@ namespace Z {
         CreateSyncSignals();
         CreateSwapchain();
         CreateSwapchainImageViews();
-        CreateFramebufferImageAndView();
         CreateVmaAllocator();
     }
 
@@ -367,6 +366,7 @@ namespace Z {
             VK_NULL_HANDLE,&currentSwapChainImageIndex);
 
         if(VK_SUBOPTIMAL_KHR==acquireRes||VK_ERROR_OUT_OF_DATE_KHR==acquireRes) {
+            Z_CORE_WARN("Recreate swapchain !");
             ReCreateSwapChain();
             return true;
         }else if(VK_SUCCESS!=acquireRes) {
@@ -389,8 +389,6 @@ namespace Z {
         auto res=vkEndCommandBuffer(commandBuffers[currentFrameIndex]);
         VK_CHECK(res,"failed to end command buffer !");
 
-        VkSemaphore semaphores[2]={imageAvailable[currentFrameIndex],imageRenderFinish[currentFrameIndex]};
-
         VkPipelineStageFlags waitStages[1] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
         VkSubmitInfo         submit_info   = {};
         submit_info.sType                  = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -399,8 +397,8 @@ namespace Z {
         submit_info.pWaitDstStageMask      = waitStages;
         submit_info.commandBufferCount     = 1;
         submit_info.pCommandBuffers        = &commandBuffers[currentFrameIndex];
-        submit_info.signalSemaphoreCount = 2;
-        submit_info.pSignalSemaphores = semaphores;
+        submit_info.signalSemaphoreCount = 1;
+        submit_info.pSignalSemaphores = &imageRenderFinish[currentFrameIndex];
 
         res = vkResetFences(device, 1, &frameFences[currentFrameIndex]);
 

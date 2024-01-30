@@ -13,7 +13,7 @@
 
 namespace Z {
 
-    constexpr uint32 maxFlightFrames=2;
+    constexpr uint32 maxFlightFrames=3;
     constexpr uint32 maxVertexBlendCount=128,maxMaterialCount=128;
 
     class Z_API VulkanGraphicInterface final : public GraphicInterface{
@@ -35,7 +35,7 @@ namespace Z {
         auto GetDescriptorPool(){return descriptorPool;}
         auto GetGraphicQueue(){return graphicsQueue;}
         auto GetQueueFamily(){return familyIndices;}
-        const auto& GetSwapChainInfo(){return swapChainInfo;}
+        const SwapChainInfo& GetSwapChainInfo(){return swapChainInfo;}
 
         auto GetCurrentCommandBuffer(){return commandBuffers[currentFrameIndex];}
 

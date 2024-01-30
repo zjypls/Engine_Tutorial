@@ -3,6 +3,7 @@
 //
 
 #include "Include/imgui/backends/imgui_impl_glfw.h"
+#include "Include/ImGuizmo/ImGuizmo.h"
 
 #include "Z/Renderer/Passes/UIPass.h"
 
@@ -17,10 +18,14 @@ namespace Z {
         ImGuiRendererPlatform::GetRenderer()->Begin();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+        ImGuizmo::BeginFrame();
         for(const auto content:ui_Contents) {
             content->OnImGuiRender();
         }
         ImGui::Render();
+
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
         ImGuiRendererPlatform::GetRenderer()->End();
     }
 } // Z

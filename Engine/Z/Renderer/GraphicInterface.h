@@ -28,6 +28,7 @@ namespace Z {
         virtual void CreateBuffer(const BufferInfo &info, Buffer* &buffer, DeviceMemory* &memory) = 0;
 
         virtual void CreateRenderPass(const RenderPassCreateInfo& info,RenderPassInterface*&interface)=0;
+        virtual const SwapChainInfo& GetSwapChainInfo()=0;
     };
 
 } // Z

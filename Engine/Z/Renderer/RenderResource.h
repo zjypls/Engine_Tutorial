@@ -29,9 +29,16 @@ namespace Z {
 
     struct ImageInfo;
     struct Extent2D;
+    struct Offset2D;
+    struct Rect2D;
     struct Extent3D;
+    union ClearColorValue;
+    struct ClearDepthStencilValue;
+    struct ClearValue;
     struct BufferInfo;
     struct SwapChainInfo;
+    struct RenderPassCreateInfo;
+    struct RenderPassBeginInfo;
 
 
     using ResourceSize=uint64;
@@ -376,6 +383,13 @@ namespace Z {
     struct Extent2D{
         uint32 width,height;
     };
+    struct Offset2D {
+        int32 x,y;
+    };
+    struct Rect2D {
+        Offset2D offset;
+        Extent2D extent;
+    };
     struct Extent3D{
         uint32 width,height,depth;
     };
@@ -448,6 +462,28 @@ namespace Z {
         const SubpassDescription*       pSubpasses;
         uint32                          dependencyCount;
         const SubpassDependency*        pDependencies;
+    };
+    union ClearColorValue {
+        float       float32[4];
+        int32       int32[4];
+        uint32      uint32[4];
+    };
+    struct ClearDepthStencilValue {
+        float       depth;
+        uint32      stencil;
+    };
+    struct ClearValue {
+        ClearColorValue           color;
+        ClearDepthStencilValue    depthStencil;
+    };
+
+    struct RenderPassBeginInfo {
+        const void*            pNext;
+        RenderPassInterface*   renderPass;
+        Framebuffer*           framebuffer;
+        Rect2D                 renderArea;
+        uint32                 clearValueCount;
+        const ClearValue*      pClearValues;
     };
 
 }

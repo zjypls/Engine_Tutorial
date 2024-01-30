@@ -27,7 +27,7 @@ namespace Z {
         {
             int           width;
             int           height;
-            Framebuffer* framebuffer;
+            Z::Framebuffer* framebuffer;
             RenderPassInterface*  render_pass;
 
             std::vector<FrameBufferAttachment> attachments;
