@@ -12,7 +12,6 @@
 
 namespace Z {
     struct RenderPassInitInfo {
-
         GraphicInterface* graphicInterface;
     };
     class Z_API RenderPass {

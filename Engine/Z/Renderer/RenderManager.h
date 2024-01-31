@@ -8,18 +8,22 @@
 #include "Z/ImGui/ImGuiContent.h"
 
 #include "Z/Renderer/GraphicInterface.h"
+#include "Z/Renderer/RenderPipeline.h"
 namespace Z {
 
     class Z_API RenderManager final{
     public:
         static void Init();
         static auto GetInstance(){return m_Context;}
+
         static void Update(float deltaTime);
         static void InitUIRenderBackend();
         static void PushUIContents(ImGuiContent* content);
 
     private:
+
         static Ref<GraphicInterface> m_Context;
+        static Ref<RenderPipeline> renderPipeline;
     };
 
 } // Z

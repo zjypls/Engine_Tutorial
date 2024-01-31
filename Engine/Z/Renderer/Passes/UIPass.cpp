@@ -6,6 +6,7 @@
 #include "Include/ImGuizmo/ImGuizmo.h"
 
 #include "Z/Renderer/Passes/UIPass.h"
+#include "Z/Renderer/Passes/MainCameraPass.h"
 
 #include "Z/ImGui/ImGuiRendererPlatform.h"
 
@@ -30,5 +31,6 @@ namespace Z {
     }
 
     void UIPass::InitUIRenderBackend() {
+        ImGuiRendererPlatform::GetRenderer()->InitUIRenderBackend(framebuffer.renderPass,MainCameraPass::_ui_pass_index);
     }
 } // Z

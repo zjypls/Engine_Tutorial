@@ -9,10 +9,16 @@
 
 namespace Z {
     Ref<GraphicInterface> RenderManager::m_Context= nullptr;
+    Ref<RenderPipeline> RenderManager::renderPipeline=nullptr;
     void RenderManager::Init() {
         Z_CORE_ASSERT(m_Context == nullptr,"Already Inited !");
         m_Context= CreateRef<VulkanGraphicInterface>();
         m_Context->Init({});
+
+        renderPipeline=CreateRef<RenderPipeline>();
+        auto info=RenderPipelineInitInfo{};
+        info.graphicContext=m_Context.get();
+        renderPipeline->Init(&info);
     }
 
     void RenderManager::Update(float deltaTime) {
@@ -22,6 +28,7 @@ namespace Z {
 
         m_Context->ResetCommandPool();
         m_Context->prepareBeforeRender({});
+        renderPipeline->draw();
         m_Context->SubmitTask();
     }
 
