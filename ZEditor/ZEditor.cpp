@@ -53,7 +53,7 @@ namespace Z {
 				(Project::GetProjectRootDir() / "Assets/Models/TinyRoom.obj").string()));
          */
 
-
+		RenderManager::PushUIContents(this);
 	}
 
 	void EditorLayer::OnDetach() {

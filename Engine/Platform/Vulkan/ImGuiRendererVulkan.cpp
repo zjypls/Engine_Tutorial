@@ -36,4 +36,29 @@ namespace Z {
 		ImGui::DestroyContext();
 	}
 
+	void ImGuiRendererVulkan::InitUIRenderBackend(RenderPassInterface *renderPassInterface,uint32 uiIndex) {
+
+
+		//todo:add imgui init for render backend
+		ImGui_ImplVulkan_InitInfo info{};
+		info.Allocator=nullptr;
+		auto gContext=(VulkanGraphicInterface*)RenderManager::GetInstance().get();
+		info.Instance=gContext->GetInstance();
+		info.Device=gContext->GetDevice();
+		info.PhysicalDevice=gContext->GetPhysicalDevice();
+		info.Queue=((VulkanQueue*)gContext->GetGraphicQueue())->Get();
+		info.Subpass=uiIndex;
+		auto&swapchaininfo=gContext->GetSwapChainInfo();
+		info.ImageCount=swapchaininfo.imageCount;
+		info.MinImageCount=swapchaininfo.minImageCount;
+		info.DescriptorPool=gContext->GetDescriptorPool();
+		auto tPass=((VulkanRenderPass*)renderPassInterface)->Get();
+
+		ImGui_ImplVulkan_Init(&info,tPass);
+
+		auto buffer = gContext->BeginOnceSubmit();
+		ImGui_ImplVulkan_CreateFontsTexture(buffer);
+		gContext->EndOnceSubmit(buffer);
+		ImGui_ImplVulkan_DestroyFontUploadObjects();
+	}
 }

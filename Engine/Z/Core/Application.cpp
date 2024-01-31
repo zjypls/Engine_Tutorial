@@ -46,6 +46,7 @@ namespace Z {
 	}
 
 	void Application::Run() {
+		RenderManager::InitUIRenderBackend();
 		while (Running) {
 			Time::Update();
 			if (!MinSize) {
@@ -53,6 +54,8 @@ namespace Z {
 					layer->OnUpdate();
 				}
 			}
+
+			RenderManager::Update(Time::DeltaTime());
 
 			for (auto &func: FuncQueue) {
 				func();

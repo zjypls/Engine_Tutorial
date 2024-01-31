@@ -28,4 +28,7 @@ namespace Z {
         ImGui::RenderPlatformWindowsDefault();
         ImGuiRendererPlatform::GetRenderer()->End();
     }
+
+    void UIPass::InitUIRenderBackend() {
+    }
 } // Z

@@ -46,7 +46,7 @@ namespace Z {
         };
 
         virtual void Init(RenderPassInitInfo*info)=0;
-        virtual void draw()=0;
+        virtual void draw(){};
 
     protected:
         [[nodiscard]]

@@ -12,6 +12,7 @@ namespace Z {
 		void End() override;
 		void PlatformInit() override;
 		void Shutdown() override;
+		void InitUIRenderBackend(RenderPassInterface *renderPassInterface,uint32 uiIndex) override;
 
 	};
 

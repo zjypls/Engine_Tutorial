@@ -29,6 +29,9 @@ namespace Z {
             ui_Contents.push_back(content);
         }
 
+
+        void InitUIRenderBackend();
+
     private:
         std::vector<ImGuiContent*> ui_Contents;
     };

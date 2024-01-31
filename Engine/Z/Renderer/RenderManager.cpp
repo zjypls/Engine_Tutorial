@@ -20,4 +20,11 @@ namespace Z {
 
         m_Context->SubmitTask();
     }
+
+    void RenderManager::InitUIRenderBackend() {
+    }
+
+    void RenderManager::PushUIContents(ImGuiContent *content) {
+    }
+
 } // Z
