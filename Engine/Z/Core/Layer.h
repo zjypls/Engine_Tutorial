@@ -18,7 +18,6 @@ namespace Z {
 
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
-		virtual void OnImGuiRender() {}
 		virtual void OnUpdate() {}
 		virtual void OnEvent(Event& e) {}
 		inline virtual const std::string& GetName()const {return DebugLayerName;}

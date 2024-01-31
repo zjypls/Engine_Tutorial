@@ -13,7 +13,7 @@
 #include "SceneHierarchy/ContentBrowser.h"
 
 namespace Z {
-	class EditorLayer final : public Layer {
+	class EditorLayer final : public Layer ,ImGuiContent{
 		enum class SceneState {
 			Edit, Play, Simulate,Pause
 		};

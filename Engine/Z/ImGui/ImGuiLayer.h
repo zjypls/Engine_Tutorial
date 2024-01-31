@@ -22,7 +22,6 @@ namespace Z {
 		~ImGuiLayer() override;
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
-		virtual void OnImGuiRender() override;
 		virtual void OnEvent(Event &event) override;
 		virtual void SetBlockEvents(bool block) { BlockEvents = block; }
 

@@ -102,9 +102,6 @@ namespace Z {
 		ImGuizmo::BeginFrame();
 	}
 
-	void ImGuiLayer::OnImGuiRender() {
-
-	}
 
 	void ImGuiLayer::End() {
 		auto& io=ImGui::GetIO();

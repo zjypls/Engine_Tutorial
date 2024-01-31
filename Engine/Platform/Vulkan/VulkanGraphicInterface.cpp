@@ -273,6 +273,7 @@ namespace Z {
         swapChainInfo.minImageCount=swapchainDetails.capabilities.minImageCount;
         swapChainInfo.maxImageCount=swapchainDetails.capabilities.maxImageCount;
         swapChainInfo.swapchainImageFormat=(Format)swapchainformat.format;
+        swapChainInfo.swapchainExtent={extent.width,extent.height};
 
         auto swapchainInfo=VkSwapchainCreateInfoKHR{};
         swapchainInfo.sType=VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -465,8 +466,8 @@ namespace Z {
             dependency.srcSubpass=(uint32)dep.srcSubpass;
             dependency.dstAccessMask=(VkAccessFlags)dep.dstAccessMask;
             dependency.srcAccessMask=(VkAccessFlags)dep.srcAccessMask;
-            dependency.dstStageMask=(VkPipelineStageFlags)dep.dstAccessMask;
-            dependency.srcAccessMask=(VkPipelineStageFlags)dep.srcAccessMask;
+            dependency.dstStageMask=(VkPipelineStageFlags)dep.dstStageMask;
+            dependency.srcStageMask=(VkPipelineStageFlags)dep.srcStageMask;
             dependency.dependencyFlags=(VkDependencyFlags)dep.dependencyFlags;
             ++index;
         }

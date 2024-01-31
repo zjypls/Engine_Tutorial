@@ -421,6 +421,7 @@ namespace Z {
         uint32 imageCount;
         uint32 minImageCount;
         uint32 maxImageCount;
+        Extent2D swapchainExtent;
     };
 
     struct AttachmentReference {

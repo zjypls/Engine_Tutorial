@@ -48,16 +48,11 @@ namespace Z {
 	void Application::Run() {
 		while (Running) {
 			Time::Update();
-			imguiLayer->Begin();
 			if (!MinSize) {
 				for (Layer *layer: LayerStack) {
 					layer->OnUpdate();
 				}
 			}
-			for (Layer *layer: LayerStack) {
-				layer->OnImGuiRender();
-			}
-			imguiLayer->End();
 
 			for (auto &func: FuncQueue) {
 				func();
