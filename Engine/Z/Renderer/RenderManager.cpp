@@ -18,6 +18,10 @@ namespace Z {
     void RenderManager::Update(float deltaTime) {
         m_Context->prepareBeforeRender({});
 
+        m_Context->WaitForFences();
+
+        m_Context->ResetCommandPool();
+        m_Context->prepareBeforeRender({});
         m_Context->SubmitTask();
     }
 

@@ -12,8 +12,6 @@ namespace Z {
 
     class Z_API RenderManager final{
     public:
-
-
         static void Init();
         static auto GetInstance(){return m_Context;}
         static void Update(float deltaTime);

@@ -7,11 +7,13 @@
 
 #include <vector>
 
+#include "Z/Renderer/GraphicInterface.h"
 #include "Z/Renderer/RenderResource.h"
 
 namespace Z {
     struct RenderPassInitInfo {
 
+        GraphicInterface* graphicInterface;
     };
     class Z_API RenderPass {
     public:
@@ -51,6 +53,7 @@ namespace Z {
     protected:
         [[nodiscard]]
         RenderPassInterface* GetRenderPass()const{return framebuffer.renderPass;}
+        GraphicInterface* Context=nullptr;
         std::vector<Descriptor>         descriptors{};
         std::vector<RenderPipelineBase> renderPipelines{};
         Framebuffer                     framebuffer{};

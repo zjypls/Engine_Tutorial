@@ -22,6 +22,10 @@ namespace Z {
         void Init(const GraphicSpec&spec)override;
         bool prepareBeforeRender(const std::function<void()>&funcCallAfterRecreateSwapChain) override;
         void SubmitTask() override;
+        void WaitForFences() override;
+        void ResetCommandPool() override;
+        void BeginRenderPass(const RenderPassBeginInfo &info) override;
+        void EndRenderPass() override;
 
         //Resource create interface
         void CreateImage(const ImageInfo& info,Image*& image,DeviceMemory*& memory)override;

@@ -23,11 +23,20 @@ namespace Z {
 
         virtual void SubmitTask()=0;
 
+        virtual void WaitForFences()=0;
+
+        virtual void ResetCommandPool()=0;
+
         virtual void CreateImage(const ImageInfo &info, Image* &image, DeviceMemory* &memory) = 0;
 
         virtual void CreateBuffer(const BufferInfo &info, Buffer* &buffer, DeviceMemory* &memory) = 0;
 
         virtual void CreateRenderPass(const RenderPassCreateInfo& info,RenderPassInterface*&renderPassInterface)=0;
+
+        virtual void BeginRenderPass(const RenderPassBeginInfo&info)=0;
+
+        virtual void EndRenderPass()=0;
+
         virtual const SwapChainInfo& GetSwapChainInfo()=0;
     };
 

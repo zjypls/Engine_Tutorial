@@ -439,6 +439,36 @@ namespace Z {
         currentFrameIndex = (currentFrameIndex + 1) % maxFlightFrames;
     }
 
+    void VulkanGraphicInterface::WaitForFences() {
+        auto res=vkWaitForFences(device,1,&frameFences[currentFrameIndex],VK_FALSE,UINT64_MAX);
+        VK_CHECK(res,"failed to wait fences !");
+    }
+
+    void VulkanGraphicInterface::ResetCommandPool() {
+        auto res=vkResetFences(device,1,&frameFences[currentFrameIndex]);
+        VK_CHECK(res,"failed to reset fence !");
+        res=vkResetCommandPool(device,commandPools[currentFrameIndex],0);
+        VK_CHECK(res,"failed to reset command pool !");
+    }
+
+    void VulkanGraphicInterface::BeginRenderPass(const RenderPassBeginInfo &info) {
+        VkRenderPassBeginInfo beginInfo{};
+        beginInfo.sType=VK_INFO(RENDER_PASS,BEGIN);
+        beginInfo.framebuffer=((VulkanFramebuffer*)info.framebuffer)->Get();
+        beginInfo.renderArea=*(VkRect2D*)&info.renderArea;
+        //beginInfo.renderArea.extent=swapchainExtent;
+        beginInfo.renderPass=((VulkanRenderPass*)info.renderPass)->Get();
+        beginInfo.clearValueCount=info.clearValueCount;
+        beginInfo.pClearValues=(VkClearValue*)info.pClearValues;
+
+        vkCmdBeginRenderPass(commandBuffers[currentFrameIndex],&beginInfo,VK_SUBPASS_CONTENTS_INLINE);
+
+    }
+
+    void VulkanGraphicInterface::EndRenderPass() {
+        vkCmdEndRenderPass(commandBuffers[currentFrameIndex]);
+    }
+
     void VulkanGraphicInterface::CreateRenderPass(const RenderPassCreateInfo &info, RenderPassInterface *&renderPassInterface) {
         VkRenderPassCreateInfo Info{};
         Info.sType=VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
