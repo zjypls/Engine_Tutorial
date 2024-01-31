@@ -35,3 +35,6 @@ bin/ZEditor
 .clang-tidy
 #mono crash json file
 mono_crash*
+#batch file
+*.bat
+*.sh
