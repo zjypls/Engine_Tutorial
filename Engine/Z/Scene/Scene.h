@@ -59,7 +59,7 @@ namespace Z {
 			return registry.view<T...>();
 		}
 
-		void OnViewportResize(unsigned int width, unsigned int height);
+		void OnViewportResize(uint32 width, uint32 height);
 		void DestroyEntity(Entity entity);
 		[[nodiscard]]
 		Entity InstantiateEntity(Entity entity);

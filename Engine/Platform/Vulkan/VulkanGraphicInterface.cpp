@@ -461,8 +461,8 @@ namespace Z {
         if(info.pDependencies!=nullptr)
         for(auto&dependency:dependencies) {
             const auto&dep=info.pDependencies[index];
-            dependency.dstSubpass=dep.dstSubpass;
-            dependency.srcSubpass=dep.srcSubpass;
+            dependency.dstSubpass=(uint32)dep.dstSubpass;
+            dependency.srcSubpass=(uint32)dep.srcSubpass;
             dependency.dstAccessMask=(VkAccessFlags)dep.dstAccessMask;
             dependency.srcAccessMask=(VkAccessFlags)dep.srcAccessMask;
             dependency.dstStageMask=(VkPipelineStageFlags)dep.dstAccessMask;

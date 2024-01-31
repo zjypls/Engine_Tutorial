@@ -135,7 +135,7 @@ namespace Z {
 		return entity;
 	}
 
-	void Scene::OnViewportResize(unsigned int width, unsigned int height) {
+	void Scene::OnViewportResize(uint32 width, uint32 height) {
 		viewportWidth = width;
 		viewportHeight = height;
 		std::for_each(registry.view<CameraComponent>().begin(),

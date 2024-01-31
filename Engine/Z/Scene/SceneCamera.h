@@ -13,7 +13,7 @@ namespace Z {
 		SceneCamera()=default;
 		SceneCamera(const glm::mat4& projection):Camera(projection){}
 		SceneCamera(const Camera& camera):Camera(camera){}
-		void OnViewportResize(unsigned int width, unsigned int height);
+		void OnViewportResize(uint32 width, uint32 height);
         void SetAspectRatio(float asp){aspectRatio=asp;UpdateProjection();}
 		void SetGraphicSize(float size,float nearClip=-1.f,float farClip=1.f);
 		void SetProjectionType(ProjectionType type){projectionType=type;UpdateProjection();}
@@ -23,13 +23,13 @@ namespace Z {
 		void SetPerspectiveFOV(float fov){this->fov=fov;UpdateProjection();}
 		void SetPerspectiveNearClip(float nearClip){PNearClip=nearClip;UpdateProjection();}
 		void SetPerspectiveFarClip(float farClip){PFarClip=farClip;UpdateProjection();}
-        [[nodiscard]] inline ProjectionType GetProjectionType() const { return projectionType; }
-		[[nodiscard]] inline float GetOrthographicSize() const { return GraphicSize; }
-		[[nodiscard]] inline float GetOrthographicNearClip() const { return nearClip; }
-		[[nodiscard]] inline float GetOrthographicFarClip() const { return farClip; }
-		[[nodiscard]] inline float GetPerspectiveFOV() const { return fov; }
-		[[nodiscard]] inline float GetPerspectiveNearClip() const { return PNearClip; }
-		[[nodiscard]] inline float GetPerspectiveFarClip() const { return PFarClip; }
+        [[nodiscard]] ProjectionType GetProjectionType() const { return projectionType; }
+		[[nodiscard]] float GetOrthographicSize() const { return GraphicSize; }
+		[[nodiscard]] float GetOrthographicNearClip() const { return nearClip; }
+		[[nodiscard]] float GetOrthographicFarClip() const { return farClip; }
+		[[nodiscard]] float GetPerspectiveFOV() const { return fov; }
+		[[nodiscard]] float GetPerspectiveNearClip() const { return PNearClip; }
+		[[nodiscard]] float GetPerspectiveFarClip() const { return PFarClip; }
 	private:
 		float aspectRatio=12.f/8.f;
 		float GraphicSize=10.f;

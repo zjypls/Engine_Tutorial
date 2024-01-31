@@ -4,6 +4,7 @@
 
 #ifndef ENGINE_TUTORIAL_CAMERA_H
 #define ENGINE_TUTORIAL_CAMERA_H
+#include "Z/Core/Core.h"
 #include "Include/glm/glm/glm.hpp"
 
 namespace Z {
@@ -13,8 +14,8 @@ namespace Z {
 	public:
 		Camera()=default;
 		Camera(const glm::mat4& projection):projection(projection){}
-		inline glm::mat4& operator()(){return projection;}
-		inline const glm::mat4& operator()()const{return projection;}
+		glm::mat4& operator()(){return projection;}
+		const glm::mat4& operator()()const{return projection;}
 	};
 
 }

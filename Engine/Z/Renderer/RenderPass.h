@@ -13,7 +13,7 @@ namespace Z {
     struct RenderPassInitInfo {
 
     };
-    class RenderPass {
+    class Z_API RenderPass {
     public:
         struct FrameBufferAttachment
         {
@@ -28,7 +28,7 @@ namespace Z {
             int           width;
             int           height;
             Z::Framebuffer* framebuffer;
-            RenderPassInterface*  render_pass;
+            RenderPassInterface*  renderPass;
 
             std::vector<FrameBufferAttachment> attachments;
         };
@@ -36,7 +36,7 @@ namespace Z {
         struct Descriptor
         {
             DescriptorSetLayout* layout;
-            DescriptorSet*       descriptor_set;
+            DescriptorSet*       descriptorSet;
         };
 
         struct RenderPipelineBase
@@ -49,6 +49,8 @@ namespace Z {
         virtual void draw()=0;
 
     protected:
+        [[nodiscard]]
+        RenderPassInterface* GetRenderPass()const{return framebuffer.renderPass;}
         std::vector<Descriptor>         descriptors{};
         std::vector<RenderPipelineBase> renderPipelines{};
         Framebuffer                     framebuffer{};

@@ -15,23 +15,21 @@ namespace Z {
 	public:
 		WindowImpl(const WindowProps&);
 
-		inline unsigned int GetWidth()const override{return WinData.width;}
-		inline unsigned int GetHeight()const override{return WinData.height;}
+		[[nodiscard]] uint32 GetWidth()const override{return WinData.width;}
+		[[nodiscard]] uint32 GetHeight()const override{return WinData.height;}
 
-		inline bool IsVSync() override{return WinData.VSync;}
-		inline void SetVSync(bool enable) override;
-		inline void SetEventCallFunc(const EventCallFunc&callFunc) override{WinData.eventCall=callFunc;}
+		void SetEventCallFunc(const EventCallFunc&callFunc) override{WinData.eventCall=callFunc;}
 		~WindowImpl() override;
 		void Update() override;
-		inline void* GetNativeWindow() override{return window;}
+		void* GetNativeWindow() override{return window;}
 		void Shutdown() override;
 	protected:
 		void Init(const WindowProps&);
 	private:
 		using WData = struct WindowData {
 			std::string title;
-			unsigned int width;
-			unsigned int height;
+			uint32 width;
+			uint32 height;
 			bool VSync;
 			EventCallFunc eventCall;
 		};

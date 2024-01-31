@@ -11,7 +11,7 @@
 
 namespace Z {
     void UIPass::Init(RenderPassInitInfo*info) {
-        framebuffer.render_pass=((UIPassInitInfo*)info)->renderpass;
+        framebuffer.renderPass=((UIPassInitInfo*)info)->renderpass;
     }
 
     void UIPass::draw() {

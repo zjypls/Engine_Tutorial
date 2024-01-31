@@ -25,12 +25,11 @@ namespace Z {
 
 		window = Z::Scope<zWindow>(zWindow::Create(WindowProps(Spec.Name)));
 		window->SetEventCallFunc(Z_BIND_EVENT_FUNC(Application::EventCall));
-        RenderManager::Init();
+		RenderManager::Init();
 		AssetsSystem::PreInit();
 
 		ScriptEngine::Init();
 
-		//window->SetVSync(false);
 		imguiLayer = new ImGuiLayer();
 		PushLayer(imguiLayer);
 	}

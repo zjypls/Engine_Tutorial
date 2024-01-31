@@ -372,6 +372,13 @@ namespace Z {
         COMMAND_PREPROCESS_WRITE = 0x00040000,
         FLAGS_MAX_ENUM = 0x7FFFFFFF
     };
+    enum class SubpassContents : uint32{
+        INLINE = 0,
+        SECONDARY_COMMAND_BUFFERS = 1,
+        INLINE_AND_SECONDARY_COMMAND_BUFFERS_EXT = 1000451000,
+        MAX_ENUM = 0x7FFFFFFF,
+        EXTERNAL = ~0U
+    };
     enum class DependencyFlags {
         BY_REGION = 0x00000001,
         DEVICE_GROUP = 0x00000004,
@@ -445,8 +452,8 @@ namespace Z {
     };
 
     struct SubpassDependency {
-        uint32                srcSubpass;
-        uint32                dstSubpass;
+        SubpassContents       srcSubpass;
+        SubpassContents       dstSubpass;
         PipelineStageFlags    srcStageMask;
         PipelineStageFlags    dstStageMask;
         AccessFlags           srcAccessMask;

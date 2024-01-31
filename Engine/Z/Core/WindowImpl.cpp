@@ -127,11 +127,6 @@ namespace Z {
 		glfwTerminate();
 	}
 
-	void WindowImpl::SetVSync(bool enable) {
-		glfwSwapInterval(enable);
-		WinData.VSync=enable;
-
-	}
 	zWindow* zWindow::Create(const WindowProps &props) {
 		return new WindowImpl(props);
 	}

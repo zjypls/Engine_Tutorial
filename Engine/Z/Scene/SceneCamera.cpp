@@ -12,7 +12,7 @@ namespace Z {
 		UpdateProjection();
 	}
 
-	void SceneCamera::OnViewportResize(unsigned int width, unsigned int height) {
+	void SceneCamera::OnViewportResize(uint32 width, uint32 height) {
 		aspectRatio = (float) width / (float) height;
 		UpdateProjection();
 	}
