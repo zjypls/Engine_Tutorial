@@ -5,7 +5,7 @@
 #ifndef ENGINE_TUTORIAL_RANDOM_H
 #define ENGINE_TUTORIAL_RANDOM_H
 #include <random>
-#include "Include/glm/glm/glm.hpp"
+#include "Include/glm/glm.hpp"
 
 #include "Z/Core/Core.h"
 namespace Z {

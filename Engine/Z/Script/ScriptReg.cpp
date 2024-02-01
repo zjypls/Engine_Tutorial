@@ -5,7 +5,7 @@
 #include <cxxabi.h>
 #endif
 
-#include "Include/glm/glm/glm.hpp"
+#include "Include/glm/glm.hpp"
 #include "Include/mono/include/mono/jit/jit.h"
 #include "Include/mono/include/mono/metadata/reflection.h"
 #include "Include/box2d/include/box2d/b2_body.h"

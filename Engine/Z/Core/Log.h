@@ -6,7 +6,7 @@
 #define ENGINE_TUTORIAL_LOG_H
 #include <memory>
 
-#include "Include/glm/glm/gtx/string_cast.hpp"
+#include "Include/glm/gtx/string_cast.hpp"
 #include "Include/spdlog/include/spdlog/spdlog.h"
 #include "Include/spdlog/include/spdlog/fmt/ostr.h"
 #include "Include/spdlog/include/spdlog/logger.h"

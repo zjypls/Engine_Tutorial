@@ -7,7 +7,7 @@
 #include <filesystem>
 
 #include "Z/Core/Core.h"
-#include "Include/glm/glm/gtx/hash.hpp"
+#include "Include/glm/gtx/hash.hpp"
 
 namespace Z {
 

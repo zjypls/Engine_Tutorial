@@ -5,9 +5,9 @@
 #ifndef ENGINE_TUTORIAL_EDITORCAMERA_H
 #define ENGINE_TUTORIAL_EDITORCAMERA_H
 
-#include "Include/glm/glm/glm.hpp"
-#include "Include/glm/glm/gtc/matrix_transform.hpp"
-#include "Include/glm/glm/gtx/transform.hpp"
+#include "Include/glm/glm.hpp"
+#include "Include/glm/gtc/matrix_transform.hpp"
+#include "Include/glm/gtx/transform.hpp"
 
 #include "Z/Renderer/Camera.h"
 #include "Z/Core/Core.h"

@@ -5,9 +5,9 @@
 #ifndef ENGINE_TUTORIAL_COMPONENTS_H
 #define ENGINE_TUTORIAL_COMPONENTS_H
 #pragma once
-#include "Include/glm/glm/glm.hpp"
-#include "Include/glm/glm/gtc/matrix_transform.hpp"
-#include "Include/glm/glm/gtx/quaternion.hpp"
+#include "Include/glm/glm.hpp"
+#include "Include/glm/gtc/matrix_transform.hpp"
+#include "Include/glm/gtx/quaternion.hpp"
 
 #include "Z/Core/zGUID.h"
 #include "Z/Scene/SceneCamera.h"

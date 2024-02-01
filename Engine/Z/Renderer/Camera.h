@@ -5,7 +5,7 @@
 #ifndef ENGINE_TUTORIAL_CAMERA_H
 #define ENGINE_TUTORIAL_CAMERA_H
 #include "Z/Core/Core.h"
-#include "Include/glm/glm/glm.hpp"
+#include "Include/glm/glm.hpp"
 
 namespace Z {
 	class Camera{

@@ -3,8 +3,8 @@
 //
 #include "Include/imgui/imgui.h"
 #include "Include/ImGuizmo/ImGuizmo.h"
-#include "Include/glm/glm/gtc/type_ptr.hpp"
-#include "Include/glm/glm/gtx/matrix_decompose.hpp"
+#include "Include/glm/gtc/type_ptr.hpp"
+#include "Include/glm/gtx/matrix_decompose.hpp"
 #include "Include/filewatch/filewatch.h"
 
 #include "Z/Utils/Model.h"

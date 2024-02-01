@@ -28,6 +28,7 @@ add_subdirectory(Include/imgui)
 add_subdirectory(Include/yaml-cpp)
 add_subdirectory(Include/box2d)
 add_subdirectory(Include/tinyobjloader)
+add_subdirectory(Include/spdlog)
 
 add_compile_definitions(GLFW_INCLUDE_NONE)
 
@@ -48,7 +49,7 @@ endif ()
 target_include_directories(Z PUBLIC depends)
 
 target_link_libraries(Z PUBLIC
-        glfw imgui yaml box2d tinyobjloader
+        glfw imgui yaml box2d tinyobjloader spdlog
         spirv-cross-glsl
         )
 if(${CMAKE_BUILD_TYPE} MATCHES Debug AND CMAKE_HOST_WIN32)

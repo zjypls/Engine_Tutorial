@@ -19,6 +19,7 @@ if(DynamicLink)
     set(TINYOBJLOADER_LIBRARY_TYPE "SHARED")
     set(YAML_LIBRARY_TYPE          "SHARED")
     set(Z_LIBRARY_TYPE             "SHARED")
+    set(SPDLOG_BUILD_SHARED ON)
 endif ()
 
 #this flags open mean msvc generator only because cmake project with C# language only support msvc generator

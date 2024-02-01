@@ -4,7 +4,7 @@
 
 #ifndef ENGINE_TUTORIAL_ORITHGRAPHICCAMERA_H
 #define ENGINE_TUTORIAL_ORITHGRAPHICCAMERA_H
-#include "Include/glm/glm/glm.hpp"
+#include "Include/glm/glm.hpp"
 
 namespace Z {
 	class OrithGraphicCamera {

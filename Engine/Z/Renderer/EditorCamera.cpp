@@ -1,7 +1,7 @@
 //
 // Created by 32725 on 2023/3/31.
 //
-#include "Include/glm/glm/gtx/quaternion.hpp"
+#include "Include/glm/gtx/quaternion.hpp"
 
 #include "Z/Renderer/EditorCamera.h"
 #include "Z/Core/Input.h"
