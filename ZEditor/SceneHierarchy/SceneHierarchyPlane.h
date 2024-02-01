@@ -37,7 +37,7 @@ namespace Z {
 		inline Entity GetSelectedEntity() const { return selectedEntity; }
 
 		inline Entity SetSelectedEntity(int id) {
-			if (id != -1)
+			if (id > -1)
 				return selectedEntity = Entity{entt::entity(id), context.get()};
 			else
 				return selectedEntity = {};

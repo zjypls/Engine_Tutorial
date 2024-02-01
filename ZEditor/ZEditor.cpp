@@ -98,7 +98,7 @@ namespace Z {
 				(sceneState == SceneState::Edit && IsViewportFocused && IsViewportHovered && !ImGuizmo::IsOver()) &&
 				((selectedEntity && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) ||
 				 (!selectedEntity && Input::IsMouseButtonPressed(MouseCode::ButtonLeft)))) {
-            int value;
+            int value=-1;
 			selectedEntity = sceneHierarchyPlane->SetSelectedEntity(value);
 		}
 		if ((sceneState != SceneState::Play) && selectedEntity && selectedEntity.HasComponent<CameraComponent>()) {
