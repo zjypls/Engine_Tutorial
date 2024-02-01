@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.10)
+project(yaml)
+file(GLOB_RECURSE src CONFIGURE_DEPENDS src/*.cpp src/*.h)
+if(YAML_LIBRARY_TYPE STREQUAL "SHARED")
+add_library(yaml SHARED ${src})
+target_compile_definitions(yaml PUBLIC YAML_CPP_SHARED_DEFINE)
+else()
+add_library(yaml STATIC ${src})
+target_compile_definitions(yaml PUBLIC YAML_CPP_STATIC_DEFINE)
+endif()
+
+target_include_directories(yaml PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
