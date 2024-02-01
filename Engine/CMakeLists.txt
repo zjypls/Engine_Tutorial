@@ -48,7 +48,8 @@ target_link_libraries(Z PUBLIC
         glfw imgui yaml Box2D tinyobjloader
         spirv-cross-glsl
         )
-if(${CMAKE_BUILD_TYPE} MATCHES Debug AND CMAKE_HOST_WIN32)
+
+if((NOT Z_BUILD_TYPE MATCHES Release) AND CMAKE_HOST_WIN32)
     target_link_libraries(Z PUBLIC shadercd shaderc_combinedd  SPIRV-Toolsd)
 else ()
     target_link_libraries(Z PUBLIC shaderc shaderc_combined  SPIRV-Tools)
@@ -83,7 +84,7 @@ target_compile_definitions(Z PUBLIC
         Z_CONF_EXTENSION=".zConf"
         ${Z_WM_FLAG})
 
-if (CMAKE_BUILD_TYPE MATCHES Debug)
+if (NOT Z_BUILD_TYPE MATCHES Release)
     target_compile_definitions(Z PUBLIC Z_DEBUG
                                         Z_ENABLE_PROFILING)
 endif ()

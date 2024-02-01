@@ -43,6 +43,12 @@ else ()
     set(RENDERER_BACKEND_FLAG Z_USE_OPENGL)
 endif ()
 
+if(NOT CMAKE_BUILD_TYPE MATCHES Release)
+    set(Z_BUILD_TYPE Debug)
+else ()
+    set(Z_BUILD_TYPE Release)
+endif ()
+
 
 if (${CMAKE_GENERATOR} MATCHES "Visual Studio")
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ZEditor)
@@ -82,7 +88,7 @@ endif ()
 message("Using Backend API : ${RENDERER_BACKEND}")
 message("Host Platform : ${Z_PLATFORM}")
 message("Set Rebuild Scripts : ${ReBuildScriptsCore}")
-message("Build Type : ${CMAKE_BUILD_TYPE}")
+message("Build Type : ${Z_BUILD_TYPE}")
 
 add_compile_definitions(Z_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 
