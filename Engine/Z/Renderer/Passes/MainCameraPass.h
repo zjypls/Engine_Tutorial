@@ -26,7 +26,13 @@ namespace Z {
             _dependency_count
         };
         void Init(RenderPassInitInfo *info) override;
+        void draw(const Ref<RenderPass>&uiPass);
     private:
+        void BeginRenderPass();
+        void EndRenderPass();
+        void InitRenderPass();
+        void InitFrameBuffer();
+        std::vector<Z::Framebuffer*> swapchainFrameBuffers;
     };
 } // Z
 

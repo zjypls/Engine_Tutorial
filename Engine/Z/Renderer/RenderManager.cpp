@@ -36,9 +36,11 @@ namespace Z {
     }
 
     void RenderManager::InitUIRenderBackend() {
+        renderPipeline->InitUIRenderBackend();
     }
 
     void RenderManager::PushUIContents(ImGuiContent *content) {
+        renderPipeline->PushUIContents(content);
     }
 
 } // Z

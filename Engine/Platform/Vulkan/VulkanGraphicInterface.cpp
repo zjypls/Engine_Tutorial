@@ -545,4 +545,30 @@ namespace Z {
         VK_CHECK(res,"failed to create RenderPass !");
         ((VulkanRenderPass*)renderPassInterface)->Set(renderpass);
     }
+
+    std::vector<Z::Framebuffer *> VulkanGraphicInterface::CreateDefaultFrameBuffers(
+        RenderPassInterface *renderPassInterface) {
+        std::vector<Z::Framebuffer*> result(swapchainImageViews.size());
+        swapchainFrameBuffers.resize(swapchainImageViews.size());
+        VkFramebufferCreateInfo createInfo{};
+        createInfo.sType=VK_INFO(FRAMEBUFFER,CREATE);
+        createInfo.height=swapchainExtent.height;
+        createInfo.width=swapchainExtent.width;
+        createInfo.attachmentCount=1;
+        createInfo.layers=1;
+        createInfo.renderPass=((VulkanRenderPass*)renderPassInterface)->Get();
+        createInfo.flags=0;
+        createInfo.pNext=nullptr;
+        for(int i=0;i<swapchainImageViews.size();++i) {
+            VkFramebuffer buffer{};
+            createInfo.pAttachments=&swapchainImageViews[i];
+            auto res=vkCreateFramebuffer(device,&createInfo,nullptr,&buffer);
+            VK_CHECK(res,"failed to create frame buffers !");
+            auto framebuffer=new VulkanFramebuffer{};
+            framebuffer->Set(buffer);
+            result[i]=framebuffer;
+            swapchainFrameBuffers[i]=buffer;
+        }
+        return result;
+    }
 } // Z

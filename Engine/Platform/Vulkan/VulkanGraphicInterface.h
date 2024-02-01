@@ -32,6 +32,7 @@ namespace Z {
         void CreateImage(const ImageInfo& info,Image*& image,DeviceMemory*& memory)override;
         void CreateBuffer(const BufferInfo& info,Buffer*&buffer,DeviceMemory*& memory)override;
         void CreateRenderPass(const RenderPassCreateInfo &info, RenderPassInterface *&renderPassInterface) override;
+        std::vector<Z::Framebuffer*> CreateDefaultFrameBuffers(RenderPassInterface *renderPassInterface) override;
 
 
         auto GetInstance(){return instance;}
@@ -88,6 +89,7 @@ namespace Z {
         bool enableValidationLayer=true,enableDebugUtils=true;
         std::vector<VkImage> swapchainImages;
         std::vector<VkImageView> swapchainImageViews;
+        std::vector<VkFramebuffer> swapchainFrameBuffers;
         SwapChainInfo swapChainInfo;
         VkFormat swapchainFormat;
         VkExtent2D swapchainExtent;
