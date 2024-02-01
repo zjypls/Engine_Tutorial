@@ -8,10 +8,7 @@
 
 #include "Z/ImGui/ImGuiLayer.h"
 
-#include "Platform/Vulkan/ImGuiVulkanRenderDocking.h"
-#include "Platform/Vulkan/VulkanGraphicInterface.h"
 #include "Z/Core/Application.h"
-#include "Z/Renderer/RenderManager.h"
 
 
 namespace Z {
@@ -85,7 +82,6 @@ namespace Z {
 	void ImGuiLayer::OnDetach() {
 		Z_CORE_WARN("ImGui Layer Destroy!");
 		ImGuiRendererPlatform::GetRenderer()->Shutdown();
-		//ImGui::DestroyContext();
 	}
 
 	ImGuiLayer::ImGuiLayer() : Layer("ImGuiLayer") {
