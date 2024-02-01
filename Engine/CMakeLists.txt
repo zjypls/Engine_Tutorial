@@ -20,11 +20,13 @@ include_directories(${spdlogPath}/include
                     ${VK_PATH}/include
                     ${box2DPath}/include
                     ${CMAKE_CURRENT_SOURCE_DIR}
+                    ${yamlPath}
                     depends)
 
 
 add_subdirectory(Include/glfw)
 add_subdirectory(Include/imgui)
+target_link_libraries(imgui PUBLIC glfw)
 add_subdirectory(Include/yaml-cpp)
 add_subdirectory(Include/box2d)
 add_subdirectory(Include/tinyobjloader)
