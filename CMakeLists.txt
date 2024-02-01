@@ -7,10 +7,24 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_definitions(-w)
 
 #dynamic link not finished yet
-set(DynamicLink OFF)
+if(${DynamicLink} MATCHES "")
+    set(DynamicLink OFF)
+endif ()
+
+if(DynamicLink)
+    message(WARNING "Build shared engine lib !")
+    set(BOX2D_LIBRARY_TYPE         "SHARED")
+    set(GLFW_LIBRARY_TYPE          "SHARED")
+    set(IMGUI_LIBRARY_TYPE         "SHARED")
+    set(TINYOBJLOADER_LIBRARY_TYPE "SHARED")
+    set(YAML_LIBRARY_TYPE          "SHARED")
+    set(Z_LIBRARY_TYPE             "SHARED")
+endif ()
+
 #this flags open mean msvc generator only because cmake project with C# language only support msvc generator
 set(ReBuildScriptsCore OFF)
-set(UseVulkan ON) # Vulkan support not finish yet
+set(UseVulkan ON)
+
 set(gladPath ${CMAKE_SOURCE_DIR}/Engine/Include/glad)
 set(GLFWPath ${CMAKE_SOURCE_DIR}/Engine/Include/glfw)
 set(ImGuiPath ${CMAKE_SOURCE_DIR}/Engine/Include/imgui)
@@ -25,6 +39,12 @@ set(EDITOR_RC ${CMAKE_SOURCE_DIR}/Assets/Configs/AppIcon.rc)
 
 set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/Lib/${CMAKE_BUILD_TYPE})
 set(CMAKE_PDB_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/PDBs/${CMAKE_BUILD_TYPE})
+
+set(GLFW_BUILD_EXAMPLES OFF)
+set(GLFW_BUILD_TESTS OFF)
+set(GLFW_BUILD_DOCS OFF)
+set(GLFW_INSTALL OFF)
+
 
 if (DEFINED ENV{VULKAN_SDK})
     set(VK_PATH $ENV{VULKAN_SDK})
@@ -64,8 +84,8 @@ elseif(CMAKE_HOST_LINUX)
     if(FALSE AND (DEFINED ENV{WAYLAND_DISPLAY} OR (DEFINED ENV{XDG_SESSION_TYPE} AND $ENV{XDG_SESSION_TYPE} MATCHES wayland)))
         message(WARNING "Using Wayland for linux ! If not, change it !")
         # noticed that glfw-wayland always error call the resize func after the first frame submit
-        # that give twice the original size this make application give vulkan an error frame extent
-        # using x11 always before fix that
+        # that give twice the original size to application and this make application give vulkan an error frame extent
+        # using x11 always before find out why
         set(Z_WM_FLAG WAYLAND)
         set(GLFW_USE_WAYLAND=1)
         set(GLFW_BUILD_WAYLAND ON)
@@ -94,7 +114,7 @@ if(NOT UseVulkan)
     add_dependencies(Z glad)
 endif ()
 
-add_dependencies(Z glfw imgui Box2D)
+add_dependencies(Z glfw imgui box2d)
 add_subdirectory(ZEditor)
 if (ReBuildScriptsCore)
     add_subdirectory(Projects/Test001/Assets/scripts)

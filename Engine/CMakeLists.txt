@@ -39,13 +39,16 @@ file(GLOB_RECURSE src CONFIGURE_DEPENDS Z/*.*
 
 
 link_directories(${VK_PATH}/lib ${CMAKE_SOURCE_DIR}/Lib/${CMAKE_BUILD_TYPE})
-add_library(Z STATIC ${src})
-
+if(Z_LIBRARY_TYPE STREQUAL "SHARED")
+    add_library(Z SHARED ${src})
+else ()
+    add_library(Z STATIC ${src})
+endif ()
 
 target_include_directories(Z PUBLIC depends)
 
 target_link_libraries(Z PUBLIC
-        glfw imgui yaml Box2D tinyobjloader
+        glfw imgui yaml box2d tinyobjloader
         spirv-cross-glsl
         )
 if(${CMAKE_BUILD_TYPE} MATCHES Debug AND CMAKE_HOST_WIN32)

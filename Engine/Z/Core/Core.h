@@ -12,27 +12,17 @@
 #include <cassert>
 
 #ifdef Z_PLATFORM_WIN32
-#ifdef Z_DYNAMIC_LINK
-#ifdef Z_BUILD_DLL
-#define Z_API __declspec(dllexport)
+    #ifdef Z_DYNAMIC_LINK
+        #ifdef Z_BUILD_DLL
+            #defien Z_API __declspec(dllexport)
+        #else
+            #define Z_API __declspec(dllimport)
+        #endif
+    #else
+        #define Z_API
+    #endif
 #else
-#define Z_API __declspec(dllimport)
-#endif
-#else
-#define Z_API
-#endif
-#endif
-#ifdef Z_PLATFORM_LINUX
-#ifdef Z_DYNAMIC_LINK
-#error "not finished yet"
-#ifdef Z_BUILD_DLL
-#define Z_API __declspec(dllexport)
-#else
-#define Z_API __declspec(dllimport)
-#endif
-#else
-#define Z_API
-#endif
+    #define Z_API
 #endif
 
 #ifndef Z_ENABLE_ASSERT
