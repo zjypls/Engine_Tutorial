@@ -21,8 +21,11 @@ namespace Z {
         renderPipeline->Init(&info);
     }
 
+    void RenderManager::Shutdown() {
+        m_Context->DeviceWaiteIdle();
+    }
+
     void RenderManager::Update(float deltaTime) {
-        m_Context->prepareBeforeRender({});
 
         m_Context->WaitForFences();
 

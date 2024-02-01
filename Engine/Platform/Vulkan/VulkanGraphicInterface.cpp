@@ -444,6 +444,11 @@ namespace Z {
         VK_CHECK(res,"failed to wait fences !");
     }
 
+    void VulkanGraphicInterface::DeviceWaiteIdle() {
+        auto res= vkDeviceWaitIdle(device);
+        VK_CHECK(res,"Unknown error happened when wait idle !");
+    }
+
     void VulkanGraphicInterface::ResetCommandPool() {
         auto res=vkResetFences(device,1,&frameFences[currentFrameIndex]);
         VK_CHECK(res,"failed to reset fence !");

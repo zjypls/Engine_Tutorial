@@ -23,6 +23,7 @@ namespace Z {
         bool prepareBeforeRender(const std::function<void()>&funcCallAfterRecreateSwapChain) override;
         void SubmitTask() override;
         void WaitForFences() override;
+        void DeviceWaiteIdle() override;
         void ResetCommandPool() override;
         void BeginRenderPass(const RenderPassBeginInfo &info) override;
         void EndRenderPass() override;
@@ -39,7 +40,8 @@ namespace Z {
         auto GetDescriptorPool(){return descriptorPool;}
         auto GetGraphicQueue(){return graphicsQueue;}
         auto GetQueueFamily(){return familyIndices;}
-        const SwapChainInfo& GetSwapChainInfo(){return swapChainInfo;}
+        const SwapChainInfo& GetSwapChainInfo()override{return swapChainInfo;}
+        uint32 GetCurrentFrameIndex() override{return currentFrameIndex;}
 
         auto GetCurrentCommandBuffer(){return commandBuffers[currentFrameIndex];}
 

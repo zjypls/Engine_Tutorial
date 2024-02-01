@@ -25,6 +25,8 @@ namespace Z {
 
         virtual void WaitForFences()=0;
 
+        virtual void DeviceWaiteIdle()=0;
+
         virtual void ResetCommandPool()=0;
 
         virtual void CreateImage(const ImageInfo &info, Image* &image, DeviceMemory* &memory) = 0;
@@ -38,6 +40,8 @@ namespace Z {
         virtual void EndRenderPass()=0;
 
         virtual const SwapChainInfo& GetSwapChainInfo()=0;
+
+        virtual uint32 GetCurrentFrameIndex()=0;
     };
 
 } // Z

@@ -61,8 +61,11 @@ if(CMAKE_HOST_WIN32)
 elseif(CMAKE_HOST_LINUX)
     set(PLATFORM_SYMBOL Z_PLATFORM_LINUX)
     set(Z_PLATFORM Linux)
-    if(DEFINED ENV{WAYLAND_DISPLAY} OR (DEFINED ENV{XDG_SESSION_TYPE} AND $ENV{XDG_SESSION_TYPE} MATCHES wayland))
+    if(FALSE AND (DEFINED ENV{WAYLAND_DISPLAY} OR (DEFINED ENV{XDG_SESSION_TYPE} AND $ENV{XDG_SESSION_TYPE} MATCHES wayland)))
         message(WARNING "Using Wayland for linux ! If not, change it !")
+        # noticed that glfw-wayland always error call the resize func after the first frame submit
+        # that give twice the original size this make application give vulkan an error frame extent
+        # using x11 always before fix that
         set(Z_WM_FLAG WAYLAND)
         set(GLFW_USE_WAYLAND=1)
         set(GLFW_BUILD_WAYLAND ON)

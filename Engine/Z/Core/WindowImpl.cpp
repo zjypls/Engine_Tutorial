@@ -44,7 +44,6 @@ namespace Z {
 		stbi_image_free(Icon.pixels);
 		stbi_set_flip_vertically_on_load(1);
 		glfwSetWindowUserPointer(window,&WinData);
-		//SetVSync(false);
 
 		//set window resize call back for glfw
 		glfwSetFramebufferSizeCallback(window,[](GLFWwindow* win,int w,int h){

@@ -15,6 +15,7 @@ namespace Z {
         GraphicInterface* graphicInterface;
     };
     class Z_API RenderPass {
+        friend class RenderPipeline;
     public:
         struct FrameBufferAttachment
         {

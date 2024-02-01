@@ -64,6 +64,7 @@ namespace Z {
 
 			window->Update();
 		}
+		RenderManager::Shutdown();
 		LayerStack.PopAllLayer();
 		AssetsSystem::Destroy();
 	}
