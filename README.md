@@ -2,17 +2,7 @@
 Learning GameEngine with The Cherno in Youtobe  
 ## clone with:  
 ```
-git clone --recursive https://github.com/zjypls/Engine_Tutorial.git
-```
-## or
-```
 git clone https://github.com/zjypls/Engine_Tutorial.git
-```
-```
-cd Engine_Tutorial
-```
-```
-git submodule update --init --recursive
 ```
 ## build with (need vulkanSDK)
 ```
