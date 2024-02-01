@@ -38,3 +38,5 @@ mono_crash*
 #batch file
 *.bat
 *.sh
+#local tempCache dir
+tempCache
