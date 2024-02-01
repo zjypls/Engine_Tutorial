@@ -362,6 +362,10 @@ namespace Z {
         CreateVmaAllocator();
     }
 
+    void VulkanGraphicInterface::Shutdown() {
+        //todo:destroy vulkan context
+    }
+
     bool VulkanGraphicInterface::prepareBeforeRender(const std::function<void()> &funcCallAfterRecreateSwapChain) {
         auto acquireRes=vkAcquireNextImageKHR(device,swapchain,UINT64_MAX,imageAvailable[currentFrameIndex],
             VK_NULL_HANDLE,&currentSwapChainImageIndex);

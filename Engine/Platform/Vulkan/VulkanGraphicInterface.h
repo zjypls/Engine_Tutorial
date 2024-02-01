@@ -20,6 +20,7 @@ namespace Z {
     public:
         //Render Interface
         void Init(const GraphicSpec&spec)override;
+        void Shutdown() override;
         bool prepareBeforeRender(const std::function<void()>&funcCallAfterRecreateSwapChain) override;
         void SubmitTask() override;
         void WaitForFences() override;

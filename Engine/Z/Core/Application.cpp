@@ -36,6 +36,7 @@ namespace Z {
 
 
 	Application::~Application() {
+		RenderManager::Shutdown();
 		window->Shutdown();
 		if(ScriptEngine::GetContext()!=nullptr){
 			Z_CORE_WARN("Close Application in Running!!!");
@@ -64,7 +65,7 @@ namespace Z {
 
 			window->Update();
 		}
-		RenderManager::Shutdown();
+		RenderManager::DeviceSynchronize();
 		LayerStack.PopAllLayer();
 		AssetsSystem::Destroy();
 	}

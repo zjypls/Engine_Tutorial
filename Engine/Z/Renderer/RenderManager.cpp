@@ -21,8 +21,12 @@ namespace Z {
         renderPipeline->Init(&info);
     }
 
-    void RenderManager::Shutdown() {
+    void RenderManager::DeviceSynchronize() {
         m_Context->DeviceWaiteIdle();
+    }
+
+    void RenderManager::Shutdown() {
+        m_Context->Shutdown();
     }
 
     void RenderManager::Update(float deltaTime) {

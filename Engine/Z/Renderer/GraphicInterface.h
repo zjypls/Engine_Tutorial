@@ -19,6 +19,8 @@ namespace Z {
     public:
         virtual void Init(const GraphicSpec &initInfo) = 0;
 
+        virtual void Shutdown() = 0;
+
         virtual bool prepareBeforeRender(const std::function<void()>&funcCallAfterRecreateSwapChain)=0;
 
         virtual void SubmitTask()=0;
