@@ -6,10 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_definitions(-w)
 
-#dynamic link not finished yet
-if(${DynamicLink} MATCHES "")
-    set(DynamicLink OFF)
-endif ()
+
+option(DynamicLink "build shared library" OFF)
 
 if(DynamicLink)
     message(WARNING "Build shared engine lib !")
