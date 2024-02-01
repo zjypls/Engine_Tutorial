@@ -4,10 +4,10 @@
 
 #ifndef ENGINE_TUTORIAL_TIME_H
 #define ENGINE_TUTORIAL_TIME_H
-
+#include "Z/Core/Core.h"
 
 namespace Z {
-	class Time {
+	class Z_API Time {
 	public:
 		Time() : time(GetTime()) {}
 		operator float() const { return time; }

@@ -39,9 +39,6 @@ namespace Z {
 	}
 
 	void ImGuiRendererVulkan::InitUIRenderBackend(RenderPassInterface *renderPassInterface,uint32 uiIndex) {
-
-
-		//todo:add imgui init for render backend
 		ImGui_ImplVulkan_InitInfo info{};
 		info.Allocator=nullptr;
 		auto gContext=(VulkanGraphicInterface*)RenderManager::GetInstance().get();
@@ -54,9 +51,10 @@ namespace Z {
 		info.ImageCount=swapchaininfo.imageCount;
 		info.MinImageCount=swapchaininfo.minImageCount;
 		info.DescriptorPool=gContext->GetDescriptorPool();
-		auto tPass=((VulkanRenderPass*)renderPassInterface)->Get();
+		auto uiPassInterface=((VulkanRenderPass*)renderPassInterface)->Get();
 
-		ImGui_ImplVulkan_Init(&info,tPass);
+		bool res = ImGui_ImplVulkan_Init(&info,uiPassInterface);
+        Z_CORE_ASSERT(res,"failed to init vulkan for imgui !");
 
 		auto buffer = gContext->BeginOnceSubmit();
 		ImGui_ImplVulkan_CreateFontsTexture(buffer);

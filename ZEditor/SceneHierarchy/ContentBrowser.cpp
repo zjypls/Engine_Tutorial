@@ -2,10 +2,6 @@
 // Created by 32725 on 2023/4/2.
 //
 
-#include "Z/Core/Log.h"
-#include "Z/Project/Project.h"
-#include "Z/Core/AssetsSystem.h"
-
 #include "ContentBrowser.h"
 
 namespace Z {
@@ -36,7 +32,7 @@ namespace Z {
 
 		for (const auto &file: std::filesystem::directory_iterator(currentPath)) {
 			bool IsFile=file.is_regular_file();
-			if(IsFile&&(file.path().extension()!=".zConf"))
+			if(IsFile&&(file.path().extension()!=Z_CONF_EXTENSION))
 				continue;
 			std::string filePath=file.path().string();
 			ImGui::PushID(filePath.c_str());

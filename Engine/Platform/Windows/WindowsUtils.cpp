@@ -2,12 +2,12 @@
 // Created by 32725 on 2023/3/30.
 //
 
+#define GLFW_EXPOSE_NATIVE_WIN32
 #include <Windows.h>
 #include "Z/Utils/ZUtils.h"
 #include "Z/Core/Application.h"
 #include "Z/Project/Project.h"
 #include "Include/glfw/include/GLFW/glfw3.h"
-#define GLFW_EXPOSE_NATIVE_WIN32
 #include "Include/glfw/include/GLFW/glfw3native.h"
 namespace Z {
 	std::string Utils::FileOpen(const char *filter,const char* defaultOpen,const char* initialDir) {

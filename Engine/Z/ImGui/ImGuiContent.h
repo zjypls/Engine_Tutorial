@@ -8,9 +8,9 @@
 namespace Z {
 
 class Z_API ImGuiContent {
-public:
-    virtual void OnImGuiRender()=0;
-};
+    public:
+        virtual void OnImGuiRender()=0;
+    };
 
 } // Z
 

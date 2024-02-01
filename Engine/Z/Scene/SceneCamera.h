@@ -7,7 +7,7 @@
 #include "Z/Renderer/Camera.h"
 
 namespace Z {
-	class SceneCamera :public Camera {
+	class Z_API SceneCamera :public Camera {
 	public:
 		enum class ProjectionType {Perspective = 0, Orthographic = 1} ;
 		SceneCamera()=default;

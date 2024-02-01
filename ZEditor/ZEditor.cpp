@@ -9,7 +9,7 @@
 
 #include "Z/Utils/Model.h"
 
-#include "./ZEditor.h"
+#include "ZEditor.h"
 
 
 ImVec2 operator-(const ImVec2 &lhs, const ImVec2 &rhs) {
@@ -170,7 +170,7 @@ namespace Z {
 
 		ImGui::Begin("Statics");
 
-		ImGui::Text("Renderer2D Stats:");
+		ImGui::Text("Render Stats:");
 		static float fps = 1.f / Time::DeltaTime();
 		static float dt = Time::DeltaTime() * 1000.f;
 		static uint32 frameCount = 0;
@@ -441,7 +441,7 @@ namespace Z {
 				if (control)
 					if (shift) {
 						if (WorkPath.empty()) {
-							WorkPath = "./Untitled.zscene";
+							WorkPath = "Untitled.zscene";
 							Z_CORE_WARN("WorkPath is empty,Save to {0}", WorkPath.string());
 						}
 						InnerSave(WorkPath.string());
@@ -539,7 +539,7 @@ namespace Z {
         		selfDefLayoutFilePath=configuration.string();
 				//avoid reload ini file when imgui recording command
 				Application::Get().SubmitFunc([this] {
-					ImGui::LoadIniSettingsFromDisk("Assets/Configs/editorLayout.ini");
+					ImGui::LoadIniSettingsFromDisk(selfDefLayoutFilePath.c_str());
 				});
         		Z_CORE_WARN("Ini config file find : {0}",configuration.string());
         	}

@@ -13,7 +13,7 @@
 
 
 namespace Z {
-	class Scene {
+	class Z_API Scene {
 		entt::registry registry;
 		uint32 viewportWidth = 0, viewportHeight = 0;
 		friend class Entity;

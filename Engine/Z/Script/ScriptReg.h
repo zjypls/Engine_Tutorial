@@ -4,9 +4,10 @@
 
 #ifndef ENGINE_TUTORIAL_SCRIPTREG_H
 #define ENGINE_TUTORIAL_SCRIPTREG_H
+#include "Z/Core/Core.h"
 
 namespace Z {
-	class ScriptReg {
+	class Z_API ScriptReg {
 
 
 	public:

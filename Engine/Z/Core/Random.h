@@ -9,7 +9,7 @@
 
 #include "Z/Core/Core.h"
 namespace Z {
-	class Random {
+	class Z_API Random {
 		static std::random_device randomDevice;
 		static std::mt19937 RandomEngine;
 		static std::uniform_real_distribution<float> Distribution;

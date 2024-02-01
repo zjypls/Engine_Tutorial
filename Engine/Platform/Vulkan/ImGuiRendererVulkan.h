@@ -6,7 +6,7 @@
 #define ENGINE_TUTORIAL_IMGUIRENDERERVULKAN_H
 #include "Z/ImGui/ImGuiRendererPlatform.h"
 namespace Z {
-	class ImGuiRendererVulkan final : public ImGuiRendererPlatform{
+	class Z_API ImGuiRendererVulkan final : public ImGuiRendererPlatform{
 	public:
 		void Begin() override;
 		void End() override;

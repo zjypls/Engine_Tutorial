@@ -19,7 +19,7 @@ namespace Z {
 		std::filesystem::path ScriptsDir;
 		std::string ProjectName;
 	};
-	class Project {
+	class Z_API Project {
 	public:
 		static bool Init(std::filesystem::path &projectFile);
         static inline bool IsInited(){return p_Inited;}

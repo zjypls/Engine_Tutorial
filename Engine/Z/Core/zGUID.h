@@ -12,7 +12,7 @@
 
 namespace Z {
 
-	class zGUID {
+	class Z_API zGUID {
 	public:
 		using Type = uint64;
 

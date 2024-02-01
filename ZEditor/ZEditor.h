@@ -2,7 +2,7 @@
 // Created by 32725 on 2023/3/19.
 //
 
-#ifndef ENGINE_TUTORIAL_SANBOX2D_H
+#ifndef ENGINE_TUTORIAL_ZEDITOR_H
 #define ENGINE_TUTORIAL_ZEDITOR_H
 
 #include <unordered_map>
@@ -80,4 +80,4 @@ namespace Z {
 	};
 
 }
-#endif //ENGINE_TUTORIAL_SANBOX2D_H
+#endif //ENGINE_TUTORIAL_ZEDITOR_H

@@ -1,7 +1,7 @@
 //
 // Created by 32725 on 2023/3/11.
 //
-#include "./ZEditor.h"
+#include "ZEditor.h"
 #include "Z/Core/Entry.h"
 
 

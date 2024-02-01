@@ -151,7 +151,6 @@ namespace Z {
 		CircleCollider2DComponent()=default;
 	};
 
-	//TODO:Add a GUID for each component ?
 	struct MeshRendererComponent{
 		Ref<Mesh> mesh;
 	};

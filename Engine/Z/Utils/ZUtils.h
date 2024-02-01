@@ -7,8 +7,10 @@
 
 #include <string>
 
+#include "Z/Core/Core.h"
+
 namespace Z {
-	class Utils {
+	class Z_API Utils {
 	private:
 		friend class zGUID;
 

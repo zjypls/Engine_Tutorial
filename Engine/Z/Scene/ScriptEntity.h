@@ -7,7 +7,7 @@
 #include "Z/Scene/Entity.hpp"
 
 namespace Z {
-	class ScriptEntity {
+	class Z_API ScriptEntity {
 		friend class Scene;
 
 	protected:

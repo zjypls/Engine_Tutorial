@@ -66,7 +66,6 @@ namespace Z {
 			position = focus + distance * glm::normalize(toFocus);
 		}
 		else
-			//TODO:use clamp?
 			pitch += offset.y * 1E-2f;
 	}
 

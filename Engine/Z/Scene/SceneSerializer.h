@@ -8,7 +8,7 @@
 #include "Z/Scene/Scene.h"
 
 namespace Z {
-	class SceneSerializer {
+	class Z_API SceneSerializer {
 	public:
 		SceneSerializer(const Ref<Scene>& scene);
 

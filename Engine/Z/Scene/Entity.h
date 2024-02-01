@@ -11,7 +11,7 @@
 namespace Z {
 	class Scene;
 	class zGUID;
-	class Entity {
+	class Z_API Entity {
 		entt::entity handle = entt::null;
 		Scene *scene = nullptr;
 	public:

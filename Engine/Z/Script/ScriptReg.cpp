@@ -142,7 +142,7 @@ namespace Z {
 	}
 
 	uint64 Entity_SingleClone(zGUID originID) {
-		// Fixme:value different with C# script give on Windows but work well on Linux ???? //solved (2024/01/12 13:50)
+		// value different with C# script give on Windows but work well on Linux ???? //solved (2024/01/12 13:50)
 		// a log output on windows(2024/01/12 3:20):
 		/*
 		 [03:09:28] Z: Log from C# script : 13666765057558020482

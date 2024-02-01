@@ -150,12 +150,6 @@ namespace Z {
 
 	Entity Scene::GetMainCamera() {
 		auto view = registry.view<CameraComponent>();
-		//Todo: fix this
-//		registry.view<CameraComponent>().each([&](auto entity, auto &camera) {
-//			if (camera.primary) {
-//				return Entity{entity, this};
-//			}
-//		});
 		for (auto entity: view) {
 			if (view.get<CameraComponent>(entity).primary) {
 				return Entity{entity, this};

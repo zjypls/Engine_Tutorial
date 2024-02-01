@@ -68,7 +68,7 @@ namespace Z {
 		unsigned char buffer[32]{0};
 	};
 
-	class ScriptClass {
+	class Z_API ScriptClass {
 	public:
 		ScriptClass(const std::string &nameSpace, const std::string &name);
 
@@ -109,7 +109,7 @@ namespace Z {
 		friend class ScriptEngine;
 	};
 
-	class ScriptInstance {
+	class Z_API ScriptInstance {
 	public:
 		ScriptInstance(Ref<ScriptClass> klass, Entity entity);
 
@@ -132,7 +132,7 @@ namespace Z {
 		static unsigned char buffer[64];
 	};
 
-	class ScriptEngine {
+	class Z_API ScriptEngine {
 	public:
 		ScriptEngine() = default;
 
