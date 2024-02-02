@@ -26,9 +26,7 @@ ShaderCaches
 #a test folder
 Application
 #build dynamic libraries
-bin/*.exe
-bin/*.pdb
-bin/ZEditor
+bin/*
 !bin/scripts.dll
 !bin/ScriptsCore.dll
 #other config files
