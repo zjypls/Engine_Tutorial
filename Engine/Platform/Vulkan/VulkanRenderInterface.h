@@ -5,7 +5,7 @@
 #ifndef ENGINEALL_VULKANRENDERINTERFACE_H
 #define ENGINEALL_VULKANRENDERINTERFACE_H
 
-#include <vulkan/vulkan.h>
+#include "vulkan/vulkan.h"
 
 #include "Z/Core/Core.h"
 #include "Z/Renderer/RenderInterface.h"
@@ -49,7 +49,7 @@ namespace Z {
         std::optional<uint32> present;
         std::optional<uint32> compute;
 
-        bool isComplete() { return graphics.has_value() && present.has_value() && compute.has_value();; }
+        bool isComplete() { return graphics.has_value() && present.has_value() && compute.has_value();}
     };
     struct SwapChainSupportDetails
     {

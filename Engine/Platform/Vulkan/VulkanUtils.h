@@ -5,7 +5,7 @@
 #define VK_INFO(TYPE,ACT) VK_STRUCTURE_TYPE_##TYPE##_##ACT##_INFO
 #define VK_CHECK(value,str) Z_CORE_ASSERT(value==VK_SUCCESS,str)
 #include <optional>
-#include <vulkan/vulkan.h>
+#include "vulkan/vulkan.h"
 
 #include "Include/glfw/include/GLFW/glfw3.h"
 
