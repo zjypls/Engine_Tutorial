@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "Z/Renderer/GraphicInterface.h"
-#include "Z/Renderer/RenderResource.h"
+#include "Z/Renderer/RenderInterface.h"
 
 namespace Z {
     struct RenderPassInitInfo {

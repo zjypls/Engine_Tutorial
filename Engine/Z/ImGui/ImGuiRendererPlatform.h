@@ -6,7 +6,7 @@
 #define ENGINE_TUTORIAL_IMGUIRENDERERPLATFORM_H
 
 #include "Z/Core/Core.h"
-#include "Z/Renderer/RenderResource.h"
+#include "Z/Renderer/RenderInterface.h"
 
 namespace Z {
 	class ImGuiRendererPlatform {

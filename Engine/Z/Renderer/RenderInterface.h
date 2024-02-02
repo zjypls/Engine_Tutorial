@@ -2,8 +2,8 @@
 // Created by z on 24-1-16.
 //
 
-#ifndef ENGINEALL_RENDERRESOURCE_H
-#define ENGINEALL_RENDERRESOURCE_H
+#ifndef ENGINEALL_RENDERINTERFACE_H
+#define ENGINEALL_RENDERINTERFACE_H
 
 #include <optional>
 
@@ -496,4 +496,4 @@ namespace Z {
 
 }
 
-#endif //ENGINEALL_RENDERRESOURCE_H
+#endif //ENGINEALL_RENDERINTERFACE_H

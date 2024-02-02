@@ -7,7 +7,7 @@
 
 #include <functional>
 
-#include "Z/Renderer/RenderResource.h"
+#include "Z/Renderer/RenderInterface.h"
 
 namespace Z {
 

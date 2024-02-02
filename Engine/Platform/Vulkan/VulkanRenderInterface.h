@@ -2,13 +2,13 @@
 // Created by z on 24-1-16.
 //
 
-#ifndef ENGINEALL_VULKANRESOURCE_H
-#define ENGINEALL_VULKANRESOURCE_H
+#ifndef ENGINEALL_VULKANRENDERINTERFACE_H
+#define ENGINEALL_VULKANRENDERINTERFACE_H
 
 #include <vulkan/vulkan.h>
 
 #include "Z/Core/Core.h"
-#include "Z/Renderer/RenderResource.h"
+#include "Z/Renderer/RenderInterface.h"
 #define VULKAN_IMPL_RESOURCE(type) class Z_API Vulkan##type final : public type{ \
 public:                                                                          \
     void Set(Vk##type s_##type){m_##type=s_##type;}                              \
@@ -59,4 +59,4 @@ namespace Z {
     };
 }
 
-#endif //ENGINEALL_VULKANRESOURCE_H
+#endif //ENGINEALL_VULKANRENDERINTERFACE_H

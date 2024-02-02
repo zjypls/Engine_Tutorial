@@ -1,6 +1,7 @@
 //
 // Created by z on 24-1-16.
 //
+#pragma once
 #define VK_INFO(TYPE,ACT) VK_STRUCTURE_TYPE_##TYPE##_##ACT##_INFO
 #define VK_CHECK(value,str) Z_CORE_ASSERT(value==VK_SUCCESS,str)
 #include <optional>
@@ -10,7 +11,7 @@
 
 #include "Z/Core/Core.h"
 #include "Z/Core/Log.h"
-#include "Platform/Vulkan/VulkanResource.h"
+#include "Platform/Vulkan/VulkanRenderInterface.h"
 
 
 namespace Z{

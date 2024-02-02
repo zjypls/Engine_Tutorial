@@ -9,7 +9,7 @@
 #include <vma/vk_mem_alloc.h>
 
 #include "Z/Renderer/GraphicInterface.h"
-#include "Platform/Vulkan/VulkanResource.h"
+#include "Platform/Vulkan/VulkanRenderInterface.h"
 
 namespace Z {
 
