@@ -4,7 +4,6 @@ project(EngineAll)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_definitions(-w)
 
 set(DynamicLink OFF)
 #dynamic link work well on linux but badly on Windows with msvc
@@ -63,6 +62,7 @@ if (${CMAKE_GENERATOR} MATCHES "Visual Studio")
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_SOURCE_DIR}/bin>)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 else ()
+    add_definitions(-w)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 endif ()
 
