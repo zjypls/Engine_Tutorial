@@ -27,6 +27,7 @@ namespace Z {
         };
         void Init(RenderPassInitInfo *info) override;
         void draw(const Ref<RenderPass>&uiPass);
+        void clear() override;
     private:
         void BeginRenderPass();
         void EndRenderPass();

@@ -29,6 +29,8 @@ namespace Z {
 
         virtual void PushUIContents(ImGuiContent* content);
 
+        virtual void clear();
+
     protected:
         GraphicInterface* Context;
         Ref<RenderPass> mainCameraPass;

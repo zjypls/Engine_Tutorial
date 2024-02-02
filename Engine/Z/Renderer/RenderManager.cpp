@@ -26,6 +26,7 @@ namespace Z {
     }
 
     void RenderManager::Shutdown() {
+        renderPipeline->clear();
         m_Context->Shutdown();
     }
 

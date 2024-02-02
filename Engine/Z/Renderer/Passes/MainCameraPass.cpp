@@ -20,6 +20,14 @@ namespace Z {
         EndRenderPass();
     }
 
+    void MainCameraPass::clear() {
+        RenderPass::clear();
+        for(auto buffer:swapchainFrameBuffers) {
+            Context->DestroyFrameBuffer(buffer);
+        }
+        Context->DestroyRenderPass(framebuffer.renderPass);
+    }
+
     void MainCameraPass::InitRenderPass() {
 
         AttachmentReference reference{};

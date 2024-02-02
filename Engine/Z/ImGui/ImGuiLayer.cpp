@@ -80,8 +80,8 @@ namespace Z {
 	}
 
 	void ImGuiLayer::OnDetach() {
-		Z_CORE_WARN("ImGui Layer Destroy!");
-		ImGuiRendererPlatform::GetRenderer()->Shutdown();
+		// Z_CORE_WARN("ImGui Layer Destroy!");
+		// ImGuiRendererPlatform::GetRenderer()->Shutdown();
 	}
 
 	ImGuiLayer::ImGuiLayer() : Layer("ImGuiLayer") {

@@ -29,6 +29,8 @@ namespace Z {
             ui_Contents.push_back(content);
         }
 
+        void clear() override;
+
 
         void InitUIRenderBackend();
 

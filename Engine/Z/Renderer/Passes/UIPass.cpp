@@ -30,6 +30,11 @@ namespace Z {
         ImGuiRendererPlatform::GetRenderer()->End();
     }
 
+    void UIPass::clear() {
+        Z_CORE_WARN("UI Pass clear !");
+        ImGuiRendererPlatform::GetRenderer()->Shutdown();
+    }
+
     void UIPass::InitUIRenderBackend() {
         ImGuiRendererPlatform::GetRenderer()->InitUIRenderBackend(framebuffer.renderPass,MainCameraPass::_ui_pass_index);
     }

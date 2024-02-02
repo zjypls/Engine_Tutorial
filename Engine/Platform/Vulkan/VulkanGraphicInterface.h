@@ -33,7 +33,10 @@ namespace Z {
         void CreateImage(const ImageInfo& info,Image*& image,DeviceMemory*& memory)override;
         void CreateBuffer(const BufferInfo& info,Buffer*&buffer,DeviceMemory*& memory)override;
         void CreateRenderPass(const RenderPassCreateInfo &info, RenderPassInterface *&renderPassInterface) override;
+        void DestroyRenderPass(RenderPassInterface *renderPassInterface) override;
         std::vector<Z::Framebuffer*> CreateDefaultFrameBuffers(RenderPassInterface *renderPassInterface) override;
+
+        void DestroyFrameBuffer(Z::Framebuffer *framebuffer) override;
 
 
         auto GetInstance(){return instance;}

@@ -35,4 +35,9 @@ namespace Z {
     void RenderPipeline::PushUIContents(ImGuiContent *content) {
         ((UIPass*)uiPass.get())->PushUIContents(content);
     }
+
+    void RenderPipeline::clear() {
+        uiPass->clear();
+        mainCameraPass->clear();
+    }
 } // Z

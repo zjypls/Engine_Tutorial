@@ -364,6 +364,31 @@ namespace Z {
 
     void VulkanGraphicInterface::Shutdown() {
         //todo:destroy vulkan context
+
+        for(auto view:swapchainImageViews) {
+            vkDestroyImageView(device,view,nullptr);
+        }
+
+        vkDestroyCommandPool(device,transientCommandPool,nullptr);
+        for(int i=0;i<maxFlightFrames;++i) {
+            vkDestroyFence(device,frameFences[i],nullptr);
+            vkDestroySemaphore(device,imageRenderFinish[i],nullptr);
+            vkDestroySemaphore(device,imageAvailable[i],nullptr);
+            vkFreeCommandBuffers(device,commandPools[i],1,&commandBuffers[i]);
+            vkDestroyCommandPool(device,commandPools[i],nullptr);
+        }
+
+        vkDestroyDescriptorPool(device,descriptorPool,nullptr);
+
+        vkDestroySwapchainKHR(device,swapchain,nullptr);
+
+        vkDestroyDevice(device,nullptr);
+
+        vkDestroySurfaceKHR(instance,surface,nullptr);
+        if(enableDebugUtils) {
+            VulkanUtils::DestroyDebugUtils(instance,debugUtilsMessenger,nullptr);
+        }
+        vkDestroyInstance(instance,nullptr);
     }
 
     bool VulkanGraphicInterface::prepareBeforeRender(const std::function<void()> &funcCallAfterRecreateSwapChain) {
@@ -550,6 +575,10 @@ namespace Z {
         ((VulkanRenderPass*)renderPassInterface)->Set(renderpass);
     }
 
+    void VulkanGraphicInterface::DestroyRenderPass(RenderPassInterface *renderPassInterface) {
+        vkDestroyRenderPass(device,((VulkanRenderPass*)renderPassInterface)->Get(),nullptr);
+    }
+
     std::vector<Z::Framebuffer *> VulkanGraphicInterface::CreateDefaultFrameBuffers(
         RenderPassInterface *renderPassInterface) {
         std::vector<Z::Framebuffer*> result(swapchainImageViews.size());
@@ -574,5 +603,9 @@ namespace Z {
             swapchainFrameBuffers[i]=buffer;
         }
         return result;
+    }
+
+    void VulkanGraphicInterface::DestroyFrameBuffer(Z::Framebuffer *framebuffer) {
+        vkDestroyFramebuffer(device,((VulkanFramebuffer*)framebuffer)->Get(),nullptr);
     }
 } // Z

@@ -37,7 +37,11 @@ namespace Z {
 
         virtual void CreateRenderPass(const RenderPassCreateInfo& info,RenderPassInterface*&renderPassInterface)=0;
 
+        virtual void DestroyRenderPass(RenderPassInterface* renderPassInterface)=0;
+
         virtual std::vector<Z::Framebuffer*> CreateDefaultFrameBuffers(RenderPassInterface* renderPassInterface)=0;
+
+        virtual void DestroyFrameBuffer(Z::Framebuffer* framebuffer) = 0;
 
         virtual void BeginRenderPass(const RenderPassBeginInfo&info)=0;
 
