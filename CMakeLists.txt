@@ -6,18 +6,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_definitions(-w)
 
-option(DynamicLink "build shared library" OFF)
+set(DynamicLink OFF)
 #dynamic link work well on linux but badly on Windows with msvc
 
 if(DynamicLink)
     message(WARNING "Build shared engine lib !")
-    set(BOX2D_LIBRARY_TYPE         "SHARED")
-    set(GLFW_LIBRARY_TYPE          "SHARED")
-    set(IMGUI_LIBRARY_TYPE         "SHARED")
-    set(TINYOBJLOADER_LIBRARY_TYPE "SHARED")
-    set(YAML_LIBRARY_TYPE          "SHARED")
     set(Z_LIBRARY_TYPE             "SHARED")
-    set(SPDLOG_BUILD_SHARED ON)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif ()
 
 #this flags open mean msvc generator only because cmake project with C# language only support msvc generator
