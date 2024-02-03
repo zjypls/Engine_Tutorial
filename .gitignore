@@ -1,9 +1,9 @@
 ﻿#build folder
 cmake-build-*/
 *.exe
+build*
 #build libarary except vulkanSDK
 Lib
-!Engine/Include/vulkanSDK/lib
 !Assets/mono/lib
 #self define config file except skybox config file
 *.zConf
