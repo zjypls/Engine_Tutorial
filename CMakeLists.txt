@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(DynamicLink OFF)
-#dynamic link work well on linux but badly on Windows with msvc
 
 if(DynamicLink)
     message(WARNING "Build shared engine lib !")

@@ -323,8 +323,10 @@ namespace Z {
 		});
 	}
 
-
-
+    //todo:fix
+    //hide this to make dynamic work on Windows with msvc
+    //need to improve
+/*
     template<class Ty>
 	void Scene::OnComponentAdd(Entity entity, Ty &component) {
 
@@ -376,6 +378,6 @@ namespace Z {
 	void Scene::OnComponentAdd<CircleRendererComponent>(Entity entity, CircleRendererComponent &component) {}
 
 	template<>
-	void Scene::OnComponentAdd<CircleCollider2DComponent>(Entity entity, CircleCollider2DComponent &component) {}
+	void Scene::OnComponentAdd<CircleCollider2DComponent>(Entity entity, CircleCollider2DComponent &component) {}*/
 
 }

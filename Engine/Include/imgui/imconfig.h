@@ -127,3 +127,21 @@ namespace ImGui
     void MyFunction(const char* name, MyMatrix44* mtx);
 }
 */
+
+#ifdef Z_PLATFORM_WIN32
+    #ifdef Z_DYNAMIC_LINK
+        #ifdef Z_BUILD_DLL
+            #define IMGUI_API __declspec(dllexport)
+            #define IMGUI_IMPL_API __declspec(dllexport)
+        #else
+            #define IMGUI_API __declspec(dllimport)
+            #define IMGUI_IMPL_API __declspec(dllimport)
+        #endif
+    #else
+        #define IMGUI_API
+        #define IMGUI_IMPL_API
+    #endif
+#else
+    #define IMGUI_API
+    #define IMGUI_IMPL_API
+#endif

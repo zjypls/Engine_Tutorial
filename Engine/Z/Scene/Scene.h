@@ -25,7 +25,9 @@ namespace Z {
 		std::unordered_map<zGUID, Entity> entities;
 		//TODO:optimize
 		template<class Ty>
-		void OnComponentAdd(Entity entity, Ty &component);
+		void OnComponentAdd(Entity entity, Ty &component){
+
+        }
 		void Render2D();
 		void Render3D();
 		void NativeScriptUpdate(float deltaTime);

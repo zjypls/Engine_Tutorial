@@ -25,8 +25,6 @@ include_directories(${spdlogPath}/include
 
 
 add_subdirectory(Include/glfw)
-add_subdirectory(Include/imgui)
-target_link_libraries(imgui PUBLIC glfw)
 add_subdirectory(Include/yaml-cpp)
 add_subdirectory(Include/box2d)
 add_subdirectory(Include/tinyobjloader)
@@ -38,13 +36,15 @@ file(GLOB_RECURSE src CONFIGURE_DEPENDS Z/*.*
                                         Platform/OpenGL/*.*
                                         Platform/Vulkan/*.*
                                         Platform/${Z_PLATFORM}/*.*
-                                        ${ImGuizmoPath}/ImGuizmo.cpp)
+                                        ${ImGuizmoPath}/ImGuizmo.cpp
+                                        ${ImGuiPath}/*.cpp)
 
 
 link_directories(${VK_PATH}/lib ${CMAKE_SOURCE_DIR}/Lib/${CMAKE_BUILD_TYPE})
 if(Z_LIBRARY_TYPE STREQUAL "SHARED")
     add_library(Z SHARED ${src})
-    target_compile_definitions(Z PUBLIC Z_DYNAMIC_LINK Z_BUILD_DLL)
+    target_compile_definitions(Z PUBLIC Z_DYNAMIC_LINK)
+    target_compile_definitions(Z PRIVATE  Z_BUILD_DLL)
 else ()
     add_library(Z STATIC ${src})
 endif ()
@@ -52,7 +52,7 @@ endif ()
 target_include_directories(Z PUBLIC depends)
 
 target_link_libraries(Z PUBLIC
-        glfw imgui yaml box2d tinyobjloader spdlog
+        glfw yaml box2d tinyobjloader spdlog
         spirv-cross-glsl
         )
 
