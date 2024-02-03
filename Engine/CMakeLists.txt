@@ -44,6 +44,7 @@ file(GLOB_RECURSE src CONFIGURE_DEPENDS Z/*.*
 link_directories(${VK_PATH}/lib ${CMAKE_SOURCE_DIR}/Lib/${CMAKE_BUILD_TYPE})
 if(Z_LIBRARY_TYPE STREQUAL "SHARED")
     add_library(Z SHARED ${src})
+    target_compile_definitions(Z PUBLIC Z_DYNAMIC_LINK Z_BUILD_DLL)
 else ()
     add_library(Z STATIC ${src})
 endif ()

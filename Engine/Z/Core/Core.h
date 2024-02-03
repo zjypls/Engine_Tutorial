@@ -14,7 +14,7 @@
 #ifdef Z_PLATFORM_WIN32
     #ifdef Z_DYNAMIC_LINK
         #ifdef Z_BUILD_DLL
-            #defien Z_API __declspec(dllexport)
+            #define Z_API __declspec(dllexport)
         #else
             #define Z_API __declspec(dllimport)
         #endif

@@ -24,3 +24,7 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-DZ_ENABLE_PROFILING=1)
     target_compile_definitions(${PROJECT_NAME} PUBLIC Z_DEBUG Z_ENABLE_PROFILING)
 endif ()
+
+if(DynamicLink)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC Z_DYNAMIC_LINK)
+endif ()
