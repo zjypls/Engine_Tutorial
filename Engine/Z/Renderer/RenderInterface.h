@@ -807,9 +807,11 @@ namespace Z {
         float                                lineWidth;
     } ;
     struct PipelineMultisampleStateCreateInfo {
+        using SampleMask=uint32;
         SampleCountFlagBits                  rasterizationSamples;
         bool                                 sampleShadingEnable;
         float                                minSampleShading;
+        const SampleMask*                    pSampleMask;
         bool                                 alphaToCoverageEnable;
         bool                                 alphaToOneEnable;
     } ;
@@ -867,11 +869,15 @@ namespace Z {
         const PipelineDepthStencilStateCreateInfo*       pDepthStencilState;
         const PipelineColorBlendStateCreateInfo*         pColorBlendState;
         const PipelineDynamicStateCreateInfo*            pDynamicState;
-        PipelineLayout                                   layout;
+        PipelineLayout*                                  pLayout;
         RenderPassInterface*                             renderPass;
         uint32                                           subpass;
-        Pipeline                                         basePipelineHandle;
+        Pipeline*                                        pBasePipelineHandle;
         int32                                            basePipelineIndex;
+    };
+    struct ShaderModuleCreateInfo {
+        uint64                       codeSize;
+        const uint32*                pCode;
     };
 
 }

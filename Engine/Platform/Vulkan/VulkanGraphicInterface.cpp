@@ -8,6 +8,11 @@
 #include "Platform/Vulkan/VulkanUtils.h"
 
 namespace Z {
+
+    constexpr uint64 selfDefStructureOffset=sizeof(VkStructureType)+sizeof(VkFlags)+sizeof(void*);
+
+    constexpr VkPhysicalDeviceType preferPhysicalDeviceType=VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
+
     void VulkanGraphicInterface::CreateImage(const ImageInfo &info,Image*& image,DeviceMemory*& memory) {
         image=new VulkanImage{};
         memory=new VulkanDeviceMemory{};
@@ -32,6 +37,18 @@ namespace Z {
                                   resBuffer,resMemory);
         ((VulkanBuffer*)buffer)->Set(resBuffer);
         ((VulkanDeviceMemory*)memory)->Set(resMemory);
+    }
+
+    void VulkanGraphicInterface::CreateShaderModule(const ShaderModuleCreateInfo &moduleInfo, ShaderModule *&module) {
+        VkShaderModuleCreateInfo info{};
+        info.sType=VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+        info.codeSize=moduleInfo.codeSize;
+        info.pCode=moduleInfo.pCode;
+        VkShaderModule Module{};
+        auto res= vkCreateShaderModule(device,&info,nullptr,&Module);
+        VK_CHECK(res,"failed to create shader module !");
+        module=new VulkanShaderModule{};
+        ((VulkanShaderModule*)module)->Set(Module);
     }
 
     VkCommandBuffer VulkanGraphicInterface::BeginOnceSubmit() {
@@ -117,7 +134,7 @@ namespace Z {
         for(const auto&phyDevice:devices){
             VkPhysicalDeviceProperties properties{};
             vkGetPhysicalDeviceProperties(phyDevice,&properties);
-            if(properties.deviceType==VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU){
+            if(properties.deviceType == preferPhysicalDeviceType){
                 Z_CORE_INFO("Using GPU : {0}",properties.deviceName);
                 physicalDevice=phyDevice;
             }
@@ -573,6 +590,104 @@ namespace Z {
         auto res=vkCreateRenderPass(device,&Info,nullptr,&renderpass);
         VK_CHECK(res,"failed to create RenderPass !");
         ((VulkanRenderPass*)renderPassInterface)->Set(renderpass);
+    }
+
+    void VulkanGraphicInterface::CreateGraphicPipeline(const GraphicPipelineCreateInfo &createInfo,
+        Pipeline *&graphicPipeline) {
+        std::vector<VkPipelineShaderStageCreateInfo> stages(createInfo.stageCount);
+        std::vector<VkSpecializationInfo> stagesSpecInfo(stages.size());
+        for(int i=0;i<createInfo.stageCount;++i) {
+            const auto&stage=createInfo.pStages[i];
+            stages[i].sType=VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            stages[i].flags=(VkPipelineShaderStageCreateFlags)stage.flags;
+            stages[i].module=((VulkanShaderModule*)stage.module)->Get();
+            stages[i].pName=stage.pName;
+            stages[i].pNext=stage.pNext;
+            auto &specInfo=stagesSpecInfo[i];
+            specInfo.dataSize=stage.pSpecializationInfo->dataSize;
+            specInfo.pData=stage.pSpecializationInfo->pData;
+            specInfo.mapEntryCount=stage.pSpecializationInfo->mapEntryCount;
+            specInfo.pMapEntries=(VkSpecializationMapEntry*)stage.pSpecializationInfo->pMapEntries;
+            stages[i].pSpecializationInfo=&specInfo;
+        }
+
+        VkPipelineDynamicStateCreateInfo dynamicStateInfo{};
+        dynamicStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+        dynamicStateInfo.dynamicStateCount=createInfo.pDynamicState->dynamicStateCount;
+        dynamicStateInfo.pDynamicStates=(VkDynamicState*)createInfo.pDynamicState->pDynamicStates;
+
+        VkPipelineVertexInputStateCreateInfo vertexInputStateInfo{};
+        vertexInputStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+        vertexInputStateInfo.pVertexAttributeDescriptions=(VkVertexInputAttributeDescription*)createInfo.pVertexInputState->pVertexAttributeDescriptions;
+        vertexInputStateInfo.vertexAttributeDescriptionCount=createInfo.pVertexInputState->vertexAttributeDescriptionCount;
+        vertexInputStateInfo.pVertexBindingDescriptions=(VkVertexInputBindingDescription*)createInfo.pVertexInputState->pVertexBindingDescriptions;
+        vertexInputStateInfo.vertexBindingDescriptionCount=createInfo.pVertexInputState->vertexBindingDescriptionCount;
+
+        VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateInfo{};
+        inputAssemblyStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+        inputAssemblyStateInfo.topology=(VkPrimitiveTopology)createInfo.pInputAssemblyState->topology;
+        inputAssemblyStateInfo.primitiveRestartEnable=createInfo.pInputAssemblyState->primitiveRestartEnable;
+        inputAssemblyStateInfo.pNext=nullptr;
+
+        VkPipelineColorBlendStateCreateInfo blendStateInfo{};
+        blendStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+        blendStateInfo.attachmentCount=createInfo.pColorBlendState->attachmentCount;
+        blendStateInfo.logicOp=(VkLogicOp)createInfo.pColorBlendState->logicOp;
+        blendStateInfo.logicOpEnable=createInfo.pColorBlendState->logicOpEnable;
+        for(int i=0;i<4;++i)
+            blendStateInfo.blendConstants[i]=createInfo.pColorBlendState->blendConstants[i];
+        blendStateInfo.attachmentCount=createInfo.pColorBlendState->attachmentCount;
+        blendStateInfo.pAttachments=(VkPipelineColorBlendAttachmentState*)(createInfo.pColorBlendState->pAttachments);
+        blendStateInfo.pNext=nullptr;
+
+        VkPipelineViewportStateCreateInfo viewportStateInfo{};
+        viewportStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+        viewportStateInfo.pScissors=(VkRect2D*)createInfo.pViewportState->pScissors;
+        viewportStateInfo.pViewports=(VkViewport*)createInfo.pViewportState->pViewports;
+        viewportStateInfo.scissorCount=createInfo.pViewportState->scissorCount;
+        viewportStateInfo.viewportCount=createInfo.pViewportState->viewportCount;
+
+        VkPipelineDepthStencilStateCreateInfo depthStencilStateInfo{};
+        std::memcpy(((char*)(&depthStencilStateInfo))+selfDefStructureOffset,createInfo.pDepthStencilState,sizeof(PipelineDepthStencilStateCreateInfo));
+        depthStencilStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+
+        VkPipelineMultisampleStateCreateInfo multisampleStateInfo{};
+        std::memcpy(((char*)(&multisampleStateInfo))+selfDefStructureOffset,createInfo.pMultisampleState,sizeof(PipelineMultisampleStateCreateInfo));
+        multisampleStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+
+        VkPipelineRasterizationStateCreateInfo rasterizationStateInfo{};
+        std::memcpy(((char*)(&rasterizationStateInfo))+selfDefStructureOffset,createInfo.pRasterizationState,sizeof(PipelineRasterizationStateCreateInfo));
+        rasterizationStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+
+        VkPipelineTessellationStateCreateInfo tessellationStateInfo{};
+        tessellationStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
+        tessellationStateInfo.patchControlPoints=createInfo.pTessellationState->patchControlPoints;
+
+        VkPipelineLayout pipelineLayout=((VulkanPipelineLayout*)createInfo.pLayout)->Get();
+
+        VkGraphicsPipelineCreateInfo info{};
+        info.sType=VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+        info.subpass=createInfo.subpass;
+        info.renderPass=((VulkanRenderPass*)createInfo.renderPass)->Get();
+        info.stageCount=stages.size();
+        info.pStages=stages.data();
+        info.pDynamicState=&dynamicStateInfo;
+        info.pVertexInputState=&vertexInputStateInfo;
+        info.pColorBlendState=&blendStateInfo;
+        info.pViewportState=&viewportStateInfo;
+        info.pInputAssemblyState=&inputAssemblyStateInfo;
+        info.basePipelineHandle=createInfo.pBasePipelineHandle==nullptr?VK_NULL_HANDLE:((VulkanPipeline*)createInfo.pBasePipelineHandle)->Get();
+        info.pDepthStencilState=&depthStencilStateInfo;
+        info.pMultisampleState=&multisampleStateInfo;
+        info.layout=pipelineLayout;
+        info.basePipelineIndex=0;
+        info.pTessellationState=&tessellationStateInfo;
+
+        VkPipeline pipeline{};
+        auto res=vkCreateGraphicsPipelines(device,VK_NULL_HANDLE,1,&info,nullptr,&pipeline);
+        VK_CHECK(res,"failed to create graphic pipeline !");
+        graphicPipeline=new VulkanPipeline{};
+        ((VulkanPipeline*)graphicPipeline)->Set(pipeline);
     }
 
     void VulkanGraphicInterface::DestroyRenderPass(RenderPassInterface *renderPassInterface) {
