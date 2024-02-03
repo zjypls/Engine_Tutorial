@@ -99,18 +99,10 @@ message("Host Platform : ${Z_PLATFORM}")
 message("Set Rebuild Scripts : ${ReBuildScriptsCore}")
 message("Build Type : ${CMAKE_BUILD_TYPE}")
 
-add_compile_definitions(Z_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
-
 
 add_subdirectory(Engine)
 
-if(NOT UseVulkan)
-    add_dependencies(Z glad)
-endif ()
-
-add_dependencies(Z glfw imgui box2d)
 add_subdirectory(ZEditor)
 if (ReBuildScriptsCore)
     add_subdirectory(Projects/Test001/Assets/scripts)
-    add_dependencies(scripts ScriptCore)
 endif ()

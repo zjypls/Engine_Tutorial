@@ -20,7 +20,7 @@ namespace Z {
 
 
 
-	class EditorCamera: public Camera {
+	class Z_API EditorCamera: public Camera {
 		float Fov=45.f,aspectRatio=1.f,nearClip=0.1f,farClip=1000.f;
 		glm::vec3 position=glm::vec3{1.f};
 		glm::vec3 focus=glm::vec3{0.f};

@@ -55,17 +55,19 @@ target_link_libraries(Z PUBLIC
         glfw imgui yaml box2d tinyobjloader spdlog
         spirv-cross-glsl
         )
+
 if(${CMAKE_BUILD_TYPE} MATCHES Debug AND CMAKE_HOST_WIN32)
     target_link_libraries(Z PUBLIC shadercd shaderc_combinedd  SPIRV-Toolsd)
 else ()
     target_link_libraries(Z PUBLIC shaderc shaderc_combined  SPIRV-Tools)
 endif ()
+
 if(NOT UseVulkan)
     target_link_libraries(Z PUBLIC glad)
 endif ()
 
 if (CMAKE_HOST_LINUX)
-    # build by pls on arch 6.6.10 zen kernel
+    # build by pls with gcc13 on Arch 6.7 zen kernel
     # with mono source : https://github.com/mono/mono
     message(WARNING "Suppose to use system mono")
     find_package(   ZLIB # needed by monosgen for symbols "inflate" and "inflateInit2_"
@@ -84,7 +86,7 @@ add_definitions(-DZ_ENABLE_PROFILING=1)
 
 target_compile_definitions(Z PUBLIC
         ${PLATFORM_SYMBOL}
-        Z_SOURCE_DIR
+        Z_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
         ${RENDERER_BACKEND_FLAG}
         GLFW_INCLUDE_NONE
         GLM_ENABLE_EXPERIMENTAL

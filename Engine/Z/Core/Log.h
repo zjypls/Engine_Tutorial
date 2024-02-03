@@ -19,8 +19,8 @@ namespace Z {
 		static Ref<spdlog::logger> z_ClientLog;
 	public:
 		static void Init();
-		inline static const auto& GetCoreLog(){return Log::z_CoreLog;}
-		inline static const auto& GetClientLog(){return Log::z_ClientLog;}
+		static const auto& GetCoreLog(){return Log::z_CoreLog;}
+		static const auto& GetClientLog(){return Log::z_ClientLog;}
 
 	};
 }
