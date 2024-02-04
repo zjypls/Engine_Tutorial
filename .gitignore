@@ -38,3 +38,5 @@ mono_crash*
 *.sh
 #local tempCache dir
 tempCache
+#local note files
+local_*
