@@ -28,6 +28,11 @@ namespace Z {
 
 	void ImGuiRendererVulkan::End() {
 		auto data=ImGui::GetDrawData();
+        //fixme:
+        // noticed that imgui call vkDestroyBuffer(vertexBuffer and indexBuffer) when the buffer is used for submitting which cause a validation error
+        // on Platform/Vulkan/ImGuiVulkanRenderDocing.cpp line 535 and 537
+        // it works well at the 0-maxFlightFrame-1 frames,and happens when the maxFlightFrame frame is drawing
+        //mark:validationLabelImGui (mark as a symbol for local search)
 		ImGui_ImplVulkan_RenderDrawData(data,((VulkanGraphicInterface*)RenderManager::GetInstance().get())->GetCurrentCommandBuffer());
 	}
 
@@ -56,9 +61,6 @@ namespace Z {
 		bool res = ImGui_ImplVulkan_Init(&info,uiPassInterface);
         Z_CORE_ASSERT(res,"failed to init vulkan for imgui !");
 
-		auto buffer = gContext->BeginOnceSubmit();
-		ImGui_ImplVulkan_CreateFontsTexture(buffer);
-		gContext->EndOnceSubmit(buffer);
-		ImGui_ImplVulkan_DestroyFontUploadObjects();
+		ImGui_ImplVulkan_CreateFontsTexture();
 	}
 }

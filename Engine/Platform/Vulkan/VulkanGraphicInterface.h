@@ -12,8 +12,8 @@
 #include "Platform/Vulkan/VulkanRenderInterface.h"
 
 namespace Z {
-
     constexpr uint32 maxFlightFrames=3;
+    //fixme:it will cause a validation error per frame when maxFlightFrame != swapChainImageCount on AMD integrate GPU (Arch)
     constexpr uint32 maxVertexBlendCount=128,maxMaterialCount=128;
 
     class Z_API VulkanGraphicInterface final : public GraphicInterface{

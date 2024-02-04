@@ -207,7 +207,7 @@ namespace Z {
 		for(;_it!=std::filesystem::recursive_directory_iterator();++_it){
 			auto _path=_it->path();
 			if(_it->is_regular_file()&& IsRegistered(_path.extension().string())&&_path.extension()!=Z_CONF_EXTENSION){
-				auto zConfFile=_path.string()+".zConf";
+				auto zConfFile=_path.string()+Z_CONF_EXTENSION;
 				if(zConfDetect.find(zConfFile)!=zConfDetect.end()){
 					zConfDetect.erase(zConfFile);
 				}else{
@@ -226,8 +226,8 @@ namespace Z {
 
 	void AssetsSystem::LoadWithMetaData(const AssetsSystem::MetaData &data,const std::string& path) {
 		Z_CORE_ASSERT(!IsExisting(data.id),"Import using a existing id");
-		instance->PathToUID[path+".zConf"]=data.id;
-		instance->UIDToPath[data.id]=path+".zConf";
+		instance->PathToUID[path+Z_CONF_EXTENSION]=data.id;
+		instance->UIDToPath[data.id]=path+Z_CONF_EXTENSION;
 		switch(data.importer){
 		}
 	}
