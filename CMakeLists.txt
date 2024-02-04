@@ -5,16 +5,13 @@ project(EngineAll)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+#build dynamic engine library
 set(DynamicLink OFF)
-
-if(DynamicLink)
-    message(WARNING "Build shared engine lib !")
-    set(Z_LIBRARY_TYPE             "SHARED")
-    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-endif ()
-
+#ON mean it will identify and record guid to make sure it is unique
+set(UseSecureGUID OFF)
 #this flags open mean msvc generator only because cmake project with C# language only support msvc generator
 set(ReBuildScriptsCore OFF)
+#use vulkan as render api
 set(UseVulkan ON)
 
 set(gladPath ${CMAKE_SOURCE_DIR}/Engine/Include/glad)
@@ -55,6 +52,11 @@ else ()
     set(RENDERER_BACKEND_FLAG Z_USE_OPENGL)
 endif ()
 
+if(DynamicLink)
+    message(WARNING "Build shared engine lib !")
+    set(Z_LIBRARY_TYPE             "SHARED")
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif ()
 
 if (${CMAKE_GENERATOR} MATCHES "Visual Studio")
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ZEditor)

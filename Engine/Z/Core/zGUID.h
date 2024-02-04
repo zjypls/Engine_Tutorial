@@ -7,6 +7,7 @@
 
 #include <functional>
 #include <random>
+#include <unordered_set>
 
 #include "Z/Core/Core.h"
 
@@ -18,12 +19,17 @@ namespace Z {
 
 		zGUID();
 
-		zGUID(Type value) : value(value) {}
+		zGUID(Type value) : value(value) {if(!IsGuidPresent(value))Register(value);}
 
 		zGUID(const zGUID &other) = default;
 
 		operator Type() const { return value; }
 
+        static void Register(const Type& id);
+        static bool IsGuidPresent(const Type&id);
+        static void RemoveID(const Type&id);
+    private:
+        static std::unordered_set<Type> registerMaps;
 	private:
 		Type value;
 	};

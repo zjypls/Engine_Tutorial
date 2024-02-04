@@ -88,14 +88,20 @@ target_compile_definitions(Z PUBLIC
         ${PLATFORM_SYMBOL}
         Z_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
         ${RENDERER_BACKEND_FLAG}
-        GLFW_INCLUDE_NONE
         GLM_ENABLE_EXPERIMENTAL
         Z_CONF_EXTENSION=".zConf")
+
+target_compile_definitions(Z PRIVATE GLFW_INCLUDE_NONE)
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
     target_compile_definitions(Z PUBLIC Z_DEBUG
                                         Z_ENABLE_PROFILING)
 endif ()
+
 if(UseVulkan)
     target_compile_definitions(Z PUBLIC GLFW_USE_VULKAN VK_USE_PLATFORM_${Z_WM_FLAG}_KHR)
+endif ()
+
+if(UseSecureGUID)
+    target_compile_definitions(Z PRIVATE Z_SECUREGUID)
 endif ()
