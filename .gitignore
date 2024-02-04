@@ -4,6 +4,7 @@ cmake-build-*/
 build*
 #build libarary except vulkanSDK
 Lib
+!Engine/Include/mono/lib
 !Assets/mono/lib
 #self define config file except skybox config file
 *.zConf
@@ -29,6 +30,7 @@ Application
 bin/*
 !bin/scripts.dll
 !bin/ScriptsCore.dll
+!bin/mono-2.0-sgen.dll
 #other config files
 .clang-tidy
 #mono crash json file

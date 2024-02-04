@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.21)
 
 project(Z)
 
@@ -52,6 +52,7 @@ endif ()
 target_include_directories(Z PUBLIC depends)
 
 target_link_libraries(Z PUBLIC
+        monosgen-2.0
         glfw yaml box2d tinyobjloader spdlog
         spirv-cross-glsl
         )
@@ -72,15 +73,22 @@ if (CMAKE_HOST_LINUX)
     message(WARNING "Suppose to use system mono")
     find_package(   ZLIB # needed by monosgen for symbols "inflate" and "inflateInit2_"
                     REQUIRED)
-    target_link_libraries(Z PUBLIC vulkan monosgen-2.0 ZLIB::ZLIB)
+    target_link_libraries(Z PUBLIC vulkan ZLIB::ZLIB)
 elseif (CMAKE_HOST_WIN32)
     # noticed that vulkan lib named different on Windows
-    target_link_libraries(Z PUBLIC vulkan-1 libmono-static-sgen
+    target_link_libraries(Z PUBLIC vulkan-1
                                     Ws2_32 winmm Version Bcrypt)
 else ()
     message(FATAL_ERROR "not supported platform : ${CMAKE_HOST_SYSTEM_NAME}")
 endif ()
 
+
+# Disable warnings
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(Z PRIVATE -w)
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    target_compile_options(Z PRIVATE /W0)
+endif()
 
 add_definitions(-DZ_ENABLE_PROFILING=1)
 

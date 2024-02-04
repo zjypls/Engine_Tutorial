@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.21)
 
 project(ZEditor)
 
@@ -18,7 +18,6 @@ endif ()
 
 target_include_directories(${PROJECT_NAME} PUBLIC depends)
 target_link_libraries(${PROJECT_NAME} PUBLIC Z)
-target_compile_definitions(${PROJECT_NAME} PUBLIC ${PLATFORM_SYMBOL} Z_SOURCE_DIR Z_CONF_EXTENSION=".zConf")
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-DZ_ENABLE_PROFILING=1)
