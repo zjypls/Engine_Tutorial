@@ -12,8 +12,6 @@
 #include "Platform/Vulkan/VulkanRenderInterface.h"
 
 namespace Z {
-    constexpr uint32 maxFlightFrames=3;
-    //fixme:it will cause a validation error per frame when maxFlightFrame != swapChainImageCount on AMD integrate GPU (Arch)
     constexpr uint32 maxVertexBlendCount=128,maxMaterialCount=128;
 
     class Z_API VulkanGraphicInterface final : public GraphicInterface{
@@ -73,6 +71,7 @@ namespace Z {
 
         void ReCreateSwapChain();
 
+        uint32 maxFlightFrames=0;
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugUtilsMessenger;
         VkSurfaceKHR surface;
@@ -84,13 +83,13 @@ namespace Z {
         VkFormat depthFormat;
         Queue* graphicsQueue,*computeQueue,*presentQueue;
         VkCommandPool transientCommandPool;
-        VkCommandPool commandPools[maxFlightFrames];
-        VkCommandBuffer commandBuffers[maxFlightFrames];
+        std::vector<VkCommandPool> commandPools;
+        std::vector<VkCommandBuffer> commandBuffers;
+        std::vector<VkFence> frameFences;
+        std::vector<VkSemaphore> imageAvailable,imageRenderFinish;
         uint32 currentFrameIndex=0;
         VkDescriptorPool descriptorPool;
         VmaAllocator vmaAllocator;
-        VkFence frameFences[maxFlightFrames];
-        VkSemaphore imageAvailable[maxFlightFrames],imageRenderFinish[maxFlightFrames];
 
         bool enableValidationLayer=true,enableDebugUtils=true;
         std::vector<VkImage> swapchainImages;

@@ -204,7 +204,7 @@ namespace Z {
         commandPoolInfo.flags=VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
         auto res= vkCreateCommandPool(device,&commandPoolInfo, nullptr,&transientCommandPool);
         VK_CHECK(res,"failed to create command pool !");
-
+        commandPools.resize(maxFlightFrames);
         for(auto&pool:commandPools){
             auto poolInfo=VkCommandPoolCreateInfo{};
             poolInfo.sType=VK_INFO(COMMAND_POOL,CREATE);
@@ -221,6 +221,7 @@ namespace Z {
         info.sType=VK_INFO(COMMAND_BUFFER,ALLOCATE);
         info.commandBufferCount=1;
         info.level=VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        commandBuffers.resize(maxFlightFrames);
         for(auto&buffer:commandBuffers){
             info.commandPool=commandPools[index++];
             auto res= vkAllocateCommandBuffers(device,&info,&buffer);
@@ -250,6 +251,7 @@ namespace Z {
         poolInfo.sType=VK_INFO(DESCRIPTOR_POOL,CREATE);
         poolInfo.pPoolSizes=poolSizes;
         poolInfo.poolSizeCount=sizeof(poolSizes)/sizeof(poolSizes[0]);
+        poolInfo.flags=VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
         poolInfo.maxSets=1000;//Todo:improve
 
         auto res= vkCreateDescriptorPool(device,&poolInfo, nullptr,&descriptorPool);
@@ -264,6 +266,10 @@ namespace Z {
 
         VkSemaphoreCreateInfo semaphoreInfo{};
         semaphoreInfo.sType=VK_INFO(SEMAPHORE,CREATE);
+
+        frameFences.resize(maxFlightFrames);
+        imageAvailable.resize(maxFlightFrames);
+        imageRenderFinish.resize(maxFlightFrames);
 
         for(int i=0;i<maxFlightFrames;++i){
             auto res0= vkCreateFence(device,&fenceInfo, nullptr,&frameFences[i]);
@@ -328,7 +334,7 @@ namespace Z {
         vkGetSwapchainImagesKHR(device,swapchain,&swapchainImageCount, nullptr);
         swapchainImages.resize(swapchainImageCount);
         vkGetSwapchainImagesKHR(device,swapchain,&swapchainImageCount,swapchainImages.data());
-
+        maxFlightFrames=swapchainImageCount;
         swapchainExtent=extent;
         swapchainFormat=swapchainformat.format;
         scissor={0,0,extent};
@@ -370,11 +376,11 @@ namespace Z {
         CreateWindowSurface();
         initializePhysicalDevice();
         CreateLogicalDevice();
+        CreateSwapchain();
         CreateCommandPool();
         CreateCommandBuffers();
         CreateDescriptorPool();
         CreateSyncSignals();
-        CreateSwapchain();
         CreateSwapchainImageViews();
         CreateVmaAllocator();
     }
