@@ -52,6 +52,12 @@ else ()
     set(RENDERER_BACKEND_FLAG Z_USE_OPENGL)
 endif ()
 
+if(CMAKE_BUILD_TYPE MATCHES Release)
+    set(Z_BUILD_TYPE Release)
+else ()
+    set(Z_BUILD_TYPE Debug)
+endif ()
+
 if(DynamicLink)
     message(WARNING "Build shared engine lib !")
     set(Z_LIBRARY_TYPE             "SHARED")
@@ -67,7 +73,6 @@ else ()
 endif ()
 
 
-link_directories(Engine/Include/mono/lib/${CMAKE_BUILD_TYPE})
 if(CMAKE_HOST_WIN32)
     set(PLATFORM_SYMBOL Z_PLATFORM_WIN32)
     set(Z_PLATFORM Windows)
@@ -97,7 +102,7 @@ endif ()
 message("Using Backend API : ${RENDERER_BACKEND}")
 message("Host Platform : ${Z_PLATFORM}")
 message("Set Rebuild Scripts : ${ReBuildScriptsCore}")
-message("Build Type : ${CMAKE_BUILD_TYPE}")
+message("Build Type : ${Z_BUILD_TYPE}")
 
 
 add_subdirectory(Engine)

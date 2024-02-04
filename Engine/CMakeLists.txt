@@ -40,7 +40,8 @@ file(GLOB_RECURSE src CONFIGURE_DEPENDS Z/*.*
                                         ${ImGuiPath}/*.cpp)
 
 
-link_directories(${VK_PATH}/lib ${CMAKE_SOURCE_DIR}/Lib/${CMAKE_BUILD_TYPE})
+link_directories(${VK_PATH}/lib ${CMAKE_SOURCE_DIR}/Lib/${Z_BUILD_TYPE} ${monoPath}/lib)
+
 if(Z_LIBRARY_TYPE STREQUAL "SHARED")
     add_library(Z SHARED ${src})
     target_compile_definitions(Z PUBLIC Z_DYNAMIC_LINK)
@@ -57,7 +58,7 @@ target_link_libraries(Z PUBLIC
         spirv-cross-glsl
         )
 
-if(${CMAKE_BUILD_TYPE} MATCHES Debug AND CMAKE_HOST_WIN32)
+if(${Z_BUILD_TYPE} MATCHES Debug AND CMAKE_HOST_WIN32)
     target_link_libraries(Z PUBLIC shadercd shaderc_combinedd  SPIRV-Toolsd)
 else ()
     target_link_libraries(Z PUBLIC shaderc shaderc_combined  SPIRV-Tools)
@@ -101,7 +102,7 @@ target_compile_definitions(Z PUBLIC
 
 target_compile_definitions(Z PRIVATE GLFW_INCLUDE_NONE)
 
-if (CMAKE_BUILD_TYPE MATCHES Debug)
+if (Z_BUILD_TYPE MATCHES Debug)
     target_compile_definitions(Z PUBLIC Z_DEBUG
                                         Z_ENABLE_PROFILING)
 endif ()

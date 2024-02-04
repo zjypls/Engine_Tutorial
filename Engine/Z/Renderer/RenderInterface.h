@@ -725,9 +725,9 @@ namespace Z {
         const SubpassDependency*        pDependencies;
     };
     union  ClearColorValue {
-        float       float32[4];
-        int32       int32[4];
-        uint32      uint32[4];
+        float       f32[4];
+        int32       i32[4];
+        uint32      ui32[4];
     };
     struct ClearDepthStencilValue {
         float       depth;
