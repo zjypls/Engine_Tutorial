@@ -71,7 +71,6 @@ endif ()
 if (CMAKE_HOST_LINUX)
     # build by pls with gcc13 on Arch 6.7 zen kernel
     # with mono source : https://github.com/mono/mono
-    message(WARNING "Suppose to use system mono")
     find_package(   ZLIB # needed by monosgen for symbols "inflate" and "inflateInit2_"
                     REQUIRED)
     target_link_libraries(Z PUBLIC vulkan ZLIB::ZLIB)
