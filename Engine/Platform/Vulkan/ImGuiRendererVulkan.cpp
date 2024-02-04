@@ -27,13 +27,13 @@ namespace Z {
 	}
 
 	void ImGuiRendererVulkan::End() {
-		auto data=ImGui::GetDrawData();
         //fixme:
         // noticed that imgui call vkDestroyBuffer(vertexBuffer and indexBuffer) when the buffer is used for submitting which cause a validation error
         // on Platform/Vulkan/ImGuiVulkanRenderDocing.cpp line 535 and 537
         // it works well at the 0-maxFlightFrame-1 frames,and happens when the maxFlightFrame frame is drawing
-        //mark:validationLabelImGui (mark as a symbol for local search)
-		ImGui_ImplVulkan_RenderDrawData(data,((VulkanGraphicInterface*)RenderManager::GetInstance().get())->GetCurrentCommandBuffer());
+        //mark (Arch) :validationLabelImGui (mark as a symbol for local search)
+        //mark again (Windows) :seems only happened on my Arch with AMD integrated GPU
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(),((VulkanGraphicInterface*)RenderManager::GetInstance().get())->GetCurrentCommandBuffer());
 	}
 
 
@@ -54,7 +54,7 @@ namespace Z {
 		info.Subpass=uiIndex;
 		auto&swapchaininfo=gContext->GetSwapChainInfo();
 		info.ImageCount=swapchaininfo.imageCount;
-		info.MinImageCount=swapchaininfo.minImageCount;
+		info.MinImageCount=swapchaininfo.minImageCount>=2?swapchaininfo.minImageCount:2;
 		info.DescriptorPool=gContext->GetDescriptorPool();
 		auto uiPassInterface=((VulkanRenderPass*)renderPassInterface)->Get();
 

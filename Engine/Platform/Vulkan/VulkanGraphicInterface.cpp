@@ -137,6 +137,7 @@ namespace Z {
             if(properties.deviceType == preferPhysicalDeviceType){
                 Z_CORE_INFO("Using GPU : {0}",properties.deviceName);
                 physicalDevice=phyDevice;
+                break;
             }
         }
         if(physicalDevice==VK_NULL_HANDLE)
