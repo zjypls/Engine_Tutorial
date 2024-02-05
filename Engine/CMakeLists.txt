@@ -56,7 +56,7 @@ endif ()
 target_include_directories(Z PRIVATE ${Z_INCLUDE_DIR})
 target_link_directories(Z PUBLIC ${Z_LINK_DIR})
 
-target_link_libraries(Z PRIVATE
+target_link_libraries(Z PUBLIC
         monosgen-2.0
         glfw yaml box2d tinyobjloader spdlog
         spirv-cross-glsl
