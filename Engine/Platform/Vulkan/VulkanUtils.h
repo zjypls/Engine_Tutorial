@@ -174,6 +174,35 @@ namespace Z{
                 createInfo.pfnUserCallback = DefaultDebugCall;
         }
 
+        std::vector<const char*> checkLayerEnable(std::vector<const char*> requiredLayers){
+            uint32 Count=0;
+            vkEnumerateInstanceLayerProperties(&Count, nullptr);
+            Z_CORE_ASSERT(Count>0,"illegal layer count for instance !");
+            std::vector<VkLayerProperties> layers(Count);
+            vkEnumerateInstanceLayerProperties(&Count,layers.data());
+            for(auto &layer:layers){
+                auto pos= std::find(requiredLayers.begin(), requiredLayers.end(),layer.layerName);
+                if(pos!=requiredLayers.end()){
+                    requiredLayers.erase(pos);
+                }
+            }
+            return requiredLayers;
+        }
+        std::vector<const char*> checkExtensionEnable(std::vector<const char*> requiredExtensions){
+            uint32 Count=0;
+            vkEnumerateInstanceExtensionProperties(nullptr,&Count, nullptr);
+            Z_CORE_ASSERT(Count>0,"illegal extension count for instance !");
+            std::vector<VkExtensionProperties> extensions(Count);
+            vkEnumerateInstanceExtensionProperties(nullptr,&Count,extensions.data());
+            for(auto extension:extensions){
+                auto pos= std::find(requiredExtensions.begin(), requiredExtensions.end(),extension.extensionName);
+                if(pos!=requiredExtensions.end()){
+                    requiredExtensions.erase(pos);
+                }
+            }
+            return requiredExtensions;
+        }
+
         auto GetRequireExtensions(bool debug){
             uint32 count=0;
             const char** extensions= glfwGetRequiredInstanceExtensions(&count);

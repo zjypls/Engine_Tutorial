@@ -100,7 +100,7 @@ namespace Z {
         VkExtent2D swapchainExtent;
         VkRect2D scissor;
 
-        const std::vector<char const*> validationLayers {"VK_LAYER_KHRONOS_validation"};
+        const std::vector<const char *> validationLayers {"VK_LAYER_KHRONOS_validation"};
     };
 } // Z
 

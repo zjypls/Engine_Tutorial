@@ -80,6 +80,12 @@ namespace Z {
     }
 
     void VulkanGraphicInterface::CreateInstance(){
+        if(!VulkanUtils::checkLayerEnable(validationLayers).empty() ||
+            !VulkanUtils::checkExtensionEnable({VK_EXT_DEBUG_UTILS_EXTENSION_NAME}).empty()){
+            enableDebugUtils= false;
+            enableValidationLayer= false;
+        }
+
         VkApplicationInfo applicationInfo{};
         applicationInfo.sType=VK_STRUCTURE_TYPE_APPLICATION_INFO;
         applicationInfo.pEngineName="Z";
