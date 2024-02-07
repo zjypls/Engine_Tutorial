@@ -4,6 +4,7 @@ project(EngineAll)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 #build dynamic engine library
 set(DynamicLink OFF)
@@ -109,6 +110,7 @@ message("Build Type : ${Z_BUILD_TYPE}")
 add_subdirectory(Engine)
 
 add_subdirectory(ZEditor)
+set_target_properties(ZEditor PROPERTIES INSTALL_RPATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 if (ReBuildScriptsCore)
     add_subdirectory(Projects/Test001/Assets/scripts)
 endif ()
