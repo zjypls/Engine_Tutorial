@@ -66,7 +66,7 @@ if(CMAKE_HOST_WIN32)
 elseif(CMAKE_HOST_LINUX)
     set(PLATFORM_SYMBOL Z_PLATFORM_LINUX)
     set(Z_PLATFORM Linux)
-    if(DEFINED $ENV{WAYLAND_DISPLAY} OR ( DEFINED ENV{XDG_SESSION_TYPE} AND $ENV{XDG_SESSION_TYPE} MATCHES wayland))
+    if(DEFINED ENV{WAYLAND_DISPLAY} OR ( DEFINED ENV{XDG_SESSION_TYPE} AND $ENV{XDG_SESSION_TYPE} MATCHES wayland))
         #noticed that,when i using wayland instead of X11 for glfw,it has much more lower fps than using X11, nearly half of X11
         #according by some small compare,this may caused by imgui Docking branch?
         #arch ,linux 6.7.1,zen kernel,Nvidia GTX 1660Ti,wayland 1.22.0
