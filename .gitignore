@@ -17,6 +17,8 @@ Lib
 *.idb
 #visual studio config folder
 .vs
+#vscode config folder
+.vscode
 #temp build folder
 build/
 build-*/
