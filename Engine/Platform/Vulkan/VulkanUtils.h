@@ -181,9 +181,11 @@ namespace Z{
             std::vector<VkLayerProperties> layers(Count);
             vkEnumerateInstanceLayerProperties(&Count,layers.data());
             for(auto &layer:layers){
-                auto pos= std::find(requiredLayers.begin(), requiredLayers.end(),layer.layerName);
-                if(pos!=requiredLayers.end()){
-                    requiredLayers.erase(pos);
+                for(auto reqLayer=requiredLayers.begin();reqLayer!=requiredLayers.end();++reqLayer){
+                    if(strcmp(layer.layerName,*reqLayer)==0){
+                        requiredLayers.erase(reqLayer);
+                        break;
+                    }
                 }
             }
             return requiredLayers;
@@ -195,9 +197,11 @@ namespace Z{
             std::vector<VkExtensionProperties> extensions(Count);
             vkEnumerateInstanceExtensionProperties(nullptr,&Count,extensions.data());
             for(auto extension:extensions){
-                auto pos= std::find(requiredExtensions.begin(), requiredExtensions.end(),extension.extensionName);
-                if(pos!=requiredExtensions.end()){
-                    requiredExtensions.erase(pos);
+                for(auto ext=requiredExtensions.begin();ext!=requiredExtensions.end();++ext){
+                    if(strcmp(extension.extensionName,*ext)==0){
+                        requiredExtensions.erase(ext);
+                        break;
+                    }
                 }
             }
             return requiredExtensions;
