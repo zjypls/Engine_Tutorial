@@ -79,6 +79,7 @@ elseif (CMAKE_HOST_WIN32)
     # noticed that vulkan lib named different on Windows
     target_link_libraries(Z PRIVATE vulkan-1
                                     Ws2_32 winmm Version Bcrypt)
+    target_compile_definitions(Z PUBLIC NOMINMAX)
 else ()
     message(FATAL_ERROR "not supported platform : ${CMAKE_HOST_SYSTEM_NAME}")
 endif ()
