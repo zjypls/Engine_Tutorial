@@ -52,14 +52,13 @@ namespace Z {
         description[_ui_pass_index].pipelineBindPoint=PipelineBindPoint::GRAPHICS;
         info.subpassCount=_subpass_count;
         info.pSubpasses=description;
-        SubpassDependency dependency[_dependency_count];
+        SubpassDependency dependency[_dependency_count]{};
         dependency[_ui_dependency_index].srcSubpass = SubpassContents::EXTERNAL;
         dependency[_ui_dependency_index].dstSubpass = SubpassContents::INLINE;
         dependency[_ui_dependency_index].srcStageMask =PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT;
         dependency[_ui_dependency_index].srcAccessMask = AccessFlags::NONE;
         dependency[_ui_dependency_index].dstStageMask =PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT;
         dependency[_ui_dependency_index].dstAccessMask = AccessFlags::COLOR_ATTACHMENT_WRITE;
-        dependency[_ui_dependency_index].dependencyFlags=DependencyFlags::BY_REGION;
         info.dependencyCount=_dependency_count;
         info.pDependencies=dependency;
 
