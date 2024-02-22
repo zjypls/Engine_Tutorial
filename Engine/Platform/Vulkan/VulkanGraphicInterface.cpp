@@ -82,6 +82,7 @@ namespace Z {
     void VulkanGraphicInterface::CreateInstance(){
         if(!VulkanUtils::checkLayerEnable(validationLayers).empty() ||
             !VulkanUtils::checkExtensionEnable({VK_EXT_DEBUG_UTILS_EXTENSION_NAME}).empty()){
+            Z_CORE_WARN("Validation layer or debug utils extension is not available !");
             enableDebugUtils= false;
             enableValidationLayer= false;
         }
