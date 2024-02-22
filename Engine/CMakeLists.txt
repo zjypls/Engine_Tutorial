@@ -59,13 +59,14 @@ target_link_directories(Z PUBLIC ${Z_LINK_DIR})
 target_link_libraries(Z PUBLIC
         monosgen-2.0
         glfw yaml box2d tinyobjloader spdlog
-        spirv-cross-glsl
         )
 
 if(${Z_BUILD_TYPE} MATCHES Debug AND CMAKE_HOST_WIN32)
-    target_link_libraries(Z PRIVATE shadercd shaderc_combinedd  SPIRV-Toolsd)
+    target_link_libraries(Z PRIVATE shadercd shaderc_combinedd  SPIRV-Toolsd
+                            spirv-cross-glsld spirv-cross-cored)
 else ()
-    target_link_libraries(Z PRIVATE shaderc shaderc_combined  SPIRV-Tools)
+    target_link_libraries(Z PRIVATE shaderc shaderc_combined  SPIRV-Tools
+                            spirv-cross-glsl spirv-cross-core)
 endif ()
 
 if(NOT UseVulkan)
