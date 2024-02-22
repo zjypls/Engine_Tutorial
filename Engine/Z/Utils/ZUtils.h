@@ -11,13 +11,14 @@
 
 namespace Z {
 	class Z_API Utils {
-	private:
-		friend class zGUID;
 
 	public:
 		static std::string FileOpen(const char *filter, const char *defaultOpen = "", const char *initialDir =nullptr);
 
 		static std::string FileSave(const char *filter, const char *defaultOpen = "", const char *initialDir = nullptr);
+
+		static std::string ReadFile(const std::string& path);
+
 	};
 }
 

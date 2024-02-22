@@ -6,6 +6,8 @@
 #define VK_CHECK(value,str) Z_CORE_ASSERT(value==VK_SUCCESS,str)
 #include <optional>
 #include "vulkan/vulkan.h"
+#include "spirv_cross/spirv_glsl.hpp"
+#include "shaderc/shaderc.hpp"
 
 #include "Include/glfw/include/GLFW/glfw3.h"
 
@@ -16,6 +18,29 @@
 
 namespace Z{
     namespace VulkanUtils{
+
+        namespace Tools{
+            shaderc_shader_kind ShaderStageToShaderc(ShaderStageFlag stage){
+                switch(stage){
+                    case ShaderStageFlag::VERTEX:
+                        return shaderc_glsl_vertex_shader;
+                    case ShaderStageFlag::FRAGMENT:
+                        return shaderc_glsl_fragment_shader;
+                    case ShaderStageFlag::COMPUTE:
+                        return shaderc_glsl_compute_shader;
+                    case ShaderStageFlag::GEOMETRY:
+                        return shaderc_glsl_geometry_shader;
+                    case ShaderStageFlag::TESSELLATION_CONTROL:
+                        return shaderc_glsl_tess_control_shader;
+                    case ShaderStageFlag::TESSELLATION_EVALUATION:
+                        return shaderc_glsl_tess_evaluation_shader;
+                    default:
+                        Z_CORE_ERROR("error: unknown shader stage !");
+                        return shaderc_glsl_vertex_shader;
+                }
+            }
+
+        }
 
         VkResult CreateDebugUtils(VkInstance                                instance,
                                   const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
