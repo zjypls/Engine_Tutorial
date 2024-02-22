@@ -19,6 +19,8 @@ namespace Z {
 
 		static std::string ReadFile(const std::string& path);
 
+		static std::pair<int,int> GetWindowSizeFromIniConfig(const std::string& configFileStr,const std::string& windowName);
+
 	};
 }
 

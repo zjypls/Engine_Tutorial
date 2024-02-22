@@ -31,7 +31,7 @@ namespace Z {
 		std::filesystem::path WorkPath{};
 		Entity selectedEntity;
 		bool scriptReload = false,nextStep=false,selfDefLayout=false;
-		std::string selfDefLayoutFilePath;
+		std::string selfDefLayoutFilePath,selfDefLayoutStr;
 		int stepFrames=1;
 
 		Entity testModel;

@@ -17,4 +17,32 @@ namespace Z{
         file.close();
         return content;
     }
+
+    std::pair<int, int> Utils::GetWindowSizeFromIniConfig(const std::string& configFileStr, const std::string& windowName)
+    {
+        auto pos=configFileStr.find(windowName);
+        if(pos==std::string::npos){
+            Z_CORE_ERROR("Window name not found in config file: {0}",windowName);
+            return {0,0};
+        }
+        auto SizePos=configFileStr.find("Size=",pos);
+        if(SizePos==std::string::npos){
+            Z_CORE_ERROR("Size not found in config file: {0}",windowName);
+            return {0,0};
+        }
+        auto endPos=configFileStr.find("\n",SizePos);
+        if(endPos==std::string::npos){
+            Z_CORE_ERROR("Size not found in config file: {0}",windowName);
+            return {0,0};
+        }
+        auto sizeStr=configFileStr.substr(SizePos+5,endPos-SizePos-5);
+        auto commaPos=sizeStr.find(",");
+        if(commaPos==std::string::npos){
+            Z_CORE_ERROR("Size not found in config file: {0}",windowName);
+            return {0,0};
+        }
+        auto widthStr=sizeStr.substr(0,commaPos);
+        auto heightStr=sizeStr.substr(commaPos+1);
+        return {std::stoi(widthStr),std::stoi(heightStr)};
+    }
 }

@@ -38,6 +38,10 @@ namespace Z {
         scene = CreateRef<Scene>();
         editorCamera = EditorCamera(45.f, 1.f, 0.1f, 1000.f);
 
+		selfDefLayoutStr=ImGui::SaveIniSettingsToMemory();
+		auto [viewWidth,viewHeight]=Utils::GetWindowSizeFromIniConfig(selfDefLayoutStr,"ViewPort");
+		Z_CORE_ASSERT(viewWidth!=0&&viewHeight!=0,"Viewport size not found in config file or illegal value!");
+		viewportSize=glm::vec2(viewWidth,viewHeight);
 
 		sceneHierarchyPlane = CreateScope<SceneHierarchyPlane>();
 		contentBrowser = CreateScope<ContentBrowser>();
@@ -45,13 +49,6 @@ namespace Z {
 		//Todo:change this to a better way
 		ScriptEngine::LoadAssembly("bin/scripts.dll");
 		ScriptEngine::RegisterFileWatch();
-
-		//a Test for mesh Renderer
-        /*
-		testModel = scene->CreateEntity("Model");
-		testModel.AddComponent<MeshRendererComponent>(AssetsSystem::Load<Mesh>(
-				(Project::GetProjectRootDir() / "Assets/Models/TinyRoom.obj").string()));
-         */
 
 		RenderManager::PushUIContents(this);
 	}
@@ -540,6 +537,10 @@ namespace Z {
 				//avoid reload ini file when imgui recording command
 				Application::Get().SubmitFunc([this] {
 					ImGui::LoadIniSettingsFromDisk(selfDefLayoutFilePath.c_str());
+					selfDefLayoutStr=ImGui::SaveIniSettingsToMemory();
+					auto [viewWidth,viewHeight]=Utils::GetWindowSizeFromIniConfig(selfDefLayoutStr,"ViewPort");
+					Z_CORE_ASSERT(viewWidth!=0&&viewHeight!=0,"Viewport size not found in config file or illegal value!");
+					viewportSize=glm::vec2(viewWidth,viewHeight);
 				});
         		Z_CORE_WARN("Ini config file find : {0}",configuration.string());
         	}

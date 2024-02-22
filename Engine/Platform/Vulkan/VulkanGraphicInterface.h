@@ -13,6 +13,7 @@
 
 namespace Z {
     constexpr uint32 maxVertexBlendCount=128,maxMaterialCount=128;
+    constexpr VkSampleCountFlagBits defaultSampleFlag=VK_SAMPLE_COUNT_1_BIT;
 
     class Z_API VulkanGraphicInterface final : public GraphicInterface{
     public:
