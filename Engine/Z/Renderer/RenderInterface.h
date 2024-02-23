@@ -637,6 +637,105 @@ namespace Z {
         LINE_STIPPLE_KHR = 1000259000,
         MAX_ENUM = 0x7FFFFFFF
     } ;
+    enum class ImageViewType{
+        e1D = 0,
+        e2D = 1,
+        e3D = 2,
+        eCUBE = 3,
+        e1D_ARRAY = 4,
+        e2D_ARRAY = 5,
+        eCUBE_ARRAY = 6,
+        eMAX_ENUM = 0x7FFFFFFF
+    };
+    enum class ComponentSwizzle{
+        IDENTITY = 0,
+        ZERO = 1,
+        ONE = 2,
+        R = 3,
+        G = 4,
+        B = 5,
+        A = 6,
+        MAX_ENUM = 0x7FFFFFFF
+    };
+    enum class ImageAspectFlag{
+        COLOR = 0x00000001,
+        DEPTH = 0x00000002,
+        STENCIL = 0x00000004,
+        METADATA = 0x00000008,
+        PLANE_0 = 0x00000010,
+        PLANE_1 = 0x00000020,
+        PLANE_2 = 0x00000040,
+        MEMORY_PLANE_0_EXT = 0x00000080,
+        MEMORY_PLANE_1_EXT = 0x00000100,
+        MEMORY_PLANE_2_EXT = 0x00000200,
+        MEMORY_PLANE_3_EXT = 0x00000400,
+        MAX_ENUM = 0x7FFFFFFF
+    };
+
+    //operator overloading for binary operation |
+    inline DynamicState operator|(DynamicState a,DynamicState b){
+        return static_cast<DynamicState>(static_cast<uint32>(a)|static_cast<uint32>(b));
+    }
+
+    inline ImageLayout operator|(ImageLayout a,ImageLayout b){
+        return static_cast<ImageLayout>(static_cast<uint32>(a)|static_cast<uint32>(b));
+    }
+
+    inline ShaderStageFlag operator|(ShaderStageFlag a,ShaderStageFlag b){
+        return static_cast<ShaderStageFlag>(static_cast<uint32>(a)|static_cast<uint32>(b));
+    }
+
+    inline PipelineStageFlags operator|(PipelineStageFlags a,PipelineStageFlags b){
+        return static_cast<PipelineStageFlags>(static_cast<uint32>(a)|static_cast<uint32>(b));
+    }
+
+    inline AccessFlags operator|(AccessFlags a,AccessFlags b){
+        return static_cast<AccessFlags>(static_cast<uint32>(a)|static_cast<uint32>(b));
+    }
+
+    inline ColorComponentFlag operator|(ColorComponentFlag a,ColorComponentFlag b){
+        return static_cast<ColorComponentFlag>(static_cast<uint32>(a)|static_cast<uint32>(b));
+    }
+
+    inline BlendFactor operator|(BlendFactor a,BlendFactor b){
+        return static_cast<BlendFactor>(static_cast<uint32>(a)|static_cast<uint32>(b));
+    }
+
+    inline BlendOp operator|(BlendOp a,BlendOp b){
+        return static_cast<BlendOp>(static_cast<uint32>(a)|static_cast<uint32>(b));
+    }
+
+    inline CullModeFlag operator|(CullModeFlag a,CullModeFlag b){
+        return static_cast<CullModeFlag>(static_cast<uint32>(a)|static_cast<uint32>(b));
+    }
+
+    inline SampleCountFlagBits operator|(SampleCountFlagBits a,SampleCountFlagBits b){
+        return static_cast<SampleCountFlagBits>(static_cast<uint32>(a)|static_cast<uint32>(b));
+    }
+
+    inline ImageUsageFlag operator|(ImageUsageFlag a,ImageUsageFlag b){
+        return static_cast<ImageUsageFlag>(static_cast<uint32>(a)|static_cast<uint32>(b));
+    }
+
+    inline MemoryPropertyFlag operator|(MemoryPropertyFlag a,MemoryPropertyFlag b){
+        return static_cast<MemoryPropertyFlag>(static_cast<uint32>(a)|static_cast<uint32>(b));
+    }
+
+    inline ImageCreateFlag operator|(ImageCreateFlag a,ImageCreateFlag b){
+        return static_cast<ImageCreateFlag>(static_cast<uint32>(a)|static_cast<uint32>(b));
+    }
+
+    inline BufferUsageFlag operator|(BufferUsageFlag a,BufferUsageFlag b){
+        return static_cast<BufferUsageFlag>(static_cast<uint32>(a)|static_cast<uint32>(b));
+    }
+
+    inline ImageTiling operator|(ImageTiling a,ImageTiling b){
+        return static_cast<ImageTiling>(static_cast<uint32>(a)|static_cast<uint32>(b));
+    }
+
+    inline Format operator|(Format a,Format b){
+        return static_cast<Format>(static_cast<uint32>(a)|static_cast<uint32>(b));
+    }
 
     struct Extent2D{
         uint32 width,height;
@@ -660,25 +759,53 @@ namespace Z {
         float    maxDepth;
     } ;
     struct ImageInfo {
-        uint32 arrayLayers,mipMapLevels;
-        Extent3D extent;
-        ImageLayout initialLayout;
-        Format format;
-        ImageTiling tilling;
-        ImageUsageFlag usageFlag;
-        MemoryPropertyFlag memoryPropertyFlag;
-        ImageCreateFlag createFlag;
+        uint32              arrayLayers,mipMapLevels;
+        Extent3D            extent;
+        ImageLayout         initialLayout;
+        Format              format;
+        ImageTiling         tilling;
+        ImageUsageFlag      usageFlag;
+        MemoryPropertyFlag  memoryPropertyFlag;
+        ImageCreateFlag     createFlag;
+        SampleCountFlagBits sampleCount;
+    };
+    struct ImageSubresourceRange {
+        ImageAspectFlag aspectMask;
+        uint32          baseMipLevel;
+        uint32          levelCount;
+        uint32          baseArrayLayer;
+        uint32          layerCount;
+    };
+    struct ComponentMapping {
+        ComponentSwizzle r;
+        ComponentSwizzle g;
+        ComponentSwizzle b;
+        ComponentSwizzle a;
+    };
+    struct ImageViewInfo {
+        Image*                image;
+        ImageViewType         viewType;
+        Format                format;
+        ComponentMapping      components;
+        ImageSubresourceRange subresourceRange;
     };
     struct BufferInfo{
         ResourceSize          size;
-        BufferUsageFlag    usage;
-        MemoryPropertyFlag properties;
+        BufferUsageFlag       usage;
+        MemoryPropertyFlag    properties;
+    };
+    struct FramebufferInfo {
+        RenderPassInterface* renderPass;
+        uint32               attachmentCount;
+        ImageView**          pAttachments;
+        Extent2D             extent;
+        uint32               layers;
     };
     struct SwapChainInfo {
-        Format swapchainImageFormat;
-        uint32 imageCount;
-        uint32 minImageCount;
-        uint32 maxImageCount;
+        Format   swapchainImageFormat;
+        uint32   imageCount;
+        uint32   minImageCount;
+        uint32   maxImageCount;
         Extent2D swapchainExtent;
     };
     struct AttachmentReference {
