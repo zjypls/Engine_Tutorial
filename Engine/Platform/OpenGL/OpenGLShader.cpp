@@ -18,6 +18,44 @@ namespace Z {
 	const std::string ShaderCacheDir = "ShaderCaches/Cache/OpenGL";
 	namespace Tools {
 
+		std::string GetShaderStageMacroInfo(RenderAPI::zShaderType type){
+			switch (type)
+			{
+				case RenderAPI::zShaderType::Vertex:
+					return "Z_VERTEX";
+				case RenderAPI::zShaderType::Fragment:
+					return "Z_FRAGMENT";
+				case RenderAPI::zShaderType::Geometry:
+					return "Z_GEOMETRY";
+				case RenderAPI::zShaderType::Compute:
+					return "Z_COMPUTE";
+				case RenderAPI::zShaderType::TessellationControl:
+					return "Z_TESS_CONTROL";
+				case RenderAPI::zShaderType::TessellationEvaluation:
+					return "Z_TESS_EVALUATION";
+				default:
+					Z_CORE_ASSERT(false,"Unknown Shader Type");
+					return "Z_UNKNOWN";
+			}
+		}
+
+		std::vector<RenderAPI::zShaderType> findShaderTypeTotalFromSource(const std::string&src){
+			std::vector<RenderAPI::zShaderType> result;
+			if(src.find("Z_VERTEX")!=std::string::npos)
+				result.push_back(RenderAPI::zShaderType::Vertex);
+			if(src.find("Z_FRAGMENT")!=std::string::npos)
+				result.push_back(RenderAPI::zShaderType::Fragment);
+			if(src.find("Z_GEOMETRY")!=std::string::npos)
+				result.push_back(RenderAPI::zShaderType::Geometry);
+			if(src.find("Z_COMPUTE")!=std::string::npos)
+				result.push_back(RenderAPI::zShaderType::Compute);
+			if(src.find("Z_TESS_CONTROL")!=std::string::npos)
+				result.push_back(RenderAPI::zShaderType::TessellationControl);
+			if(src.find("Z_TESS_EVALUATION")!=std::string::npos)
+				result.push_back(RenderAPI::zShaderType::TessellationEvaluation);
+			return result;
+		}
+
 		std::string spirvShaderTypeToString(shaderc_shader_kind type) {
 			switch (type) {
 				case shaderc_glsl_vertex_shader:
@@ -177,80 +215,52 @@ namespace Z {
 			Z_CORE_WARN("{1}:{2},Warn {0}", warn, __FILE__, __LINE__);
 	}
 
-	OpenGLShader::OpenGLShader(const std::string &name, const std::string &VertSrc, const std::string &FragSrc,
-	                           bool isFile)  {
-		Name=name;
-		auto vertSrc = VertSrc;
-		auto fragSrc = FragSrc;
-		if (isFile) {
-			vertSrc = Tools::ReadFile(VertSrc);
-			fragSrc = Tools::ReadFile(FragSrc);
-		}
-		ProgramID = glCreateProgram();
-		Z_CORE_INFO("Shader Name:\"{0}\",ID:\"{1}\"", Name, ProgramID);
-		AddShader(vertSrc, RenderAPI::zShaderType::Vertex);
-		AddShader(fragSrc, RenderAPI::zShaderType::Fragment);
-		Compile();
-	}
-
 	OpenGLShader::~OpenGLShader() {
 		glDeleteProgram(ProgramID);
 	}
 
 
-	void OpenGLShader::AddShader(const std::string &shaderSrc, RenderAPI::zShaderType shaderType) {
-		std::vector<char> spirv;
+	void OpenGLShader::AddShader(const std::string &shaderSrc) {
 		auto hash = std::hash<std::string>()(shaderSrc);
-		if (auto spvType= Tools::ShaderTypeToSpirVType(shaderType);
-		!Tools::GetCache(hash, spirv, spvType)){
-			Z_CORE_WARN("Can't find shader cache,compile shader:{0}", Name);
-			auto start = Time::GetTime();
-			shaderc::Compiler compiler;
-			shaderc::CompileOptions options;
-			options.SetOptimizationLevel(shaderc_optimization_level_performance);
-			//options.SetGenerateDebugInfo();
-			shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(shaderSrc,
-																			 spvType,std::to_string (hash).c_str(),options);
+		auto types = Tools::findShaderTypeTotalFromSource(shaderSrc);
+		for(auto shaderType:types){
+			std::vector<char> spirv;
+			if (auto spvType= Tools::ShaderTypeToSpirVType(shaderType);
+			!Tools::GetCache(hash, spirv, spvType)){
+				Z_CORE_WARN("Can't find shader cache,compile shader:{0}", Name);
+				auto start = Time::GetTime();
+				shaderc::Compiler compiler;
+				shaderc::CompileOptions options;
+				options.SetOptimizationLevel(shaderc_optimization_level_performance);
+				options.AddMacroDefinition(Tools::GetShaderStageMacroInfo(shaderType));
+				//options.SetGenerateDebugInfo();
+				shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(shaderSrc,
+																				spvType,std::to_string (hash).c_str(),options);
 
-			if (module.GetCompilationStatus() != shaderc_compilation_status_success) {
-				Z_CORE_ERROR("Shader Compile Error:{0}", module.GetErrorMessage());
-				Z_CORE_ASSERT(false, "Shader Compile Error");
+				if (module.GetCompilationStatus() != shaderc_compilation_status_success) {
+					Z_CORE_ERROR("Shader Compile Error:{0}", module.GetErrorMessage());
+					Z_CORE_ASSERT(false, "Shader Compile Error");
+				}
+
+				std::ofstream out;
+				out.open(ShaderCacheDir + "/" + std::to_string(hash) + "." + Tools::spirvShaderTypeToString(spvType), std::ios::binary);
+				out.write((char *) module.cbegin(), (module.cend()-module.cbegin())*sizeof (unsigned int));
+				out.close();
+				spirv.resize((module.cend() - module.cbegin())*sizeof(unsigned int));
+				std::memcpy(spirv.data(), module.cbegin(), spirv.size());
+				auto spend=Time::GetTime()-start;
+				Z_CORE_WARN("Compile Shader spend time:{0} s",spend);
 			}
 
-			std::ofstream out;
-			out.open(ShaderCacheDir + "/" + std::to_string(hash) + "." + Tools::spirvShaderTypeToString(spvType), std::ios::binary);
-			out.write((char *) module.cbegin(), (module.cend()-module.cbegin())*sizeof (unsigned int));
-			out.close();
-			spirv.resize((module.cend() - module.cbegin())*sizeof(unsigned int));
-			std::memcpy(spirv.data(), module.cbegin(), spirv.size());
-			auto spend=Time::GetTime()-start;
-			Z_CORE_WARN("Compile Shader spend time:{1}s",Name,spend);
+			unsigned int shader = glCreateShader(Tools::ShaderTypeToOpenGLType(shaderType));
+			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V, spirv.data(), spirv.size());
+			glSpecializeShader(shader, "main", 0, nullptr, nullptr);
+
+
+			Compile(shader);
+			glAttachShader(ProgramID, shader);
+			glDeleteShader(shader);
 		}
-
-		//unknown reason crashed on Linux (gcc13) but work well on Windows (VS 17.8) //solved
-        //caused by an error value of resources.builtin_outputs.buffer_size when it calls clear
-		//call stack
-		/*
-		 *spirv_cross::ShaderResources::~ShaderResources
-		 *			 ::SmallVector::~SmallVector
-		 *						  ::clear
-		 *			 ::BuiltInResource::~BuiltInResource
-		 *			 ::Resource::~Resource
-		 *free
-		 */
-        //note:do nothing,disappear by an unknown reason ???
-
-		//spirv_cross::Compiler compiler((uint32_t*)spirv.data(),spirv.size()/sizeof(uint32_t));
-		//spirv_cross::ShaderResources resources= compiler.get_shader_resources();
-
-		unsigned int shader = glCreateShader(Tools::ShaderTypeToOpenGLType(shaderType));
-		glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V, spirv.data(), spirv.size());
-		glSpecializeShader(shader, "main", 0, nullptr, nullptr);
-
-
-		Compile(shader);
-		glAttachShader(ProgramID, shader);
-		glDeleteShader(shader);
 	}
 
 	void OpenGLShader::Bind() const {
@@ -311,13 +321,6 @@ namespace Z {
 	void OpenGLShader::SetUniform(const char *name, const glm::mat3 &value) {
 		glUseProgram(ProgramID);
 		glUniformMatrix3fv(glGetUniformLocation(ProgramID, name), 1, GL_FALSE, glm::value_ptr(value));
-	}
-
-	void OpenGLShader::AddShader(const std::string &Code) {
-		auto map = Tools::PreProcessCode(Code);
-		for (const auto &[type, code]: map) {
-			AddShader(code, type);
-		}
 	}
 
 	void OpenGLShader::Compile(unsigned int shader) {

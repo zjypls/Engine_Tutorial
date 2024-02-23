@@ -1,5 +1,5 @@
-#type vertex
 #version 450 core
+#ifdef Z_VERTEX
 //Todo : recognize the data
 layout (location = 0) in vec3 aPos;
 layout(location=1)in vec4 color;
@@ -31,9 +31,8 @@ void main() {
     o.tilling = Tilling;
     indexID = IndexID;
 }
-
-#type fragment
-#version 450 core
+#endif
+#ifdef Z_FRAGMENT
 layout(location= 0) out vec4 FragColor;
 layout(location=1)out int Index;
 
@@ -128,3 +127,5 @@ void main(){
         discard;
     Index = indexID;
 }
+
+#endif

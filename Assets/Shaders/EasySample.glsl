@@ -1,6 +1,5 @@
-#type vertex
 #version 450 core
-
+#ifdef Z_VERTEX
 layout ( location = 0 ) in vec3  aPos;
 layout ( location = 1 ) in vec2  aTexCoord;
 layout ( location = 2 ) in vec3  normal;
@@ -25,9 +24,8 @@ void main(){
     data.aTex=aTexCoord;
     data.normal=normal;
 }
-
-#type fragment
-#version 450 core
+#endif
+#ifdef Z_FRAGMENT
 layout(location=0)out vec4 frag;
 layout(location=1)out int index;
 
@@ -47,6 +45,7 @@ void main(){
     frag=texture(Base,inData.aTex);
     index=ubo.indexID;
 }
+#endif
 
 
 

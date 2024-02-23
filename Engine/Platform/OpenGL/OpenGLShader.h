@@ -10,12 +10,10 @@ namespace Z {
 	class OpenGLShader:public Shader {
 		unsigned int ProgramID;
 		void Compile(unsigned int ) ;
-		void AddShader(const std::string& shaderSrc, RenderAPI::zShaderType shaderType) ;
 		void AddShader(const std::string&Code) ;
 		void Compile();
 	public:
 		OpenGLShader(const std::string&Src,const std::string& name,bool isFile);
-		OpenGLShader(const std::string&name,const std::string& VertSrc,const std::string&FragSrc,bool isFile);
 
 		virtual ~OpenGLShader() override;
 		virtual void Bind() const override;

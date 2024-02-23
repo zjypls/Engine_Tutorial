@@ -1,6 +1,5 @@
-#type vertex
 #version 450 core
-
+#ifdef Z_VERTEX
 layout(location=0)in vec3 pos;
 
 struct OutData{
@@ -18,9 +17,8 @@ void main() {
     gl_Position=_pos.xyww;
 }
 
-
-#type fragment
-#version 450 core
+#endif
+#ifdef Z_FRAGMENT
 
 layout(location=0)out vec4 color;
 layout(location=1)out int index;
@@ -36,3 +34,4 @@ void main(){
     color=vec4(texture(skybox,data.dir).rgb,1);
     index=-1;
 }
+#endif

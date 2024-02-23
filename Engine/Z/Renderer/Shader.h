@@ -10,7 +10,6 @@ namespace Z {
 	class Shader {
 	public:
 		static Ref<Shader> CreateShader(const std::string& Src,const std::string& name="",bool isFile=true);//empty name will use the file name
-		static	Ref<Shader> CreateShader(const std::string&name, const std::string& vertSrc, const std::string& fragSrc,bool isFile=false);
 		Shader()= default;
 		virtual ~Shader()= default;
 		virtual void Bind() const=0;
@@ -36,7 +35,6 @@ namespace Z {
 		Ref<Shader> Add(const Ref<Shader>& shader);
 		inline Ref<Shader> Get(const std::string& name){return Shaders[name];}
 		Ref<Shader> Load( const std::string& ShaderSrc,const std::string&name="",bool isFile=true);//empty name will use the file name
-		Ref<Shader> Load(const std::string&name, const std::string& vertSrc, const std::string& fragSrc,bool isFile=false);
 		static auto begin(){return Shaders.begin();}
 		static auto end(){return Shaders.end();}
 

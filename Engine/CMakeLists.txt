@@ -46,7 +46,6 @@ target_include_directories(Z PUBLIC depends)
 
 target_link_libraries(Z PUBLIC
         glfw imgui yaml Box2D tinyobjloader
-        spirv-cross-glsl
         )
 
 if((NOT Z_BUILD_TYPE MATCHES Release) AND CMAKE_HOST_WIN32)

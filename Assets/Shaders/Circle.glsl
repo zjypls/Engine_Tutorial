@@ -1,5 +1,5 @@
-#type vertex
 #version 450 core
+#ifdef Z_VERTEX
 layout(location= 0) in vec3 WorldPosition;
 layout(location= 1) in vec3 LocalPosition;
 layout(location=2)in vec4 color;
@@ -27,9 +27,8 @@ void main() {
     outData.fade = fade;
     ID = id;
 }
-
-#type fragment
-#version 450 core
+#endif
+#ifdef Z_FRAGMENT
 layout(location=0)out vec4 color;
 layout(location=1)out int id;
 struct Out{
@@ -54,4 +53,4 @@ void main() {
 
     id = ID;
 }
-
+#endif

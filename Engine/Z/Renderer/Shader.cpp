@@ -23,16 +23,6 @@ namespace Z {
 		}
 	}
 
-	Ref<Shader>
-	Shader::CreateShader(const std::string &name, const std::string &vertSrc, const std::string &fragSrc, bool isFile) {
-		switch (Renderer::GetAPI()) {
-			case RenderAPI::API::OpenGL:
-				return std::make_shared<OpenGLShader>(name, vertSrc, fragSrc, isFile);
-			default: Z_CORE_ASSERT(0, "Unknown RendererAPI");
-				return nullptr;
-		}
-	}
-
 	std::string ShaderLibrary::GetDefaultName() {
 		auto size = Shaders.size();
 		auto name = "Shader" + std::to_string(size);
@@ -58,10 +48,5 @@ namespace Z {
 
 	Ref<Shader> ShaderLibrary::Load(const std::string &ShaderSrc, const std::string &name, bool isFile) {
 		return Add(Shader::CreateShader(ShaderSrc, name, isFile));
-	}
-
-	Ref<Shader>
-	ShaderLibrary::Load(const std::string &name, const std::string &vertSrc, const std::string &fragSrc, bool isFile) {
-		return Add(Shader::CreateShader(name, vertSrc, fragSrc, isFile));
 	}
 }
