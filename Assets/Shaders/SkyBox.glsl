@@ -1,8 +1,5 @@
-#type vertex
 #version 450 core
-
-layout(location=0)in vec3 pos;
-
+#ifdef Z_VERTEX
 struct OutData{
     vec3 dir;
 };
@@ -13,13 +10,31 @@ layout(binding=1)uniform CameraData{
 }camera;
 
 void main() {
-    data.dir=pos;
-    vec4 _pos=camera.viewMat*vec4(pos,1);
+    vec3 cudeVertices[8] = vec3[8](
+        vec3(-1.0, -1.0,  1.0),
+        vec3( 1.0, -1.0,  1.0),
+        vec3( 1.0,  1.0,  1.0),
+        vec3(-1.0,  1.0,  1.0),
+        vec3(-1.0, -1.0, -1.0),
+        vec3( 1.0, -1.0, -1.0),
+        vec3( 1.0,  1.0, -1.0),
+        vec3(-1.0,  1.0, -1.0)
+    );
+    uint indices[36] = uint[36](
+        0, 1, 2, 2, 3, 0,
+        1, 5, 6, 6, 2, 1,
+        7, 6, 5, 5, 4, 7,
+        4, 0, 3, 3, 7, 4,
+        4, 5, 1, 1, 0, 4,
+        3, 2, 6, 6, 7, 3
+    );
+    data.dir=cudeVertices[indices[gl_VertexID]];
+    vec4 _pos=camera.viewMat*vec4(data.dir,1);
     gl_Position=_pos.xyww;
 }
+#endif
 
-
-#type fragment
+#ifdef Z_FRAGMENT
 #version 450 core
 
 layout(location=0)out vec4 color;
@@ -36,3 +51,4 @@ void main(){
     color=vec4(texture(skybox,data.dir).rgb,1);
     index=-1;
 }
+#endif
