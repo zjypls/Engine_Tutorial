@@ -30,6 +30,8 @@ namespace Z {
 
         //Resource create interface
         void CreateImage(const ImageInfo& info,Image*& image,DeviceMemory*& memory)override;
+        void CreateFrameBuffer(const FramebufferInfo&info,Z::Framebuffer*&frameBuffer)override;
+        void CreateImageView(const ImageViewInfo& info,ImageView*& imageView)override;
         void CreateBuffer(const BufferInfo& info,Buffer*&buffer,DeviceMemory*& memory)override;
         void CreateShaderModule(const ShaderModuleCreateInfo &moduleInfo, ShaderModule *&module) override;
         void CreateRenderPass(const RenderPassCreateInfo &info, RenderPassInterface *&renderPassInterface) override;
@@ -38,6 +40,14 @@ namespace Z {
         std::vector<Z::Framebuffer*> CreateDefaultFrameBuffers(RenderPassInterface *renderPassInterface) override;
 
         void DestroyFrameBuffer(Z::Framebuffer *framebuffer) override;
+
+        void DestroyImage(Image *image, DeviceMemory *memory, ImageView *view) override;
+
+        void DestroyPipeline(Pipeline *pipeline) override;
+
+        void DestroyPipelineLayout(PipelineLayout *pipelineLayout) override;
+
+        void DestroyDescriptorSetLayout(DescriptorSetLayout *descriptorSetLayout) override;
 
 
         auto GetInstance(){return instance;}

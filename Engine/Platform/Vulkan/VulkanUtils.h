@@ -268,7 +268,8 @@ namespace Z{
                                VkDeviceMemory&       memory,
                                VkImageCreateFlags    image_create_flags,
                                uint32              array_layers,
-                               uint32              miplevels){
+                               uint32              miplevels,
+                               VkSampleCountFlagBits sample_count=VK_SAMPLE_COUNT_1_BIT){
             auto createInfo=VkImageCreateInfo{};
             createInfo.sType=VK_INFO(IMAGE,CREATE);
             createInfo.extent={image_width,image_height,1};
@@ -281,6 +282,7 @@ namespace Z{
             createInfo.usage=image_usage_flags;
             createInfo.tiling=image_tiling;
             createInfo.flags=image_create_flags;
+            createInfo.samples=sample_count;
 
             auto res= vkCreateImage(device, &createInfo, nullptr, &image);
             VK_CHECK(res,"failed to create image!");

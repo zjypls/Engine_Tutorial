@@ -32,6 +32,7 @@ namespace Z {
     VULKAN_IMPL_RESOURCE(Queue);
     VULKAN_IMPL_RESOURCE(PipelineLayout);
     VULKAN_IMPL_RESOURCE(Pipeline);
+    VULKAN_IMPL_RESOURCE(DescriptorSetLayout);
 
     class VulkanRenderPass:public RenderPassInterface {
     public:

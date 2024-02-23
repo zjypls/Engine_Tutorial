@@ -20,11 +20,50 @@ namespace Z {
         VkDeviceMemory resMemory;
         auto [width,height,depth]=info.extent;
         VulkanUtils::CreateVulkanImage(physicalDevice,device,width,height,
-                                                  (VkFormat)info.format,(VkImageTiling)info.tilling,(VkImageLayout)info.initialLayout,
+                                                  (VkFormat)info.format,(VkImageTiling)info.tilling,(VkImageUsageFlags)info.usageFlag,
                                                   (VkMemoryPropertyFlagBits)info.memoryPropertyFlag,resImage,resMemory,
-                                                  (VkImageCreateFlags)info.createFlag, info.arrayLayers,info.mipMapLevels);
+                                                  (VkImageCreateFlags)info.createFlag, info.arrayLayers,info.mipMapLevels,
+                                                  (VkSampleCountFlagBits)info.sampleCount);
         ((VulkanImage*)image)->Set(resImage);
         ((VulkanDeviceMemory*)memory)->Set(resMemory);
+    }
+
+    void VulkanGraphicInterface::CreateFrameBuffer(const FramebufferInfo &info, Z::Framebuffer *&frameBuffer) {
+        std::vector<VkImageView> attachments(info.attachmentCount);
+        for(int i=0;i<info.attachmentCount;++i){
+            attachments[i]=((VulkanImageView*)info.pAttachments[i])->Get();
+        }
+        VkFramebufferCreateInfo frameBufferInfo{};
+        frameBufferInfo.sType=VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        frameBufferInfo.renderPass=((VulkanRenderPass*)info.renderPass)->Get();
+        frameBufferInfo.attachmentCount=attachments.size();
+        frameBufferInfo.pAttachments=attachments.data();
+        frameBufferInfo.width=info.extent.width;
+        frameBufferInfo.height=info.extent.height;
+        frameBufferInfo.layers=info.layers;
+        VkFramebuffer buffer;
+        auto res= vkCreateFramebuffer(device,&frameBufferInfo,nullptr,&buffer);
+        VK_CHECK(res,"failed to create frame buffer !");
+        frameBuffer=new VulkanFramebuffer{};
+        ((VulkanFramebuffer*)frameBuffer)->Set(buffer);
+    }
+
+    void VulkanGraphicInterface::CreateImageView(const ImageViewInfo &info, ImageView *&imageView) {
+        VkImageViewCreateInfo viewInfo{};
+        viewInfo.sType=VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        viewInfo.image=((VulkanImage*)info.image)->Get();
+        viewInfo.viewType=(VkImageViewType)info.viewType;
+        viewInfo.format=(VkFormat)info.format;
+        viewInfo.subresourceRange.aspectMask=(VkImageAspectFlags)info.subresourceRange.aspectMask;
+        viewInfo.subresourceRange.baseMipLevel=info.subresourceRange.baseMipLevel;
+        viewInfo.subresourceRange.levelCount=info.subresourceRange.levelCount;
+        viewInfo.subresourceRange.baseArrayLayer=info.subresourceRange.baseArrayLayer;
+        viewInfo.subresourceRange.layerCount=info.subresourceRange.layerCount;
+        VkImageView view;
+        auto res= vkCreateImageView(device,&viewInfo,nullptr,&view);
+        VK_CHECK(res,"failed to create image view !");
+        imageView=new VulkanImageView{};
+        ((VulkanImageView*)imageView)->Set(view);
     }
 
     void VulkanGraphicInterface::CreateBuffer(const BufferInfo &info,Buffer*&buffer,DeviceMemory*&memory) {
@@ -737,4 +776,24 @@ namespace Z {
     void VulkanGraphicInterface::DestroyFrameBuffer(Z::Framebuffer *framebuffer) {
         vkDestroyFramebuffer(device,((VulkanFramebuffer*)framebuffer)->Get(),nullptr);
     }
+
+    void VulkanGraphicInterface::DestroyPipeline(Pipeline *pipeline) {
+        vkDestroyPipeline(device,((VulkanPipeline*)pipeline)->Get(),nullptr);
+    }
+
+    void VulkanGraphicInterface::DestroyPipelineLayout(PipelineLayout *pipelineLayout) {
+        vkDestroyPipelineLayout(device,((VulkanPipelineLayout*)pipelineLayout)->Get(),nullptr);
+    }
+
+    void VulkanGraphicInterface::DestroyImage(Image * image , DeviceMemory* memory , ImageView* view) {
+        if(view!=nullptr)
+            vkDestroyImageView(device,((VulkanImageView*)view)->Get(),nullptr);
+        vkFreeMemory(device,((VulkanDeviceMemory*)memory)->Get(),nullptr);
+        vkDestroyImage(device,((VulkanImage*)image)->Get(),nullptr);
+    }
+
+    void VulkanGraphicInterface::DestroyDescriptorSetLayout(DescriptorSetLayout *descriptorSetLayout) {
+        vkDestroyDescriptorSetLayout(device,((VulkanDescriptorSetLayout*)descriptorSetLayout)->Get(),nullptr);
+    }
+
 } // Z

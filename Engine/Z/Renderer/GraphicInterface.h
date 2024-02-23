@@ -33,6 +33,10 @@ namespace Z {
 
         virtual void CreateImage(const ImageInfo &info, Image* &image, DeviceMemory* &memory) = 0;
 
+        virtual void CreateFrameBuffer(const FramebufferInfo&info,Z::Framebuffer*&frameBuffer)=0;
+
+        virtual void CreateImageView(const ImageViewInfo &info, ImageView* &imageView) = 0;
+
         virtual void CreateBuffer(const BufferInfo &info, Buffer* &buffer, DeviceMemory* &memory) = 0;
 
         virtual void CreateShaderModule(const ShaderModuleCreateInfo& moduleInfo,ShaderModule*& module)=0;
@@ -46,6 +50,14 @@ namespace Z {
         virtual std::vector<Z::Framebuffer*> CreateDefaultFrameBuffers(RenderPassInterface* renderPassInterface)=0;
 
         virtual void DestroyFrameBuffer(Z::Framebuffer* framebuffer) = 0;
+
+        virtual void DestroyImage(Image* image, DeviceMemory* memory , ImageView* view = nullptr) = 0;
+
+        virtual void DestroyPipeline(Pipeline* pipeline)=0;
+
+        virtual void DestroyPipelineLayout(PipelineLayout* pipelineLayout)=0;
+
+        virtual void DestroyDescriptorSetLayout(DescriptorSetLayout* descriptorSetLayout)=0;
 
         virtual void BeginRenderPass(const RenderPassBeginInfo&info)=0;
 
