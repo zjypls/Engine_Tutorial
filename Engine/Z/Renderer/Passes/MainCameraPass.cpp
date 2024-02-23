@@ -24,8 +24,10 @@ namespace Z {
         RenderPass::clear();
         for(auto buffer:swapchainFrameBuffers) {
             Context->DestroyFrameBuffer(buffer);
+            delete buffer;
         }
         Context->DestroyRenderPass(framebuffer.renderPass);
+        delete framebuffer.renderPass;
     }
 
     void MainCameraPass::InitRenderPass() {

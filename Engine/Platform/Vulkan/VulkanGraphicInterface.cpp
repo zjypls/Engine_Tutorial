@@ -3,6 +3,7 @@
 //
 
 #include "Z/Core/Application.h"
+#include "Z/Renderer/RenderResourceTypes.h"
 
 #include "Platform/Vulkan/VulkanGraphicInterface.h"
 #include "Platform/Vulkan/VulkanUtils.h"
@@ -741,6 +742,120 @@ namespace Z {
         VK_CHECK(res,"failed to create graphic pipeline !");
         graphicPipeline=new VulkanPipeline{};
         ((VulkanPipeline*)graphicPipeline)->Set(pipeline);
+    }
+
+    void VulkanGraphicInterface::CreateGraphicPipeline(const std::string &shaderSources,
+        const std::vector<Z::ShaderStageFlag> &stageFlags, Pipeline *&graphicPipeline,
+        RenderPassInterface *renderPassInterface,DescriptorSetLayout*& descriptorSetLayout,PipelineLayout*& pipelineLayout) {
+            auto shaderInfo=VulkanUtils::ReflectShader(shaderSources,stageFlags);
+            auto descriptorLayout=VulkanUtils::CreateDescriptorSetLayout(device,shaderInfo.descriptorInfos);
+            descriptorSetLayout=new VulkanDescriptorSetLayout{};
+            ((VulkanDescriptorSetLayout*)descriptorSetLayout)->Set(descriptorLayout);
+            VkPipelineLayoutCreateInfo layoutInfo{};
+            layoutInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+            layoutInfo.setLayoutCount=1;
+            layoutInfo.pSetLayouts=&descriptorLayout;
+            VkPipelineLayout layout;
+            auto res=vkCreatePipelineLayout(device,&layoutInfo,nullptr,&layout);
+            VK_CHECK(res,"failed to create pipeline layout !");
+            pipelineLayout=new VulkanPipelineLayout{};
+            ((VulkanPipelineLayout*)pipelineLayout)->Set(layout);
+
+            std::vector<VkPipelineShaderStageCreateInfo> stages(shaderInfo.irCode.size());
+            std::vector<VkShaderModule> modules(shaderInfo.irCode.size());
+            for(int i=0;i<stages.size();++i) {
+                VkShaderModuleCreateInfo moduleInfo{};
+                moduleInfo.sType=VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+                moduleInfo.pCode=shaderInfo.irCode[i].data();
+                moduleInfo.codeSize=shaderInfo.irCode[i].size()*4;
+                VkShaderModule module;
+                res=vkCreateShaderModule(device,&moduleInfo,nullptr,&module);
+                VK_CHECK(res,"failed to create shader module !");
+                modules[i]=module;
+                stages[i].sType=VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+                stages[i].stage=(VkShaderStageFlagBits)stageFlags[i];
+                stages[i].module=module;
+                stages[i].pName="main";
+            }
+            auto vertexDescription=MeshDescription::GetAttributeDescription();
+            auto vertexBinding=MeshDescription::GetBindingDescription();
+            VkPipelineVertexInputStateCreateInfo vertexInputStateInfo{};
+            vertexInputStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+            vertexInputStateInfo.vertexAttributeDescriptionCount=vertexDescription.size();
+            vertexInputStateInfo.pVertexAttributeDescriptions=(VkVertexInputAttributeDescription*)vertexDescription.data();
+            vertexInputStateInfo.vertexBindingDescriptionCount=vertexBinding.size();
+            vertexInputStateInfo.pVertexBindingDescriptions=(VkVertexInputBindingDescription*)vertexBinding.data();
+            VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateInfo{};
+            inputAssemblyStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+            inputAssemblyStateInfo.topology=VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            inputAssemblyStateInfo.primitiveRestartEnable=VK_FALSE;
+            VkDynamicState dynamicStates[] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+            VkPipelineDynamicStateCreateInfo dynamicStateInfo{};
+            dynamicStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+            dynamicStateInfo.dynamicStateCount=sizeof(dynamicStates) / sizeof (dynamicStates[0]);
+            dynamicStateInfo.pDynamicStates=dynamicStates;
+            VkPipelineViewportStateCreateInfo viewportStateInfo{};
+            viewportStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+            viewportStateInfo.viewportCount=1;
+            viewportStateInfo.scissorCount=1;
+            VkPipelineColorBlendAttachmentState colorBlendAttachment{};
+            colorBlendAttachment.colorWriteMask=VK_COLOR_COMPONENT_R_BIT|VK_COLOR_COMPONENT_G_BIT|VK_COLOR_COMPONENT_B_BIT|VK_COLOR_COMPONENT_A_BIT;
+            colorBlendAttachment.blendEnable=VK_FALSE;
+            VkPipelineColorBlendStateCreateInfo blendStateInfo{};
+            blendStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+            blendStateInfo.logicOpEnable=VK_FALSE;
+            blendStateInfo.logicOp=VK_LOGIC_OP_COPY;
+            blendStateInfo.attachmentCount=1;
+            blendStateInfo.pAttachments=&colorBlendAttachment;
+            VkPipelineMultisampleStateCreateInfo multisampleStateInfo{};
+            multisampleStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+            multisampleStateInfo.sampleShadingEnable=VK_FALSE;
+            multisampleStateInfo.rasterizationSamples=defaultSampleFlag;
+            VkPipelineRasterizationStateCreateInfo rasterizationStateInfo{};
+            rasterizationStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+            rasterizationStateInfo.depthClampEnable=VK_FALSE;
+            rasterizationStateInfo.rasterizerDiscardEnable=VK_FALSE;
+            rasterizationStateInfo.polygonMode=VK_POLYGON_MODE_FILL;
+            rasterizationStateInfo.lineWidth=1.0f;
+            rasterizationStateInfo.cullMode=VK_CULL_MODE_BACK_BIT;
+            rasterizationStateInfo.frontFace=VK_FRONT_FACE_CLOCKWISE;
+            rasterizationStateInfo.depthBiasEnable=VK_FALSE;
+            rasterizationStateInfo.depthBiasConstantFactor=0.0f;
+            rasterizationStateInfo.depthBiasClamp=0.0f;
+            rasterizationStateInfo.depthBiasSlopeFactor=0.0f;
+            VkPipelineDepthStencilStateCreateInfo depthStencilStateInfo{};
+            depthStencilStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+            depthStencilStateInfo.depthTestEnable=VK_TRUE;
+            depthStencilStateInfo.depthWriteEnable=VK_TRUE;
+            depthStencilStateInfo.depthCompareOp=VK_COMPARE_OP_LESS;
+            depthStencilStateInfo.depthBoundsTestEnable=VK_FALSE;
+            depthStencilStateInfo.stencilTestEnable=VK_FALSE;
+
+            VkGraphicsPipelineCreateInfo pipelineInfo{};
+            pipelineInfo.sType=VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+            pipelineInfo.stageCount=stages.size();
+            pipelineInfo.pStages=stages.data();
+            pipelineInfo.pVertexInputState=&vertexInputStateInfo;
+            pipelineInfo.pInputAssemblyState=&inputAssemblyStateInfo;
+            pipelineInfo.pViewportState=&viewportStateInfo;
+            pipelineInfo.pRasterizationState=&rasterizationStateInfo;
+            pipelineInfo.pMultisampleState=&multisampleStateInfo;
+            pipelineInfo.pDepthStencilState=&depthStencilStateInfo;
+            pipelineInfo.pColorBlendState=&blendStateInfo;
+            pipelineInfo.pDynamicState=&dynamicStateInfo;
+            pipelineInfo.layout=layout;
+            pipelineInfo.renderPass=((VulkanRenderPass*)renderPassInterface)->Get();
+            pipelineInfo.subpass=0;
+            pipelineInfo.basePipelineHandle=VK_NULL_HANDLE;
+            pipelineInfo.basePipelineIndex=-1;
+            VkPipeline pipeline;
+            res=vkCreateGraphicsPipelines(device,VK_NULL_HANDLE,1,&pipelineInfo,nullptr,&pipeline);
+            VK_CHECK(res,"failed to create graphic pipeline !");
+            graphicPipeline=new VulkanPipeline{};
+            ((VulkanPipeline*)graphicPipeline)->Set(pipeline);
+            for(auto module:modules) {
+                vkDestroyShaderModule(device,module,nullptr);
+            }
     }
 
     void VulkanGraphicInterface::DestroyRenderPass(RenderPassInterface *renderPassInterface) {

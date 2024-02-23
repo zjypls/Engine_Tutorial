@@ -40,7 +40,61 @@ namespace Z{
                 }
             }
 
+            std::string GetShaderStageMacroName(ShaderStageFlag stage){
+                switch(stage){
+                #define tCase(stage) case Z::ShaderStageFlag::stage: return "Z_"#stage
+                    tCase(VERTEX);
+                    tCase(FRAGMENT);
+                    tCase(COMPUTE);
+                    tCase(GEOMETRY);
+                    tCase(TESSELLATION_CONTROL);
+                    tCase(TESSELLATION_EVALUATION);
+                #undef tCase
+                }
+            }
+
+            std::vector<std::vector<uint32>> CompileShader(const std::string& sources,const std::vector<ShaderStageFlag> &stages){
+                Z_CORE_ASSERT(stages.size()>0,"error: no shader stage !");
+                std::vector<std::vector<uint32>> results;
+                for(int i=0;i<stages.size();++i){
+                    shaderc::Compiler compiler;
+                    shaderc::CompileOptions options;
+                    options.SetTargetEnvironment(shaderc_target_env_vulkan,shaderc_env_version_vulkan_1_0);
+                    options.AddMacroDefinition(GetShaderStageMacroName(stages[i]));
+                    options.SetOptimizationLevel(shaderc_optimization_level_performance);
+                    auto stage= ShaderStageToShaderc(stages[i]);
+                    auto result=compiler.CompileGlslToSpv(sources,stage,"shader",options);
+                    if(result.GetCompilationStatus()!=shaderc_compilation_status_success){
+                        Z_CORE_ERROR("error: failed to compile shader !");
+                        Z_CORE_ERROR(result.GetErrorMessage());
+                        continue;
+                    }
+                    results.push_back({result.begin(),result.end()});
+                }
+                return results;
+            }
+
+            std::vector<uint32> ReadFile(const std::string& path){
+                std::ifstream file(path,std::ios::ate|std::ios::binary);
+                Z_CORE_ASSERT(file.is_open(),"error: failed to open file !");
+                size_t size=static_cast<size_t>(file.tellg());
+                std::vector<uint32> buffer(size/sizeof(uint32));
+                file.seekg(0);
+                file.read(reinterpret_cast<char*>(buffer.data()),size);
+                file.close();
+                return buffer;
+            }
+            
         }
+
+        struct DescriptorInfo{
+            std::vector<VkDescriptorSetLayoutBinding> bindings;
+        };
+        struct ShaderSourceCompileInfo{
+            std::vector<std::vector<uint32>> irCode;
+            std::vector<VkShaderStageFlagBits> stageFlags;
+            DescriptorInfo descriptorInfos;
+        };
 
         VkResult CreateDebugUtils(VkInstance                                instance,
                                   const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
@@ -56,6 +110,62 @@ namespace Z{
             auto func=(PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance,"vkDestroyDebugUtilsMessengerEXT");
             if(func)
                 func(instance,utils,pAllocator);
+        }
+
+        ShaderSourceCompileInfo ReflectShader(const std::string&sources,const std::vector<ShaderStageFlag> &stages){
+            ShaderSourceCompileInfo info;
+            info.irCode=Tools::CompileShader(sources,stages);
+            Z_CORE_ASSERT(info.irCode.size()==stages.size(),"error: shader stage count not match source count !");
+            auto &descriptorSets=info.descriptorInfos;
+            for(int i=0;i<info.irCode.size();++i){
+                spirv_cross::CompilerGLSL compiler(info.irCode[i]);
+                spirv_cross::CompilerGLSL::Options options;
+                options.version=450;
+                options.es=false;
+                options.vulkan_semantics=true;
+                auto stage=stages[i];
+                compiler.set_common_options(options);
+                auto irCode=compiler.compile();
+                info.stageFlags.push_back(static_cast<VkShaderStageFlagBits>(stage));
+                auto resources=compiler.get_shader_resources();
+                for(auto &resource:resources.uniform_buffers){
+                    VkDescriptorSetLayoutBinding binding{};
+                    binding.binding=compiler.get_decoration(resource.id,spv::DecorationBinding);
+                    binding.descriptorType=VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                    binding.stageFlags=static_cast<VkShaderStageFlagBits>(stage);
+                    binding.descriptorCount=1;
+                    descriptorSets.bindings.push_back(binding);
+                }
+                for(auto &resource:resources.storage_buffers){
+                    VkDescriptorSetLayoutBinding binding{};
+                    binding.binding=compiler.get_decoration(resource.id,spv::DecorationBinding);
+                    binding.descriptorType=VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+                    binding.stageFlags=static_cast<VkShaderStageFlagBits>(stage);
+                    binding.descriptorCount=1;
+                    descriptorSets.bindings.push_back(binding);
+                }
+                for(auto &resource:resources.sampled_images){
+                    VkDescriptorSetLayoutBinding binding{};
+                    binding.binding=compiler.get_decoration(resource.id,spv::DecorationBinding);
+                    binding.descriptorType=VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    binding.stageFlags=static_cast<VkShaderStageFlagBits>(stage);
+                    binding.descriptorCount=1;
+                    descriptorSets.bindings.push_back(binding);
+                }
+            }
+            return info;
+        }
+
+        VkDescriptorSetLayout CreateDescriptorSetLayout(VkDevice device,const DescriptorInfo& info){
+            VkDescriptorSetLayoutCreateInfo createInfo{};
+            createInfo.sType=VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            createInfo.bindingCount=info.bindings.size();
+            createInfo.pBindings=info.bindings.data();
+            createInfo.flags=0;
+            VkDescriptorSetLayout layout;
+            auto res= vkCreateDescriptorSetLayout(device,&createInfo, nullptr,&layout);
+            VK_CHECK(res,"failed to create descriptor set layout !");
+            return layout;
         }
 
         QueueFamilyIndices findQueueFamily(VkPhysicalDevice device,VkSurfaceKHR surface){
