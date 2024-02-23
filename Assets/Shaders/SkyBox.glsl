@@ -28,14 +28,13 @@ void main() {
         4, 5, 1, 1, 0, 4,
         3, 2, 6, 6, 7, 3
     );
-    data.dir=cudeVertices[indices[gl_VertexID]];
+    data.dir=cudeVertices[indices[gl_VertexIndex]];
     vec4 _pos=camera.viewMat*vec4(data.dir,1);
     gl_Position=_pos.xyww;
 }
 #endif
 
 #ifdef Z_FRAGMENT
-#version 450 core
 
 layout(location=0)out vec4 color;
 layout(location=1)out int index;
