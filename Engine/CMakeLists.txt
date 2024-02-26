@@ -85,7 +85,6 @@ else ()
 endif ()
 
 
-# Disable warnings
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(Z PRIVATE -w)
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
