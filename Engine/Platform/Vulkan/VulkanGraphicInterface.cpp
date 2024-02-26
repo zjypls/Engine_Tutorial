@@ -569,6 +569,11 @@ namespace Z {
         beginInfo.renderArea=*(VkRect2D*)&info.renderArea;
         //beginInfo.renderArea.extent=swapchainExtent;
         beginInfo.renderPass=((VulkanRenderPass*)info.renderPass)->Get();
+        //Todo:fix :
+        //mark: info.pClearValues is a stack array , it work well in debug mode with no optimize 
+        // but in release mode with optimize , it will have a undefined value
+        // this caused validation layer to report a error :
+        // vkCmdBeginRenderPass(): pClearValues[1].depth must be between 0 and 1.
         beginInfo.clearValueCount=info.clearValueCount;
         beginInfo.pClearValues=(VkClearValue*)info.pClearValues;
 
@@ -752,7 +757,11 @@ namespace Z {
 
     void VulkanGraphicInterface::CreateGraphicPipeline(const std::string &shaderSources,
         const std::vector<Z::ShaderStageFlag> &stageFlags, Pipeline *&graphicPipeline,
-        RenderPassInterface *renderPassInterface,DescriptorSetLayout*& descriptorSetLayout,PipelineLayout*& pipelineLayout) {
+        RenderPassInterface *renderPassInterface,DescriptorSetLayout*& descriptorSetLayout,PipelineLayout*& pipelineLayout,
+        GraphicPipelineCreateInfo* createInfo) {
+            GraphicPipelineCreateInfo info{};
+            if(createInfo!=nullptr)
+                info=*createInfo;
             auto shaderInfo=VulkanUtils::ReflectShader(shaderSources,stageFlags);
             auto descriptorLayout=VulkanUtils::CreateDescriptorSetLayout(device,shaderInfo.descriptorInfos);
             descriptorSetLayout=new VulkanDescriptorSetLayout{};
@@ -783,59 +792,135 @@ namespace Z {
                 stages[i].module=module;
                 stages[i].pName="main";
             }
-            auto vertexDescription=MeshDescription::GetAttributeDescription();
-            auto vertexBinding=MeshDescription::GetBindingDescription();
+            static auto vertexDescription=MeshDescription::GetAttributeDescription();
+            static auto vertexBinding=MeshDescription::GetBindingDescription();
             VkPipelineVertexInputStateCreateInfo vertexInputStateInfo{};
-            vertexInputStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-            vertexInputStateInfo.vertexAttributeDescriptionCount=vertexDescription.size();
-            vertexInputStateInfo.pVertexAttributeDescriptions=(VkVertexInputAttributeDescription*)vertexDescription.data();
-            vertexInputStateInfo.vertexBindingDescriptionCount=vertexBinding.size();
-            vertexInputStateInfo.pVertexBindingDescriptions=(VkVertexInputBindingDescription*)vertexBinding.data();
+            if(info.pVertexInputState==nullptr){
+                vertexInputStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+                vertexInputStateInfo.vertexAttributeDescriptionCount=0*vertexDescription.size();
+                vertexInputStateInfo.pVertexAttributeDescriptions=(VkVertexInputAttributeDescription*)vertexDescription.data();
+                vertexInputStateInfo.vertexBindingDescriptionCount=0*vertexBinding.size();
+                vertexInputStateInfo.pVertexBindingDescriptions=(VkVertexInputBindingDescription*)vertexBinding.data();
+            }else{
+                vertexInputStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+                vertexInputStateInfo.vertexAttributeDescriptionCount=info.pVertexInputState->vertexAttributeDescriptionCount;
+                vertexInputStateInfo.pVertexAttributeDescriptions=(VkVertexInputAttributeDescription*)info.pVertexInputState->pVertexAttributeDescriptions;
+                vertexInputStateInfo.vertexBindingDescriptionCount=info.pVertexInputState->vertexBindingDescriptionCount;
+                vertexInputStateInfo.pVertexBindingDescriptions=(VkVertexInputBindingDescription*)info.pVertexInputState->pVertexBindingDescriptions;
+            }
             VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateInfo{};
-            inputAssemblyStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-            inputAssemblyStateInfo.topology=VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-            inputAssemblyStateInfo.primitiveRestartEnable=VK_FALSE;
-            VkDynamicState dynamicStates[] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+            if(info.pInputAssemblyState==nullptr){
+                inputAssemblyStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+                inputAssemblyStateInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+                inputAssemblyStateInfo.primitiveRestartEnable = VK_FALSE;
+            }else{
+                inputAssemblyStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+                inputAssemblyStateInfo.topology = (VkPrimitiveTopology)info.pInputAssemblyState->topology;
+                inputAssemblyStateInfo.primitiveRestartEnable = info.pInputAssemblyState->primitiveRestartEnable;
+            }
+            static VkDynamicState dynamicStates[] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
             VkPipelineDynamicStateCreateInfo dynamicStateInfo{};
-            dynamicStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-            dynamicStateInfo.dynamicStateCount=sizeof(dynamicStates) / sizeof (dynamicStates[0]);
-            dynamicStateInfo.pDynamicStates=dynamicStates;
+            if(info.pDynamicState==nullptr){
+                dynamicStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+                dynamicStateInfo.dynamicStateCount = sizeof(dynamicStates) / sizeof(dynamicStates[0]);
+                dynamicStateInfo.pDynamicStates = dynamicStates;
+            }else{
+                dynamicStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+                dynamicStateInfo.dynamicStateCount = info.pDynamicState->dynamicStateCount;
+                dynamicStateInfo.pDynamicStates = (VkDynamicState*)info.pDynamicState->pDynamicStates;
+            }
             VkPipelineViewportStateCreateInfo viewportStateInfo{};
-            viewportStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-            viewportStateInfo.viewportCount=1;
-            viewportStateInfo.scissorCount=1;
+            if(info.pViewportState==nullptr){
+                viewportStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+                viewportStateInfo.viewportCount = 1;
+                viewportStateInfo.scissorCount = 1;
+            }else{
+                viewportStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+                viewportStateInfo.viewportCount = info.pViewportState->viewportCount;
+                viewportStateInfo.scissorCount = info.pViewportState->scissorCount;
+                viewportStateInfo.pScissors = (VkRect2D*)info.pViewportState->pScissors;
+                viewportStateInfo.pViewports = (VkViewport*)info.pViewportState->pViewports;
+            }
             VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-            colorBlendAttachment.colorWriteMask=VK_COLOR_COMPONENT_R_BIT|VK_COLOR_COMPONENT_G_BIT|VK_COLOR_COMPONENT_B_BIT|VK_COLOR_COMPONENT_A_BIT;
-            colorBlendAttachment.blendEnable=VK_FALSE;
             VkPipelineColorBlendStateCreateInfo blendStateInfo{};
-            blendStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-            blendStateInfo.logicOpEnable=VK_FALSE;
-            blendStateInfo.logicOp=VK_LOGIC_OP_COPY;
-            blendStateInfo.attachmentCount=1;
-            blendStateInfo.pAttachments=&colorBlendAttachment;
+            if(info.pColorBlendState==nullptr){
+                colorBlendAttachment.colorWriteMask =
+                        VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |
+                        VK_COLOR_COMPONENT_A_BIT;
+                colorBlendAttachment.blendEnable = VK_FALSE;
+                blendStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+                blendStateInfo.logicOpEnable=VK_FALSE;
+                blendStateInfo.logicOp=VK_LOGIC_OP_COPY;
+                blendStateInfo.attachmentCount=1;
+                blendStateInfo.pAttachments=&colorBlendAttachment;
+            }else{
+                blendStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+                blendStateInfo.attachmentCount=info.pColorBlendState->attachmentCount;
+                blendStateInfo.logicOp=(VkLogicOp)info.pColorBlendState->logicOp;
+                blendStateInfo.logicOpEnable=info.pColorBlendState->logicOpEnable;
+                blendStateInfo.pAttachments=(VkPipelineColorBlendAttachmentState*)info.pColorBlendState->pAttachments;
+                for(int i=0;i<4;++i)
+                    blendStateInfo.blendConstants[i]=info.pColorBlendState->blendConstants[i];
+            }
             VkPipelineMultisampleStateCreateInfo multisampleStateInfo{};
-            multisampleStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-            multisampleStateInfo.sampleShadingEnable=VK_FALSE;
-            multisampleStateInfo.rasterizationSamples=defaultSampleFlag;
+            if(info.pMultisampleState==nullptr){
+                multisampleStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+                multisampleStateInfo.sampleShadingEnable = VK_FALSE;
+                multisampleStateInfo.rasterizationSamples = defaultSampleFlag;
+            }else{
+                multisampleStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+                multisampleStateInfo.sampleShadingEnable = info.pMultisampleState->sampleShadingEnable;
+                multisampleStateInfo.rasterizationSamples = (VkSampleCountFlagBits)info.pMultisampleState->rasterizationSamples;
+                multisampleStateInfo.minSampleShading = info.pMultisampleState->minSampleShading;
+                multisampleStateInfo.alphaToCoverageEnable = info.pMultisampleState->alphaToCoverageEnable;
+                multisampleStateInfo.alphaToOneEnable = info.pMultisampleState->alphaToOneEnable;
+            }
             VkPipelineRasterizationStateCreateInfo rasterizationStateInfo{};
-            rasterizationStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-            rasterizationStateInfo.depthClampEnable=VK_FALSE;
-            rasterizationStateInfo.rasterizerDiscardEnable=VK_FALSE;
-            rasterizationStateInfo.polygonMode=VK_POLYGON_MODE_FILL;
-            rasterizationStateInfo.lineWidth=1.0f;
-            rasterizationStateInfo.cullMode=VK_CULL_MODE_BACK_BIT;
-            rasterizationStateInfo.frontFace=VK_FRONT_FACE_CLOCKWISE;
-            rasterizationStateInfo.depthBiasEnable=VK_FALSE;
-            rasterizationStateInfo.depthBiasConstantFactor=0.0f;
-            rasterizationStateInfo.depthBiasClamp=0.0f;
-            rasterizationStateInfo.depthBiasSlopeFactor=0.0f;
-            VkPipelineDepthStencilStateCreateInfo depthStencilStateInfo{};
-            depthStencilStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-            depthStencilStateInfo.depthTestEnable=VK_TRUE;
-            depthStencilStateInfo.depthWriteEnable=VK_TRUE;
-            depthStencilStateInfo.depthCompareOp=VK_COMPARE_OP_LESS;
-            depthStencilStateInfo.depthBoundsTestEnable=VK_FALSE;
-            depthStencilStateInfo.stencilTestEnable=VK_FALSE;
+            if(info.pRasterizationState==nullptr){
+                rasterizationStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+                rasterizationStateInfo.depthClampEnable = VK_FALSE;
+                rasterizationStateInfo.rasterizerDiscardEnable = VK_FALSE;
+                rasterizationStateInfo.polygonMode = VK_POLYGON_MODE_FILL;
+                rasterizationStateInfo.lineWidth = 1.0f;
+                rasterizationStateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
+                rasterizationStateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+                rasterizationStateInfo.depthBiasEnable = VK_FALSE;
+                rasterizationStateInfo.depthBiasConstantFactor = 0.0f;
+                rasterizationStateInfo.depthBiasClamp = 0.0f;
+                rasterizationStateInfo.depthBiasSlopeFactor = 0.0f;
+            }else{
+                rasterizationStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+                rasterizationStateInfo.depthClampEnable = info.pRasterizationState->depthClampEnable;
+                rasterizationStateInfo.rasterizerDiscardEnable = info.pRasterizationState->rasterizerDiscardEnable;
+                rasterizationStateInfo.polygonMode = (VkPolygonMode)info.pRasterizationState->polygonMode;
+                rasterizationStateInfo.lineWidth = info.pRasterizationState->lineWidth;
+                rasterizationStateInfo.cullMode = (VkCullModeFlags)info.pRasterizationState->cullMode;
+                rasterizationStateInfo.frontFace = (VkFrontFace)info.pRasterizationState->frontFace;
+                rasterizationStateInfo.depthBiasEnable = info.pRasterizationState->depthBiasEnable;
+                rasterizationStateInfo.depthBiasConstantFactor = info.pRasterizationState->depthBiasConstantFactor;
+                rasterizationStateInfo.depthBiasClamp = info.pRasterizationState->depthBiasClamp;
+                rasterizationStateInfo.depthBiasSlopeFactor = info.pRasterizationState->depthBiasSlopeFactor;
+            }
+                VkPipelineDepthStencilStateCreateInfo depthStencilStateInfo{};
+            if(info.pDepthStencilState==nullptr){
+                depthStencilStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+                depthStencilStateInfo.depthTestEnable = VK_TRUE;
+                depthStencilStateInfo.depthWriteEnable = VK_TRUE;
+                depthStencilStateInfo.depthCompareOp = VK_COMPARE_OP_LESS;
+                depthStencilStateInfo.depthBoundsTestEnable = VK_FALSE;
+                depthStencilStateInfo.stencilTestEnable = VK_FALSE;
+            }else{
+                depthStencilStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+                depthStencilStateInfo.depthTestEnable = info.pDepthStencilState->depthTestEnable;
+                depthStencilStateInfo.depthWriteEnable = info.pDepthStencilState->depthWriteEnable;
+                depthStencilStateInfo.depthCompareOp = (VkCompareOp)info.pDepthStencilState->depthCompareOp;
+                depthStencilStateInfo.depthBoundsTestEnable = info.pDepthStencilState->depthBoundsTestEnable;
+                depthStencilStateInfo.stencilTestEnable = info.pDepthStencilState->stencilTestEnable;
+                depthStencilStateInfo.front = *(VkStencilOpState*)&info.pDepthStencilState->front;
+                depthStencilStateInfo.back = *(VkStencilOpState*)&info.pDepthStencilState->back;
+                depthStencilStateInfo.minDepthBounds = info.pDepthStencilState->minDepthBounds;
+                depthStencilStateInfo.maxDepthBounds = info.pDepthStencilState->maxDepthBounds;
+            }
 
             VkGraphicsPipelineCreateInfo pipelineInfo{};
             pipelineInfo.sType=VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -851,7 +936,7 @@ namespace Z {
             pipelineInfo.pDynamicState=&dynamicStateInfo;
             pipelineInfo.layout=layout;
             pipelineInfo.renderPass=((VulkanRenderPass*)renderPassInterface)->Get();
-            pipelineInfo.subpass=0;
+            pipelineInfo.subpass=info.subpass<0?0:info.subpass;
             pipelineInfo.basePipelineHandle=VK_NULL_HANDLE;
             pipelineInfo.basePipelineIndex=-1;
             VkPipeline pipeline;

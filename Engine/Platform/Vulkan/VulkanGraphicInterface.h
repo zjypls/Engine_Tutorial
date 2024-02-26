@@ -38,7 +38,8 @@ namespace Z {
         void CreateGraphicPipeline(const GraphicPipelineCreateInfo &createInfo, Pipeline *&graphicPipeline) override;
         void CreateGraphicPipeline(const std::string &shaderSources, const std::vector<Z::ShaderStageFlag> &stageFlags,
                                  Pipeline *&graphicPipeline, RenderPassInterface *renderPassInterface,
-                                 DescriptorSetLayout*&descriptorSetLayout,PipelineLayout*&pipelineLayout) override;
+                                 DescriptorSetLayout*&descriptorSetLayout,PipelineLayout*&pipelineLayout,
+                                 GraphicPipelineCreateInfo* createInfo) override;
         void DestroyRenderPass(RenderPassInterface *renderPassInterface) override;
         std::vector<Z::Framebuffer*> CreateDefaultFrameBuffers(RenderPassInterface *renderPassInterface) override;
 

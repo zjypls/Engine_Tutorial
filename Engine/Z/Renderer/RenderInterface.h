@@ -1020,7 +1020,7 @@ namespace Z {
         const PipelineDynamicStateCreateInfo*            pDynamicState;
         PipelineLayout*                                  pLayout;
         RenderPassInterface*                             renderPass;
-        uint32                                           subpass;
+        int32                                            subpass=-1;
         Pipeline*                                        pBasePipelineHandle;
         int32                                            basePipelineIndex;
     };
