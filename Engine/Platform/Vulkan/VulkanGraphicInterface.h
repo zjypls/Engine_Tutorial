@@ -61,6 +61,7 @@ namespace Z {
         auto GetQueueFamily(){return familyIndices;}
         const SwapChainInfo& GetSwapChainInfo()override{return swapChainInfo;}
         uint32 GetCurrentFrameIndex() override{return currentFrameIndex;}
+        uint32 GetMaxFramesInFlight() override {return maxFlightFrames;}
 
         auto GetCurrentCommandBuffer(){return commandBuffers[currentFrameIndex];}
 
@@ -82,6 +83,7 @@ namespace Z {
         void CreateSwapchainImageViews();
         void CreateFramebufferImageAndView();
         void CreateVmaAllocator();
+        void CreateDefaultSampler();
 
         void ReCreateSwapChain();
 
@@ -113,6 +115,8 @@ namespace Z {
         VkFormat swapchainFormat;
         VkExtent2D swapchainExtent;
         VkRect2D scissor;
+
+        Sampler *defaultLinearSampler,*defaultNearestSampler;
 
         const std::vector<const char *> validationLayers {"VK_LAYER_KHRONOS_validation"};
     };

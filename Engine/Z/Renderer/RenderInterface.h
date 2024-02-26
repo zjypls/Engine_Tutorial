@@ -20,11 +20,13 @@ namespace Z {
     class Framebuffer {};
     class Image {};
     class ImageView {};
+    class BufferView {};
     class Queue {};
     class ShaderModule {};
     class PipelineLayout{};
     class Pipeline{};
     class RenderPassInterface{};
+    class Sampler{};
 
 
     struct ImageInfo;
@@ -671,6 +673,26 @@ namespace Z {
         MEMORY_PLANE_3_EXT = 0x00000400,
         MAX_ENUM = 0x7FFFFFFF
     };
+    enum class DescriptorType{
+        SAMPLER = 0,
+        COMBINED_IMAGE_SAMPLER = 1,
+        SAMPLED_IMAGE = 2,
+        STORAGE_IMAGE = 3,
+        UNIFORM_TEXEL_BUFFER = 4,
+        STORAGE_TEXEL_BUFFER = 5,
+        UNIFORM_BUFFER = 6,
+        STORAGE_BUFFER = 7,
+        UNIFORM_BUFFER_DYNAMIC = 8,
+        STORAGE_BUFFER_DYNAMIC = 9,
+        INPUT_ATTACHMENT = 10,
+        INLINE_UNIFORM_BLOCK_EXT = 1000138000,
+        ACCELERATION_STRUCTURE_KHR = 1000165000,
+        MAX_ENUM = 0x7FFFFFFF
+    };
+    enum class SamplerType{
+        Linear = 0,
+        Nearest = 1,
+    };
 
     //operator overloading for binary operation |
     inline DynamicState operator|(DynamicState a,DynamicState b){
@@ -1006,7 +1028,45 @@ namespace Z {
         uint64                       codeSize;
         const uint32*                pCode;
     };
-
+    struct DescriptorSetLayoutBinding {
+        uint32             binding;
+        DescriptorType     descriptorType;
+        uint32             descriptorCount;
+        ShaderStageFlag    stageFlags;
+        const Sampler*     pImmutableSamplers;
+    };
+    struct DescriptorSetLayoutCreateInfo {
+        const void*                       pNext;
+        uint32                            bindingCount;
+        const DescriptorSetLayoutBinding* pBindings;
+    };
+    struct DescriptorSetAllocateInfo {
+        const void*             pNext;
+        DescriptorPool*         descriptorPool;
+        uint32                  descriptorSetCount;
+        const DescriptorSetLayout* pSetLayouts;
+    };
+    struct DescriptorImageInfo {
+        const Sampler*      sampler;
+        ImageView*          imageView;
+        ImageLayout         imageLayout;
+    };
+    struct DescriptorBufferInfo {
+        Buffer*             buffer;
+        ResourceSize        offset;
+        ResourceSize        range;
+    };
+    struct WriteDescriptorSet {
+        const void*             pNext;
+        DescriptorSet*          dstSet;
+        uint32                  dstBinding;
+        uint32                  dstArrayElement;
+        uint32                  descriptorCount;
+        DescriptorType          descriptorType;
+        const DescriptorImageInfo* pImageInfo;
+        const DescriptorBufferInfo*    pBufferInfo;
+        const BufferView*              pTexelBufferView;
+    };
 }
 
 #endif //ENGINEALL_RENDERINTERFACE_H

@@ -431,6 +431,7 @@ namespace Z {
         CreateSyncSignals();
         CreateSwapchainImageViews();
         CreateVmaAllocator();
+        CreateDefaultSampler();
     }
 
     void VulkanGraphicInterface::Shutdown() {
@@ -452,6 +453,11 @@ namespace Z {
         vkDestroyDescriptorPool(device,descriptorPool,nullptr);
 
         vkDestroySwapchainKHR(device,swapchain,nullptr);
+
+        vkDestroySampler(device,((VulkanSampler*)defaultLinearSampler)->Get(),nullptr);
+        vkDestroySampler(device,((VulkanSampler*)defaultNearestSampler)->Get(),nullptr);
+        delete defaultLinearSampler;
+        delete defaultNearestSampler;
 
         vkDestroyDevice(device,nullptr);
 
@@ -909,6 +915,39 @@ namespace Z {
 
     void VulkanGraphicInterface::DestroyDescriptorSetLayout(DescriptorSetLayout *descriptorSetLayout) {
         vkDestroyDescriptorSetLayout(device,((VulkanDescriptorSetLayout*)descriptorSetLayout)->Get(),nullptr);
+    }
+
+    void VulkanGraphicInterface::CreateDefaultSampler() {
+        VkSamplerCreateInfo samplerInfo{};
+        samplerInfo.sType=VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        samplerInfo.addressModeU=VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeV=VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeW=VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.anisotropyEnable=VK_TRUE;
+        samplerInfo.borderColor=VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+        samplerInfo.compareEnable=VK_FALSE;
+        samplerInfo.compareOp=VK_COMPARE_OP_ALWAYS;
+        samplerInfo.magFilter=VK_FILTER_LINEAR;
+        samplerInfo.minFilter=VK_FILTER_LINEAR;
+        samplerInfo.maxAnisotropy=16;
+        samplerInfo.maxLod=FLT_MAX;
+        samplerInfo.minLod=0;
+        samplerInfo.mipLodBias=0;
+        samplerInfo.mipmapMode=VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        samplerInfo.unnormalizedCoordinates=VK_FALSE;
+        VkSampler linear;
+        auto res=vkCreateSampler(device,&samplerInfo,nullptr,&linear);
+        VK_CHECK(res,"failed to create default sampler !");
+        defaultLinearSampler=new VulkanSampler{};
+        ((VulkanSampler*)defaultLinearSampler)->Set(linear);
+        samplerInfo.magFilter=VK_FILTER_NEAREST;
+        samplerInfo.minFilter=VK_FILTER_NEAREST;
+        samplerInfo.mipmapMode=VK_SAMPLER_MIPMAP_MODE_NEAREST;
+        VkSampler nearest;
+        res=vkCreateSampler(device,&samplerInfo,nullptr,&nearest);
+        VK_CHECK(res,"failed to create default sampler !");
+        defaultNearestSampler=new VulkanSampler{};
+        ((VulkanSampler*)defaultNearestSampler)->Set(nearest);
     }
 
 } // Z

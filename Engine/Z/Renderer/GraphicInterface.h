@@ -70,6 +70,8 @@ namespace Z {
         virtual const SwapChainInfo& GetSwapChainInfo()=0;
 
         virtual uint32 GetCurrentFrameIndex()=0;
+
+        virtual uint32 GetMaxFramesInFlight()=0;
     };
 
 } // Z

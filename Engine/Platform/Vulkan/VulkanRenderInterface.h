@@ -22,6 +22,7 @@ namespace Z {
     VULKAN_IMPL_RESOURCE(Buffer);
     VULKAN_IMPL_RESOURCE(Image);
     VULKAN_IMPL_RESOURCE(ImageView);
+    VULKAN_IMPL_RESOURCE(BufferView);
     VULKAN_IMPL_RESOURCE(ShaderModule);
     VULKAN_IMPL_RESOURCE(DeviceMemory);
     VULKAN_IMPL_RESOURCE(DescriptorPool);
@@ -33,6 +34,7 @@ namespace Z {
     VULKAN_IMPL_RESOURCE(PipelineLayout);
     VULKAN_IMPL_RESOURCE(Pipeline);
     VULKAN_IMPL_RESOURCE(DescriptorSetLayout);
+    VULKAN_IMPL_RESOURCE(Sampler);
 
     class VulkanRenderPass:public RenderPassInterface {
     public:
