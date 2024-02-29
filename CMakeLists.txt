@@ -107,7 +107,7 @@ message("Build Type : ${Z_BUILD_TYPE}")
 add_subdirectory(Engine)
 
 add_subdirectory(ZEditor)
-set_target_properties(ZEditor PROPERTIES INSTALL_RPATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+set_target_properties(ZEditor PROPERTIES INSTALL_RPATH ${monoPath}/lib)
 if (ReBuildScriptsCore)
     add_subdirectory(Projects/Test001/Assets/scripts)
 endif ()
