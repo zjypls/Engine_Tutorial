@@ -8,7 +8,7 @@ Lib
 !Assets/mono/lib
 #self define config file except skybox config file
 *.zConf
-!Projects/Test001/Assets/Textures/skybox/skybox.zConf
+!Assets/Textures/skybox/defaultSkybox/lake/defaultSkybox.zConf
 #jetbrain toolchain config folder
 .idea/
 #temp file
