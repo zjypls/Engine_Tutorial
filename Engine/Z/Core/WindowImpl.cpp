@@ -24,8 +24,12 @@ namespace Z {
 
 	//create glfw error callback func
 	static void GLFWErrorCallback(int error,const char* description){
+		//skip a wayland error report by glfw
+		//GLFW Error (65548) : Wayland: The platform does not provide the window position
+#ifdef Z_PLATFORM_WAYLAND
 		if(error==65548)return;
-		Z_CORE_ERROR("GLFW Error ({0}):{1}",error,description);
+#endif
+		Z_CORE_ERROR("GLFW Error ({0}) : {1}",error,description);
 	}
 
 	void WindowImpl::Init(const WindowProps &props) {

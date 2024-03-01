@@ -66,13 +66,13 @@ namespace Z {
 #ifdef Z_PLATFORM_WIN32
     static constexpr char Z_SEPARATOR='\\';
 #endif
-    // Z_SOURCE_DIR means #define Z_SOURCE_DIR "{CMAKE_SOURCE_DIR}" provide with cmake
+    // Z_SOURCE_DIR means #define Z_SOURCE_DIR "${CMAKE_SOURCE_DIR}" provide with cmake
     static const std::string ROOT_PATH = std::string(Z_SOURCE_DIR) + Z_SEPARATOR;
     static const char *BUILD_VERSION =
 #ifdef Z_DEBUG
-            "Debug"
+        "Debug"
 #else
-    "Release"
+        "Release"
 #endif
     ;
     template<typename T>

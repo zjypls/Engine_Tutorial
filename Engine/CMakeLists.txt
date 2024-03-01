@@ -98,7 +98,8 @@ target_compile_definitions(Z PUBLIC
         Z_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
         ${RENDERER_BACKEND_FLAG}
         GLM_ENABLE_EXPERIMENTAL
-        Z_CONF_EXTENSION=".zConf")
+        Z_CONF_EXTENSION=".zConf"
+        Z_PLATFORM_${Z_WM_FLAG})
 
 target_compile_definitions(Z PRIVATE GLFW_INCLUDE_NONE)
 

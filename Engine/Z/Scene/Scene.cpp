@@ -204,9 +204,6 @@ namespace Z {
 		std::for_each(registry.view<TransformComponent, MeshRendererComponent>().begin(),
 		              registry.view<TransformComponent, MeshRendererComponent>().end(), [&](const auto &item) {
                     MeshRendererComponent component=registry.get<MeshRendererComponent>(item);
-                    if(component.mesh){
-
-                    }
 				});
 	}
 

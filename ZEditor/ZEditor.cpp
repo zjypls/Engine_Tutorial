@@ -7,7 +7,6 @@
 #include "Include/glm/gtx/matrix_decompose.hpp"
 #include "Include/filewatch/filewatch.h"
 
-#include "Z/Utils/Model.h"
 
 #include "ZEditor.h"
 
@@ -212,8 +211,6 @@ namespace Z {
 			auto McursorPos = MaxSize - cursorPos;
 			CursorPos = glm::vec2{cursorPos.x - offset.x, McursorPos.y};
 		}
-		Application::Get().GetImGuiLayer()->SetBlockEvents(!IsViewportFocused && !IsViewportHovered);
-
 
 		if ((viewportSize != *(glm::vec2 *) &viewSize)) {
             //avoid resize when frame haven't show to viewport yet
