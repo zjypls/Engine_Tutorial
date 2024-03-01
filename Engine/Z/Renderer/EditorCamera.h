@@ -53,7 +53,7 @@ namespace Z {
 
 		inline const glm::mat4 &GetProjectionMatrix() const { return projection; }
 
-		inline const glm::mat4 &GetViewProjectionMatrix() const { return projection * viewMatrix; }
+		inline const glm::mat4 GetViewProjectionMatrix() const { return projection * viewMatrix; }
 
 		inline const glm::vec3 &GetPosition() const { return position; }
 
