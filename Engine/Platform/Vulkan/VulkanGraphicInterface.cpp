@@ -286,7 +286,7 @@ namespace Z {
         poolSizes[2].type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         poolSizes[2].descriptorCount = 1 * maxMaterialCount;
         poolSizes[3].type            = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        poolSizes[3].descriptorCount = 3 + 5 * maxMaterialCount + 1 + 1; // ImGui_ImplVulkan_CreateDeviceObjects
+        poolSizes[3].descriptorCount = 3 + 5 * maxMaterialCount + 1 + 1; 
         poolSizes[4].type            = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
         poolSizes[4].descriptorCount = 4 + 1 + 1 + 2;
         poolSizes[5].type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
@@ -797,9 +797,9 @@ namespace Z {
             VkPipelineVertexInputStateCreateInfo vertexInputStateInfo{};
             if(info.pVertexInputState==nullptr){
                 vertexInputStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-                vertexInputStateInfo.vertexAttributeDescriptionCount=0*vertexDescription.size();
+                vertexInputStateInfo.vertexAttributeDescriptionCount=vertexDescription.size();
                 vertexInputStateInfo.pVertexAttributeDescriptions=(VkVertexInputAttributeDescription*)vertexDescription.data();
-                vertexInputStateInfo.vertexBindingDescriptionCount=0*vertexBinding.size();
+                vertexInputStateInfo.vertexBindingDescriptionCount=vertexBinding.size();
                 vertexInputStateInfo.pVertexBindingDescriptions=(VkVertexInputBindingDescription*)vertexBinding.data();
             }else{
                 vertexInputStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
