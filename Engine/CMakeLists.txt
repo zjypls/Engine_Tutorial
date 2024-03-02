@@ -99,7 +99,8 @@ target_compile_definitions(Z PUBLIC
         ${RENDERER_BACKEND_FLAG}
         GLM_ENABLE_EXPERIMENTAL
         Z_CONF_EXTENSION=".zConf"
-        Z_PLATFORM_${Z_WM_FLAG})
+        Z_PLATFORM_${Z_WM_FLAG}
+        GLM_FORCE_DEPTH_ZERO_TO_ONE)
 
 target_compile_definitions(Z PRIVATE GLFW_INCLUDE_NONE)
 

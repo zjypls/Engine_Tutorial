@@ -621,28 +621,35 @@ namespace Z {
         std::vector<VkSubpassDescription> subpasses(info.subpassCount);
         std::vector<std::vector<VkAttachmentReference>> attachmentsReferences(info.subpassCount);
         std::vector<std::vector<VkAttachmentReference>> inputReferences(info.subpassCount);
+        std::vector<VkAttachmentReference> depthStencilReferences(info.subpassCount);
         if(info.pSubpasses!=nullptr)
-        for(auto&subpass:subpasses) {
-            const auto& des=info.pSubpasses[index];
-            auto&attachmentRef=attachmentsReferences[index];
-            auto&inputRef=inputReferences[index];
-            attachmentRef.resize(des.colorAttachmentCount);
-            inputRef.resize(des.inputAttachmentCount);
-            for(int i=0;i<des.colorAttachmentCount;++i) {
-                attachmentRef[i].attachment=des.pColorAttachments[i].attachment;
-                attachmentRef[i].layout=(VkImageLayout)des.pColorAttachments[i].layout;
+            for(auto&subpass:subpasses) {
+                const auto& des=info.pSubpasses[index];
+                auto&attachmentRef=attachmentsReferences[index];
+                auto&inputRef=inputReferences[index];
+                auto&depthRef=depthStencilReferences[index];
+                attachmentRef.resize(des.colorAttachmentCount);
+                inputRef.resize(des.inputAttachmentCount);
+                for(int i=0;i<des.colorAttachmentCount;++i) {
+                    attachmentRef[i].attachment=des.pColorAttachments[i].attachment;
+                    attachmentRef[i].layout=(VkImageLayout)des.pColorAttachments[i].layout;
+                }
+                for(int i=0;i<des.inputAttachmentCount;++i) {
+                    inputRef[i].attachment=des.pInputAttachments[i].attachment;
+                    inputRef[i].layout=(VkImageLayout)des.pInputAttachments[i].layout;
+                }
+                if(des.pDepthStencilAttachment!=nullptr) {
+                    depthRef.attachment=des.pDepthStencilAttachment->attachment;
+                    depthRef.layout=(VkImageLayout)des.pDepthStencilAttachment->layout;
+                }
+                subpass.colorAttachmentCount=des.colorAttachmentCount;
+                subpass.inputAttachmentCount=des.inputAttachmentCount;
+                subpass.pipelineBindPoint=(VkPipelineBindPoint)des.pipelineBindPoint;
+                subpass.pColorAttachments=attachmentRef.data();
+                subpass.pDepthStencilAttachment=des.pDepthStencilAttachment==nullptr?nullptr:&depthRef;
+                subpass.pInputAttachments=inputRef.data();
+                ++index;
             }
-            for(int i=0;i<des.inputAttachmentCount;++i) {
-                inputRef[i].attachment=des.pInputAttachments[i].attachment;
-                inputRef[i].layout=(VkImageLayout)des.pInputAttachments[i].layout;
-            }
-            subpass.colorAttachmentCount=des.colorAttachmentCount;
-            subpass.inputAttachmentCount=des.inputAttachmentCount;
-            subpass.pipelineBindPoint=(VkPipelineBindPoint)des.pipelineBindPoint;
-            subpass.pColorAttachments=attachmentRef.data();
-            subpass.pInputAttachments=inputRef.data();
-            ++index;
-        }
         Info.pAttachments=descriptions.data();
         Info.attachmentCount=descriptions.size();
         Info.dependencyCount=dependencies.size();
@@ -901,7 +908,7 @@ namespace Z {
                 rasterizationStateInfo.depthBiasClamp = info.pRasterizationState->depthBiasClamp;
                 rasterizationStateInfo.depthBiasSlopeFactor = info.pRasterizationState->depthBiasSlopeFactor;
             }
-                VkPipelineDepthStencilStateCreateInfo depthStencilStateInfo{};
+            VkPipelineDepthStencilStateCreateInfo depthStencilStateInfo{};
             if(info.pDepthStencilState==nullptr){
                 depthStencilStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
                 depthStencilStateInfo.depthTestEnable = VK_TRUE;
@@ -909,6 +916,8 @@ namespace Z {
                 depthStencilStateInfo.depthCompareOp = VK_COMPARE_OP_LESS;
                 depthStencilStateInfo.depthBoundsTestEnable = VK_FALSE;
                 depthStencilStateInfo.stencilTestEnable = VK_FALSE;
+                depthStencilStateInfo.minDepthBounds = 0.0f;
+                depthStencilStateInfo.maxDepthBounds = 1.0f;
             }else{
                 depthStencilStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
                 depthStencilStateInfo.depthTestEnable = info.pDepthStencilState->depthTestEnable;

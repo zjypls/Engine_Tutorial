@@ -22,15 +22,15 @@ namespace Z {
             Image*        image;
             DeviceMemory* memory;
             ImageView*    view;
-            Format       format;
+            Format        format;
         };
 
         struct Framebuffer
         {
-            int           width;
-            int           height;
-            Z::Framebuffer* framebuffer;
-            RenderPassInterface*  renderPass;
+            int                                width;
+            int                                height;
+            Z::Framebuffer*                    framebuffer;
+            RenderPassInterface*               renderPass;
 
             std::vector<FrameBufferAttachment> attachments;
         };

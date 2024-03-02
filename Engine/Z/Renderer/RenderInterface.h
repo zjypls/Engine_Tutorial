@@ -37,7 +37,7 @@ namespace Z {
     struct Viewport;
     union  ClearColorValue;
     struct ClearDepthStencilValue;
-    struct ClearValue;
+    union  ClearValue;
     struct BufferInfo;
     struct SwapChainInfo;
     struct RenderPassCreateInfo;
@@ -693,10 +693,21 @@ namespace Z {
         Linear = 0,
         Nearest = 1,
     };
+    enum class IndexType {
+        UINT16 = 0,
+        UINT32 = 1,
+        NONE = 1000165000,
+        UINT8 = 1000265000,
+        MAX_ENUM = 0x7FFFFFFF
+    } ;
 
     //operator overloading for binary operation |
     inline DynamicState operator|(DynamicState a,DynamicState b){
         return static_cast<DynamicState>(static_cast<uint32>(a)|static_cast<uint32>(b));
+    }
+
+    inline ImageAspectFlag operator|(ImageAspectFlag a,ImageAspectFlag b){
+        return static_cast<ImageAspectFlag>(static_cast<uint32>(a)|static_cast<uint32>(b));
     }
 
     inline ImageLayout operator|(ImageLayout a,ImageLayout b){
@@ -882,7 +893,7 @@ namespace Z {
         float       depth;
         uint32      stencil;
     };
-    struct ClearValue {
+    union ClearValue {
         ClearColorValue           color;
         ClearDepthStencilValue    depthStencil;
     };

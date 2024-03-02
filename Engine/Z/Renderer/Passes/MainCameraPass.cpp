@@ -52,6 +52,7 @@ namespace Z {
         description[_ui_pass_index].pColorAttachments=&reference;
         description[_ui_pass_index].inputAttachmentCount=0;
         description[_ui_pass_index].pipelineBindPoint=PipelineBindPoint::GRAPHICS;
+        description[_ui_pass_index].pDepthStencilAttachment=nullptr;
         info.subpassCount=_subpass_count;
         info.pSubpasses=description;
         SubpassDependency dependency[_dependency_count]{};
