@@ -37,8 +37,8 @@ namespace Z {
 
         struct Descriptor
         {
-            DescriptorSetLayout* layout;
             DescriptorSet*       descriptorSet;
+            DescriptorSetLayout*            layout;
         };
 
         struct RenderPipelineBase

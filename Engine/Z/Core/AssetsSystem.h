@@ -11,7 +11,7 @@
 
 #include "Z/Core/Core.h"
 #include "Z/Core/zGUID.h"
-#include "Z/Utils/Model.h"
+#include "Z/Renderer/GraphicInterface.h"
 
 
 namespace Z {
@@ -30,24 +30,23 @@ namespace Z {
 
 	private:
 
-		std::unordered_map<zGUID, Ref<Mesh>> MeshLibrary{};
+		std::unordered_map<zGUID, void*> resourceLibrary{};
 		std::unordered_map<zGUID, std::string> UIDToPath{};
 		std::unordered_map<std::string, zGUID> PathToUID{};
 
 		std::filesystem::path ProjectPath;
+		Ref<GraphicInterface> Context;
 		static Scope<AssetsSystem> instance;
-
-		auto LoadTextureInner(const zGUID &id);
 
 
 		static void LoadWithMetaData(const MetaData &data, const std::string &path);
 
 	public:
-		inline static bool IsExisting(const std::string &name) {
+		inline static bool IsExisting(const std::string &path) {
 			#if __cplusplus >= 202002L
-			return instance->PathToUID.contains(name);
+			return instance->PathToUID.contains(path);
 			#else
-			return instance->PathToUID.find(name) != instance->PathToUID.end();
+			return instance->PathToUID.find(path) != instance->PathToUID.end();
 			#endif
 		}
 
@@ -70,10 +69,12 @@ namespace Z {
 
 
 		template<class Ty>
-		static Ref<Ty> Load(const std::string &path, bool absolute = false);
+		static Ty* Load(const std::filesystem::path &path){
+		}
 
 		template<class Ty>
-		static Ref<Ty> Get(const zGUID &id);
+		static Ty* Get(const zGUID &id){
+		}
 
 	};
 

@@ -11,7 +11,6 @@
 
 #include "Z/Core/zGUID.h"
 #include "Z/Scene/SceneCamera.h"
-#include "Z/Utils/Model.h"
 
 namespace Z {
 
@@ -152,7 +151,7 @@ namespace Z {
 	};
 
 	struct MeshRendererComponent{
-		Ref<Mesh> mesh;
+		std::string meshPath;
 	};
 
 	template<class... T>

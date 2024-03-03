@@ -3,16 +3,18 @@
 //
 
 #include <set>
-
+#include "Include/stb/stb_image.h"
 #include "Include/yaml-cpp/include/yaml-cpp/yaml.h"
 #include "Include/tinyobjloader/tiny_obj_loader.h"
+#include "Include/glm/glm.hpp"
+#include "Include/glm/gtx/hash.hpp"
 
 #include "Z/Core/Log.h"
 #include "Z/Core/AssetsSystem.h"
 #include "Z/Scene/Components.h"
 
 namespace Z{
-
+	static GraphicInterface* s_Context=nullptr;
 	struct Vertex {
 		glm::vec3 verts;
 		glm::vec2 tex;
@@ -115,44 +117,44 @@ namespace Z {
 			Z_CORE_WARN("UID:{0},Type:{1},write to {2}!",id,typeSTR,pathOut);
 		}
 
-		Ref<Mesh> LoadMesh(const std::string&path){
-			auto mesh = CreateRef<Mesh>();
-			tinyobj::attrib_t attrib{};
-			std::vector<tinyobj::shape_t> shapes{};
-			std::vector<tinyobj::material_t> materials;
-			std::string warnings, errors;
-			if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warnings, &errors, path.c_str())) {
-				Z_CORE_WARN("Loader give warning : {0}", warnings);
-				Z_CORE_ERROR("Loader give errors : {0}", errors);
-				return mesh;
-			}
-			std::unordered_map<Vertex, uint32> Vertexes{};
-			std::vector<Vertex> vertexes;
-			std::vector<uint32> indexes;
-			for (const auto &shape: shapes) {
-				for (const auto &indices: shape.mesh.indices) {
-					Vertex vert{};
-					vert.verts = {
-							attrib.vertices[indices.vertex_index * 3 + 0],
-							attrib.vertices[indices.vertex_index * 3 + 1],
-							attrib.vertices[indices.vertex_index * 3 + 2]};
-					vert.tex = {
-							attrib.texcoords[indices.texcoord_index * 2 + 0],
-							attrib.texcoords[indices.texcoord_index * 2 + 1]};
-					vert.normal = {
-							attrib.normals[indices.normal_index * 3 + 0],
-							attrib.normals[indices.normal_index * 3 + 1],
-							attrib.normals[indices.normal_index * 3 + 2]};
-					if (Vertexes.count(vert) == 0) {
-						Vertexes[vert] = vertexes.size();
-						vertexes.push_back(vert);
-					}
-					indexes.push_back(Vertexes[vert]);
-				}
-			}
+		// Mesh* LoadMesh(const std::string&path){
+		// 	auto mesh = new Mesh();
+		// 	tinyobj::attrib_t attrib{};
+		// 	std::vector<tinyobj::shape_t> shapes{};
+		// 	std::vector<tinyobj::material_t> materials;
+		// 	std::string warnings, errors;
+		// 	if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warnings, &errors, path.c_str())) {
+		// 		Z_CORE_WARN("Loader give warning : {0}", warnings);
+		// 		Z_CORE_ERROR("Loader give errors : {0}", errors);
+		// 		return mesh;
+		// 	}
+		// 	std::unordered_map<Vertex, uint32> Vertexes{};
+		// 	std::vector<Vertex> vertexes;
+		// 	std::vector<uint32> indexes;
+		// 	for (const auto &shape: shapes) {
+		// 		for (const auto &indices: shape.mesh.indices) {
+		// 			Vertex vert{};
+		// 			vert.verts = {
+		// 					attrib.vertices[indices.vertex_index * 3 + 0],
+		// 					attrib.vertices[indices.vertex_index * 3 + 1],
+		// 					attrib.vertices[indices.vertex_index * 3 + 2]};
+		// 			vert.tex = {
+		// 					attrib.texcoords[indices.texcoord_index * 2 + 0],
+		// 					attrib.texcoords[indices.texcoord_index * 2 + 1]};
+		// 			vert.normal = {
+		// 					attrib.normals[indices.normal_index * 3 + 0],
+		// 					attrib.normals[indices.normal_index * 3 + 1],
+		// 					attrib.normals[indices.normal_index * 3 + 2]};
+		// 			if (Vertexes.count(vert) == 0) {
+		// 				Vertexes[vert] = vertexes.size();
+		// 				vertexes.push_back(vert);
+		// 			}
+		// 			indexes.push_back(Vertexes[vert]);
+		// 		}
+		// 	}
 
-			return mesh;
-		}
+		// 	return mesh;
+		// }
 
 		static const std::set<std::string> TextureSheets{".png",".jpg",".jpeg",".bmp"};
 		static const std::set<std::string> MeshSheets{".obj",".fbx",".gltf"};
@@ -167,7 +169,7 @@ namespace Z {
 
 	}
 
-	static const std::set<std::string> registerTypes{".png",".jpg",".jpeg",".bmp",".obj"};
+	static const std::set<std::string> registerTypes{".png",".jpg",".jpeg",".bmp",".obj",".fbx"};
 	inline bool IsRegistered(const std::string& extension){
 		#if __cplusplus>=202002L
 			return registerTypes.contains(extension);
@@ -176,11 +178,7 @@ namespace Z {
 		#endif
 	}
 
-	Scope<AssetsSystem> AssetsSystem::instance;
-
-	auto AssetsSystem::LoadTextureInner(const zGUID &id) {
-	}
-
+	Scope<AssetsSystem> AssetsSystem::instance=nullptr;
 
 	void AssetsSystem::PreInit(){
 		if(instance)
@@ -192,7 +190,6 @@ namespace Z {
 	void AssetsSystem::InitWithProject(const std::filesystem::path &projectPath) {
 		Z_CORE_ASSERT(instance,"Need call PreInit() before InitWithProject!!!");
 		Z_CORE_ASSERT(!projectPath.empty(), "Empty Path Init AssetsSystem Is Illegal!!!");
-		//instance= CreateScope<AssetsSystem>();
 		instance->ProjectPath=projectPath;
 		std::filesystem::recursive_directory_iterator _it(projectPath);
 		std::set<std::filesystem::path> zConfDetect{};
@@ -230,41 +227,6 @@ namespace Z {
 		instance->UIDToPath[data.id]=path+Z_CONF_EXTENSION;
 		switch(data.importer){
 		}
-	}
-
-	template<>
-	Ref<Mesh> AssetsSystem::Get(const zGUID &id) {
-		if(IsExisting(id))
-			return instance->MeshLibrary.at(id);
-		else
-			return nullptr;
-	}
-
-	template<class Ty>
-	Ref<Ty> AssetsSystem::Load(const std::string &,bool){
-		Z_CORE_ASSERT(false,"fatal error");
-	}
-
-	template<>
-	Ref<Mesh> AssetsSystem::Load(const std::string &path,bool absolute) {
-		auto _path=std::filesystem::path(path);
-		if(!absolute){
-			_path=instance->ProjectPath/path;
-		}
-		if(_path.extension()!=Z_CONF_EXTENSION)
-			_path+=Z_CONF_EXTENSION;
-		if(IsExisting(_path.string())){
-			return instance->MeshLibrary.at(instance->PathToUID[_path.string()]);
-		}
-		auto pathSTR=_path.string();
-		auto id=zGUID();
-		instance->PathToUID[pathSTR]=id;
-		instance->UIDToPath[id]=pathSTR;
-		auto mesh=Tools::LoadMesh(pathSTR.substr(0,pathSTR.find_last_of('.')));
-		auto filename=_path.filename().string();
-		mesh->name=filename.substr(0,filename.find_first_of('.'));
-		instance->MeshLibrary[id]=mesh;
-		return mesh;
 	}
 
 }
