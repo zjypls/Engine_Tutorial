@@ -15,17 +15,52 @@
 
 
 namespace Z {
+	enum class AssetsImporterType {
+		None, Texture2D, Mesh, Material, Shader , SkyBox
+	};
+	struct TypeInterface{
+		AssetsImporterType type;
+	};
+	struct Texture2D {
+		AssetsImporterType type;
+		std::string path;
+		Image* image;
+		ImageView* imageView;
+		DeviceMemory* memory;
+	};
+
+	struct MeshRes{
+		AssetsImporterType type;
+		std::string path;
+		Buffer* vertexBuffer;
+		Buffer* indexBuffer;
+		DeviceMemory* vertexMemory;
+		DeviceMemory* indexMemory;
+		uint32 vertexCount;
+		uint32 indexCount;
+	};
+
+
+	struct Skybox {
+		AssetsImporterType type;
+		std::string path;
+		Image* image;
+		ImageView* imageView;
+		DeviceMemory* memory;
+	};
+
+	struct Material {
+		AssetsImporterType type;
+		std::string path;
+	};
+
 	class Z_API AssetsSystem final {
 	public:
-		enum class ImporterType {
-			None, Texture2D, Mesh, Material, Shader , SkyBox
-		};
-
 		struct MetaData {
 			zGUID id;
-			ImporterType importer;
+			AssetsImporterType importer;
 
-			MetaData(const zGUID &id, ImporterType type) : id(id), importer(type) {}
+			MetaData(const zGUID &id, AssetsImporterType type) : id(id), importer(type) {}
 		};
 
 	private:

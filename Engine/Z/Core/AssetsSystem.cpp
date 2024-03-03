@@ -12,6 +12,7 @@
 #include "Z/Core/Log.h"
 #include "Z/Core/AssetsSystem.h"
 #include "Z/Scene/Components.h"
+#include "Z/Renderer/RenderManager.h"
 
 namespace Z{
 	static GraphicInterface* s_Context=nullptr;
@@ -25,9 +26,9 @@ namespace Z{
 		}
 	};
 
-	std::string ImporterTypeToString(AssetsSystem::ImporterType type){
+	std::string ImporterTypeToString(Z::AssetsImporterType type){
 		switch(type) {
-			#define tCase(str) case Z::AssetsSystem::ImporterType:: str : return #str
+			#define tCase(str) case Z::AssetsImporterType:: str : return #str
 			tCase(Texture2D);
 			tCase(Mesh);
 			tCase(Material);
@@ -37,16 +38,16 @@ namespace Z{
 		}
 		return "";
 	}
-	AssetsSystem::ImporterType StringToImporterType(const std::string&type){
+	Z::AssetsImporterType StringToImporterType(const std::string&type){
 
-		#define tBranch(str) if(#str == type) return Z::AssetsSystem::ImporterType:: str
+		#define tBranch(str) if(#str == type) return Z::AssetsImporterType:: str
 		tBranch(Texture2D);
 		tBranch(Material);
 		tBranch(Mesh);
 		tBranch(SkyBox);
 		tBranch(None);
 		#undef tBranch()
-		return Z::AssetsSystem::ImporterType::None;
+		return Z::AssetsImporterType::None;
 	}
 }
 
@@ -67,13 +68,13 @@ namespace std {
 namespace YAML{
 
 	template<>
-	struct convert<Z::AssetsSystem::ImporterType> {
-		static Node encode(Z::AssetsSystem::ImporterType type){
+	struct convert<Z::AssetsImporterType> {
+		static Node encode(Z::AssetsImporterType type){
 			Node node;
 			node.push_back(Z::ImporterTypeToString(type));
 			return node;
 		}
-		static bool decode(const Node &node, Z::AssetsSystem::ImporterType& type){
+		static bool decode(const Node &node, Z::AssetsImporterType& type){
 			type=Z::StringToImporterType(node.as<std::string>());
 			return true;
 		}
@@ -82,10 +83,9 @@ namespace YAML{
 
 namespace Z {
 
-
 	namespace Tools{
 
-		YAML::Emitter& operator<<(YAML::Emitter&emitter,AssetsSystem::ImporterType type){
+		YAML::Emitter& operator<<(YAML::Emitter&emitter,AssetsImporterType type){
 			return emitter<< ImporterTypeToString(type);
 		}
 
@@ -96,13 +96,13 @@ namespace Z {
 			}catch(std::exception& e){
 				Z_CORE_ERROR("YAML error:{}!!!",e.what());
 				Z_CORE_ASSERT(false,"Conf Load failed");
-				return{0,AssetsSystem::ImporterType::None};
+				return{0,Z::AssetsImporterType::None};
 			}
 			auto id=node["GUID"].as<uint64>();
-			auto importer=node["Importer"].as<AssetsSystem::ImporterType>();
+			auto importer=node["Importer"].as<Z::AssetsImporterType>();
 			return {id,importer};
 		}
-		void CreateConf(const zGUID&id,AssetsSystem::ImporterType type,const std::string &pathOut){
+		void CreateConf(const zGUID&id,Z::AssetsImporterType type,const std::string &pathOut){
 			auto typeSTR= ImporterTypeToString(type);
 			YAML::Emitter emitter;
 			emitter<<YAML::BeginMap;
@@ -159,13 +159,14 @@ namespace Z {
 		static const std::set<std::string> TextureSheets{".png",".jpg",".jpeg",".bmp"};
 		static const std::set<std::string> MeshSheets{".obj",".fbx",".gltf"};
 
-		AssetsSystem::ImporterType ExtensionGetType(const std::string&extension){
+		Z::AssetsImporterType ExtensionGetType(const std::string&extension){
 			if(TextureSheets.find(extension)!=TextureSheets.end())
-				return AssetsSystem::ImporterType::Texture2D;
+				return Z::AssetsImporterType::Texture2D;
 			else if(MeshSheets.find(extension)!=MeshSheets.end())
-				return AssetsSystem::ImporterType::Mesh;
-			return AssetsSystem::ImporterType::None;
+				return Z::AssetsImporterType::Mesh;
+			return Z::AssetsImporterType::None;
 		}
+
 
 	}
 
@@ -184,7 +185,8 @@ namespace Z {
 		if(instance)
 			return;
 		instance=CreateScope<AssetsSystem>();
-		instance->ProjectPath=Z_SOURCE_DIR;
+		instance->Context=RenderManager::GetInstance();
+		Z::s_Context=instance->Context.get();
 	}
 
 	void AssetsSystem::InitWithProject(const std::filesystem::path &projectPath) {
