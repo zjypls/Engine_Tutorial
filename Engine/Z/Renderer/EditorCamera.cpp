@@ -53,16 +53,15 @@ namespace Z {
 	}
 
 	void EditorCamera::ViewRotate(const glm::vec2 offset) {
+		auto deltaTime=Time::DeltaTime();
 		auto [x, y] = Input::GetMousePosition();
 		auto toFocus = glm::normalize(position - focus);
-		//TODO:multiply with deltaTime
-		pitch-=offset.y * 1E-2f;
-		yaw -= offset.x * 1E-2f;
-		right = glm::normalize(glm::cross(toFocus, up));//glm::normalize(glm::rotate(glm::quat(-offset.x * up*1E-2f), right));
-		// Todo:optimize
+		pitch-=offset.y * deltaTime;
+		yaw -= offset.x * deltaTime;
+		right = glm::normalize(glm::cross(toFocus, up));
 		if(pitch<3.1f&&pitch>0.1f) {
-			toFocus = glm::rotate(glm::quat(-offset.x * up * 1E-2f), toFocus);
-			toFocus = glm::rotate(glm::quat(-offset.y * right * 1E-2f), toFocus);
+			toFocus = glm::rotate(glm::quat(-offset.x * up * deltaTime), toFocus);
+			toFocus = glm::rotate(glm::quat(-offset.y * right * deltaTime), toFocus);
 			position = focus + distance * glm::normalize(toFocus);
 		}
 		else
@@ -101,8 +100,6 @@ namespace Z {
 			this->position += this->up * deltaTimeScale;
 		else if (Input::IsKeyPressed(KeyCode::Q))
 			this->position -= this->up * deltaTimeScale;
-//		else
-//			return;
 		this->focus += this->position - befPos;
 	}
 }
