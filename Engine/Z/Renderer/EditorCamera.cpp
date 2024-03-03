@@ -61,8 +61,8 @@ namespace Z {
 		right = glm::normalize(glm::cross(toFocus, up));//glm::normalize(glm::rotate(glm::quat(-offset.x * up*1E-2f), right));
 		// Todo:optimize
 		if(pitch<3.1f&&pitch>0.1f) {
-			toFocus = glm::rotate(glm::quat(offset.x * up * 1E-2f), toFocus);
-			toFocus = glm::rotate(glm::quat(offset.y * right * 1E-2f), toFocus);
+			toFocus = glm::rotate(glm::quat(-offset.x * up * 1E-2f), toFocus);
+			toFocus = glm::rotate(glm::quat(-offset.y * right * 1E-2f), toFocus);
 			position = focus + distance * glm::normalize(toFocus);
 		}
 		else
