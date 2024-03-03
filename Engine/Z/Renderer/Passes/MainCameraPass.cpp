@@ -1,8 +1,9 @@
 //
 // Created by z on 24-1-31.
 //
-
-#include "MainCameraPass.h"
+#include "Z/Core/Log.h"
+#include "Z/Renderer/Passes/MainCameraPass.h"
+#include "Z/ImGui/ImGuiRendererPlatform.h"
 
 namespace Z {
     void MainCameraPass::Init(RenderPassInitInfo *info) {
@@ -84,7 +85,7 @@ namespace Z {
         beginInfo.clearValueCount=1;
         beginInfo.renderPass=framebuffer.renderPass;
         beginInfo.framebuffer=swapchainFrameBuffers[Context->GetCurrentFrameIndex()];
-        ClearValue value{{}};
+        static ClearValue value{{}};
         beginInfo.pClearValues=&value;
         Context->BeginRenderPass(beginInfo);
     }

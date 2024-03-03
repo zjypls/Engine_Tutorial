@@ -764,19 +764,22 @@ namespace Z {
 
     void VulkanGraphicInterface::CreateGraphicPipeline(const std::string &shaderSources,
         const std::vector<Z::ShaderStageFlag> &stageFlags, Pipeline *&graphicPipeline,
-        RenderPassInterface *renderPassInterface,DescriptorSetLayout*& descriptorSetLayout,PipelineLayout*& pipelineLayout,
+        RenderPassInterface *renderPassInterface,std::vector<DescriptorSetLayout*>& descriptorSetLayout,PipelineLayout*& pipelineLayout,
         GraphicPipelineCreateInfo* createInfo) {
             GraphicPipelineCreateInfo info{};
             if(createInfo!=nullptr)
                 info=*createInfo;
             auto shaderInfo=VulkanUtils::ReflectShader(shaderSources,stageFlags);
             auto descriptorLayout=VulkanUtils::CreateDescriptorSetLayout(device,shaderInfo.descriptorInfos);
-            descriptorSetLayout=new VulkanDescriptorSetLayout{};
-            ((VulkanDescriptorSetLayout*)descriptorSetLayout)->Set(descriptorLayout);
+            descriptorSetLayout.resize(descriptorLayout.size());
+            for(int i=0;i<descriptorLayout.size();++i){
+                descriptorSetLayout[i]=new VulkanDescriptorSetLayout{};
+                ((VulkanDescriptorSetLayout*)descriptorSetLayout[i])->Set(descriptorLayout[i]);
+            }
             VkPipelineLayoutCreateInfo layoutInfo{};
             layoutInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-            layoutInfo.setLayoutCount=1;
-            layoutInfo.pSetLayouts=&descriptorLayout;
+            layoutInfo.setLayoutCount=descriptorLayout.size();
+            layoutInfo.pSetLayouts=descriptorLayout.data();
             VkPipelineLayout layout;
             auto res=vkCreatePipelineLayout(device,&layoutInfo,nullptr,&layout);
             VK_CHECK(res,"failed to create pipeline layout !");

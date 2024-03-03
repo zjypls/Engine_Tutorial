@@ -93,7 +93,7 @@ namespace Z{
         struct ShaderSourceCompileInfo{
             std::vector<std::vector<uint32>> irCode;
             std::vector<VkShaderStageFlagBits> stageFlags;
-            DescriptorInfo descriptorInfos;
+            std::vector<DescriptorInfo> descriptorInfos;
         };
 
         uint32 FindMemoryType(VkPhysicalDevice device,uint32 typeFilter,VkMemoryPropertyFlags properties){
@@ -192,42 +192,54 @@ namespace Z{
                 info.stageFlags.push_back(static_cast<VkShaderStageFlagBits>(stage));
                 auto resources=compiler.get_shader_resources();
                 for(auto &resource:resources.uniform_buffers){
+                    auto set=compiler.get_decoration(resource.id,spv::DecorationDescriptorSet);
+                    if(set>=descriptorSets.size())
+                        descriptorSets.resize(set+1);
                     VkDescriptorSetLayoutBinding binding{};
                     binding.binding=compiler.get_decoration(resource.id,spv::DecorationBinding);
                     binding.descriptorType=VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
                     binding.stageFlags=static_cast<VkShaderStageFlagBits>(stage);
                     binding.descriptorCount=1;
-                    descriptorSets.bindings.push_back(binding);
+                    descriptorSets[set].bindings.push_back(binding);
                 }
                 for(auto &resource:resources.storage_buffers){
+                    auto set=compiler.get_decoration(resource.id,spv::DecorationDescriptorSet);
+                    if(set>=descriptorSets.size())
+                        descriptorSets.resize(set+1);
                     VkDescriptorSetLayoutBinding binding{};
                     binding.binding=compiler.get_decoration(resource.id,spv::DecorationBinding);
                     binding.descriptorType=VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
                     binding.stageFlags=static_cast<VkShaderStageFlagBits>(stage);
                     binding.descriptorCount=1;
-                    descriptorSets.bindings.push_back(binding);
+                    descriptorSets[set].bindings.push_back(binding);
                 }
                 for(auto &resource:resources.sampled_images){
+                    auto set=compiler.get_decoration(resource.id,spv::DecorationDescriptorSet);
+                    if(set>=descriptorSets.size())
+                        descriptorSets.resize(set+1);
                     VkDescriptorSetLayoutBinding binding{};
                     binding.binding=compiler.get_decoration(resource.id,spv::DecorationBinding);
                     binding.descriptorType=VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
                     binding.stageFlags=static_cast<VkShaderStageFlagBits>(stage);
                     binding.descriptorCount=1;
-                    descriptorSets.bindings.push_back(binding);
+                    descriptorSets[set].bindings.push_back(binding);
                 }
             }
             return info;
         }
 
-        VkDescriptorSetLayout CreateDescriptorSetLayout(VkDevice device,const DescriptorInfo& info){
+        std::vector<VkDescriptorSetLayout> CreateDescriptorSetLayout(VkDevice device,const std::vector<DescriptorInfo>& info){
             VkDescriptorSetLayoutCreateInfo createInfo{};
-            createInfo.sType=VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            createInfo.bindingCount=info.bindings.size();
-            createInfo.pBindings=info.bindings.data();
-            createInfo.flags=0;
-            VkDescriptorSetLayout layout;
-            auto res= vkCreateDescriptorSetLayout(device,&createInfo, nullptr,&layout);
-            VK_CHECK(res,"failed to create descriptor set layout !");
+            std::vector<VkDescriptorSetLayout> layout;
+            for(auto &set:info){
+                createInfo.sType=VK_INFO(DESCRIPTOR_SET_LAYOUT,CREATE);
+                createInfo.bindingCount=set.bindings.size();
+                createInfo.pBindings=set.bindings.data();
+                VkDescriptorSetLayout layout_;
+                auto res= vkCreateDescriptorSetLayout(device,&createInfo, nullptr,&layout_);
+                VK_CHECK(res,"failed to create descriptor set layout !");
+                layout.push_back(layout_);
+            }
             return layout;
         }
 
@@ -365,7 +377,8 @@ namespace Z{
             createInfo       = {};
             createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
             createInfo.messageSeverity =
-                    VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+                    VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | 
+                    VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
             createInfo.messageType =
                     VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
             if(UsingDefaultDebugCall)

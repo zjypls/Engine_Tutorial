@@ -46,7 +46,7 @@ namespace Z {
         virtual void CreateGraphicPipeline(const GraphicPipelineCreateInfo& createInfo, Pipeline*&graphicPipeline) = 0;
 
         virtual void CreateGraphicPipeline(const std::string&shaderSources,const std::vector<Z::ShaderStageFlag>&stageFlags,Pipeline*&graphicPipeline,
-                        RenderPassInterface* renderPassInterface,DescriptorSetLayout*&descriptorSetLayout,
+                        RenderPassInterface* renderPassInterface,std::vector<DescriptorSetLayout*>&descriptorSetLayout,
                         PipelineLayout*&pipelineLayout , GraphicPipelineCreateInfo* createInfo=nullptr) = 0;
 
         virtual void DestroyRenderPass(RenderPassInterface* renderPassInterface)=0;
