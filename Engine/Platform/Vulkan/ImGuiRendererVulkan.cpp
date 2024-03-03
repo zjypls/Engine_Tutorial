@@ -63,4 +63,8 @@ namespace Z {
 
 		ImGui_ImplVulkan_CreateFontsTexture();
 	}
+
+    void ImGuiRendererVulkan::CreateTextureForImGui(Sampler *sampler, ImageView *imageView, ImageLayout layout , ImTextureID &set) {
+        set=ImGui_ImplVulkan_AddTexture(((VulkanSampler*)sampler)->Get(),((VulkanImageView*)imageView)->Get(),(VkImageLayout)layout);
+    }
 }

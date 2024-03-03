@@ -25,8 +25,6 @@ namespace Z {
 
         virtual void draw();
 
-        virtual void InitUIRenderBackend();
-
         virtual void PushUIContents(ImGuiContent* content);
 
         virtual void clear();

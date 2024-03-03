@@ -5,11 +5,13 @@
 
 #include "Z/Renderer/RenderManager.h"
 
+#include "Z/ImGui/ImGuiRendererPlatform.h"
 #include "Platform/Vulkan/VulkanGraphicInterface.h"
 
 namespace Z {
     Ref<GraphicInterface> RenderManager::m_Context= nullptr;
     Ref<RenderPipeline> RenderManager::renderPipeline=nullptr;
+    Ref<ImGuiRendererPlatform> RenderManager::imguiRenderPlatform=nullptr;
     void RenderManager::Init() {
         Z_CORE_ASSERT(m_Context == nullptr,"Already Inited !");
         m_Context= CreateRef<VulkanGraphicInterface>();
@@ -19,6 +21,7 @@ namespace Z {
         auto info=RenderPipelineInitInfo{};
         info.graphicContext=m_Context.get();
         renderPipeline->Init(&info);
+        imguiRenderPlatform=ImGuiRendererPlatform::GetRenderer();
     }
 
     void RenderManager::DeviceSynchronize() {
@@ -26,6 +29,7 @@ namespace Z {
     }
 
     void RenderManager::Shutdown() {
+        imguiRenderPlatform=nullptr;
         renderPipeline->clear();
         m_Context->Shutdown();
     }
@@ -38,10 +42,6 @@ namespace Z {
         m_Context->prepareBeforeRender({});
         renderPipeline->draw();
         m_Context->SubmitTask();
-    }
-
-    void RenderManager::InitUIRenderBackend() {
-        renderPipeline->InitUIRenderBackend();
     }
 
     void RenderManager::PushUIContents(ImGuiContent *content) {

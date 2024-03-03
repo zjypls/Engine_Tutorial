@@ -9,6 +9,7 @@
 
 #include "Z/Renderer/GraphicInterface.h"
 #include "Z/Renderer/RenderPipeline.h"
+#include "Z/ImGui/ImGuiRendererPlatform.h"
 namespace Z {
 
     class Z_API RenderManager final{
@@ -19,13 +20,13 @@ namespace Z {
         static auto GetInstance(){return m_Context;}
 
         static void Update(float deltaTime);
-        static void InitUIRenderBackend();
         static void PushUIContents(ImGuiContent* content);
 
     private:
 
         static Ref<GraphicInterface> m_Context;
         static Ref<RenderPipeline> renderPipeline;
+        static Ref<ImGuiRendererPlatform> imguiRenderPlatform;
     };
 
 } // Z

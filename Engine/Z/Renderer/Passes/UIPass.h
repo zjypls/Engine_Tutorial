@@ -11,6 +11,7 @@
 #include "Z/ImGui/ImGuiContent.h"
 
 #include "Z/Renderer/RenderPass.h"
+#include "Z/ImGui/ImGuiRendererPlatform.h"
 
 namespace Z {
 
@@ -32,10 +33,9 @@ namespace Z {
         void clear() override;
 
 
-        void InitUIRenderBackend();
-
     private:
         std::vector<ImGuiContent*> ui_Contents;
+        Ref<ImGuiRendererPlatform> imguiRenderer;
     };
 
 } // Z

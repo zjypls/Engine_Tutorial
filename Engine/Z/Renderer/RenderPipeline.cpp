@@ -28,10 +28,6 @@ namespace Z {
         ((MainCameraPass*)mainCameraPass.get())->draw(uiPass);
     }
 
-    void RenderPipeline::InitUIRenderBackend() {
-        ((UIPass*)uiPass.get())->InitUIRenderBackend();
-    }
-
     void RenderPipeline::PushUIContents(ImGuiContent *content) {
         ((UIPass*)uiPass.get())->PushUIContents(content);
     }

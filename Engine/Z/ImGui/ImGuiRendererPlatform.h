@@ -5,6 +5,8 @@
 #ifndef ENGINE_TUTORIAL_IMGUIRENDERERPLATFORM_H
 #define ENGINE_TUTORIAL_IMGUIRENDERERPLATFORM_H
 
+#include "Include/imgui/imgui.h"
+
 #include "Z/Core/Core.h"
 #include "Z/Renderer/RenderInterface.h"
 
@@ -16,6 +18,7 @@ namespace Z {
 		virtual void End()=0;
 		virtual void PlatformInit()=0;
 		virtual void Shutdown()=0;
+        virtual void CreateTextureForImGui(Sampler* sampler,ImageView* imageView , ImageLayout layout , ImTextureID &set) = 0;
 		virtual void InitUIRenderBackend(RenderPassInterface* renderPassInterface,uint32 uiIndex=0)=0;
 		[[nodiscard("This is the imGui init tool for different platforms")]]
 		static auto& GetRenderer(){return renderer;}

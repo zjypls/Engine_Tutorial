@@ -12,6 +12,7 @@ namespace Z {
 		void End() override;
 		void PlatformInit() override;
 		void Shutdown() override;
+        void CreateTextureForImGui(Sampler* sampler,ImageView* imageView , ImageLayout layout , ImTextureID &set) override;
 		void InitUIRenderBackend(RenderPassInterface *renderPassInterface,uint32 uiIndex) override;
 
 	};

@@ -96,6 +96,69 @@ namespace Z{
             DescriptorInfo descriptorInfos;
         };
 
+        uint32 FindMemoryType(VkPhysicalDevice device,uint32 typeFilter,VkMemoryPropertyFlags properties){
+            VkPhysicalDeviceMemoryProperties memProperties;
+            vkGetPhysicalDeviceMemoryProperties(device,&memProperties);
+            for(uint32 i=0;i<memProperties.memoryTypeCount;++i){
+                if((typeFilter&(1<<i))&&(memProperties.memoryTypes[i].propertyFlags&properties)==properties)
+                    return i;
+            }
+            Z_CORE_ERROR("failed to find suitable memory type !");
+            return 0;
+        }
+
+        uint32 GetPixelSizeFromFormat(VkFormat format){
+            switch(format){
+                case VK_FORMAT_R8G8B8A8_SRGB:
+                    return 4;
+                case VK_FORMAT_R8G8B8A8_UNORM:
+                    return 4;
+                case VK_FORMAT_R8G8B8A8_SNORM:
+                    return 4;
+                case VK_FORMAT_R8G8B8A8_UINT:
+                    return 4;
+                case VK_FORMAT_R8G8B8A8_SINT:
+                    return 4;
+                case VK_FORMAT_R32G32B32A32_SFLOAT:
+                    return 16;
+                case VK_FORMAT_R32G32B32A32_UINT:
+                    return 16;
+                case VK_FORMAT_R32G32B32A32_SINT:
+                    return 16;
+                case VK_FORMAT_R32G32B32_SFLOAT:
+                    return 12;
+                case VK_FORMAT_R32G32B32_UINT:
+                    return 12;
+                case VK_FORMAT_R32G32B32_SINT:
+                    return 12;
+                case VK_FORMAT_R32G32_SFLOAT:
+                    return 8;
+                case VK_FORMAT_R32G32_UINT:
+                    return 8;
+                case VK_FORMAT_R32G32_SINT:
+                    return 8;
+                case VK_FORMAT_R32_SFLOAT:
+                    return 4;
+                case VK_FORMAT_R32_UINT:
+                    return 4;
+                case VK_FORMAT_R32_SINT:
+                    return 4;
+                case VK_FORMAT_R8G8B8_SRGB:
+                    return 3;
+                case VK_FORMAT_R8G8B8_UNORM:
+                    return 3;
+                case VK_FORMAT_R8G8B8_SNORM:
+                    return 3;
+                case VK_FORMAT_R8G8B8_UINT:
+                    return 3;
+                case VK_FORMAT_R8G8B8_SINT:
+                    return 3;
+                default:
+                    Z_CORE_ERROR("error: unknown format !");
+                    return 0;
+            }
+        }
+
         VkResult CreateDebugUtils(VkInstance                                instance,
                                   const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
                                   const VkAllocationCallbacks*              pAllocator,

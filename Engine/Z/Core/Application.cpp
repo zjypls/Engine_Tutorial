@@ -30,8 +30,6 @@ namespace Z {
 
 		ScriptEngine::Init();
 
-		imguiLayer = new ImGuiLayer();
-		PushLayer(imguiLayer);
 	}
 
 
@@ -47,7 +45,6 @@ namespace Z {
 	}
 
 	void Application::Run() {
-		RenderManager::InitUIRenderBackend();
 		while (Running) {
 			Time::Update();
 			if (!MinSize) {
