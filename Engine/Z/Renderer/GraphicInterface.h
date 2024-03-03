@@ -33,11 +33,17 @@ namespace Z {
 
         virtual void CreateImage(const ImageInfo &info, Image* &image, DeviceMemory* &memory) = 0;
 
+        virtual void CreateImage(const ImageInfo &info, Image* &image, DeviceMemory* &memory, ImageView*& imageView , void* pixelData) = 0;
+
+        virtual void CreateCubeMap(const ImageInfo &info, Image* &image, DeviceMemory* &memory , ImageView*& imageView,const std::array<void*,6>& pixelData) = 0;
+
         virtual void CreateFrameBuffer(const FramebufferInfo&info,Z::Framebuffer*&frameBuffer)=0;
 
         virtual void CreateImageView(const ImageViewInfo &info, ImageView* &imageView) = 0;
 
         virtual void CreateBuffer(const BufferInfo &info, Buffer* &buffer, DeviceMemory* &memory) = 0;
+
+        virtual void CreateBuffer(const BufferInfo& info,Buffer* &buffer, DeviceMemory* &memory, void* data) = 0;
 
         virtual void CreateShaderModule(const ShaderModuleCreateInfo& moduleInfo,ShaderModule*& module)=0;
 
@@ -48,6 +54,12 @@ namespace Z {
         virtual void CreateGraphicPipeline(const std::string&shaderSources,const std::vector<Z::ShaderStageFlag>&stageFlags,Pipeline*&graphicPipeline,
                         RenderPassInterface* renderPassInterface,std::vector<DescriptorSetLayout*>&descriptorSetLayout,
                         PipelineLayout*&pipelineLayout , GraphicPipelineCreateInfo* createInfo=nullptr) = 0;
+        //make info.DescriptorPool empty  to use default pool
+        virtual void AllocateDescriptorSet(const DescriptorSetAllocateInfo& info, DescriptorSet* &descriptorSet) = 0;
+
+        virtual void WriteDescriptorSets(const WriteDescriptorSet* writes,uint32 writeCount) = 0;
+
+        virtual Sampler* GetDefaultSampler(SamplerType samplerType) = 0;
 
         virtual void DestroyRenderPass(RenderPassInterface* renderPassInterface)=0;
 
@@ -56,6 +68,8 @@ namespace Z {
         virtual void DestroyFrameBuffer(Z::Framebuffer* framebuffer) = 0;
 
         virtual void DestroyImage(Image* image, DeviceMemory* memory , ImageView* view = nullptr) = 0;
+
+        virtual void DestroyBuffer(Buffer* buffer, DeviceMemory* memory) = 0;
 
         virtual void DestroyPipeline(Pipeline* pipeline)=0;
 
@@ -66,6 +80,26 @@ namespace Z {
         virtual void BeginRenderPass(const RenderPassBeginInfo&info)=0;
 
         virtual void EndRenderPass()=0;
+
+        virtual void BindPipeline(PipelineBindPoint bindPoint,Pipeline* pipeline)=0;
+
+        virtual void SetViewPort(const Viewport& viewPort)=0;
+
+        virtual void SetScissor(const Rect2D& scissor)=0;
+
+        virtual void BindDescriptorSets(PipelineBindPoint bindPoint,PipelineLayout* layout,uint32 firstSet,const std::vector<DescriptorSet*>& descriptorSets)=0;
+
+        virtual void BindVertexBuffer(Buffer** buffer,uint32 firstBinding,uint32 bindingCount,uint32 offset=0)=0;
+
+        virtual void BindIndexBuffer(Buffer* buffer,uint32 offset=0, IndexType indexType = IndexType::UINT32)=0;
+
+        virtual void Draw(uint32 vertexCount,uint32 instanceCount,uint32 firstVertex,uint32 firstInstance)=0;
+
+        virtual void DrawIndexed(uint32 indexCount,uint32 instanceCount,uint32 firstIndex,uint32 vertexOffset,uint32 firstInstance)=0;
+
+        virtual void MapMemory(DeviceMemory* memory, uint64 size, uint64 offset, void*& data)=0;
+
+        virtual void UnMapMemory(DeviceMemory* memory)=0;
 
         virtual const SwapChainInfo& GetSwapChainInfo()=0;
 

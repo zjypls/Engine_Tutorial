@@ -27,12 +27,23 @@ namespace Z {
         void ResetCommandPool() override;
         void BeginRenderPass(const RenderPassBeginInfo &info) override;
         void EndRenderPass() override;
+        void BindPipeline(PipelineBindPoint,Pipeline *pipeline) override;
+        void BindDescriptorSets(PipelineBindPoint bindPoint, PipelineLayout *layout, uint32 firstSet, const std::vector<DescriptorSet*>&descriptorSets) override;
+        void SetViewPort(const Viewport &viewport) override;
+        void SetScissor(const Rect2D &scissor) override;
+        void BindVertexBuffer(Buffer** buffers,uint32 firstBinding,uint32 bindingCount,uint32 offset) override;
+        void BindIndexBuffer(Buffer* buffer,uint32 offset,IndexType indexType) override;
+        void Draw(uint32 vertexCount, uint32 instanceCount, uint32 firstVertex, uint32 firstInstance) override;
+        void DrawIndexed(uint32 indexCount, uint32 instanceCount, uint32 firstIndex, uint32 vertexOffset, uint32 firstInstance) override;
 
         //Resource create interface
         void CreateImage(const ImageInfo& info,Image*& image,DeviceMemory*& memory)override;
+        void CreateImage(const ImageInfo& info,Image*& image,DeviceMemory*& memory,ImageView*& imageView,void* pixelData)override;
+        void CreateCubeMap(const ImageInfo& info,Image*& image,DeviceMemory*& memory,ImageView*& imageView,const std::array<void*,6>& pixelData)override;
         void CreateFrameBuffer(const FramebufferInfo&info,Z::Framebuffer*&frameBuffer)override;
         void CreateImageView(const ImageViewInfo& info,ImageView*& imageView)override;
         void CreateBuffer(const BufferInfo& info,Buffer*&buffer,DeviceMemory*& memory)override;
+        void CreateBuffer(const BufferInfo& info,Buffer*& buffer,DeviceMemory*& memory,void* data)override;
         void CreateShaderModule(const ShaderModuleCreateInfo &moduleInfo, ShaderModule *&module) override;
         void CreateRenderPass(const RenderPassCreateInfo &info, RenderPassInterface *&renderPassInterface) override;
         void CreateGraphicPipeline(const GraphicPipelineCreateInfo &createInfo, Pipeline *&graphicPipeline) override;
@@ -40,12 +51,19 @@ namespace Z {
                                  Pipeline *&graphicPipeline, RenderPassInterface *renderPassInterface,
                                  std::vector<DescriptorSetLayout*>&descriptorSetLayout,PipelineLayout*&pipelineLayout,
                                  GraphicPipelineCreateInfo* createInfo) override;
+        void AllocateDescriptorSet(const DescriptorSetAllocateInfo &info, DescriptorSet *&descriptorSet) override;
+        void WriteDescriptorSets(const WriteDescriptorSet *writes,uint32 writeCount) override;
+        void MapMemory(DeviceMemory *memory, uint64 offset, uint64 size, void *&data) override;
+        void UnMapMemory(DeviceMemory *memory) override;
+        Sampler* GetDefaultSampler(SamplerType samplerType) override;
         void DestroyRenderPass(RenderPassInterface *renderPassInterface) override;
         std::vector<Z::Framebuffer*> CreateDefaultFrameBuffers(RenderPassInterface *renderPassInterface) override;
 
         void DestroyFrameBuffer(Z::Framebuffer *framebuffer) override;
 
         void DestroyImage(Image *image, DeviceMemory *memory, ImageView *view) override;
+
+        void DestroyBuffer(Buffer *buffer, DeviceMemory *memory) override;
 
         void DestroyPipeline(Pipeline *pipeline) override;
 

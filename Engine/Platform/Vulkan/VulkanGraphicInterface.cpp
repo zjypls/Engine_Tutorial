@@ -29,6 +29,73 @@ namespace Z {
         ((VulkanDeviceMemory*)memory)->Set(resMemory);
     }
 
+    void VulkanGraphicInterface::CreateImage(const ImageInfo &info, Image *&image, DeviceMemory *&memory, ImageView *&imageView, void *pixelData) {
+        CreateImage(info,image,memory);
+        VkImageViewCreateInfo viewInfo{};
+        viewInfo.sType=VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        viewInfo.image=((VulkanImage*)image)->Get();
+        viewInfo.viewType=VK_IMAGE_VIEW_TYPE_2D;
+        viewInfo.format=(VkFormat)info.format;
+        viewInfo.subresourceRange.aspectMask=VK_IMAGE_ASPECT_COLOR_BIT;
+        viewInfo.subresourceRange.baseMipLevel=0;
+        viewInfo.subresourceRange.levelCount=info.mipMapLevels;
+        viewInfo.subresourceRange.baseArrayLayer=0;
+        viewInfo.subresourceRange.layerCount=info.arrayLayers;
+        VkImageView view;
+        auto res= vkCreateImageView(device,&viewInfo,nullptr,&view);
+        VK_CHECK(res,"failed to create image view !");
+        imageView=new VulkanImageView{};
+        ((VulkanImageView*)imageView)->Set(view);
+        VkBuffer stagingBuffer;
+        VkDeviceMemory stagingMemory;
+        auto size=info.extent.width*info.extent.height*VulkanUtils::GetPixelSizeFromFormat((VkFormat)info.format);
+        VulkanUtils::CreateBuffer(physicalDevice,device,size,
+                                  VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT|VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                  stagingBuffer,stagingMemory);
+        void* data;
+        vkMapMemory(device,stagingMemory,0,size,0,&data);
+        memcpy(data,pixelData,size);
+        vkUnmapMemory(device,stagingMemory);
+        auto commandBuffer=BeginOnceSubmit();
+        VkImageMemoryBarrier barrier{};
+        barrier.sType=VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        barrier.oldLayout=VK_IMAGE_LAYOUT_UNDEFINED;
+        barrier.newLayout=VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        barrier.srcQueueFamilyIndex=VK_QUEUE_FAMILY_IGNORED;
+        barrier.dstQueueFamilyIndex=VK_QUEUE_FAMILY_IGNORED;
+        barrier.image=((VulkanImage*)image)->Get();
+        barrier.subresourceRange.aspectMask=VK_IMAGE_ASPECT_COLOR_BIT;
+        barrier.subresourceRange.baseMipLevel=0;
+        barrier.subresourceRange.levelCount=info.mipMapLevels;
+        barrier.subresourceRange.baseArrayLayer=0;
+        barrier.subresourceRange.layerCount=info.arrayLayers;
+        barrier.srcAccessMask=0;
+        barrier.dstAccessMask=VK_ACCESS_TRANSFER_WRITE_BIT;
+        vkCmdPipelineBarrier(commandBuffer,VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,VK_PIPELINE_STAGE_TRANSFER_BIT,0,0,nullptr,0,nullptr,1,&barrier);
+        VkImageSubresourceLayers subresource{};
+        subresource.aspectMask=VK_IMAGE_ASPECT_COLOR_BIT;
+        subresource.mipLevel=0;
+        subresource.baseArrayLayer=0;
+        subresource.layerCount=info.arrayLayers;
+        VkBufferImageCopy region{};
+        region.bufferOffset=0;
+        region.bufferRowLength=0;
+        region.bufferImageHeight=0;
+        region.imageSubresource=subresource;
+        region.imageOffset={0,0,0};
+        region.imageExtent={info.extent.width,info.extent.height,1};
+        vkCmdCopyBufferToImage(commandBuffer,stagingBuffer,((VulkanImage*)image)->Get(),VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,1,&region);
+        barrier.oldLayout=VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        barrier.newLayout=VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        barrier.srcAccessMask=VK_ACCESS_TRANSFER_WRITE_BIT;
+        barrier.dstAccessMask=VK_ACCESS_SHADER_READ_BIT;
+        vkCmdPipelineBarrier(commandBuffer,VK_PIPELINE_STAGE_TRANSFER_BIT,VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,0,0,nullptr,0,nullptr,1,&barrier);
+        EndOnceSubmit(commandBuffer);
+        vkDestroyBuffer(device,stagingBuffer,nullptr);
+        vkFreeMemory(device,stagingMemory,nullptr);
+    }
+
     void VulkanGraphicInterface::CreateFrameBuffer(const FramebufferInfo &info, Z::Framebuffer *&frameBuffer) {
         std::vector<VkImageView> attachments(info.attachmentCount);
         for(int i=0;i<info.attachmentCount;++i){
@@ -75,6 +142,38 @@ namespace Z {
         VulkanUtils::CreateBuffer(physicalDevice,device,info.size,
                                   (VkBufferUsageFlags)info.usage,(VkMemoryPropertyFlags)info.properties,
                                   resBuffer,resMemory);
+        ((VulkanBuffer*)buffer)->Set(resBuffer);
+        ((VulkanDeviceMemory*)memory)->Set(resMemory);
+    }
+
+    void VulkanGraphicInterface::CreateBuffer(const BufferInfo& info,Buffer *&buffer, DeviceMemory *&memory, void *data) {
+        VkBuffer stagingBuffer;
+        VkDeviceMemory stagingMemory;
+        VulkanUtils::CreateBuffer(physicalDevice,device,info.size,
+                                  VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT|VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                  stagingBuffer,stagingMemory);
+        void* mapData;
+        vkMapMemory(device,stagingMemory,0,info.size,0,&mapData);
+        memcpy(mapData,data,info.size);
+        vkUnmapMemory(device,stagingMemory);
+
+        VkBuffer resBuffer;
+        VkDeviceMemory resMemory;
+        VulkanUtils::CreateBuffer(physicalDevice,device,info.size,
+                                  VK_BUFFER_USAGE_TRANSFER_DST_BIT|(VkBufferUsageFlagBits)info.usage,
+                                  (VkMemoryPropertyFlagBits)info.properties,
+                                  resBuffer,resMemory);
+
+        auto commandBuffer=BeginOnceSubmit();
+        VkBufferCopy copyRegion{};
+        copyRegion.size=info.size;
+        vkCmdCopyBuffer(commandBuffer,stagingBuffer,resBuffer,1,&copyRegion);
+        EndOnceSubmit(commandBuffer);
+        vkDestroyBuffer(device,stagingBuffer,nullptr);
+        vkFreeMemory(device,stagingMemory,nullptr);
+        buffer=new VulkanBuffer{};
+        memory=new VulkanDeviceMemory{};
         ((VulkanBuffer*)buffer)->Set(resBuffer);
         ((VulkanDeviceMemory*)memory)->Set(resMemory);
     }
@@ -1010,8 +1109,201 @@ namespace Z {
         vkDestroyImage(device,((VulkanImage*)image)->Get(),nullptr);
     }
 
+    void VulkanGraphicInterface::DestroyBuffer(Buffer *buffer, DeviceMemory *memory) {
+        vkFreeMemory(device,((VulkanDeviceMemory*)memory)->Get(),nullptr);
+        vkDestroyBuffer(device,((VulkanBuffer*)buffer)->Get(),nullptr);
+    }
+
     void VulkanGraphicInterface::DestroyDescriptorSetLayout(DescriptorSetLayout *descriptorSetLayout) {
         vkDestroyDescriptorSetLayout(device,((VulkanDescriptorSetLayout*)descriptorSetLayout)->Get(),nullptr);
+    }
+
+    void VulkanGraphicInterface::AllocateDescriptorSet(const DescriptorSetAllocateInfo &info,
+                                                       DescriptorSet *&descriptorSet) {
+        VkDescriptorSetAllocateInfo allocateInfo{};
+        allocateInfo.sType=VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocateInfo.descriptorPool= info.descriptorPool!= nullptr? ((VulkanDescriptorPool*)info.descriptorPool)->Get() : descriptorPool;
+        allocateInfo.descriptorSetCount=info.descriptorSetCount;
+        std::vector<VkDescriptorSetLayout> layouts(info.descriptorSetCount);
+        for(int i=0;i<info.descriptorSetCount;++i) {
+            layouts[i]=((VulkanDescriptorSetLayout*)(info.pSetLayouts+i))->Get();
+        }
+        allocateInfo.pSetLayouts=layouts.data();
+        VkDescriptorSet set;
+        auto res=vkAllocateDescriptorSets(device,&allocateInfo,&set);
+        VK_CHECK(res,"failed to allocate descriptor set !");
+        descriptorSet=new VulkanDescriptorSet{};
+        ((VulkanDescriptorSet*)descriptorSet)->Set(set);
+    }
+
+    void VulkanGraphicInterface::CreateCubeMap(const ImageInfo &info, Image *&image, DeviceMemory *&memory,
+                                               ImageView *&imageView, const std::array<void *, 6> &pixelData) {
+        auto pixelSize=VulkanUtils::GetPixelSizeFromFormat((VkFormat)info.format);
+        VkImageCreateInfo imageInfo{};
+        imageInfo.sType=VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        imageInfo.arrayLayers=6;
+        imageInfo.extent.width=info.extent.width;
+        imageInfo.extent.height=info.extent.height;
+        imageInfo.extent.depth=1;
+        imageInfo.format=(VkFormat)info.format;
+        imageInfo.imageType=VK_IMAGE_TYPE_2D;
+        imageInfo.initialLayout=VK_IMAGE_LAYOUT_UNDEFINED;
+        imageInfo.mipLevels=1;
+        imageInfo.samples=VK_SAMPLE_COUNT_1_BIT;
+        imageInfo.sharingMode=VK_SHARING_MODE_EXCLUSIVE;
+        imageInfo.tiling=VK_IMAGE_TILING_OPTIMAL;
+        imageInfo.usage=VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT;
+        imageInfo.flags=VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+        imageInfo.pNext=nullptr;
+        imageInfo.queueFamilyIndexCount=0;
+        imageInfo.pQueueFamilyIndices=nullptr;
+        VkImage imageHandle;
+        auto res=vkCreateImage(device,&imageInfo,nullptr,&imageHandle);
+        VK_CHECK(res,"failed to create image !");
+        image=new VulkanImage{};
+        ((VulkanImage*)image)->Set(imageHandle);
+        VkMemoryRequirements memoryRequirements;
+        vkGetImageMemoryRequirements(device,imageHandle,&memoryRequirements);
+        VkMemoryAllocateInfo allocateInfo{};
+        allocateInfo.sType=VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        allocateInfo.allocationSize=memoryRequirements.size;
+        allocateInfo.memoryTypeIndex=VulkanUtils::FindMemoryType(physicalDevice,memoryRequirements.memoryTypeBits,
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        VkDeviceMemory memoryHandle;
+        res=vkAllocateMemory(device,&allocateInfo,nullptr,&memoryHandle);
+        VK_CHECK(res,"failed to allocate memory !");
+        vkBindImageMemory(device,imageHandle,memoryHandle,0);
+        memory=new VulkanDeviceMemory{};
+        ((VulkanDeviceMemory*)memory)->Set(memoryHandle);
+        VkImageViewCreateInfo viewInfo{};
+        viewInfo.sType=VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        viewInfo.viewType=VK_IMAGE_VIEW_TYPE_CUBE;
+        viewInfo.format=(VkFormat)info.format;
+        viewInfo.subresourceRange.aspectMask=VK_IMAGE_ASPECT_COLOR_BIT;
+        viewInfo.subresourceRange.baseMipLevel=0;
+        viewInfo.subresourceRange.levelCount=1;
+        viewInfo.subresourceRange.baseArrayLayer=0;
+        viewInfo.subresourceRange.layerCount=6;
+        viewInfo.image=imageHandle;
+        viewInfo.pNext=nullptr;
+        viewInfo.flags=0;
+        viewInfo.components.r=VK_COMPONENT_SWIZZLE_IDENTITY;
+        viewInfo.components.g=VK_COMPONENT_SWIZZLE_IDENTITY;
+        viewInfo.components.b=VK_COMPONENT_SWIZZLE_IDENTITY;
+        viewInfo.components.a=VK_COMPONENT_SWIZZLE_IDENTITY;
+        VkImageView viewHandle;
+        res=vkCreateImageView(device,&viewInfo,nullptr,&viewHandle);
+        VK_CHECK(res,"failed to create image view !");
+        imageView=new VulkanImageView{};
+        ((VulkanImageView*)imageView)->Set(viewHandle);
+
+        VkBufferCreateInfo stagingBufferInfo{};
+        stagingBufferInfo.sType=VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        stagingBufferInfo.size=info.extent.width*info.extent.height*pixelSize*6;
+        stagingBufferInfo.usage=VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+        stagingBufferInfo.sharingMode=VK_SHARING_MODE_EXCLUSIVE;
+        VkBuffer stagingBuffer;
+        res=vkCreateBuffer(device,&stagingBufferInfo,nullptr,&stagingBuffer);
+        VK_CHECK(res,"failed to create staging buffer !");
+        VkMemoryRequirements stagingMemoryRequirements;
+        vkGetBufferMemoryRequirements(device,stagingBuffer,&stagingMemoryRequirements);
+        VkMemoryAllocateInfo stagingAllocateInfo{};
+        stagingAllocateInfo.sType=VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        stagingAllocateInfo.allocationSize=stagingMemoryRequirements.size;
+        stagingAllocateInfo.memoryTypeIndex=VulkanUtils::FindMemoryType(physicalDevice,stagingMemoryRequirements.memoryTypeBits,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT|VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        VkDeviceMemory stagingMemory;
+        res=vkAllocateMemory(device,&stagingAllocateInfo,nullptr,&stagingMemory);
+        VK_CHECK(res,"failed to allocate staging memory !");
+        vkBindBufferMemory(device,stagingBuffer,stagingMemory,0);
+        void* data;
+        res=vkMapMemory(device,stagingMemory,0,stagingMemoryRequirements.size,0,&data);
+        VK_CHECK(res,"failed to map memory !");
+        for(int i=0;i<6;++i) {
+            std::memcpy((char*)data+info.extent.width*info.extent.height*pixelSize*i,pixelData[i],info.extent.width*info.extent.height*pixelSize);
+        }
+        vkUnmapMemory(device,stagingMemory);
+
+        std::vector<VkBufferImageCopy> copyRegions(6);
+        for(int i=0;i<6;++i) {
+            copyRegions[i].bufferOffset=info.extent.width*info.extent.height*pixelSize*i;
+            copyRegions[i].bufferRowLength=0;
+            copyRegions[i].bufferImageHeight=0;
+            copyRegions[i].imageSubresource.aspectMask=VK_IMAGE_ASPECT_COLOR_BIT;
+            copyRegions[i].imageSubresource.baseArrayLayer=i;
+            copyRegions[i].imageSubresource.layerCount=1;
+            copyRegions[i].imageSubresource.mipLevel=0;
+            copyRegions[i].imageOffset={0,0,0};
+            copyRegions[i].imageExtent={info.extent.width,info.extent.height,1};
+        }
+        auto commandBuffer=BeginOnceSubmit();
+        VkImageMemoryBarrier barrier{};
+        barrier.sType=VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        barrier.oldLayout=VK_IMAGE_LAYOUT_UNDEFINED;
+        barrier.newLayout=VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        barrier.srcQueueFamilyIndex=VK_QUEUE_FAMILY_IGNORED;
+        barrier.dstQueueFamilyIndex=VK_QUEUE_FAMILY_IGNORED;
+        barrier.image=imageHandle;
+        barrier.subresourceRange.aspectMask=VK_IMAGE_ASPECT_COLOR_BIT;
+        barrier.subresourceRange.baseMipLevel=0;
+        barrier.subresourceRange.levelCount=1;
+        barrier.subresourceRange.baseArrayLayer=0;
+        barrier.subresourceRange.layerCount=6;
+        barrier.srcAccessMask=0;
+        barrier.dstAccessMask=VK_ACCESS_TRANSFER_WRITE_BIT;
+        vkCmdPipelineBarrier(commandBuffer,VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,VK_PIPELINE_STAGE_TRANSFER_BIT,0,0,nullptr,0,nullptr,1,&barrier);
+        vkCmdCopyBufferToImage(commandBuffer,stagingBuffer,imageHandle,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,copyRegions.size(),copyRegions.data());
+        barrier.oldLayout=VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        barrier.newLayout=VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        barrier.srcAccessMask=VK_ACCESS_TRANSFER_WRITE_BIT;
+        barrier.dstAccessMask=VK_ACCESS_SHADER_READ_BIT;
+        vkCmdPipelineBarrier(commandBuffer,VK_PIPELINE_STAGE_TRANSFER_BIT,VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,0,0,nullptr,0,nullptr,1,&barrier);
+        EndOnceSubmit(commandBuffer);
+        vkFreeMemory(device,stagingMemory,nullptr);
+        vkDestroyBuffer(device,stagingBuffer,nullptr);
+    }
+
+    void VulkanGraphicInterface::WriteDescriptorSets(const WriteDescriptorSet *pWrites,uint32 writeCount) {
+        std::vector<VkWriteDescriptorSet> writes(writeCount);
+        std::vector<VkDescriptorImageInfo> imageInfos(writeCount);
+        std::vector<VkDescriptorBufferInfo> bufferInfos(writeCount);
+        std::vector<VkBufferView> bufferViews(writeCount);
+        for(int i=0;i<writeCount;++i) {
+            auto& write=writes[i];
+            write.sType=VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            write.descriptorCount=pWrites[i].descriptorCount;
+            write.descriptorType=(VkDescriptorType)pWrites[i].descriptorType;
+            write.dstArrayElement=pWrites[i].dstArrayElement;
+            write.dstBinding=pWrites[i].dstBinding;
+            write.dstSet=((VulkanDescriptorSet*)pWrites[i].dstSet)->Get();
+            if(pWrites[i].pImageInfo!=nullptr){
+                write.pImageInfo=&imageInfos[i];
+                imageInfos[i].imageView=((VulkanImageView*)pWrites[i].pImageInfo->imageView)->Get();
+                imageInfos[i].imageLayout=(VkImageLayout)pWrites[i].pImageInfo->imageLayout;
+                imageInfos[i].sampler=pWrites[i].pImageInfo->sampler?((VulkanSampler*)pWrites[i].pImageInfo->sampler)->Get():((VulkanSampler*)defaultLinearSampler)->Get();
+            }
+            if(pWrites[i].pBufferInfo!=nullptr){
+                write.pBufferInfo=&bufferInfos[i];
+                bufferInfos[i].buffer=((VulkanBuffer*)pWrites[i].pBufferInfo->buffer)->Get();
+                bufferInfos[i].offset=pWrites[i].pBufferInfo->offset;
+                bufferInfos[i].range=pWrites[i].pBufferInfo->range;
+            }
+            if(pWrites[i].pTexelBufferView!=nullptr){
+                write.pTexelBufferView=&bufferViews[i];
+                bufferViews[i]=((VulkanBufferView*)pWrites[i].pTexelBufferView)->Get();
+            }
+            write.pNext=nullptr;
+        }
+        vkUpdateDescriptorSets(device,writes.size(),writes.data(),0,nullptr);
+    }
+
+    void VulkanGraphicInterface::MapMemory(DeviceMemory *memory, uint64 offset, uint64 size, void *&data) {
+        auto res=vkMapMemory(device,((VulkanDeviceMemory*)memory)->Get(),offset,size,0,&data);
+        VK_CHECK(res,"failed to map memory !");
+    }
+
+    void VulkanGraphicInterface::UnMapMemory(DeviceMemory *memory) {
+        vkUnmapMemory(device,((VulkanDeviceMemory*)memory)->Get());
     }
 
     void VulkanGraphicInterface::CreateDefaultSampler() {
@@ -1045,6 +1337,72 @@ namespace Z {
         VK_CHECK(res,"failed to create default sampler !");
         defaultNearestSampler=new VulkanSampler{};
         ((VulkanSampler*)defaultNearestSampler)->Set(nearest);
+    }
+
+    void VulkanGraphicInterface::BindPipeline(PipelineBindPoint bindPoint, Pipeline *pipeline) {
+        vkCmdBindPipeline(commandBuffers[currentFrameIndex],(VkPipelineBindPoint)bindPoint,((VulkanPipeline*)pipeline)->Get());
+    }
+
+    void VulkanGraphicInterface::DrawIndexed(uint32 indexCount, uint32 instanceCount,
+                                             uint32 firstIndex, uint32 vertexOffset, uint32 firstInstance) {
+        vkCmdDrawIndexed(commandBuffers[currentFrameIndex],indexCount,instanceCount,firstIndex,vertexOffset,firstInstance);
+    }
+
+    void
+    VulkanGraphicInterface::BindDescriptorSets(PipelineBindPoint bindPoint, PipelineLayout *layout, uint32 firstSet,
+                                               const std::vector<DescriptorSet*>&descriptorSets) {
+        std::vector<VkDescriptorSet> sets(descriptorSets.size());
+        for(int i=0;i<descriptorSets.size();++i) {
+            sets[i]=((VulkanDescriptorSet*)(descriptorSets[i]))->Get();
+        }
+        vkCmdBindDescriptorSets(commandBuffers[currentFrameIndex],(VkPipelineBindPoint)bindPoint,((VulkanPipelineLayout*)layout)->Get(),firstSet,descriptorSets.size(),sets.data(),0,nullptr);
+
+    }
+
+    void VulkanGraphicInterface::SetViewPort(const Z::Viewport &viewport) {
+        VkViewport vkViewport{};
+        vkViewport.x=viewport.x;
+        vkViewport.y=viewport.y;
+        vkViewport.width=viewport.width;
+        vkViewport.height=viewport.height;
+        vkViewport.minDepth=viewport.minDepth;
+        vkViewport.maxDepth=viewport.maxDepth;
+        vkCmdSetViewport(commandBuffers[currentFrameIndex],0,1,&vkViewport);
+    }
+
+    void VulkanGraphicInterface::SetScissor(const Z::Rect2D &scissor) {
+        VkRect2D vkScissor{};
+        vkScissor.extent.width=scissor.extent.width;
+        vkScissor.extent.height=scissor.extent.height;
+        vkScissor.offset.x=scissor.offset.x;
+        vkScissor.offset.y=scissor.offset.y;
+        vkCmdSetScissor(commandBuffers[currentFrameIndex],0,1,&vkScissor);
+    }
+
+    void VulkanGraphicInterface::BindVertexBuffer(Buffer ** buffers,uint32 firstBinding,uint32 bindingCount,uint32 offset){
+        std::vector<VkBuffer> vkBuffers(bindingCount);
+        std::vector<VkDeviceSize> offsets(bindingCount);
+        for(int i=0;i<bindingCount;++i) {
+            vkBuffers[i]=((VulkanBuffer*)buffers[i])->Get();
+            offsets[i]=offset;
+        }
+        vkCmdBindVertexBuffers(commandBuffers[currentFrameIndex],firstBinding,bindingCount,vkBuffers.data(),offsets.data());
+    }
+
+    void VulkanGraphicInterface::BindIndexBuffer(Buffer *buffer,uint32 offset,IndexType indexType){
+        vkCmdBindIndexBuffer(commandBuffers[currentFrameIndex],((VulkanBuffer*)buffer)->Get(),offset,(VkIndexType)indexType);
+    }
+
+    void
+    VulkanGraphicInterface::Draw(uint32 vertexCount, uint32 instanceCount, uint32 firstVertex, uint32 firstInstance) {
+        vkCmdDraw(commandBuffers[currentFrameIndex],vertexCount,instanceCount,firstVertex,firstInstance);
+    }
+
+    Sampler *VulkanGraphicInterface::GetDefaultSampler(SamplerType samplerType) {
+        if(samplerType==SamplerType::Linear)
+            return defaultLinearSampler;
+        else
+            return defaultNearestSampler;
     }
 
 } // Z
