@@ -756,9 +756,9 @@ namespace Z {
         Info.pSubpasses=subpasses.data();
         Info.subpassCount=subpasses.size();
 
-        renderPassInterface=new VulkanRenderPass{};
         VkRenderPass renderpass{};
         auto res=vkCreateRenderPass(device,&Info,nullptr,&renderpass);
+        renderPassInterface=new VulkanRenderPass{};
         VK_CHECK(res,"failed to create RenderPass !");
         ((VulkanRenderPass*)renderPassInterface)->Set(renderpass);
     }

@@ -75,6 +75,10 @@ namespace Z {
 	void EditorLayer::OnUpdate() {
 
 		ScriptEngine::CheckLoad(scene);
+		static glm::mat4 data[2]{};
+		data[0]=editorCamera.GetViewMatrix();
+		data[1]=editorCamera.GetProjectionMatrix();
+		RenderResource::UpdateData(data,sizeof(glm::mat4)*2,0,offsetof(RenderResource::InputData,view));
 
 		{
 			SceneState state = sceneState;
@@ -150,10 +154,10 @@ namespace Z {
 		if (ImGui::BeginMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
 				if (ImGui::MenuItem("New", "Ctrl+N")) {
-					NewScene();
+					//NewScene();
 				}
 				if (ImGui::MenuItem("Save", "Ctrl+Shift+S")) {
-					SaveScene();
+					//SaveScene();
 				}
 				if (ImGui::MenuItem("Load", "Ctrl+O")) {
 					//LoadScene();
@@ -168,7 +172,7 @@ namespace Z {
 					if (scene->isRunning()) {
 						Z_CORE_ERROR("Try to reload scripts when scene is running!!!");
 					} else {
-						scriptReload = true;
+						//scriptReload = true;
 					}
 				}
 				ImGui::EndMenu();
@@ -226,7 +230,7 @@ namespace Z {
 		}
 
 		if ((viewportSize != *(glm::vec2 *) &viewSize)) {
-            //avoid resize when frame haven't show to viewport yet
+            //avoid resize when frame haven't shown to viewport yet
 			Application::Get().SubmitFunc([this, viewSize]() {
 				this->viewportSize = glm::vec2{viewSize.x, viewSize.y};
 				this->scene->OnViewportResize(viewportSize.x, viewportSize.y);

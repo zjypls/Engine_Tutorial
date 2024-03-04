@@ -37,38 +37,47 @@ namespace Z {
         reference.attachment=0;
         reference.layout=ImageLayout::COLOR_ATTACHMENT_OPTIMAL;
         RenderPassCreateInfo info{};
-        info.attachmentCount=_attachment_count;
         AttachmentDescription attachmentDescription[_attachment_count];
-        attachmentDescription[_swapchain_image_index].format=Context->GetSwapChainInfo().swapchainImageFormat;
-        attachmentDescription[_swapchain_image_index].samples=SampleCountFlagBits::e1_BIT;
-        attachmentDescription[_swapchain_image_index].initialLayout=ImageLayout::UNDEFINED;
-        attachmentDescription[_swapchain_image_index].finalLayout=ImageLayout::PRESENT_SRC;
-        attachmentDescription[_swapchain_image_index].loadOp=AttachmentLoadOp::CLEAR;
-        attachmentDescription[_swapchain_image_index].storeOp=AttachmentStoreOp::STORE;
-        attachmentDescription[_swapchain_image_index].stencilLoadOp=AttachmentLoadOp::DONT_CARE;
-        attachmentDescription[_swapchain_image_index].stencilStoreOp=AttachmentStoreOp::DONT_CARE;
+
+        auto& swapchainDesc=attachmentDescription[_swapchain_image_index];
+        swapchainDesc.format=Context->GetSwapChainInfo().swapchainImageFormat;
+        swapchainDesc.samples=SampleCountFlagBits::e1_BIT;
+        swapchainDesc.initialLayout=ImageLayout::UNDEFINED;
+        swapchainDesc.finalLayout=ImageLayout::PRESENT_SRC;
+        swapchainDesc.loadOp=AttachmentLoadOp::CLEAR;
+        swapchainDesc.storeOp=AttachmentStoreOp::STORE;
+        swapchainDesc.stencilLoadOp=AttachmentLoadOp::DONT_CARE;
+        swapchainDesc.stencilStoreOp=AttachmentStoreOp::DONT_CARE;
+
+        info.attachmentCount=_attachment_count;
         info.pAttachments=attachmentDescription;
+
         SubpassDescription description[_subpass_count];
-        description[_ui_pass_index].colorAttachmentCount=1;
-        description[_ui_pass_index].pColorAttachments=&reference;
-        description[_ui_pass_index].inputAttachmentCount=0;
-        description[_ui_pass_index].pipelineBindPoint=PipelineBindPoint::GRAPHICS;
-        description[_ui_pass_index].pDepthStencilAttachment=nullptr;
+
+        auto& uiPassDes=description[_ui_pass_index];
+        uiPassDes.colorAttachmentCount=1;
+        uiPassDes.pColorAttachments=&reference;
+        uiPassDes.inputAttachmentCount=0;
+        uiPassDes.pipelineBindPoint=PipelineBindPoint::GRAPHICS;
+        uiPassDes.pDepthStencilAttachment=nullptr;
+
         info.subpassCount=_subpass_count;
         info.pSubpasses=description;
+
         SubpassDependency dependency[_dependency_count]{};
-        dependency[_ui_dependency_index].srcSubpass = SubpassContents::EXTERNAL;
-        dependency[_ui_dependency_index].dstSubpass = SubpassContents::INLINE;
-        dependency[_ui_dependency_index].srcStageMask =PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT;
-        dependency[_ui_dependency_index].srcAccessMask = AccessFlags::NONE;
-        dependency[_ui_dependency_index].dstStageMask =PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT;
-        dependency[_ui_dependency_index].dstAccessMask = AccessFlags::COLOR_ATTACHMENT_WRITE;
+        auto& uiDependency=dependency[_ui_dependency_index];
+        uiDependency.dependencyFlags = DependencyFlags::BY_REGION;
+        uiDependency.srcSubpass = SubpassContents::EXTERNAL;
+        uiDependency.dstSubpass = SubpassContents::INLINE;
+        uiDependency.srcStageMask =PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT;
+        uiDependency.srcAccessMask = AccessFlags::NONE;
+        uiDependency.dstStageMask =PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT;
+        uiDependency.dstAccessMask = AccessFlags::COLOR_ATTACHMENT_WRITE;
+
         info.dependencyCount=_dependency_count;
         info.pDependencies=dependency;
 
-        RenderPassInterface* interface;
-        Context->CreateRenderPass(info,interface);
-        framebuffer.renderPass=interface;
+        Context->CreateRenderPass(info,framebuffer.renderPass);
     }
 
     void MainCameraPass::InitFrameBuffer() {
@@ -79,13 +88,13 @@ namespace Z {
     void MainCameraPass::BeginRenderPass() {
         RenderPassBeginInfo beginInfo{};
         Rect2D area{};
+        static ClearValue value{.color{0.0f,0,0,0}};
         area.offset={0,0};
         area.extent=Context->GetSwapChainInfo().swapchainExtent;
         beginInfo.renderArea=area;
         beginInfo.clearValueCount=1;
         beginInfo.renderPass=framebuffer.renderPass;
         beginInfo.framebuffer=swapchainFrameBuffers[Context->GetCurrentFrameIndex()];
-        static ClearValue value{{}};
         beginInfo.pClearValues=&value;
         Context->BeginRenderPass(beginInfo);
     }
