@@ -18,3 +18,12 @@ endif ()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${EDITOR_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC Z)
+
+if(DisableWarnings)
+    # disable warnings 
+    if (MSVC)
+        target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+    else ()
+        target_compile_options(${PROJECT_NAME} PRIVATE -w)
+    endif()
+endif()
