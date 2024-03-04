@@ -152,8 +152,8 @@ namespace Z {
 			const std::vector path{
 				directory+"/right.jpg",
 				directory+"/left.jpg",
-				directory+"/bottom.jpg",
 				directory+"/top.jpg",
+				directory+"/bottom.jpg",
 				directory+"/front.jpg",
 				directory+"/back.jpg"
 			};

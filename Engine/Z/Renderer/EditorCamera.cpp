@@ -3,13 +3,14 @@
 //
 #include "Include/glm/gtx/quaternion.hpp"
 
-#include "Z/Renderer/EditorCamera.h"
 #include "Z/Core/Input.h"
 #include "Z/Core/Time.h"
+#include "Z/Core/Log.h"
+#include "Z/Renderer/EditorCamera.h"
 
 
 namespace Z {
-
+	constexpr glm::vec3 g_UP = glm::vec3(0.0f, -1.0f, 0.0f);
 	EditorCamera::EditorCamera(float fov, float aspectRatio, float nearClip, float farClip)
 			: Fov(glm::radians(fov)), aspectRatio(aspectRatio), nearClip(nearClip), farClip(farClip) {
 		projection = glm::perspective(Fov, aspectRatio, nearClip, farClip);
@@ -52,20 +53,15 @@ namespace Z {
 		return false;
 	}
 
-	void EditorCamera::ViewRotate(const glm::vec2 offset) {
+	void EditorCamera::ViewRotate(glm::vec2 offset) {
 		auto deltaTime=Time::DeltaTime();
-		auto [x, y] = Input::GetMousePosition();
-		auto toFocus = glm::normalize(position - focus);
-		pitch-=offset.y * deltaTime;
-		yaw -= offset.x * deltaTime;
-		right = glm::normalize(glm::cross(toFocus, up));
-		if(pitch<3.1f&&pitch>0.1f) {
-			toFocus = glm::rotate(glm::quat(-offset.x * up * deltaTime), toFocus);
-			toFocus = glm::rotate(glm::quat(-offset.y * right * deltaTime), toFocus);
-			position = focus + distance * glm::normalize(toFocus);
-		}
-		else
-			pitch += offset.y * 1E-2f;
+		glm::vec3 toFocus = position - focus;
+    	glm::quat rotation = glm::angleAxis(-offset.x* deltaTime, g_UP) * glm::angleAxis(-offset.y * deltaTime, right);
+		
+    	toFocus = rotation * toFocus;
+		position = focus + distance * glm::normalize(toFocus);
+    	up = rotation * up;
+		right = glm::cross(toFocus, up);
 	}
 
 	void EditorCamera::UpdateCursorPos() {
@@ -73,7 +69,7 @@ namespace Z {
 		lastMousePosition = glm::vec2(x, y);
 	}
 
-	void EditorCamera::MoveFocus(const glm::vec2 offset) {
+	void EditorCamera::MoveFocus(glm::vec2 offset) {
 		auto toFocus = glm::normalize(focus - position);
 		auto LocalRight = glm::normalize(glm::cross(toFocus, up));
 		auto LocalUp = glm::normalize(glm::cross(LocalRight, toFocus));
