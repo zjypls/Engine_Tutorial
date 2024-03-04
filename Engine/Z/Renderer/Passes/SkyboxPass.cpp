@@ -32,8 +32,8 @@ namespace Z {
         renderPassBeginInfo.clearValueCount = 3;
         static ClearValue clearValues[3]={
                 {{0.0f, 0.0f, 0.0f, 1.0f}},
-                {.color{.i32{-1}}},
-                {.depthStencil{1.0f,0}}
+                {{{-1}}},
+                {{1.0f,0}}
         };
         renderPassBeginInfo.pClearValues = clearValues;
         Context->BeginRenderPass(renderPassBeginInfo);
