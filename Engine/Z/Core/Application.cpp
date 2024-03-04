@@ -13,6 +13,7 @@
 #include "Z/Script/ScriptEngine.h"
 
 #include "Z/Renderer/RenderManager.h"
+#include "Z/Renderer/RenderResource.h"
 
 namespace Z {
 	Application *Application::application = nullptr;

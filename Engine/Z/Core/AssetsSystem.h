@@ -76,6 +76,8 @@ namespace Z {
 
 		static void LoadWithMetaData(const MetaData &data, const std::string &path);
 
+		static void* LoadAsset(const std::filesystem::path &path);
+
 	public:
 		inline static bool IsExisting(const std::string &path) {
 			#if __cplusplus >= 202002L
@@ -98,17 +100,22 @@ namespace Z {
 		static void InitWithProject(const std::filesystem::path &projectPath);
 		//Init Path with Source dir and create instance
 		static void PreInit();
-		static void Destroy() {
-			instance=nullptr;
-		}
+		static void Destroy();
 
 
 		template<class Ty>
 		static Ty* Load(const std::filesystem::path &path){
+			Z_CORE_ASSERT(!path.empty(),"Empty Path Load Is Illegal!!!");
+			if(IsExisting(path.string())){
+				return Get<Ty>(instance->PathToUID[path.string()]);
+			}
+			return (Ty*)LoadAsset(path);
 		}
 
 		template<class Ty>
 		static Ty* Get(const zGUID &id){
+			Z_CORE_ASSERT(IsExisting(id),"Get a non-existing id");
+			return (Ty*)instance->resourceLibrary.at(id);
 		}
 
 	};

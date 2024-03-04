@@ -22,8 +22,10 @@ namespace Z {
         static void Update(float deltaTime);
         static void PushUIContents(ImGuiContent* content);
 
-    private:
 
+        static ImTextureID CreateImGuiTexture(Image* image,ImageView* view,Z::ImageLayout layout=Z::ImageLayout::SHADER_READ_ONLY_OPTIMAL);
+
+    private:
         static Ref<GraphicInterface> m_Context;
         static Ref<RenderPipeline> renderPipeline;
         static Ref<ImGuiRendererPlatform> imguiRenderPlatform;

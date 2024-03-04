@@ -17,6 +17,7 @@ namespace Z {
 		enum class SceneState {
 			Edit, Play, Simulate,Pause
 		};
+		ImTextureID playButton, stopButton , pauseButton, simulateButton , stepButton ,toolButtons[3];
 		SceneState sceneState = SceneState::Edit,BackState=SceneState::Edit;
 		glm::vec4 ActiveColor{0.3f, 0.8f, 0.1f, 1.0f}, InactiveColor{0.4f, 0.4f, 0.1f, 1.0f};
 		bool IsViewportFocused = false, IsViewportHovered = false, RunTimeVisualizeCollider = true, EditorVisualizeCollider = true;

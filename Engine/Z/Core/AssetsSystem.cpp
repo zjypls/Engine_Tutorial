@@ -13,18 +13,10 @@
 #include "Z/Core/AssetsSystem.h"
 #include "Z/Scene/Components.h"
 #include "Z/Renderer/RenderManager.h"
+#include "Z/Renderer/RenderResourceTypes.h"
 
 namespace Z{
 	static GraphicInterface* s_Context=nullptr;
-	struct Vertex {
-		glm::vec3 verts;
-		glm::vec2 tex;
-		glm::vec3 normal;
-
-		bool operator==(const Vertex &o) const {
-			return verts == o.verts && tex == o.tex && normal == o.normal;
-		}
-	};
 
 	std::string ImporterTypeToString(Z::AssetsImporterType type){
 		switch(type) {
@@ -52,17 +44,6 @@ namespace Z{
 }
 
 
-
-namespace std {
-	template<>
-	struct hash<Z::Vertex> {
-		size_t operator()(const Z::Vertex &v) const {
-			return hash<glm::vec3>()(v.verts) << 1
-			       | hash<glm::vec3>()(v.normal)
-			       | hash<glm::vec2>()(v.tex);
-		}
-	};
-}
 
 
 namespace YAML{
@@ -167,6 +148,99 @@ namespace Z {
 			return Z::AssetsImporterType::None;
 		}
 
+		void* LoadSkyBox(const std::string& directory){
+			const std::vector path{
+				directory+"/right.jpg",
+				directory+"/left.jpg",
+				directory+"/bottom.jpg",
+				directory+"/top.jpg",
+				directory+"/front.jpg",
+				directory+"/back.jpg"
+			};
+			auto skybox=new Z::Skybox();
+			std::array<void*,6> pixelsData{};
+			int width,height,format;
+			//stbi_set_flip_vertically_on_load(true);
+			for(int i=0;i<6;i++){
+				auto pixelData=stbi_load(path[i].c_str(),&width,&height,&format,STBI_rgb_alpha);
+				Z_CORE_ASSERT(pixelData,"Failed to load skybox image");
+				pixelsData[i]=pixelData;
+			}
+			Z::ImageInfo imageInfo{};
+			imageInfo.format=Z::Format::R8G8B8A8_UNORM;
+			imageInfo.extent={static_cast<uint32>(width),static_cast<uint32>(height),1};
+			imageInfo.arrayLayers=6;
+			imageInfo.mipMapLevels=1;
+			imageInfo.usageFlag=Z::ImageUsageFlag::SAMPLED|Z::ImageUsageFlag::TRANSFER_DST;
+			imageInfo.memoryPropertyFlag=Z::MemoryPropertyFlag::DEVICE_LOCAL;
+			imageInfo.sampleCount=Z::SampleCountFlagBits::e1_BIT;
+			imageInfo.tilling=Z::ImageTiling::OPTIMAL;
+			imageInfo.initialLayout=Z::ImageLayout::UNDEFINED;
+			s_Context->CreateCubeMap(imageInfo,skybox->image,skybox->memory,skybox->imageView,pixelsData);
+			for(int i=0;i<6;i++){
+				stbi_image_free(pixelsData[i]);
+			}
+			skybox->path=directory;
+			skybox->type=AssetsImporterType::SkyBox;
+			return skybox;
+		}
+
+		void* LoadTexture2D(const std::string&path){
+			int width,height,format;
+			auto pixelData=stbi_load(path.c_str(),&width,&height,&format,STBI_rgb_alpha);
+			Z_CORE_ASSERT(pixelData,"Failed to load texture2D image");
+			auto texture=new Z::Texture2D();
+			Z::ImageInfo imageInfo{};
+			imageInfo.format=Z::Format::R8G8B8A8_UNORM;
+			imageInfo.extent={static_cast<uint32>(width),static_cast<uint32>(height),1};
+			imageInfo.usageFlag=Z::ImageUsageFlag::SAMPLED|Z::ImageUsageFlag::TRANSFER_DST;
+			imageInfo.memoryPropertyFlag=Z::MemoryPropertyFlag::DEVICE_LOCAL;
+			imageInfo.sampleCount=Z::SampleCountFlagBits::e1_BIT;
+			imageInfo.tilling=Z::ImageTiling::OPTIMAL;
+			imageInfo.initialLayout=Z::ImageLayout::UNDEFINED;
+			imageInfo.mipMapLevels=1;
+			imageInfo.arrayLayers=1;
+			s_Context->CreateImage(imageInfo,texture->image,texture->memory,texture->imageView,pixelData);
+			stbi_image_free(pixelData);
+			texture->path=path;
+			texture->type=AssetsImporterType::Texture2D;
+			return texture;
+		}
+
+		void* LoadMesh(const std::string& path){
+			auto mesh=new Z::MeshRes();
+			return mesh;
+		}
+
+		void DestroySkyBox(void*skybox){
+			auto sky=static_cast<Z::Skybox*>(skybox);
+			s_Context->DestroyImage(sky->image,sky->memory,sky->imageView);
+			delete sky->image;
+			delete sky->imageView;
+			delete sky->memory;
+			delete sky;
+		}
+
+		void DestroyTexture2D(void*texture){
+			auto tex=static_cast<Z::Texture2D*>(texture);
+			s_Context->DestroyImage(tex->image,tex->memory,tex->imageView);
+			delete tex->image;
+			delete tex->imageView;
+			delete tex->memory;
+			delete tex;
+		}
+
+		void DestroyMesh(void*mesh){
+			auto m=static_cast<Z::MeshRes*>(mesh);
+			s_Context->DestroyBuffer(m->vertexBuffer,m->vertexMemory);
+			s_Context->DestroyBuffer(m->indexBuffer,m->indexMemory);
+			delete m->vertexBuffer;
+			delete m->indexBuffer;
+			delete m->vertexMemory;
+			delete m->indexMemory;
+			delete m;
+		}
+
 
 	}
 
@@ -187,6 +261,38 @@ namespace Z {
 		instance=CreateScope<AssetsSystem>();
 		instance->Context=RenderManager::GetInstance();
 		Z::s_Context=instance->Context.get();
+	}
+
+
+	void* AssetsSystem::LoadAsset(const std::filesystem::path &path){
+		auto confFile=path;
+		auto extension=confFile.extension().string();
+		if(extension.compare(Z_CONF_EXTENSION)!=0){
+			confFile=confFile.string()+Z_CONF_EXTENSION;
+			if(!std::filesystem::exists(confFile))
+				Tools::CreateConf(zGUID{},Tools::ExtensionGetType(extension),confFile.string());
+		}
+		auto metaData=Tools::LoadConf(confFile.string());
+		instance->PathToUID[path.string()]=metaData.id;
+		instance->UIDToPath[metaData.id]=path.string();
+		void* ptr;
+		switch(metaData.importer){
+			case AssetsImporterType::Texture2D:
+				ptr = Tools::LoadTexture2D(path.string());
+			case AssetsImporterType::Mesh:
+				ptr = Tools::LoadMesh(path.string());
+				break;
+			case AssetsImporterType::Material:
+				break;
+			case AssetsImporterType::SkyBox:{
+				ptr = Tools::LoadSkyBox(path.parent_path().string());
+			}
+			case AssetsImporterType::None:
+				break;
+		}
+		Z_CORE_ASSERT(ptr,"Failed to load asset");
+		instance->resourceLibrary[metaData.id]=ptr;
+		return ptr;
 	}
 
 	void AssetsSystem::InitWithProject(const std::filesystem::path &projectPath) {
@@ -219,6 +325,30 @@ namespace Z {
 		for(const auto& conf:zConfDetect){
 			LoadWithMetaData(Tools::LoadConf(conf.string()),conf.string());
 		}
+	}
+
+	void AssetsSystem::Destroy(){
+		for(auto asset:instance->resourceLibrary){
+			switch(*((AssetsImporterType*)asset.second)){
+				case AssetsImporterType::Texture2D:
+					Tools::DestroyTexture2D(asset.second);
+					break;
+				case AssetsImporterType::Mesh:
+					Tools::DestroyMesh(asset.second);
+					break;
+				case AssetsImporterType::SkyBox:
+					Tools::DestroySkyBox(asset.second);
+					break;
+				case AssetsImporterType::Material:
+					break;
+				case AssetsImporterType::None:
+					break;
+			}
+		}
+		instance->resourceLibrary.clear();
+		instance->UIDToPath.clear();
+		instance->PathToUID.clear();
+		instance=nullptr;
 	}
 
 

@@ -6,6 +6,7 @@
 #define RENDERRESOURCETYPES_H
 #include <array>
 #include "Include/glm/glm.hpp"
+#include "Include/glm/gtx/hash.hpp"
 
 #include "Z/Renderer/RenderInterface.h"
 
@@ -57,5 +58,19 @@ namespace Z{
         }
     };
 }
+
+
+
+namespace std {
+	template<>
+	struct hash<Z::Vertex> {
+		size_t operator()(const Z::Vertex &v) const {
+			return hash<glm::vec3>()(v.position) << 1
+			       | hash<glm::vec3>()(v.normal)
+			       | hash<glm::vec2>()(v.uv);
+		}
+	};
+}
+
 
 #endif //RENDERRESOURCETYPES_H

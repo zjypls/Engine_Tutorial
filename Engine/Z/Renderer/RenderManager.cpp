@@ -2,10 +2,11 @@
 // Created by z on 24-1-16.
 //
 #include "Z/Core/Log.h"
-
+#include "Z/Core/AssetsSystem.h"
 #include "Z/Renderer/RenderManager.h"
-
+#include "Z/Renderer/RenderResource.h"
 #include "Z/ImGui/ImGuiRendererPlatform.h"
+#include "Z/Utils/ZUtils.h"
 #include "Platform/Vulkan/VulkanGraphicInterface.h"
 
 namespace Z {
@@ -46,6 +47,12 @@ namespace Z {
 
     void RenderManager::PushUIContents(ImGuiContent *content) {
         renderPipeline->PushUIContents(content);
+    }
+
+    ImTextureID RenderManager::CreateImGuiTexture(Image* image,ImageView* view,Z::ImageLayout layout){
+        ImTextureID id;
+        imguiRenderPlatform->CreateTextureForImGui(m_Context->GetDefaultSampler(SamplerType::Linear),view,layout,id);
+        return id;
     }
 
 } // Z
