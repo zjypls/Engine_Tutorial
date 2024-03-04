@@ -37,8 +37,8 @@ namespace Z {
 
         struct Descriptor
         {
-            DescriptorSet*       descriptorSet;
             DescriptorSetLayout*            layout;
+            std::vector<DescriptorSet*>     descriptorSet;
         };
 
         struct RenderPipelineBase
@@ -48,6 +48,7 @@ namespace Z {
         };
 
         virtual void Init(RenderPassInitInfo*info)=0;
+        virtual void PostInit(){}
         virtual void draw(){}
         virtual void clear() {}
 
@@ -56,6 +57,7 @@ namespace Z {
         RenderPassInterface* GetRenderPass()const{return framebuffer.renderPass;}
         GraphicInterface* Context=nullptr;
         std::vector<Descriptor>         descriptors{};
+        std::vector<std::vector<DescriptorSet*>> descriptorSets{};
         std::vector<RenderPipelineBase> renderPipelines{};
         Framebuffer                     framebuffer{};
 
