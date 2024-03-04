@@ -17,6 +17,9 @@ namespace Z {
         Z_CORE_ASSERT(m_Context == nullptr,"Already Inited !");
         m_Context= CreateRef<VulkanGraphicInterface>();
         m_Context->Init({});
+        RenderResourceInitInfo resourceInfo{};
+        resourceInfo.graphicContext=m_Context.get();
+        RenderResource::Init(&resourceInfo);
 
         renderPipeline=CreateRef<RenderPipeline>();
         auto info=RenderPipelineInitInfo{};
@@ -32,6 +35,7 @@ namespace Z {
     void RenderManager::Shutdown() {
         imguiRenderPlatform=nullptr;
         renderPipeline->clear();
+        RenderResource::clear();
         m_Context->Shutdown();
     }
 
