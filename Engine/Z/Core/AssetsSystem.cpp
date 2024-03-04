@@ -2,7 +2,7 @@
 // Created by 32725 on 2023/6/1.
 //
 
-#include <set>
+#include <unordered_set>
 #include "Include/stb/stb_image.h"
 #include "Include/yaml-cpp/include/yaml-cpp/yaml.h"
 #include "Include/tinyobjloader/tiny_obj_loader.h"
@@ -279,6 +279,7 @@ namespace Z {
 		switch(metaData.importer){
 			case AssetsImporterType::Texture2D:
 				ptr = Tools::LoadTexture2D(path.string());
+				break;
 			case AssetsImporterType::Mesh:
 				ptr = Tools::LoadMesh(path.string());
 				break;
