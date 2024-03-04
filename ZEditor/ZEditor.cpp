@@ -44,6 +44,19 @@ namespace Z {
 
 		sceneHierarchyPlane = CreateScope<SceneHierarchyPlane>();
 		contentBrowser = CreateScope<ContentBrowser>();
+		auto playImage=AssetsSystem::Load<Texture2D>("Assets/Icons/PlayButton.png");
+		auto pauseImage=AssetsSystem::Load<Texture2D>("Assets/Icons/PauseButton.png");
+		auto simulateImage=AssetsSystem::Load<Texture2D>("Assets/Icons/SimulateButton.png");
+		auto stepImage=AssetsSystem::Load<Texture2D>("Assets/Icons/StepButton.png");
+		auto stopImage=AssetsSystem::Load<Texture2D>("Assets/Icons/StopButton.png");
+		playButton=RenderManager::CreateImGuiTexture(playImage->image,playImage->imageView);
+		pauseButton=RenderManager::CreateImGuiTexture(pauseImage->image,pauseImage->imageView);
+		simulateButton=RenderManager::CreateImGuiTexture(simulateImage->image,simulateImage->imageView);
+		stepButton=RenderManager::CreateImGuiTexture(stepImage->image,stepImage->imageView);
+		stopButton=RenderManager::CreateImGuiTexture(stopImage->image,stopImage->imageView);
+		toolButtons[0]=playButton;
+		toolButtons[1]=simulateButton;
+		toolButtons[2]=stepButton;
 
 		//Todo:change this to a better way
 		ScriptEngine::LoadAssembly("bin/scripts.dll");
@@ -314,10 +327,51 @@ namespace Z {
 		ImGui::BeginDisabled(!scene);
 		float size = ImGui::GetWindowHeight() - 4;
 		ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x / 2 - ImGui::GetWindowHeight());
+		if (ImGui::ImageButton(toolButtons[0], ImVec2{size, size}, ImVec2{0, 1},
+		                       ImVec2{1, 0})) {
+			if (sceneState == SceneState::Edit) {
+				OnPlay();
+				toolButtons[0]=stopButton;
+			} else {
+				OnStop();
+				toolButtons[0]=playButton;
+			}
+		}
 		ImGui::SameLine();
+		if (ImGui::ImageButton(toolButtons[1], ImVec2{size, size}, ImVec2{0, 1},
+		                       ImVec2{1, 0})) {
+			if (sceneState == SceneState::Edit) {
+				OnSimulate();
+			} else if (sceneState != SceneState::Pause) {
+				BackState = sceneState;
+				sceneState = SceneState::Pause;
+				scene->SetPaused(true);
+				toolButtons[1]=playButton;
+				nextStep = false;
+			} else {
+				toolButtons[1]=pauseButton;
+				sceneState = BackState;
+				scene->SetPaused(false);
+				nextStep = false;
+			}
+		}
 		ImGui::EndDisabled();
 		ImGui::SameLine();
 		ImGui::BeginDisabled(sceneState == SceneState::Edit);
+		if (ImGui::ImageButton(toolButtons[2], ImVec2{size, size}, ImVec2{0, 1},
+		                       ImVec2{1, 0})) {
+			if (sceneState == SceneState::Pause) {
+				scene->SetPaused(true);
+				scene->SetFrameStepCount(stepFrames);
+				nextStep = true;
+			} else {
+				BackState = sceneState;
+				sceneState = SceneState::Pause;
+				nextStep = false;
+				scene->SetPaused(true);
+				scene->SetFrameStepCount(0);
+			}
+		}
 		ImGui::EndDisabled();
 		ImGui::PopStyleColor(3);
 		ImGui::PopStyleVar(2);
@@ -397,11 +451,24 @@ namespace Z {
 
 	void EditorLayer::OnPlay() {
 		sceneState = SceneState::Play;
+		toolButtons[1] = pauseButton;
+		toolButtons[0] = stopButton;
 		BackScene = scene;
 		scene = Scene::Copy(BackScene);
 		scene->OnViewportResize(viewportSize.x, viewportSize.y);
 		sceneHierarchyPlane->SetContext(scene);
 		scene->OnRuntimeStart();
+	}
+
+	void EditorLayer::OnSimulate() {
+		sceneState = SceneState::Simulate;
+		toolButtons[1] = pauseButton;
+		toolButtons[0] = stopButton;
+		BackScene = scene;
+		scene = Scene::Copy(BackScene);
+		scene->OnViewportResize(viewportSize.x, viewportSize.y);
+		sceneHierarchyPlane->SetContext(scene);
+		scene->OnSimulateStart();
 	}
 
 	void EditorLayer::OnStop() {
@@ -413,6 +480,8 @@ namespace Z {
 		} else if (state == SceneState::Simulate) {
 			scene->OnSimulateStop();
 		}
+		toolButtons[1] = simulateButton;
+		toolButtons[0] = playButton;
 		sceneState = SceneState::Edit;
 		scene = BackScene;
 		sceneHierarchyPlane->SetContext(scene);
@@ -507,15 +576,6 @@ namespace Z {
 						auto trans = glm::translate(glm::mat4(1.f), translation) * glm::scale(glm::mat4(1.f), size);
 					});
 		}
-	}
-
-	void EditorLayer::OnSimulate() {
-		sceneState = SceneState::Simulate;
-		BackScene = scene;
-		scene = Scene::Copy(BackScene);
-		scene->OnViewportResize(viewportSize.x, viewportSize.y);
-		sceneHierarchyPlane->SetContext(scene);
-		scene->OnSimulateStart();
 	}
 
     void EditorLayer::LoadProjects() {
