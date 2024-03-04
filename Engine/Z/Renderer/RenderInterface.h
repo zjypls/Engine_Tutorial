@@ -49,10 +49,6 @@ namespace Z {
 
     using ResourceSize=uint64;
 
-    //used for align
-    enum class StructureType {
-        MAX_ENUM = 0x7FFFFFFF
-    };
 
     //same value as vulkan define
     enum class ImageLayout {

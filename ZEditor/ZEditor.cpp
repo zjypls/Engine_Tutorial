@@ -274,7 +274,7 @@ namespace Z {
 			                     (ImGuizmo::OPERATION) currentGizmoOperation, ImGuizmo::MODE::LOCAL,
 			                     glm::value_ptr(Transform));
 			//TODO:Optimize
-			static int8_t SavePreTrans = 1;
+			static int8 SavePreTrans = 1;
 			if (ImGuizmo::IsUsing()) {
 				static glm::quat BefRotation;
 				static glm::vec3 BefTranslation, BefScale;

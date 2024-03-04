@@ -17,4 +17,6 @@ namespace Z
         instance=nullptr;
     }
 
+    void RenderResource::UpdateData(InputData* data,uint64 inputOffset,uint64 inputSize,uint64 desOffset) {
+    }
 } // namespace Z

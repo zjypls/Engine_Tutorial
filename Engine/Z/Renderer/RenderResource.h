@@ -19,8 +19,14 @@ namespace Z
     class Z_API RenderResource
     {
     public:
+        struct InputData{
+        };
         static void Init(RenderResourceInitInfo* info);
         static void clear() ;
+        // upload data to buffer
+        // copy ( destination + desOffset, data + inputOffset , inputSize)
+        static void UpdateData(InputData* data , uint64 inputOffset=0 , uint64 inputSize = sizeof(InputData) , uint64 desOffset = 0);
+        static RenderResource* GetInstance(){return instance.get();}
     private:
         static Ref<RenderResource> instance;
         GraphicInterface* graphicContext;

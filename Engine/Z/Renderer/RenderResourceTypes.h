@@ -24,6 +24,14 @@ namespace Z{
     struct VertexBlending{
         uint32 boneIndex[maxBoneBlending];
         float blending[maxBoneBlending];
+        bool operator==(const VertexBlending& a) const{
+            for(int i=0;i<maxBoneBlending;i++){
+                if(a.boneIndex[i]!=boneIndex[i]||a.blending[i]!=blending[i]){
+                    return false;
+                }
+            }
+            return true;
+        }
     };
     struct MeshDescription{
         static std::array<VertexInputBindingDescription,2> GetBindingDescription(){
@@ -68,12 +76,23 @@ namespace Z{
 namespace std {
 	template<>
 	struct hash<Z::Vertex> {
-		size_t operator()(const Z::Vertex &v) const {
+		Z::uint64 operator()(const Z::Vertex &v) const {
 			return hash<glm::vec3>()(v.position) << 1
 			       | hash<glm::vec3>()(v.normal)
 			       | hash<glm::vec2>()(v.uv);
 		}
 	};
+    template<>
+    struct hash<Z::VertexBlending> {
+        Z::uint64 operator()(const Z::VertexBlending &v) const {
+            Z::uint64 result=0;
+            for(int i=0;i<Z::maxBoneBlending;i++){
+                result|=hash<Z::uint32>()(v.boneIndex[i])<<i;
+                result|=hash<float>()(v.blending[i])<<i;
+            }
+            return result;
+        }
+    };
 }
 
 
