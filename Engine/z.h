@@ -22,6 +22,7 @@
 #include "Z/Renderer/CameraController.h"
 #include "Z/Renderer/OrithGraphicCamera.h"
 #include "Z/Renderer/RenderManager.h"
+#include "Z/Renderer/RenderResource.h"
 #include "Z/Scene/Components.h"
 #include "Z/Scene/Entity.hpp"
 #include "Z/Scene/Scene.h"
