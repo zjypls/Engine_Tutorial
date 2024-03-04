@@ -324,7 +324,7 @@ namespace Z {
 		             ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar |
 		             ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
-		ImGui::BeginDisabled(!scene);
+		ImGui::BeginDisabled(!scene||scene->empty());
 		float size = ImGui::GetWindowHeight() - 4;
 		ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x / 2 - ImGui::GetWindowHeight());
 		if (ImGui::ImageButton(toolButtons[0], ImVec2{size, size}, ImVec2{0, 1},

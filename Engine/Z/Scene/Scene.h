@@ -39,6 +39,7 @@ namespace Z {
 
 	public:
 		Scene() = default;
+		bool empty(){return registry.size()==0;}
 		Entity GetMainCamera();
 		bool isRunning(){return Running;}
 		void SetFrameStepCount(int count){FrameStepCount=count;}
