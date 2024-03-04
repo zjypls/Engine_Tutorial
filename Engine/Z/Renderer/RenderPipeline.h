@@ -29,6 +29,10 @@ namespace Z {
 
         virtual void clear();
 
+        void SetViewPortSize(uint32 width,uint32 height);
+
+        void* GetViewportFrameBufferDescriptor();
+
     protected:
         GraphicInterface* Context;
         Ref<RenderPass> mainCameraPass;

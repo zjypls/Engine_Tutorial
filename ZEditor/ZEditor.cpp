@@ -41,6 +41,7 @@ namespace Z {
 		Z_CORE_ASSERT(viewWidth!=0&&viewHeight!=0,"Viewport size not found in config file or illegal value!");
 		viewportSize=glm::vec2(viewWidth,viewHeight);
 		editorCamera.SetAspectRatio((float)viewWidth/viewHeight);
+		RenderManager::SetViewPortSize(viewportSize.x,viewportSize.y);
 
 		sceneHierarchyPlane = CreateScope<SceneHierarchyPlane>();
 		contentBrowser = CreateScope<ContentBrowser>();
@@ -228,6 +229,10 @@ namespace Z {
 			auto McursorPos = MaxSize - cursorPos;
 			CursorPos = glm::vec2{cursorPos.x - offset.x, McursorPos.y};
 		}
+		
+        auto viewId=ImTextureID(RenderManager::GetViewportFrameBufferDescriptor());
+        ImGui::Image(viewId, ImVec2(viewportSize.x, viewportSize.y),
+                     ImVec2(0, 0), ImVec2(1, 1));
 
 		if ((viewportSize != *(glm::vec2 *) &viewSize)) {
             //avoid resize when frame haven't shown to viewport yet
@@ -235,6 +240,7 @@ namespace Z {
 				this->viewportSize = glm::vec2{viewSize.x, viewSize.y};
 				this->scene->OnViewportResize(viewportSize.x, viewportSize.y);
 				this->editorCamera.SetViewportSize(viewportSize.x, viewportSize.y);
+				RenderManager::SetViewPortSize(viewSize.x,viewSize.y);
 			});
 		}
 		if (ImGui::BeginDragDropTarget()) {

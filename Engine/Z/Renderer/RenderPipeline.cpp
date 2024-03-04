@@ -4,7 +4,7 @@
 
 #include "Z/Renderer/GraphicInterface.h"
 #include "Z/Renderer/RenderPipeline.h"
-
+#include "Z/Utils/ZUtils.h"
 #include "Z/Renderer/Passes/UIPass.h"
 #include "Z/Renderer/Passes/MainCameraPass.h"
 #include "Z/Renderer/Passes/SkyboxPass.h"
@@ -23,12 +23,17 @@ namespace Z {
         auto passInfo=UIPassInitInfo{};
         passInfo.renderpass=mainCameraPass->GetRenderPass();
         uiPass->Init(&passInfo);
+        mainCameraPass->PostInit();
+
         auto skyboxPassInitInfo=SkyboxPassInitInfo{};
-        skyboxPassInitInfo.renderpass=mainCameraPass->GetRenderPass();
+        skyboxPassInitInfo.renderpass=((MainCameraPass*)mainCameraPass.get())->viewportRenderPass;
+        skyboxPassInitInfo.frameBufferCount=Context->GetMaxFramesInFlight();
+        skyboxPassInitInfo.framebuffer=((MainCameraPass*)mainCameraPass.get())->viewportFrameBuffer.data();
+        skyboxPassInitInfo.width=((MainCameraPass*)mainCameraPass.get())->viewPortSize.x;
+        skyboxPassInitInfo.height=((MainCameraPass*)mainCameraPass.get())->viewPortSize.y;
         skyboxPassInitInfo.graphicInterface=Context;
         skyboxPass=CreateRef<SkyboxPass>();
         skyboxPass->Init(&skyboxPassInitInfo);
-
 
     }
 
@@ -45,5 +50,14 @@ namespace Z {
         skyboxPass->clear();
         uiPass->clear();
         mainCameraPass->clear();
+    }
+
+    void RenderPipeline::SetViewPortSize(uint32 width, uint32 height) {
+        ((MainCameraPass*)mainCameraPass.get())->SetViewPortSize(width,height);
+        ((SkyboxPass*)skyboxPass.get())->SetViewportSize(width,height);
+    }
+
+    void *RenderPipeline::GetViewportFrameBufferDescriptor() {
+        return ((MainCameraPass*)mainCameraPass.get())->GetViewportFrameBufferDescriptor();
     }
 } // Z

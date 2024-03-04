@@ -22,6 +22,9 @@ namespace Z {
         static void Update(float deltaTime);
         static void PushUIContents(ImGuiContent* content);
 
+        static void* GetViewportFrameBufferDescriptor();
+
+        static void SetViewPortSize(uint32 width,uint32 height);
 
         static ImTextureID CreateImGuiTexture(Image* image,ImageView* view,Z::ImageLayout layout=Z::ImageLayout::SHADER_READ_ONLY_OPTIMAL);
 

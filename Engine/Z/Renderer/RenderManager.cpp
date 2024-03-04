@@ -20,6 +20,7 @@ namespace Z {
         RenderResourceInitInfo resourceInfo{};
         resourceInfo.graphicContext=m_Context.get();
         RenderResource::Init(&resourceInfo);
+        AssetsSystem::PreInit();
 
         renderPipeline=CreateRef<RenderPipeline>();
         auto info=RenderPipelineInitInfo{};
@@ -53,6 +54,16 @@ namespace Z {
         renderPipeline->PushUIContents(content);
     }
 
+    void RenderManager::SetViewPortSize(uint32 width, uint32 height) {
+        m_Context->DeviceWaiteIdle();
+        renderPipeline->SetViewPortSize(width,height);
+    }
+
+    void *RenderManager::GetViewportFrameBufferDescriptor() {
+        return renderPipeline->GetViewportFrameBufferDescriptor();
+    }
+
+    
     ImTextureID RenderManager::CreateImGuiTexture(Image* image,ImageView* view,Z::ImageLayout layout){
         ImTextureID id;
         imguiRenderPlatform->CreateTextureForImGui(m_Context->GetDefaultSampler(SamplerType::Linear),view,layout,id);
