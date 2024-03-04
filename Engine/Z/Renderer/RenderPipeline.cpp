@@ -7,6 +7,7 @@
 
 #include "Z/Renderer/Passes/UIPass.h"
 #include "Z/Renderer/Passes/MainCameraPass.h"
+#include "Z/Renderer/Passes/SkyboxPass.h"
 
 namespace Z {
     void RenderPipeline::Init(RenderPipelineInitInfo *initInfo) {
@@ -22,9 +23,17 @@ namespace Z {
         auto passInfo=UIPassInitInfo{};
         passInfo.renderpass=mainCameraPass->GetRenderPass();
         uiPass->Init(&passInfo);
+        auto skyboxPassInitInfo=SkyboxPassInitInfo{};
+        skyboxPassInitInfo.renderpass=mainCameraPass->GetRenderPass();
+        skyboxPassInitInfo.graphicInterface=Context;
+        skyboxPass=CreateRef<SkyboxPass>();
+        skyboxPass->Init(&skyboxPassInitInfo);
+
+
     }
 
     void RenderPipeline::draw() {
+        skyboxPass->draw();
         ((MainCameraPass*)mainCameraPass.get())->draw(uiPass);
     }
 
@@ -33,6 +42,7 @@ namespace Z {
     }
 
     void RenderPipeline::clear() {
+        skyboxPass->clear();
         uiPass->clear();
         mainCameraPass->clear();
     }

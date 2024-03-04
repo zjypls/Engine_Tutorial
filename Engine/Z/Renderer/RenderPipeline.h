@@ -33,6 +33,7 @@ namespace Z {
         GraphicInterface* Context;
         Ref<RenderPass> mainCameraPass;
         Ref<RenderPass> uiPass;
+        Ref<RenderPass> skyboxPass;
     };
 
 } // Z
