@@ -169,7 +169,7 @@ namespace Z {
     void MainCameraPass::BeginRenderPass() {
         RenderPassBeginInfo beginInfo{};
         Rect2D area{};
-        static ClearValue value{.color{0.0f,0,0,0}};
+        static ClearValue value{{0.0f,0,0,0}};
         area.offset={0,0};
         area.extent=Context->GetSwapChainInfo().swapchainExtent;
         beginInfo.renderArea=area;
