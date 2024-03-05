@@ -232,11 +232,16 @@ namespace Z {
 
 		void DestroyMesh(void*mesh){
 			auto m=static_cast<Z::MeshRes*>(mesh);
-			s_Context->DestroyBuffer(m->vertexBuffer,m->vertexMemory);
+			for(int i=0;i<m->vertexBufferCount;++i){
+				s_Context->DestroyBuffer(m->vertexBuffer[i],m->vertexMemory[i]);
+			}
 			s_Context->DestroyBuffer(m->indexBuffer,m->indexMemory);
-			delete m->vertexBuffer;
+			s_Context->DestroyBuffer(m->boneBuffer,m->boneMemory);
+			delete m->boneBuffer;
+			delete m->boneMemory;
+			delete[] m->vertexBuffer;
+			delete[] m->vertexMemory;
 			delete m->indexBuffer;
-			delete m->vertexMemory;
 			delete m->indexMemory;
 			delete m;
 		}

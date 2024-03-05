@@ -32,12 +32,14 @@ namespace Z {
 	struct MeshRes{
 		AssetsImporterType type;
 		std::string path;
-		Buffer* vertexBuffer;
+		Buffer** vertexBuffer;
 		Buffer* indexBuffer;
-		DeviceMemory* vertexMemory;
+		DeviceMemory** vertexMemory;
 		DeviceMemory* indexMemory;
-		uint32 vertexCount;
-		uint32 indexCount;
+		Buffer* boneBuffer;
+		DeviceMemory* boneMemory;
+		const uint32 vertexBufferCount=2;
+		uint32 indicesCount;
 	};
 
 

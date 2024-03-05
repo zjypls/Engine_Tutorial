@@ -15,14 +15,15 @@ namespace Z{
     struct Vertex{
         glm::vec3 position;
         glm::vec3 normal;
+        glm::vec3 tangent;
         glm::vec2 uv;
 
         bool operator==(const Vertex& a) const{
-            return a.position==position&&a.normal==normal&&a.uv==uv;
+            return a.position==position&&a.normal==normal&&a.uv==uv&&a.tangent==tangent;
         }
     };
     struct VertexBlending{
-        uint32 boneIndex[maxBoneBlending];
+        int32 boneIndex[maxBoneBlending];
         float blending[maxBoneBlending];
         bool operator==(const VertexBlending& a) const{
             for(int i=0;i<maxBoneBlending;i++){
@@ -32,6 +33,13 @@ namespace Z{
             }
             return true;
         }
+    };
+    struct BoneData{
+        glm::mat4 offsetTransform;
+    };
+    struct BoneDes{
+        BoneData data;
+        std::string name;
     };
     struct MeshDescription{
         static std::array<VertexInputBindingDescription,2> GetBindingDescription(){
@@ -44,8 +52,8 @@ namespace Z{
             bindingDescriptions[1].inputRate=VertexInputRate::VERTEX;
             return bindingDescriptions;
         }
-        static std::array<VertexInputAttributeDescription,5> GetAttributeDescription(){
-            std::array<VertexInputAttributeDescription,5> attributeDescriptions;
+        static std::array<VertexInputAttributeDescription,6> GetAttributeDescription(){
+            std::array<VertexInputAttributeDescription,6> attributeDescriptions;
             attributeDescriptions[0].binding=0;
             attributeDescriptions[0].location=0;
             attributeDescriptions[0].format=Format::R32G32B32_SFLOAT;
@@ -56,16 +64,20 @@ namespace Z{
             attributeDescriptions[1].offset=offsetof(Vertex,normal);
             attributeDescriptions[2].binding=0;
             attributeDescriptions[2].location=2;
-            attributeDescriptions[2].format=Format::R32G32_SFLOAT;
-            attributeDescriptions[2].offset=offsetof(Vertex,uv);
-            attributeDescriptions[3].binding=1;
+            attributeDescriptions[2].format=Format::R32G32B32_SFLOAT;
+            attributeDescriptions[2].offset=offsetof(Vertex,tangent);
+            attributeDescriptions[3].binding=0;
             attributeDescriptions[3].location=3;
-            attributeDescriptions[3].format=Format::R32G32B32A32_UINT;
-            attributeDescriptions[3].offset=offsetof(VertexBlending,boneIndex);
+            attributeDescriptions[3].format=Format::R32G32_SFLOAT;
+            attributeDescriptions[3].offset=offsetof(Vertex,uv);
             attributeDescriptions[4].binding=1;
             attributeDescriptions[4].location=4;
-            attributeDescriptions[4].format=Format::R32G32B32A32_SFLOAT;
-            attributeDescriptions[4].offset=offsetof(VertexBlending,blending);
+            attributeDescriptions[4].format=Format::R32G32B32A32_UINT;
+            attributeDescriptions[4].offset=offsetof(VertexBlending,boneIndex);
+            attributeDescriptions[5].binding=1;
+            attributeDescriptions[5].location=5;
+            attributeDescriptions[5].format=Format::R32G32B32A32_SFLOAT;
+            attributeDescriptions[5].offset=offsetof(VertexBlending,blending);
             return attributeDescriptions;
         }
     };
@@ -79,6 +91,7 @@ namespace std {
 		Z::uint64 operator()(const Z::Vertex &v) const {
 			return hash<glm::vec3>()(v.position) << 1
 			       | hash<glm::vec3>()(v.normal)
+                   | hash<glm::vec3>()(v.tangent)
 			       | hash<glm::vec2>()(v.uv);
 		}
 	};
