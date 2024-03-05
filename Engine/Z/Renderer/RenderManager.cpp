@@ -17,11 +17,12 @@ namespace Z {
         Z_CORE_ASSERT(m_Context == nullptr,"Already Inited !");
         m_Context= CreateRef<VulkanGraphicInterface>();
         m_Context->Init({});
+        AssetsSystem::PreInit();
+
         RenderResourceInitInfo resourceInfo{};
         resourceInfo.graphicContext=m_Context.get();
         RenderResource::Init(&resourceInfo);
-        AssetsSystem::PreInit();
-
+        
         renderPipeline=CreateRef<RenderPipeline>();
         auto info=RenderPipelineInitInfo{};
         info.graphicContext=m_Context.get();
