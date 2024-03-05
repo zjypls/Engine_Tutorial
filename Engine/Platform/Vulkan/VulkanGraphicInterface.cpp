@@ -1118,6 +1118,29 @@ namespace Z {
         vkDestroyDescriptorSetLayout(device,((VulkanDescriptorSetLayout*)descriptorSetLayout)->Get(),nullptr);
     }
 
+    void VulkanGraphicInterface::CreateDescriptorSetLayout(const DescriptorSetLayoutCreateInfo &info,
+                                                           DescriptorSetLayout *&descriptorSetLayout) {
+        VkDescriptorSetLayoutCreateInfo createInfo{};
+        createInfo.sType=VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        createInfo.bindingCount=info.bindingCount;
+        std::vector<VkDescriptorSetLayoutBinding> bindings(info.bindingCount);
+        for(int i=0;i<info.bindingCount;++i) {
+            auto&binding=bindings[i];
+            auto&infoBinding=info.pBindings[i];
+            binding.binding=infoBinding.binding;
+            binding.descriptorCount=infoBinding.descriptorCount;
+            binding.descriptorType=(VkDescriptorType)infoBinding.descriptorType;
+            binding.stageFlags=(VkShaderStageFlags)infoBinding.stageFlags;
+            binding.pImmutableSamplers=nullptr;
+        }
+        createInfo.pBindings=bindings.data();
+        VkDescriptorSetLayout layout;
+        auto res=vkCreateDescriptorSetLayout(device,&createInfo,nullptr,&layout);
+        VK_CHECK(res,"failed to create descriptor set layout !");
+        descriptorSetLayout=new VulkanDescriptorSetLayout{};
+        ((VulkanDescriptorSetLayout*)descriptorSetLayout)->Set(layout);
+    }
+
     void VulkanGraphicInterface::AllocateDescriptorSet(const DescriptorSetAllocateInfo &info,
                                                        DescriptorSet *&descriptorSet) {
         VkDescriptorSetAllocateInfo allocateInfo{};

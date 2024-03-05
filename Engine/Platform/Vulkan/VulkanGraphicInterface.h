@@ -51,6 +51,7 @@ namespace Z {
                                  Pipeline *&graphicPipeline, RenderPassInterface *renderPassInterface,
                                  std::vector<DescriptorSetLayout*>&descriptorSetLayout,PipelineLayout*&pipelineLayout,
                                  GraphicPipelineCreateInfo* createInfo) override;
+        void CreateDescriptorSetLayout(const DescriptorSetLayoutCreateInfo &info, DescriptorSetLayout *&descriptorSetLayout) override;
         void AllocateDescriptorSet(const DescriptorSetAllocateInfo &info, DescriptorSet *&descriptorSet) override;
         void WriteDescriptorSets(const WriteDescriptorSet *writes,uint32 writeCount) override;
         void MapMemory(DeviceMemory *memory, uint64 offset, uint64 size, void *&data) override;

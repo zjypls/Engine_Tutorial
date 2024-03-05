@@ -54,6 +54,9 @@ namespace Z {
         virtual void CreateGraphicPipeline(const std::string&shaderSources,const std::vector<Z::ShaderStageFlag>&stageFlags,Pipeline*&graphicPipeline,
                         RenderPassInterface* renderPassInterface,std::vector<DescriptorSetLayout*>&descriptorSetLayout,
                         PipelineLayout*&pipelineLayout , GraphicPipelineCreateInfo* createInfo=nullptr) = 0;
+
+        virtual void CreateDescriptorSetLayout(const DescriptorSetLayoutCreateInfo& info, DescriptorSetLayout* &descriptorSetLayout) = 0;
+
         //make info.DescriptorPool empty  to use default pool
         virtual void AllocateDescriptorSet(const DescriptorSetAllocateInfo& info, DescriptorSet* &descriptorSet) = 0;
 
