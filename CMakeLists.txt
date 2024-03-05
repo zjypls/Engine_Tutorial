@@ -90,6 +90,11 @@ if(CMAKE_HOST_WIN32)
 elseif(CMAKE_HOST_LINUX)
     set(PLATFORM_SYMBOL Z_PLATFORM_LINUX)
     set(Z_PLATFORM Linux)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        # mark: compile failed on linux with gcc , caused by filewatch , locate at Engine/Include/filewatch/filewatch.h line 190
+        # use clang by export CC=clang CXX=clang++ 
+        message(WARNING "Suppose to use clang , if compile failed , try to use clang")
+    endif()
     if(DEFINED ENV{WAYLAND_DISPLAY} OR (DEFINED ENV{XDG_SESSION_TYPE} AND “$ENV{XDG_SESSION_TYPE}” MATCHES "wayland"))
         message(WARNING "Using Wayland for linux !")
         set(Z_WM_FLAG WAYLAND)
