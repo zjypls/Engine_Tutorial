@@ -174,12 +174,11 @@ namespace Z {
 #else
                     OriginName = typeid(T).name();
 #endif
-                    Z_CORE_WARN("Register Type : {0} !",OriginName);
 					auto space = OriginName.rfind(':');
 					auto name = fmt::format("Z.{}", OriginName.substr(space + 1));
 					MonoType *type = mono_reflection_type_from_name(name.data(), ScriptEngine::GetCoreImage());
 					if(!type) {
-						Z_CORE_ERROR("No such type: {0}", name);
+						Z_CORE_ERROR("No such type on script domain : {0}", name);
 						return;
 					}
 					ReflectionMap[type] = [](Entity entity) -> bool { return entity.HasComponent<T>(); };

@@ -201,9 +201,9 @@ namespace Z {
 
 
 	void Scene::Render3D() {
-		std::for_each(registry.view<TransformComponent, MeshRendererComponent>().begin(),
-		              registry.view<TransformComponent, MeshRendererComponent>().end(), [&](const auto &item) {
-                    MeshRendererComponent component=registry.get<MeshRendererComponent>(item);
+		std::for_each(registry.view<TransformComponent, MeshFilterComponent>().begin(),
+                      registry.view<TransformComponent, MeshFilterComponent>().end(), [&](const auto &item) {
+                    MeshFilterComponent component=registry.get<MeshFilterComponent>(item);
 				});
 	}
 

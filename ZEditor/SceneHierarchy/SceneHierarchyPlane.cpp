@@ -447,9 +447,10 @@ namespace Z {
 					}
 				}
 		});
-		DrawComponent<MeshRendererComponent>("MeshRenderer",entity,[](Entity entity,MeshRendererComponent&component){
+		DrawComponent<MeshFilterComponent>("MeshFilter", entity, [](Entity entity, MeshFilterComponent&component){
 			ImGui::Text("Model:");
 			ImGui::SameLine();
+            ImGui::Text(component.meshPath.c_str());
 		});
 	}
 

@@ -150,17 +150,21 @@ namespace Z {
 		CircleCollider2DComponent()=default;
 	};
 
-	struct MeshRendererComponent{
+	struct MeshFilterComponent{
 		std::string meshPath;
 	};
+
+    struct MeshRendererComponent{
+        std::string materialPath;
+    };
 
 	template<class... T>
 	struct Type{
 	};
 
-	using AllTypes=Type<MeshRendererComponent,TransformComponent,SpriteRendererComponent,CircleRendererComponent,TagComponent,
+	using AllTypes=Type<MeshRendererComponent,MeshFilterComponent,TransformComponent,SpriteRendererComponent,CircleRendererComponent,TagComponent,
 	CameraComponent,ScriptComponent,NativeScriptComponent,RigidBody2DComponent,BoxCollider2DComponent,CircleCollider2DComponent>;
-	using NoBaseTypes=Type<MeshRendererComponent,SpriteRendererComponent,CircleRendererComponent,
+	using NoBaseTypes=Type<MeshRendererComponent,MeshFilterComponent,SpriteRendererComponent,CircleRendererComponent,
 			CameraComponent,ScriptComponent,NativeScriptComponent,RigidBody2DComponent,BoxCollider2DComponent,CircleCollider2DComponent>;
 
 }
