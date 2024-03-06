@@ -39,7 +39,31 @@ namespace Z {
     }
 
     void RenderPipeline::draw() {
+        auto viewSize=((MainCameraPass*)mainCameraPass.get())->viewPortSize;
+        auto width=viewSize.x;
+        auto height=viewSize.y;
+        Viewport viewports[1] = {{0, 0, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f}};
+        Rect2D scissors[1] = {{0, 0, static_cast<uint32>(width), static_cast<uint32>(height)}};
+        Rect2D renderArea = {{0, 0}, {static_cast<uint32>(width), static_cast<uint32>(height)}};
+        auto currentFrameIndex = Context->GetCurrentFrameIndex();
+        static RenderPassBeginInfo renderPassBeginInfo{};
+        renderPassBeginInfo.renderPass = ((MainCameraPass*)mainCameraPass.get())->viewportRenderPass;
+        renderPassBeginInfo.framebuffer = ((MainCameraPass*)mainCameraPass.get())->viewportFrameBuffer[currentFrameIndex].framebuffer;
+        renderPassBeginInfo.renderArea = renderArea;
+        renderPassBeginInfo.clearValueCount = 3;
+        static ClearValue clearValues[3]={
+                {{0.0f, 0.0f, 0.0f, 1.0f}},
+                {{{-1}}},
+                {{1.0f,0}}
+        };
+        Context->SetViewPort(viewports[0]);
+        Context->SetScissor(scissors[0]);
+        renderPassBeginInfo.pClearValues = clearValues;
+        Context->BeginRenderPass(renderPassBeginInfo);
+
         skyboxPass->draw();
+        
+        Context->EndRenderPass();
         ((MainCameraPass*)mainCameraPass.get())->draw(uiPass);
     }
 

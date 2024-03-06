@@ -21,31 +21,13 @@ namespace Z {
     }
 
     void SkyboxPass::draw() {
-        Viewport viewports[1] = {{0, 0, static_cast<float>(framebuffer.width), static_cast<float>(framebuffer.height), 0.0f, 1.0f}};
-        Rect2D scissors[1] = {{0, 0, static_cast<uint32>(framebuffer.width), static_cast<uint32>(framebuffer.height)}};
-        Rect2D renderArea = {{0, 0}, {static_cast<uint32>(framebuffer.width), static_cast<uint32>(framebuffer.height)}};
         auto currentFrameIndex = Context->GetCurrentFrameIndex();
-        static RenderPassBeginInfo renderPassBeginInfo{};
-        renderPassBeginInfo.renderPass = framebuffer.renderPass;
-        renderPassBeginInfo.framebuffer = (viewportFramebuffer+currentFrameIndex)->framebuffer;
-        renderPassBeginInfo.renderArea = renderArea;
-        renderPassBeginInfo.clearValueCount = 3;
-        static ClearValue clearValues[3]={
-                {{0.0f, 0.0f, 0.0f, 1.0f}},
-                {{{-1}}},
-                {{1.0f,0}}
-        };
-        renderPassBeginInfo.pClearValues = clearValues;
-        Context->BeginRenderPass(renderPassBeginInfo);
         for (auto & renderPipeline : renderPipelines) {
             Context->BindPipeline(PipelineBindPoint::GRAPHICS, renderPipeline.pipeline);
-            Context->SetViewPort(viewports[0]);
-            Context->SetScissor(scissors[0]);
             Context->BindDescriptorSets(PipelineBindPoint::GRAPHICS, renderPipeline.layout, 0,
                                         descriptorSets[currentFrameIndex]);
             Context->Draw(36, 1, 0, 0);
         }
-        Context->EndRenderPass();
     }
 
     void SkyboxPass::clear() {
