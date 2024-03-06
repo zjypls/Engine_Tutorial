@@ -10,7 +10,7 @@
 
 
 namespace Z {
-	constexpr glm::vec3 g_UP = glm::vec3(0.0f, -1.0f, 0.0f);
+	constexpr glm::vec3 g_UP = glm::vec3(0.0f, 1.0f, 0.0f);
 	EditorCamera::EditorCamera(float fov, float aspectRatio, float nearClip, float farClip)
 			: Fov(glm::radians(fov)), aspectRatio(aspectRatio), nearClip(nearClip), farClip(farClip) {
 		projection = glm::perspective(Fov, aspectRatio, nearClip, farClip);
@@ -37,6 +37,7 @@ namespace Z {
 		}
 		lastMousePosition = glm::vec2(x, y);
 		projection = glm::perspective(Fov, aspectRatio, nearClip, farClip);
+		projection[1][1]*=-1;
 		viewMatrix = glm::lookAt(position, focus, up);
 	}
 
@@ -56,7 +57,7 @@ namespace Z {
 	void EditorCamera::ViewRotate(glm::vec2 offset) {
 		auto deltaTime=Time::DeltaTime();
 		glm::vec3 toFocus = position - focus;
-    	glm::quat rotation = glm::angleAxis(-offset.x* deltaTime, g_UP) * glm::angleAxis(-offset.y * deltaTime, right);
+    	glm::quat rotation = glm::angleAxis(-offset.x* deltaTime, g_UP) * glm::angleAxis(offset.y * deltaTime, right);
 		
     	toFocus = rotation * toFocus;
 		position = focus + distance * glm::normalize(toFocus);
@@ -70,11 +71,12 @@ namespace Z {
 	}
 
 	void EditorCamera::MoveFocus(glm::vec2 offset) {
+		auto deltaTime=Time::DeltaTime();
 		auto toFocus = glm::normalize(focus - position);
-		auto LocalRight = glm::normalize(glm::cross(toFocus, up));
-		auto LocalUp = glm::normalize(glm::cross(LocalRight, toFocus));
-		focus += (-offset.x * LocalRight + offset.y * LocalUp) * 1E-2f;
-		position += (-offset.x * LocalRight + offset.y * LocalUp) * 1E-2f;
+		//auto LocalRight = glm::normalize(glm::cross(toFocus, up));
+		//auto LocalUp = glm::normalize(glm::cross(LocalRight, toFocus));
+		focus += (-offset.x * right + offset.y * up) * deltaTime;
+		position += (-offset.x * right + offset.y * up) * deltaTime;
 	}
 
 	bool EditorCamera::OnKeyPressed(KeyPressEvent &e) {
