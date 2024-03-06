@@ -2,13 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 project(EngineAll)
 
-list(FIND CMAKE_CXX_COMPILE_FEATURES "cxx_std_20" index)
-if(${index} GREATER -1)
-    message("Use CXX Standard 20")
-    set(CMAKE_CXX_STANDARD 20)
-else()
-    set(CMAKE_CXX_STANDARD 17)
-endif()
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
