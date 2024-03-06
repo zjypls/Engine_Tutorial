@@ -16,7 +16,6 @@ namespace Z
         instance->renderResourceData.resize(instance->maxFlightFrame);
         instance->InitRenderData();
         instance->InitSetLayout();
-        auto model=AssetsSystem::Load<MeshRes>("local_model/model.fbx");
     }
 
     void RenderResource::clear() {
