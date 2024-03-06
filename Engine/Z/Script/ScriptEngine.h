@@ -62,7 +62,6 @@ namespace Z {
 		}
 
 		void SetValue(void*v){
-			//std::memcpy(buffer,v,TypeSize);
 			memcpy(buffer,v,TypeSize);
 		}
 		unsigned char buffer[32]{0};

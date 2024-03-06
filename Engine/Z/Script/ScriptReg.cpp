@@ -142,21 +142,6 @@ namespace Z {
 	}
 
 	uint64 Entity_SingleClone(zGUID originID) {
-		// value different with C# script give on Windows but work well on Linux ???? //solved (2024/01/12 13:50)
-		// a log output on windows(2024/01/12 3:20):
-		/*
-		 [03:09:28] Z: Log from C# script : 13666765057558020482
-		 [03:09:28] Z: Log from C# script : example
-		 [03:09:28] Z: Log from C# script : Test Log : Call EntityCore::Instantiate for go named example,id :13666765057558020482
-
-		 [03:09:28] Z:SingleClone recive id : 140695316822416
-		 [03:09:28] Z:Found GO named example total Size (C++ execute): 1
-		 [03:09:28] Z:go[0] 13666765057558020482
-		 */
-		// noticed by pls
-        // solved (2024/01/12 13:50)
-        // noticed that the return value type of mono internal function should be base type or MonoType !
-        // speculate that it works well on Linux because gcc optimize zGUID as uint64 ?
 		const auto& context=ScriptEngine::GetContext();
 		const auto OriginEntity=context->GetEntityWithGUID(originID);
 		auto entity=context->InstantiateEntity(OriginEntity);

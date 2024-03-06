@@ -14,6 +14,7 @@ namespace Z {
         Context=initInfo->graphicContext;
         uiPass=CreateRef<UIPass>();
         mainCameraPass=CreateRef<MainCameraPass>();
+        auto mainCameraPassPtr=(MainCameraPass*)mainCameraPass.get();
 
         auto cameraPassInitInfo=MainCameraPass::MainCameraPassInitInfo{};
         cameraPassInitInfo.graphicInterface=Context;
@@ -26,11 +27,11 @@ namespace Z {
         mainCameraPass->PostInit();
 
         auto skyboxPassInitInfo=SkyboxPassInitInfo{};
-        skyboxPassInitInfo.renderpass=((MainCameraPass*)mainCameraPass.get())->viewportRenderPass;
+        skyboxPassInitInfo.renderpass=mainCameraPassPtr->viewportRenderPass;
         skyboxPassInitInfo.frameBufferCount=Context->GetMaxFramesInFlight();
-        skyboxPassInitInfo.framebuffer=((MainCameraPass*)mainCameraPass.get())->viewportFrameBuffer.data();
-        skyboxPassInitInfo.width=((MainCameraPass*)mainCameraPass.get())->viewPortSize.x;
-        skyboxPassInitInfo.height=((MainCameraPass*)mainCameraPass.get())->viewPortSize.y;
+        skyboxPassInitInfo.framebuffer=mainCameraPassPtr->viewportFrameBuffer.data();
+        skyboxPassInitInfo.width=mainCameraPassPtr->viewPortSize.x;
+        skyboxPassInitInfo.height=mainCameraPassPtr->viewPortSize.y;
         skyboxPassInitInfo.graphicInterface=Context;
         skyboxPass=CreateRef<SkyboxPass>();
         skyboxPass->Init(&skyboxPassInitInfo);

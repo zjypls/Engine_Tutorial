@@ -219,8 +219,6 @@ namespace Z {
 		scriptData->AppAssemblyPath="bin/scripts.dll";
 		mono_set_assemblies_path("Assets/mono/lib/4.5");
 		scriptData->rootDomain = mono_jit_init("ZJIT");
-		//scriptData->appDomain = mono_domain_create_appdomain(scriptData->domainName.data(), nullptr);
-		//mono_domain_set(scriptData->appDomain, false);
 	}
 
 	void ScriptEngine::MonoShutDown() {
@@ -401,8 +399,6 @@ namespace Z {
 
 
 	void ScriptClass::SetValue(zGUID id, const std::string &name, void *ptr) {
-//		mono_field_static_set_value(mono_class_vtable(scriptData->rootDomain,Class),
-//		                            Fields.at(name).Field,ptr);
 		auto bufferMap = scriptData->EntityFields.find(std::pair{id, *this});
 		auto &buffer = bufferMap->second.at(name);
 		buffer.SetValue(ptr);

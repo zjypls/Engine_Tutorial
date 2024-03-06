@@ -6,8 +6,8 @@
 #include "Z/ImGui/ImGuiRendererPlatform.h"
 
 namespace Z {
-    constexpr static Format depthStencilFormat = Format::D32_SFLOAT;
-    constexpr static Format indexFormat = Format::R32_SINT;
+    constexpr static auto depthStencilFormat = Format::D32_SFLOAT;
+    constexpr static auto indexFormat = Format::R32_SINT;
     void MainCameraPass::Init(RenderPassInitInfo *info) {
 
         Context=info->graphicInterface;
