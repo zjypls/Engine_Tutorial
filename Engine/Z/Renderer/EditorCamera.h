@@ -26,7 +26,6 @@ namespace Z {
 		glm::vec3 focus=glm::vec3{0.f};
 		glm::vec3 up=glm::vec3{0.f,1.f,0.f},right=glm::vec3{1.f,0.f,0.f};
 		float distance=glm::sqrt(3.f);
-		float pitch=glm::acos(1/3.f),yaw=pitch;
 		glm::vec2 viewportSize=glm::vec2{800,800},lastMousePosition=glm::vec2{0.f};
 		glm::mat4 viewMatrix=glm::mat4(1.f);
 

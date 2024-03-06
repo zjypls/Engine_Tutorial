@@ -9,7 +9,7 @@
 
 
 namespace Z {
-
+	constexpr glm::vec3 g_UP={0,1,0};
 	EditorCamera::EditorCamera(float fov, float aspectRatio, float nearClip, float farClip)
 			: Fov(glm::radians(fov)), aspectRatio(aspectRatio), nearClip(nearClip), farClip(farClip) {
 		projection = glm::perspective(Fov, aspectRatio, nearClip, farClip);
@@ -53,21 +53,14 @@ namespace Z {
 	}
 
 	void EditorCamera::ViewRotate(const glm::vec2 offset) {
-		auto [x, y] = Input::GetMousePosition();
-		auto toFocus = glm::normalize(position - focus);
-		//TODO:multiply with deltaTime
-		pitch-=offset.y * 1E-2f;
-		yaw -= offset.x * 1E-2f;
-		right = glm::normalize(glm::cross(toFocus, up));//glm::normalize(glm::rotate(glm::quat(-offset.x * up*1E-2f), right));
-		// Todo:optimize
-		if(pitch<3.1f&&pitch>0.1f) {
-			toFocus = glm::rotate(glm::quat(-offset.x * up * 1E-2f), toFocus);
-			toFocus = glm::rotate(glm::quat(offset.y * right * 1E-2f), toFocus);
-			position = focus + distance * glm::normalize(toFocus);
-		}
-		else
-			//TODO:use clamp?
-			pitch += offset.y * 1E-2f;
+		auto deltaTime=Time::DeltaTime();
+		glm::vec3 toFocus = position - focus;
+    	glm::quat rotation = glm::angleAxis(-offset.x* deltaTime, g_UP) * glm::angleAxis(offset.y * deltaTime, right);
+		
+    	toFocus = rotation * toFocus;
+		position = focus + distance * glm::normalize(toFocus);
+    	up = rotation * up;
+		right = glm::cross(toFocus, up);
 	}
 
 	void EditorCamera::UpdateCursorPos() {
