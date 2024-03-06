@@ -8,12 +8,14 @@
 #include "Include/tinyobjloader/tiny_obj_loader.h"
 #include "Include/glm/glm.hpp"
 #include "Include/glm/gtx/hash.hpp"
+#include "Include/glm/gtc/type_ptr.hpp"
 
 #include "Z/Core/Log.h"
 #include "Z/Core/AssetsSystem.h"
 #include "Z/Scene/Components.h"
 #include "Z/Renderer/RenderManager.h"
 #include "Z/Renderer/RenderResourceTypes.h"
+#include "Z/Utils/ZUtils.h"
 
 namespace Z{
 	static GraphicInterface* s_Context=nullptr;
@@ -25,6 +27,7 @@ namespace Z{
 			tCase(Mesh);
 			tCase(Material);
 			tCase(SkyBox);
+			tCase(Shader);
 			tCase(None);
 			#undef tCase()
 		}
@@ -37,6 +40,7 @@ namespace Z{
 		tBranch(Material);
 		tBranch(Mesh);
 		tBranch(SkyBox);
+		tBranch(Shader);
 		tBranch(None);
 		#undef tBranch()
 		return Z::AssetsImporterType::None;
@@ -145,6 +149,9 @@ namespace Z {
 				return Z::AssetsImporterType::Texture2D;
 			else if(MeshSheets.find(extension)!=MeshSheets.end())
 				return Z::AssetsImporterType::Mesh;
+			else if(extension.compare(".glsl")==0)
+				return Z::AssetsImporterType::Shader;
+			Z_CORE_ASSERT(false,"Unknow extension type : {0}",extension);
 			return Z::AssetsImporterType::None;
 		}
 
@@ -212,6 +219,28 @@ namespace Z {
 			return mesh;
 		}
 
+		std::vector<ShaderStageFlag> CountShaderStages(const std::string& source){
+			std::vector<ShaderStageFlag> stages{};
+			if(source.find("Z_VERTEX")!=std::string::npos)
+				stages.push_back(ShaderStageFlag::VERTEX);
+			if(source.find("Z_FRAGMENT")!=std::string::npos)
+				stages.push_back(ShaderStageFlag::FRAGMENT);
+			if(source.find("Z_GEOMERTY")!=std::string::npos)
+				stages.push_back(ShaderStageFlag::GEOMETRY);
+			if(source.find("Z_COMPUTE")!=std::string::npos)
+				stages.push_back(ShaderStageFlag::COMPUTE);
+			return stages;
+		}
+
+		ShaderRes* LoadShader(const std::string&path){
+			auto shader=new ShaderRes();
+			shader->source=Utils::ReadFile(path);
+			shader->stages=CountShaderStages(shader->source);
+			shader->path=path;
+			shader->type=AssetsImporterType::Shader;
+			return shader;
+		}
+
 		void DestroySkyBox(void*skybox){
 			auto sky=static_cast<Z::Skybox*>(skybox);
 			s_Context->DestroyImage(sky->image,sky->memory,sky->imageView);
@@ -270,6 +299,10 @@ namespace Z {
 
 
 	void* AssetsSystem::LoadAsset(const std::filesystem::path &path){
+		if(!std::filesystem::exists(path)){
+			Z_CORE_ERROR("File not found: {0}",path.string());
+			return nullptr;
+		}
 		auto confFile=path;
 		auto extension=confFile.extension().string();
 		if(extension.compare(Z_CONF_EXTENSION)!=0){
@@ -294,6 +327,9 @@ namespace Z {
 				ptr = Tools::LoadSkyBox(path.parent_path().string());
 			}
 			case AssetsImporterType::None:
+				break;
+			case AssetsImporterType::Shader:
+				ptr=Tools::LoadShader(path.string());
 				break;
 		}
 		Z_CORE_ASSERT(ptr,"Failed to load asset");

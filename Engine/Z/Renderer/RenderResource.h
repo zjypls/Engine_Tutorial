@@ -16,6 +16,7 @@ namespace Z
     {
         GraphicInterface *graphicContext;
     };
+    // manage runtime render resource used by scene
     class Z_API RenderResource
     {
     public:

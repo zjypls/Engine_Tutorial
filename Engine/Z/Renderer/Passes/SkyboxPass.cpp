@@ -63,7 +63,7 @@ namespace Z {
 
     void SkyboxPass::InitPipeline() {
         renderPipelines.resize(1);
-        auto skyboxShaderSource = Z::Utils::ReadFile("Assets/Shaders/SkyBox.glsl");
+        auto skyboxShader=AssetsSystem::Load<ShaderRes>("Assets/Shaders/SkyBox.glsl");
         GraphicPipelineCreateInfo pipelineCreateInfo{};
         PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo{};
         vertexInputStateCreateInfo.vertexBindingDescriptionCount = 0;
@@ -83,7 +83,7 @@ namespace Z {
         pipelineCreateInfo.pColorBlendState = &colorBlendStateCreateInfo;
 
         std::vector<DescriptorSetLayout*> layouts{};
-        Context->CreateGraphicPipeline(skyboxShaderSource, {ShaderStageFlag::VERTEX, ShaderStageFlag::FRAGMENT},
+        Context->CreateGraphicPipeline(skyboxShader->source, skyboxShader->stages,
                                        renderPipelines[0].pipeline, framebuffer.renderPass, layouts,
                                        renderPipelines[0].layout,&pipelineCreateInfo);
         descriptors.resize(layouts.size());

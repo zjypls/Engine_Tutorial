@@ -452,6 +452,11 @@ namespace Z {
 			ImGui::SameLine();
             ImGui::Text(component.meshPath.c_str());
 		});
+		DrawComponent<MeshRendererComponent>("MeshRenderer",entity,[](Entity entity,MeshRendererComponent& component){
+			ImGui::Text("Material:");
+			ImGui::SameLine();
+			ImGui::Text(component.materialPath.c_str());
+		});
 	}
 
 	template<typename Ty>

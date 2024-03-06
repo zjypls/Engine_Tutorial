@@ -10,6 +10,7 @@
 #include <filesystem>
 
 #include "Z/Core/Core.h"
+#include "Z/Core/Log.h"
 #include "Z/Core/zGUID.h"
 #include "Z/Renderer/GraphicInterface.h"
 
@@ -54,6 +55,13 @@ namespace Z {
 	struct Material {
 		AssetsImporterType type;
 		std::string path;
+	};
+
+	struct ShaderRes {
+		AssetsImporterType type;
+		std::string path;
+		std::string source;
+		std::vector<ShaderStageFlag> stages;
 	};
 
 	class Z_API AssetsSystem final {
