@@ -31,7 +31,7 @@ void main() {
     data.dir=cudeVertices[indices[gl_VertexIndex]];
     vec4 _pos=camera.projectionMat*vec4(mat3(camera.viewMat)*data.dir,1);
     data.dir=normalize(data.dir);
-    _pos.z=_pos.w*0.999;
+    _pos.z=_pos.w*0.99999f;
     gl_Position=_pos;
 }
 #endif
