@@ -55,9 +55,9 @@ namespace Z {
             delete pipeline.pipeline;
             delete pipeline.layout;
         }
-        for(auto &descriptor:descriptors){
-            Context->DestroyDescriptorSetLayout(descriptor.layout);
-            delete descriptor.layout;
+        for(int i=1;i<descriptors.size();++i){
+            Context->DestroyDescriptorSetLayout(descriptors[i].layout);
+            delete descriptors[i].layout;
         }
     }
 
@@ -111,25 +111,16 @@ namespace Z {
         DescriptorImageInfo imageViewInfo{};
         imageViewInfo.imageView = skybox->imageView;
         imageViewInfo.imageLayout = ImageLayout::SHADER_READ_ONLY_OPTIMAL;
-        DescriptorBufferInfo bufferInfo{};
-        bufferInfo.offset=0;
-        bufferInfo.range=sizeof(RenderResource::InputData);
         for (int i = 0; i < initInfo->frameBufferCount; i++) {
-            WriteDescriptorSet writeDescriptorSet[2]{};
-            writeDescriptorSet[0].dstSet = descriptorSets[i][0];
+            descriptorSets[i][0] = RenderResource::GetFirstDescriptorSet(i);
+            WriteDescriptorSet writeDescriptorSet[1]{};
+            writeDescriptorSet[0].dstSet = descriptorSets[i][1];
             writeDescriptorSet[0].dstBinding = 0;
             writeDescriptorSet[0].dstArrayElement = 0;
-            writeDescriptorSet[0].descriptorType = DescriptorType::UNIFORM_BUFFER;
+            writeDescriptorSet[0].descriptorType = DescriptorType::COMBINED_IMAGE_SAMPLER;
             writeDescriptorSet[0].descriptorCount = 1;
-            bufferInfo.buffer = renderResourceData[i].mvpMatrixBuffer;
-            writeDescriptorSet[0].pBufferInfo = &bufferInfo;
-            writeDescriptorSet[1].dstSet = descriptorSets[i][1];
-            writeDescriptorSet[1].dstBinding = 0;
-            writeDescriptorSet[1].dstArrayElement = 0;
-            writeDescriptorSet[1].descriptorType = DescriptorType::COMBINED_IMAGE_SAMPLER;
-            writeDescriptorSet[1].descriptorCount = 1;
-            writeDescriptorSet[1].pImageInfo = &imageViewInfo;
-            Context->WriteDescriptorSets(writeDescriptorSet, 2);
+            writeDescriptorSet[0].pImageInfo = &imageViewInfo;
+            Context->WriteDescriptorSets(writeDescriptorSet, 1);
         }
     }
 } // Z

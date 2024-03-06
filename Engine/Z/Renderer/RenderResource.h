@@ -35,13 +35,21 @@ namespace Z
         static RenderResource* GetInstance(){return instance.get();}
         static RenderResourceData* GetCurrentRenderResourceData(){return &instance->renderResourceData[instance->graphicContext->GetCurrentFrameIndex()];}
         static const auto& GetRenderReourceData(){return instance->renderResourceData;}
+        static DescriptorSetLayout* GetFirstLayout(){return instance->firstLayout;}
+        static DescriptorSet* GetFirstDescriptorSet(uint32 index){return instance->firstDescriptorSets[index];}
 
     private:
         static Ref<RenderResource> instance;
+        
         void InitRenderData();
+        void InitSetLayout();
+
         uint32 maxFlightFrame=0;
         GraphicInterface* graphicContext;
         std::vector<RenderResourceData> renderResourceData;
+        // set layout in bind 0
+        DescriptorSetLayout* firstLayout;
+        std::vector<DescriptorSet*> firstDescriptorSets;
     };
 
 } // namespace Z

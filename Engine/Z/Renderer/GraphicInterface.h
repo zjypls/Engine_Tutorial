@@ -109,6 +109,8 @@ namespace Z {
         virtual uint32 GetCurrentFrameIndex()=0;
 
         virtual uint32 GetMaxFramesInFlight()=0;
+
+        virtual DescriptorSetLayout* GetFirstDescriptorSetLayout()=0;
     };
 
 } // Z

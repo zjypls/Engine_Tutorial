@@ -517,6 +517,18 @@ namespace Z {
     void VulkanGraphicInterface::ReCreateSwapChain() {
     }
 
+    void VulkanGraphicInterface::InitFirstSetLayout(){
+        DescriptorSetLayoutCreateInfo layoutInfo{};
+        layoutInfo.bindingCount=1;
+        DescriptorSetLayoutBinding bindingInfo{};
+        bindingInfo.binding=0;
+        bindingInfo.descriptorCount=1;
+        bindingInfo.descriptorType=DescriptorType::UNIFORM_BUFFER;
+        bindingInfo.stageFlags=ShaderStageFlag::VERTEX;
+        layoutInfo.pBindings=&bindingInfo;
+        CreateDescriptorSetLayout(layoutInfo,firstSetLayout);
+    }
+
     void VulkanGraphicInterface::Init(const GraphicSpec &spec) {
         CreateInstance();
         initializeDebugMessenger();
@@ -531,10 +543,13 @@ namespace Z {
         CreateSwapchainImageViews();
         CreateVmaAllocator();
         CreateDefaultSampler();
+        InitFirstSetLayout();
     }
 
     void VulkanGraphicInterface::Shutdown() {
         //todo:destroy vulkan context
+
+        DestroyDescriptorSetLayout(firstSetLayout);
 
         for(auto view:swapchainImageViews) {
             vkDestroyImageView(device,view,nullptr);
@@ -870,6 +885,7 @@ namespace Z {
                 info=*createInfo;
             auto shaderInfo=VulkanUtils::ReflectShader(shaderSources,stageFlags);
             auto descriptorLayout=VulkanUtils::CreateDescriptorSetLayout(device,shaderInfo.descriptorInfos);
+            descriptorLayout.insert(descriptorLayout.begin(),((VulkanDescriptorSetLayout*)firstSetLayout)->Get());
             descriptorSetLayout.resize(descriptorLayout.size());
             for(int i=0;i<descriptorLayout.size();++i){
                 descriptorSetLayout[i]=new VulkanDescriptorSetLayout{};
