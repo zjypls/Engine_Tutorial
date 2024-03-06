@@ -22,7 +22,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Z)
 if(DisableWarnings)
     # disable warnings 
     if (MSVC)
-        target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+        target_compile_options(${PROJECT_NAME} PRIVATE /W4)
     else ()
         target_compile_options(${PROJECT_NAME} PRIVATE -w)
     endif()
