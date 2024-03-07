@@ -35,7 +35,7 @@ namespace Z {
     void EditorLayer::OnAttach() {
         Z_CORE_INFO("Layer:{0} Attach!", GetName());
         scene = CreateRef<Scene>();
-        editorCamera = EditorCamera(60.f, 1.f, 0.1f, 100.f);
+        editorCamera = EditorCamera(60.f, 1.f, 0.1f, 1000.f);
 		selfDefLayoutStr=ImGui::SaveIniSettingsToMemory();
 		auto [viewWidth,viewHeight]=Utils::GetWindowSizeFromIniConfig(selfDefLayoutStr,"ViewPort");
 		Z_CORE_ASSERT(viewWidth!=0&&viewHeight!=0,"Viewport size not found in config file or illegal value!");
