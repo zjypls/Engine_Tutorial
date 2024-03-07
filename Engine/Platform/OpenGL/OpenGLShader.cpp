@@ -137,24 +137,7 @@ namespace Z {
 			Z_CORE_ASSERT(false, "Unknown Shader Type");
 			return RenderAPI::zShaderType::None;
 		}
-
-		std::unordered_map<RenderAPI::zShaderType, std::string> PreProcessCode(const std::string &code) {
-			std::unordered_map<RenderAPI::zShaderType, std::string> result;
-			const std::string filter = "#type";
-			size_t filterSize = filter.size();
-			size_t pos = code.find(filter, 0);
-			while (pos != std::string::npos) {
-				size_t newLinePos = code.find_first_of("\r\n", pos);
-				Z_CORE_ASSERT(newLinePos != std::string::npos, "Syntax Error");
-				size_t begin = pos + filterSize + 1;
-				auto type = GetShaderTypeFromString(code.substr(begin, newLinePos - begin));
-				Z_CORE_ASSERT(type != RenderAPI::zShaderType::None, "Unknown Shader Type");
-				pos = code.find(filter, newLinePos);
-				result[type] = code.substr(newLinePos, pos - newLinePos);
-			}
-			return result;
-		}
-
+		
 		GLenum ShaderTypeToOpenGLType(RenderAPI::zShaderType type) {
 			switch (type) {
 				case RenderAPI::zShaderType::Vertex:

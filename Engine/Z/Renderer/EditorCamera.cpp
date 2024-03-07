@@ -59,8 +59,8 @@ namespace Z {
 		
     	toFocus = rotation * toFocus;
 		position = focus + distance * glm::normalize(toFocus);
-    	up = rotation * up;
-		right = glm::cross(toFocus, up);
+		up=glm::normalize(rotation*up);
+		right = glm::normalize(glm::cross(toFocus, up));
 	}
 
 	void EditorCamera::UpdateCursorPos() {
@@ -70,10 +70,8 @@ namespace Z {
 
 	void EditorCamera::MoveFocus(const glm::vec2 offset) {
 		auto toFocus = glm::normalize(focus - position);
-		auto LocalRight = glm::normalize(glm::cross(toFocus, up));
-		auto LocalUp = glm::normalize(glm::cross(LocalRight, toFocus));
-		focus += (-offset.x * LocalRight + offset.y * LocalUp) * 1E-2f;
-		position += (-offset.x * LocalRight + offset.y * LocalUp) * 1E-2f;
+		focus += (offset.x * right + offset.y * up) * 1E-2f;
+		position += (offset.x * right + offset.y * up) * 1E-2f;
 	}
 
 	bool EditorCamera::OnKeyPressed(KeyPressEvent &e) {
@@ -95,8 +93,6 @@ namespace Z {
 			this->position += this->up * deltaTimeScale;
 		else if (Input::IsKeyPressed(KeyCode::Q))
 			this->position -= this->up * deltaTimeScale;
-//		else
-//			return;
 		this->focus += this->position - befPos;
 	}
 }
