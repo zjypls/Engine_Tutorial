@@ -72,7 +72,7 @@ namespace Z{
             attributeDescriptions[3].offset=offsetof(Vertex,uv);
             attributeDescriptions[4].binding=1;
             attributeDescriptions[4].location=4;
-            attributeDescriptions[4].format=Format::R32G32B32A32_UINT;
+            attributeDescriptions[4].format=Format::R32G32B32A32_SINT;
             attributeDescriptions[4].offset=offsetof(VertexBlending,boneIndex);
             attributeDescriptions[5].binding=1;
             attributeDescriptions[5].location=5;
