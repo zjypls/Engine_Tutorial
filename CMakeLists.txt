@@ -89,7 +89,7 @@ elseif(CMAKE_HOST_LINUX)
         # use clang by export CC=clang CXX=clang++ 
         message(WARNING "Suppose to use clang , if compile failed , try to use clang")
     endif()
-    if(FALSE AND DEFINED ENV{WAYLAND_DISPLAY} OR (DEFINED ENV{XDG_SESSION_TYPE} AND “$ENV{XDG_SESSION_TYPE}” MATCHES "wayland"))
+    if(FALSE AND ( DEFINED ENV{WAYLAND_DISPLAY} OR (DEFINED ENV{XDG_SESSION_TYPE} AND “$ENV{XDG_SESSION_TYPE}” MATCHES "wayland") ))
         # mark : note that crash on plasma 6 ( kwayland 6 ) on my Arch 
         # using x11 default utils i fix swapchain recreate
         message(WARNING "Using Wayland for linux !")
