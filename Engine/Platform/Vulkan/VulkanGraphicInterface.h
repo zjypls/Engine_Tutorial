@@ -29,6 +29,7 @@ namespace Z {
         void EndRenderPass() override;
         void BindPipeline(PipelineBindPoint,Pipeline *pipeline) override;
         void BindDescriptorSets(PipelineBindPoint bindPoint, PipelineLayout *layout, uint32 firstSet, const std::vector<DescriptorSet*>&descriptorSets) override;
+        void PushConstant(PipelineLayout *layout, ShaderStageFlag stage, uint32 offset, uint32 size, const void *data) override;
         void SetViewPort(const Viewport &viewport) override;
         void SetScissor(const Rect2D &scissor) override;
         void BindVertexBuffer(Buffer** buffers,uint32 firstBinding,uint32 bindingCount,uint32 offset) override;

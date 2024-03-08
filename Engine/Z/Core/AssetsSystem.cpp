@@ -61,7 +61,7 @@ namespace YAML{
 		}
 		static bool decode(const Node &node, Z::AssetsImporterType& type){
 			type=Z::StringToImporterType(node.as<std::string>());
-			return true;
+			return type!=Z::AssetsImporterType::None;
 		}
 	};
 }
@@ -265,9 +265,11 @@ namespace Z {
 				s_Context->DestroyBuffer(m->vertexBuffer[i],m->vertexMemory[i]);
 			}
 			s_Context->DestroyBuffer(m->indexBuffer,m->indexMemory);
-			s_Context->DestroyBuffer(m->boneBuffer,m->boneMemory);
-			delete m->boneBuffer;
-			delete m->boneMemory;
+			if(m->boneBuffer!=nullptr){
+				s_Context->DestroyBuffer(m->boneBuffer,m->boneMemory);
+				delete m->boneBuffer;
+				delete m->boneMemory;
+			}
 			delete[] m->vertexBuffer;
 			delete[] m->vertexMemory;
 			delete m->indexBuffer;

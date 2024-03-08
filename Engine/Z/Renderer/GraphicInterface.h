@@ -92,6 +92,8 @@ namespace Z {
 
         virtual void BindDescriptorSets(PipelineBindPoint bindPoint,PipelineLayout* layout,uint32 firstSet,const std::vector<DescriptorSet*>& descriptorSets)=0;
 
+        virtual void PushConstant(PipelineLayout* layout,ShaderStageFlag stageFlags,uint32 offset,uint32 size,const void* data)=0;
+
         virtual void BindVertexBuffer(Buffer** buffer,uint32 firstBinding,uint32 bindingCount,uint32 offset=0)=0;
 
         virtual void BindIndexBuffer(Buffer* buffer,uint32 offset=0, IndexType indexType = IndexType::UINT32)=0;

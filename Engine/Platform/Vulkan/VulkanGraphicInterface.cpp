@@ -1398,6 +1398,11 @@ namespace Z {
 
     }
 
+    void VulkanGraphicInterface::PushConstant(PipelineLayout *layout, ShaderStageFlag stageFlags, uint32 offset,
+                                              uint32 size, const void *data) {
+        vkCmdPushConstants(commandBuffers[currentFrameIndex],((VulkanPipelineLayout*)layout)->Get(),(VkShaderStageFlags)stageFlags,offset,size,data);
+    }
+
     void VulkanGraphicInterface::SetViewPort(const Z::Viewport &viewport) {
         VkViewport vkViewport{};
         vkViewport.x=viewport.x;

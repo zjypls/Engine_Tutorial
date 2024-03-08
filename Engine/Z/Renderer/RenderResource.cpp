@@ -28,7 +28,7 @@ namespace Z
         instance=nullptr;
     }
 
-    void RenderResource::UpdateData(void* data,uint64 inputSize,uint64 inputOffset,uint64 desOffset) {
+    void RenderResource::UpLoadData(void* data,uint64 inputSize,uint64 inputOffset,uint64 desOffset) {
         const auto& renderData=instance->renderResourceData[instance->graphicContext->GetCurrentFrameIndex()];
         void* mappedData;
         instance->graphicContext->MapMemory(renderData.mvpMatrixBufferMemory,0,sizeof(InputData),mappedData);

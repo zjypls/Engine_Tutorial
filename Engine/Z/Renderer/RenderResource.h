@@ -32,7 +32,7 @@ namespace Z
         static void clear() ;
         // upload data to buffer
         // copy ( (byte*)destination + desOffset, (byte*)data + inputOffset , inputSize )
-        static void UpdateData(void* data , uint64 inputSize = sizeof(InputData) , uint64 inputOffset=0 , uint64 desOffset = 0);
+        static void UpLoadData(void* data , uint64 inputSize = sizeof(InputData) , uint64 inputOffset=0 , uint64 desOffset = 0);
         static RenderResource* GetInstance(){return instance.get();}
         static RenderResourceData* GetCurrentRenderResourceData(){return &instance->renderResourceData[instance->graphicContext->GetCurrentFrameIndex()];}
         static const auto& GetRenderReourceData(){return instance->renderResourceData;}

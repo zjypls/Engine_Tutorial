@@ -10,11 +10,10 @@
 
 
 namespace Z {
+	constexpr float walkSpeedScale=1.f,rotateSpeedScale=1.f,moveSpeedScale=1.f;
 	constexpr glm::vec3 g_UP = glm::vec3(0.0f, 1.0f, 0.0f);
 	EditorCamera::EditorCamera(float fov, float aspectRatio, float nearClip, float farClip)
 			: Fov(glm::radians(fov)), aspectRatio(aspectRatio), nearClip(nearClip), farClip(farClip) {
-		projection = glm::perspective(Fov, aspectRatio, nearClip, farClip);
-		viewMatrix = glm::lookAt(position, focus, up);
 		OnUpdate();
 	}
 
@@ -55,7 +54,7 @@ namespace Z {
 	}
 
 	void EditorCamera::ViewRotate(glm::vec2 offset) {
-		auto deltaTime=Time::DeltaTime();
+		auto deltaTime=Time::DeltaTime()*rotateSpeedScale;
 		glm::vec3 toFocus = position - focus;
     	glm::quat rotation = glm::angleAxis(-offset.x* deltaTime, g_UP) * glm::angleAxis(offset.y * deltaTime, right);
 		
@@ -71,12 +70,10 @@ namespace Z {
 	}
 
 	void EditorCamera::MoveFocus(glm::vec2 offset) {
-		auto deltaTime=Time::DeltaTime();
+		auto deltaTime=Time::DeltaTime()*moveSpeedScale;
 		auto toFocus = glm::normalize(focus - position);
-		//auto LocalRight = glm::normalize(glm::cross(toFocus, up));
-		//auto LocalUp = glm::normalize(glm::cross(LocalRight, toFocus));
-		focus += (-offset.x * right + offset.y * up) * deltaTime;
-		position += (-offset.x * right + offset.y * up) * deltaTime;
+		focus += (offset.x * right + offset.y * up) * deltaTime;
+		position += (offset.x * right + offset.y * up) * deltaTime;
 	}
 
 	bool EditorCamera::OnKeyPressed(KeyPressEvent &e) {
@@ -85,7 +82,7 @@ namespace Z {
 
 	void EditorCamera::Walk() {
 		glm::vec3 befPos = this->position;
-		float deltaTimeScale = Time::DeltaTime() * 10;
+		float deltaTimeScale = Time::DeltaTime() * walkSpeedScale;
 		if (Input::IsKeyPressed(KeyCode::W))
 			this->position += glm::normalize(this->focus - this->position) * deltaTimeScale;
 		else if (Input::IsKeyPressed(KeyCode::S))

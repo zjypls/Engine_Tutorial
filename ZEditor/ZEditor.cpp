@@ -79,7 +79,7 @@ namespace Z {
 		static glm::mat4 data[2]{};
 		data[0]=editorCamera.GetViewMatrix();
 		data[1]=editorCamera.GetProjectionMatrix();
-		RenderResource::UpdateData(data,sizeof(glm::mat4)*2,0,offsetof(RenderResource::InputData,view));
+		RenderResource::UpLoadData(data,sizeof(glm::mat4)*2,0,offsetof(RenderResource::InputData,view));
 
 		{
 			SceneState state = sceneState;
@@ -276,13 +276,18 @@ namespace Z {
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x,
 			                  ImGui::GetWindowSize().y);
-			auto cameraProjection = editorCamera.GetViewMatrix();
+			static glm::mat4 cameraView,cameraProj,goModel;
+			cameraView = editorCamera.GetViewMatrix();
 
 			auto &selectTransform = selectedEntity.GetComponent<TransformComponent>();
-			auto Transform = selectTransform.GetTransform();
-			ImGuizmo::Manipulate(glm::value_ptr(cameraProjection), glm::value_ptr(editorCamera.GetProjectionMatrix()),
+			cameraProj = editorCamera.GetProjectionMatrix();
+			// fix the up axis
+			// vulkan is right handed, but the gizmo is left handed
+			cameraProj[1][1]*=-1;
+			goModel = selectTransform.GetTransform();
+			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProj),
 			                     (ImGuizmo::OPERATION) currentGizmoOperation, ImGuizmo::MODE::LOCAL,
-			                     glm::value_ptr(Transform));
+			                     glm::value_ptr(goModel));
 			//TODO:Optimize
 			static int8 SavePreTrans = 1;
 			if (ImGuizmo::IsUsing()) {
@@ -305,7 +310,7 @@ namespace Z {
 					glm::vec3 translation, scale, skew;
 					glm::quat rotation;
 					glm::vec4 perspective;
-					glm::decompose(Transform, scale, rotation, translation, skew, perspective);
+					glm::decompose(goModel, scale, rotation, translation, skew, perspective);
 					selectTransform.translation = translation;
 					selectTransform.rotation = (glm::eulerAngles(rotation));
 					selectTransform.scale = scale;
