@@ -206,10 +206,8 @@ namespace Z {
 		ImGui::Text("StepFrameCount:");
 		ImGui::DragInt("##StepFrameCount", &stepFrames, 1, 1, 100);
         ImGui::Text("Build Version : %s",BUILD_VERSION);
-		sceneHierarchyPlane->OnImGuiRender();
-		contentBrowser->OnImGuiRender();
-
 		ImGui::End();
+
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
 		ImGui::Begin("ViewPort", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar |
 		                                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoNav |
@@ -323,6 +321,8 @@ namespace Z {
 		ImGui::PopStyleVar();
 		ImGui::End();
 		OnButtonUI();
+		sceneHierarchyPlane->OnImGuiRender();
+		contentBrowser->OnImGuiRender();
 
 		ImGui::End();
 	}

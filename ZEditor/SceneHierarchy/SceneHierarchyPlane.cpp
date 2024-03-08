@@ -9,10 +9,6 @@
 #include "Include/imgui/imgui.h"
 #include "Include/imgui/imgui_internal.h"
 
-#include "Z/Scene/Components.h"
-#include "Z/Script/ScriptEngine.h"
-#include "Z/Core/AssetsSystem.h"
-
 #include "SceneHierarchyPlane.h"
 
 namespace Z {
@@ -52,7 +48,8 @@ namespace Z {
 
 	}
 
-	static void
+	// return true if value changed
+	static bool
 	MyDrawVec(const std::string &label, glm::vec3 &value, const glm::vec3 &ResetValue = glm::vec3{.0f},
 	          float ColumnWidth = 100.f) {
 		ImGui::PushID(label.c_str());
@@ -78,22 +75,23 @@ namespace Z {
 		static const char *ButtonLabel[] = {"X", "Y", "Z"};
 		static const char *DragLabel[] = {"##X", "##Y", "##Z"};
 
-		auto &io = ImGui::GetIO();
-		ImGui::PushFont(io.Fonts->Fonts[0]);
+		bool res=false;
 		for (int i = 0; i < 3; ++i) {
 			if (ImGui::Button(ButtonLabel[i], buttonSize)) { value[i] = ResetValue[i]; }
 			ImGui::PopStyleColor(3);
 			ImGui::SameLine();
-			ImGui::DragFloat(DragLabel[i], &value[i], 0.1f);
+			if(ImGui::DragFloat(DragLabel[i], &value[i], 0.1f)){
+				res=true;
+			}
 			if (i != 2)
 				ImGui::SameLine();
 			ImGui::PopItemWidth();
 		}
-		ImGui::PopFont();
 
 		ImGui::PopStyleVar();
 		ImGui::Columns(1);
 		ImGui::PopID();
+		return res;
 	}
 
 	void SceneHierarchyPlane::OnImGuiRender() {
@@ -195,11 +193,11 @@ namespace Z {
 		ImGui::PopItemWidth();
 
 		DrawComponent<TransformComponent>("Transform", entity, [](Entity entity, auto &transform) {
-			MyDrawVec("Position", transform.translation);
+			bool changed= MyDrawVec("Position", transform.translation);
 			auto rotation = glm::degrees(transform.rotation);
-			MyDrawVec("Rotation", rotation);
+			changed |= MyDrawVec("Rotation", rotation);
 			transform.rotation = glm::radians(rotation);
-			MyDrawVec("Scale", transform.scale, glm::vec3{1.f});
+			changed |= MyDrawVec("Scale", transform.scale, glm::vec3{1.f});
 		});
 		DrawComponent<SpriteRendererComponent>("SpriteRenderer", entity,
 		                                       [](Entity entity, SpriteRendererComponent &spriteRenderer) {

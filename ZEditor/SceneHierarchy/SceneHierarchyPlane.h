@@ -5,7 +5,7 @@
 #ifndef ENGINE_TUTORIAL_SCENEHIERARCHYPLANE_H
 #define ENGINE_TUTORIAL_SCENEHIERARCHYPLANE_H
 
-#include "Z/Scene/Entity.hpp"
+#include "z.h"
 
 namespace Z {
 	class SceneHierarchyPlane {
