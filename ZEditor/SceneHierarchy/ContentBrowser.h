@@ -10,6 +10,7 @@
 
 namespace Z {
 	class ContentBrowser {
+		static const uint32 iconCount=4;
 	public:
 		ContentBrowser();
 

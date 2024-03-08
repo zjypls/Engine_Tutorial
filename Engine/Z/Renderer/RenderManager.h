@@ -10,6 +10,8 @@
 #include "Z/Renderer/GraphicInterface.h"
 #include "Z/Renderer/RenderPipeline.h"
 #include "Z/ImGui/ImGuiRendererPlatform.h"
+#include "Z/Core/AssetsSystem.h"
+
 namespace Z {
 
     class Z_API RenderManager final{
@@ -27,6 +29,8 @@ namespace Z {
         static void SetViewPortSize(uint32 width,uint32 height);
 
         static ImTextureID CreateImGuiTexture(Image* image,ImageView* view,Z::ImageLayout layout=Z::ImageLayout::SHADER_READ_ONLY_OPTIMAL);
+        
+        static ImTextureID CreateImGuiTexture(Texture2D* texture2D){return CreateImGuiTexture(texture2D->image,texture2D->imageView);}
 
     private:
         static Ref<GraphicInterface> m_Context;

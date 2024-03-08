@@ -59,7 +59,7 @@ namespace Z {
 	}
 
 	void ContentBrowser::loadIcons(const std::initializer_list<std::string> &paths) {
-		Z_CORE_ASSERT(paths.size() == 2, "Icon size must be 2");
+		Z_CORE_ASSERT(paths.size() <= iconCount, "Icon size must be 2");
 		int i = 0;
 		for (const auto &path: paths) {
 		}

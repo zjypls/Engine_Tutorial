@@ -102,47 +102,8 @@ namespace Z {
 			Z_CORE_WARN("UID:{0},Type:{1},write to {2}!",id,typeSTR,pathOut);
 		}
 
-		// Mesh* LoadMesh(const std::string&path){
-		// 	auto mesh = new Mesh();
-		// 	tinyobj::attrib_t attrib{};
-		// 	std::vector<tinyobj::shape_t> shapes{};
-		// 	std::vector<tinyobj::material_t> materials;
-		// 	std::string warnings, errors;
-		// 	if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warnings, &errors, path.c_str())) {
-		// 		Z_CORE_WARN("Loader give warning : {0}", warnings);
-		// 		Z_CORE_ERROR("Loader give errors : {0}", errors);
-		// 		return mesh;
-		// 	}
-		// 	std::unordered_map<Vertex, uint32> Vertexes{};
-		// 	std::vector<Vertex> vertexes;
-		// 	std::vector<uint32> indexes;
-		// 	for (const auto &shape: shapes) {
-		// 		for (const auto &indices: shape.mesh.indices) {
-		// 			Vertex vert{};
-		// 			vert.verts = {
-		// 					attrib.vertices[indices.vertex_index * 3 + 0],
-		// 					attrib.vertices[indices.vertex_index * 3 + 1],
-		// 					attrib.vertices[indices.vertex_index * 3 + 2]};
-		// 			vert.tex = {
-		// 					attrib.texcoords[indices.texcoord_index * 2 + 0],
-		// 					attrib.texcoords[indices.texcoord_index * 2 + 1]};
-		// 			vert.normal = {
-		// 					attrib.normals[indices.normal_index * 3 + 0],
-		// 					attrib.normals[indices.normal_index * 3 + 1],
-		// 					attrib.normals[indices.normal_index * 3 + 2]};
-		// 			if (Vertexes.count(vert) == 0) {
-		// 				Vertexes[vert] = vertexes.size();
-		// 				vertexes.push_back(vert);
-		// 			}
-		// 			indexes.push_back(Vertexes[vert]);
-		// 		}
-		// 	}
-
-		// 	return mesh;
-		// }
-
 		static const std::set<std::string> TextureSheets{".png",".jpg",".jpeg",".bmp"};
-		static const std::set<std::string> MeshSheets{".obj",".fbx",".gltf"};
+		static const std::set<std::string> MeshSheets{".obj",".fbx"};
 
 		Z::AssetsImporterType ExtensionGetType(const std::string&extension){
 			if(TextureSheets.find(extension)!=TextureSheets.end())
@@ -164,15 +125,20 @@ namespace Z {
 				directory+"/front.jpg",
 				directory+"/back.jpg"
 			};
-			auto skybox=new Z::Skybox();
 			std::array<void*,6> pixelsData{};
 			int width,height,format;
-			//stbi_set_flip_vertically_on_load(true);
 			for(int i=0;i<6;i++){
 				auto pixelData=stbi_load(path[i].c_str(),&width,&height,&format,STBI_rgb_alpha);
-				Z_CORE_ASSERT(pixelData,"Failed to load skybox image");
+				if(!pixelData){
+					Z_CORE_ERROR("Failed to load image: path: {0} , message : {1}",path[i],stbi_failure_reason());
+					for(int j=0;j<i;j++){
+						stbi_image_free(pixelsData[j]);
+					}
+					return nullptr;
+				}
 				pixelsData[i]=pixelData;
 			}
+			auto skybox=new Z::Skybox();
 			Z::ImageInfo imageInfo{};
 			imageInfo.format=Z::Format::R8G8B8A8_UNORM;
 			imageInfo.extent={static_cast<uint32>(width),static_cast<uint32>(height),1};
@@ -195,7 +161,10 @@ namespace Z {
 		void* LoadTexture2D(const std::string&path){
 			int width,height,format;
 			auto pixelData=stbi_load(path.c_str(),&width,&height,&format,STBI_rgb_alpha);
-			Z_CORE_ASSERT(pixelData,"Failed to load texture2D image");
+			if(!pixelData){
+				Z_CORE_ERROR("Failed to load image: path: {0} , message : {1}",path,stbi_failure_reason());
+				return nullptr;
+			}
 			auto texture=new Z::Texture2D();
 			Z::ImageInfo imageInfo{};
 			imageInfo.format=Z::Format::R8G8B8A8_UNORM;
@@ -327,15 +296,17 @@ namespace Z {
 				break;
 			case AssetsImporterType::SkyBox:{
 				ptr = Tools::LoadSkyBox(path.parent_path().string());
-			}
-			case AssetsImporterType::None:
 				break;
+			}
 			case AssetsImporterType::Shader:
 				ptr=Tools::LoadShader(path.string());
 				break;
+			case AssetsImporterType::None:
+				return nullptr;
+				break;
 		}
-		Z_CORE_ASSERT(ptr,"Failed to load asset");
-		instance->resourceLibrary[metaData.id]=ptr;
+		if(ptr)
+			instance->resourceLibrary[metaData.id]=ptr;
 		return ptr;
 	}
 

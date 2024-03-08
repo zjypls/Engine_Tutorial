@@ -33,7 +33,6 @@ namespace Z {
 	}
 
     void EditorLayer::OnAttach() {
-        Z_CORE_INFO("Layer:{0} Attach!", GetName());
         scene = CreateRef<Scene>();
         editorCamera = EditorCamera(60.f, 1.f, 0.1f, 1000.f);
 		selfDefLayoutStr=ImGui::SaveIniSettingsToMemory();
@@ -614,7 +613,7 @@ namespace Z {
 					Z_CORE_ASSERT(viewWidth!=0&&viewHeight!=0,"Viewport size not found in config file or illegal value!");
 					viewportSize=glm::vec2(viewWidth,viewHeight);
 				});
-        		Z_CORE_WARN("Ini config file find : {0}",configuration.string());
+        		Z_CORE_INFO("Ini config file find : {0}",configuration.string());
         	}
         }else{
             Z_CORE_ERROR("illegal project file : {0}",path);
