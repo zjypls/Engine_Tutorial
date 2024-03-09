@@ -17,7 +17,7 @@ if (${CMAKE_GENERATOR} MATCHES "Visual Studio")
 endif ()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${EDITOR_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC Z)
+target_link_libraries(${PROJECT_NAME} PUBLIC ZCore)
 
 if(DisableWarnings)
     # disable warnings 

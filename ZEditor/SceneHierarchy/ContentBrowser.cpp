@@ -81,13 +81,13 @@ namespace Z {
 
 	void ContentBrowser::loadIcons(const std::vector<std::string> &paths) {
 		auto dirIcon = RenderManager::CreateImGuiTexture(AssetsSystem::Load<Texture2D>(paths[eDirectoryIcon]));
-		icons[0]=dirIcon;
+		icons[eDirectoryIcon]=dirIcon;
 		textureMap[zDirectoryIconIndex] = dirIcon;
 		auto fileIcon = RenderManager::CreateImGuiTexture(AssetsSystem::Load<Texture2D>(paths[eFileIcon]));
-		icons[1]=fileIcon;
+		icons[eFileIcon]=fileIcon;
 		textureMap[zDefaultFileIconIndex] = fileIcon;
 		auto meshIcon = RenderManager::CreateImGuiTexture(AssetsSystem::Load<Texture2D>(paths[eMeshIcon]));
-		icons[2]=meshIcon;
+		icons[eMeshIcon]=meshIcon;
 		textureMap[zDefaultMeshIconIndex] = meshIcon;
 	}
 }
