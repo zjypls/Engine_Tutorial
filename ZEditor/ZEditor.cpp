@@ -121,6 +121,9 @@ namespace Z {
 
 	//Todo : To be optimized
 	void EditorLayer::OnImGuiRender() {
+		rightMousePressed = ImGui::IsMouseClicked(ImGuiMouseButton_Right);
+		leftMousePressed = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
+		middleMousePressed = ImGui::IsMouseClicked(ImGuiMouseButton_Middle);
 		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking|
@@ -149,175 +152,9 @@ namespace Z {
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 		style.WindowMinSize.x = miniSize;
 
-		if (ImGui::BeginMenuBar()) {
-			if (ImGui::BeginMenu("File")) {
-				if (ImGui::MenuItem("New", "Ctrl+N")) {
-					//NewScene();
-				}
-				if (ImGui::MenuItem("Save", "Ctrl+Shift+S")) {
-					//SaveScene();
-				}
-				if (ImGui::MenuItem("Load", "Ctrl+O")) {
-					//LoadScene();
-                    LoadProjects();
-				}
-				if (ImGui::MenuItem("Exit")) Application::Get().Close();
-				ImGui::EndMenu();
-			}
-			//Todo : change
-			if (ImGui::BeginMenu("Scripts")) {
-				if (ImGui::MenuItem("Reload Scripts")) {
-					if (scene->isRunning()) {
-						Z_CORE_ERROR("Try to reload scripts when scene is running!!!");
-					} else {
-						//scriptReload = true;
-					}
-				}
-				ImGui::EndMenu();
-			}
-
-			ImGui::EndMenuBar();
-		}
-
-		ImGui::Begin("Statics");
-
-		ImGui::Text("Render Stats:");
-		static float fps = 1.f / Time::DeltaTime();
-		static float dt = Time::DeltaTime() * 1000.f;
-		static uint32 frameCount = 0;
-		if (++frameCount >= 500) {
-			fps = frameCount / Time::GetFlushTime();
-			frameCount = 0;
-			dt = Time::DeltaTime() * 1000.f;
-			Time::FlushTime();
-		}
-		ImGui::Text("FPS: %.0f", fps);
-		ImGui::Text("Current Frame Time: %.2f ms", dt);
-		ImGui::End();
-		ImGui::Begin("Settings");
-		ImGui::Checkbox("Editor Visualize Collider", &EditorVisualizeCollider);
-		ImGui::Checkbox("RunTime Visualize Collider", &RunTimeVisualizeCollider);
-		ImGui::Text("Collider ActiveColor:");
-		ImGui::DragFloat4("##Collider ActiveColor", glm::value_ptr(ActiveColor), 0.01f, 0.0f, 1.0f);
-		ImGui::Text("Collider InActiveColor:");
-		ImGui::DragFloat4("##Collider InActiveColor", glm::value_ptr(InactiveColor), 0.01f, 0.0f, 1.0f);
-		ImGui::Text("StepFrameCount:");
-		ImGui::DragInt("##StepFrameCount", &stepFrames, 1, 1, 100);
-        ImGui::Text("Build Version : %s",BUILD_VERSION);
-		ImGui::End();
-
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
-		ImGui::Begin("ViewPort", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar |
-		                                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoNav |
-		                                  ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNavFocus |
-		                                  ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoNavInputs);
-		IsViewportFocused = ImGui::IsWindowFocused();
-		IsViewportHovered = ImGui::IsWindowHovered();
-		auto viewSize = ImGui::GetContentRegionAvail();
-		if (IsViewportFocused && IsViewportHovered && viewportSize.y != 0 && viewportSize.x != 0 &&
-		    Input::IsMouseButtonPressed(MouseCode::ButtonLeft)) {
-
-			auto cursorPos = ImGui::GetMousePos();
-			auto offset = ImGui::GetWindowPos();
-			auto WinSize = ImGui::GetWindowSize();
-			auto MaxSize = WinSize + offset;
-			auto McursorPos = MaxSize - cursorPos;
-			CursorPos = glm::vec2{cursorPos.x - offset.x, McursorPos.y};
-		}
-		
-        auto viewId=ImTextureID(RenderManager::GetViewportFrameBufferDescriptor());
-        ImGui::Image(viewId, ImVec2(viewportSize.x, viewportSize.y),
-                     ImVec2(0, 0), ImVec2(1, 1));
-
-		if ((viewportSize != *(glm::vec2 *) &viewSize)) {
-            //avoid resize when frame haven't shown to viewport yet
-			Application::Get().SubmitFunc([this, viewSize]() {
-				this->viewportSize = glm::vec2{viewSize.x, viewSize.y};
-				this->scene->OnViewportResize(viewportSize.x, viewportSize.y);
-				this->editorCamera.SetViewportSize(viewportSize.x, viewportSize.y);
-				RenderManager::SetViewPortSize(viewSize.x,viewSize.y);
-			});
-		}
-		if (ImGui::BeginDragDropTarget()) {
-			if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")) {
-				std::filesystem::path path = (const char *) payload->Data;
-				if (path.extension() == ".zscene") {
-					LoadScene(path);
-					ImGui::PopStyleVar();
-					ImGui::End();
-					ImGui::End();
-					return;
-				}
-			}
-		}
-		if (selectedEntity = sceneHierarchyPlane->GetSelectedEntity();
-				(sceneState == SceneState::Edit || sceneState == SceneState::Simulate) && selectedEntity &&
-				selectedEntity.HasComponent<CameraComponent>()) {
-			ImGui::SetNextWindowPos(ImGui::GetWindowPos() +
-			                        ImVec2(ImGui::GetWindowSize().x - ImGui::GetWindowSize().x / 4,
-			                               ImGui::GetWindowSize().y - ImGui::GetWindowSize().y / 4));
-			ImGui::SetNextWindowSize(ImVec2(ImGui::GetWindowSize().x / 4, ImGui::GetWindowSize().y / 4));
-			ImGui::Begin("##Camera preview", nullptr,
-			             ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollWithMouse |
-			             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
-			             ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
-			             ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoMouseInputs |
-                         ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNav);
-			ImGui::End();
-		}
-		if (selectedEntity && currentGizmoOperation != -1 &&
-		    (sceneState == SceneState::Edit || sceneState == SceneState::Simulate)) {
-			ImGuizmo::SetOrthographic(false);
-			ImGuizmo::SetDrawlist();
-			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x,
-			                  ImGui::GetWindowSize().y);
-			static glm::mat4 cameraView,cameraProj,goModel;
-			cameraView = editorCamera.GetViewMatrix();
-
-			auto &selectTransform = selectedEntity.GetComponent<TransformComponent>();
-			cameraProj = editorCamera.GetProjectionMatrix();
-			// fix the up axis
-			// vulkan is right handed, but the gizmo is left handed
-			cameraProj[1][1]*=-1;
-			goModel = selectTransform.GetTransform();
-			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProj),
-			                     (ImGuizmo::OPERATION) currentGizmoOperation, ImGuizmo::MODE::LOCAL,
-			                     glm::value_ptr(goModel));
-			//TODO:Optimize
-			static int8 SavePreTrans = 1;
-			if (ImGuizmo::IsUsing()) {
-				static glm::quat BefRotation;
-				static glm::vec3 BefTranslation, BefScale;
-				if (SavePreTrans == 1) {
-					//Save transform
-					BefRotation = selectTransform.rotation;
-					BefTranslation = selectTransform.translation;
-					BefScale = selectTransform.scale;
-					SavePreTrans = 0;
-				}else if (Input::IsMouseButtonPressed(MouseCode::ButtonRight)) {
-					//Set transform back
-					selectTransform.translation = BefTranslation;
-					selectTransform.rotation = glm::eulerAngles(BefRotation);
-					selectTransform.scale = BefScale;
-					SavePreTrans = -1;
-				} else if (SavePreTrans == 0) {
-					//decompose and apply transform with transform gizmos
-					glm::vec3 translation, scale, skew;
-					glm::quat rotation;
-					glm::vec4 perspective;
-					glm::decompose(goModel, scale, rotation, translation, skew, perspective);
-					selectTransform.translation = translation;
-					selectTransform.rotation = (glm::eulerAngles(rotation));
-					selectTransform.scale = scale;
-				}
-			}else if (SavePreTrans!=1) {
-				//Set gizmos enable
-				SavePreTrans = 1;
-			}
-		}
-
-		ImGui::PopStyleVar();
-		ImGui::End();
+		DrawMenuBar();
+		DrawStatsPanel();
+		DrawViewport();
 		OnButtonUI();
 		sceneHierarchyPlane->OnImGuiRender();
 		contentBrowser->OnImGuiRender();
@@ -500,6 +337,191 @@ namespace Z {
 		scene->OnViewportResize(viewportSize.x, viewportSize.y);
 	}
 
+	void EditorLayer::DrawMenuBar(){
+		if (ImGui::BeginMenuBar()) {
+			if (ImGui::BeginMenu("File")) {
+				if (ImGui::MenuItem("New", "Ctrl+N")) {
+					//NewScene();
+				}
+				if (ImGui::MenuItem("Save", "Ctrl+Shift+S")) {
+					//SaveScene();
+				}
+				if (ImGui::MenuItem("Load", "Ctrl+O")) {
+					//LoadScene();
+                    LoadProjects();
+				}
+				if (ImGui::MenuItem("Exit")) Application::Get().Close();
+				ImGui::EndMenu();
+			}
+			//Todo : change
+			if (ImGui::BeginMenu("Scripts")) {
+				if (ImGui::MenuItem("Reload Scripts")) {
+					if (scene->isRunning()) {
+						Z_CORE_ERROR("Try to reload scripts when scene is running!!!");
+					} else {
+						//scriptReload = true;
+					}
+				}
+				ImGui::EndMenu();
+			}
+
+			ImGui::EndMenuBar();
+		}
+	}
+
+	void EditorLayer::DrawStatsPanel(){
+		ImGui::Begin("Statics");
+
+		ImGui::Text("Render Stats:");
+		static float fps = 1.f / Time::DeltaTime();
+		static float dt = Time::DeltaTime() * 1000.f;
+		static uint32 frameCount = 0;
+		if (++frameCount >= 500) {
+			fps = frameCount / Time::GetFlushTime();
+			frameCount = 0;
+			dt = Time::DeltaTime() * 1000.f;
+			Time::FlushTime();
+		}
+		ImGui::Text("FPS: %.0f", fps);
+		ImGui::Text("Current Frame Time: %.2f ms", dt);
+		ImGui::End();
+		ImGui::Begin("Settings");
+		ImGui::Checkbox("Editor Visualize Collider", &EditorVisualizeCollider);
+		ImGui::Checkbox("RunTime Visualize Collider", &RunTimeVisualizeCollider);
+		ImGui::Text("Collider ActiveColor:");
+		ImGui::DragFloat4("##Collider ActiveColor", glm::value_ptr(ActiveColor), 0.01f, 0.0f, 1.0f);
+		ImGui::Text("Collider InActiveColor:");
+		ImGui::DragFloat4("##Collider InActiveColor", glm::value_ptr(InactiveColor), 0.01f, 0.0f, 1.0f);
+		ImGui::Text("StepFrameCount:");
+		ImGui::DragInt("##StepFrameCount", &stepFrames, 1, 1, 100);
+        ImGui::Text("Build Version : %s",BUILD_VERSION);
+		ImGui::End();
+	}
+
+	void EditorLayer::DrawViewport(){
+
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
+		ImGui::Begin("ViewPort", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar |
+		                                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoNav |
+		                                  ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNavFocus |
+		                                  ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoNavInputs);
+		IsViewportFocused = ImGui::IsWindowFocused();
+		IsViewportHovered = ImGui::IsWindowHovered();
+		if(IsViewportHovered&&!IsViewportFocused){
+			if(rightMousePressed||leftMousePressed||middleMousePressed){
+				ImGui::SetWindowFocus();
+			}
+		}
+		auto viewSize = ImGui::GetContentRegionAvail();
+		if (IsViewportFocused && IsViewportHovered && viewportSize.y != 0 && viewportSize.x != 0 &&
+		    Input::IsMouseButtonPressed(MouseCode::ButtonLeft)) {
+
+			auto cursorPos = ImGui::GetMousePos();
+			auto offset = ImGui::GetWindowPos();
+			auto WinSize = ImGui::GetWindowSize();
+			auto MaxSize = WinSize + offset;
+			auto McursorPos = MaxSize - cursorPos;
+			CursorPos = glm::vec2{cursorPos.x - offset.x, McursorPos.y};
+		}
+		
+        auto viewId=ImTextureID(RenderManager::GetViewportFrameBufferDescriptor());
+        ImGui::Image(viewId, ImVec2(viewportSize.x, viewportSize.y),
+                     ImVec2(0, 0), ImVec2(1, 1));
+
+		if ((viewportSize != *(glm::vec2 *) &viewSize)) {
+            //avoid resize when frame haven't shown to viewport yet
+			Application::Get().SubmitFunc([this, viewSize]() {
+				this->viewportSize = glm::vec2{viewSize.x, viewSize.y};
+				this->scene->OnViewportResize(viewportSize.x, viewportSize.y);
+				this->editorCamera.SetViewportSize(viewportSize.x, viewportSize.y);
+				RenderManager::SetViewPortSize(viewSize.x,viewSize.y);
+			});
+		}
+		if (ImGui::BeginDragDropTarget()) {
+			if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")) {
+				std::filesystem::path path = (const char *) payload->Data;
+				if (path.extension() == ".zscene") {
+					LoadScene(path);
+					ImGui::PopStyleVar();
+					ImGui::End();
+					ImGui::End();
+					return;
+				}
+			}
+		}
+		if (selectedEntity = sceneHierarchyPlane->GetSelectedEntity();
+				(sceneState == SceneState::Edit || sceneState == SceneState::Simulate) && selectedEntity &&
+				selectedEntity.HasComponent<CameraComponent>()) {
+			ImGui::SetNextWindowPos(ImGui::GetWindowPos() +
+			                        ImVec2(ImGui::GetWindowSize().x - ImGui::GetWindowSize().x / 4,
+			                               ImGui::GetWindowSize().y - ImGui::GetWindowSize().y / 4));
+			ImGui::SetNextWindowSize(ImVec2(ImGui::GetWindowSize().x / 4, ImGui::GetWindowSize().y / 4));
+			ImGui::Begin("##Camera preview", nullptr,
+			             ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollWithMouse |
+			             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
+			             ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
+			             ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoMouseInputs |
+                         ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNav);
+			ImGui::End();
+		}
+		DrawGizmos();
+
+		ImGui::PopStyleVar();
+		ImGui::End();
+	}
+
+	void EditorLayer::DrawGizmos(){
+		if (selectedEntity && currentGizmoOperation != -1 &&
+		    (sceneState == SceneState::Edit || sceneState == SceneState::Simulate)) {
+			ImGuizmo::SetOrthographic(false);
+			ImGuizmo::SetDrawlist();
+			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x,
+			                  ImGui::GetWindowSize().y);
+			static glm::mat4 cameraView,cameraProj,goModel;
+			cameraView = editorCamera.GetViewMatrix();
+
+			auto &selectTransform = selectedEntity.GetComponent<TransformComponent>();
+			cameraProj = editorCamera.GetProjectionMatrix();
+			// fix the up axis
+			// vulkan is right handed, but the gizmo is left handed
+			cameraProj[1][1]*=-1;
+			goModel = selectTransform.GetTransform();
+			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProj),
+			                     (ImGuizmo::OPERATION) currentGizmoOperation, ImGuizmo::MODE::LOCAL,
+			                     glm::value_ptr(goModel));
+			//TODO:Optimize
+			static int8 SavePreTrans = 1;
+			if (ImGuizmo::IsUsing()) {
+				static glm::quat BefRotation;
+				static glm::vec3 BefTranslation, BefScale;
+				if (SavePreTrans == 1) {
+					//Save transform
+					BefRotation = selectTransform.rotation;
+					BefTranslation = selectTransform.translation;
+					BefScale = selectTransform.scale;
+					SavePreTrans = 0;
+				}else if (Input::IsMouseButtonPressed(MouseCode::ButtonRight)) {
+					//Set transform back
+					selectTransform.translation = BefTranslation;
+					selectTransform.rotation = glm::eulerAngles(BefRotation);
+					selectTransform.scale = BefScale;
+					SavePreTrans = -1;
+				} else if (SavePreTrans == 0) {
+					//decompose and apply transform with transform gizmos
+					glm::vec3 translation, scale, skew;
+					glm::quat rotation;
+					glm::vec4 perspective;
+					glm::decompose(goModel, scale, rotation, translation, skew, perspective);
+					selectTransform.translation = translation;
+					selectTransform.rotation = (glm::eulerAngles(rotation));
+					selectTransform.scale = scale;
+				}
+			}else if (SavePreTrans!=1) {
+				//Set gizmos enable
+				SavePreTrans = 1;
+			}
+		}
+	}
 
 	bool EditorLayer::OnKeyPressed(KeyPressEvent &event) {
 		bool control = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);

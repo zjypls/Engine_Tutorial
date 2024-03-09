@@ -31,6 +31,7 @@ namespace Z {
 		std::filesystem::path WorkPath{};
 		Entity selectedEntity;
 		bool scriptReload = false,nextStep=false,selfDefLayout=false;
+		bool rightMousePressed = false , leftMousePressed = false  , middleMousePressed = false;
 		std::string selfDefLayoutFilePath,selfDefLayoutStr;
 		int stepFrames=1;
 
@@ -60,6 +61,15 @@ namespace Z {
 		void OnEvent(Event &event) override;
 
 	private:
+
+		void DrawMenuBar();
+
+		void DrawStatsPanel();
+
+		void DrawViewport();
+
+		void DrawGizmos();
+
 		bool OnKeyPressed(KeyPressEvent &event);
 
 		void SaveScene();
