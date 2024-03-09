@@ -21,7 +21,7 @@ namespace Z {
             return;
         }
 		auto [x, y] = ImGui::GetWindowSize();
-		int width = 128;
+		float width = 128;
 		int columns = std::max(int(x / width), 1);
 		ImGui::Columns(columns, nullptr, false);
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
