@@ -5,12 +5,13 @@
 #include "ContentBrowser.h"
 
 namespace Z {
-
+	static const std::string zDefaultMeshIconIndex = "Z_DefaultMeshIcon";
 	static const std::string zDefaultFileIconIndex = "Z_DefaultFileIcon";
 	static const std::string zDirectoryIconIndex = "Z_DirectoryIcon";
 	ContentBrowser::ContentBrowser() : currentPath(Project::IsInited()?Project::GetProjectRootDir():"") {
 		loadIcons({"Assets/Icons/DirectoryIcon.png",
-		           "Assets/Icons/FileIcon.png"
+		           "Assets/Icons/FileIcon.png",
+				   "Assets/Icons/MeshIcon.png"
 				   });
 	}
 
@@ -40,19 +41,22 @@ namespace Z {
 				continue;
 			std::string filePath=file.path().string();
 			ImGui::PushID(filePath.c_str());
-			auto texture = icons[0];
+			auto texture = icons[eFileIcon];
 			if(IsFile){
 				if(auto tex= textureMap.find(file.path());tex!=textureMap.end()){
 					texture=tex->second;
 				}else{
 					auto result=AssetsSystem::Load<Texture2D>(filePath);
-					if(result && result->type==AssetsImporterType::Texture2D){
-						texture=RenderManager::CreateImGuiTexture(result);
-						textureMap[file.path()]=texture;
-					}else{
-						texture=icons[1];
-					}
-				}
+					if(result)
+						if(result->type==AssetsImporterType::Texture2D){
+							texture=RenderManager::CreateImGuiTexture(result);
+							textureMap[file.path()]=texture;
+						}else if(result->type==AssetsImporterType::Mesh){
+							texture=icons[eMeshIcon];
+						}
+				} 
+			}else{
+				texture=icons[eDirectoryIcon];
 			}
 			ImGui::ImageButton(texture, ImVec2(width, width));
 			if (IsFile&&ImGui::BeginDragDropSource()) {
@@ -82,5 +86,8 @@ namespace Z {
 		auto fileIcon = RenderManager::CreateImGuiTexture(AssetsSystem::Load<Texture2D>(paths[eFileIcon]));
 		icons[1]=fileIcon;
 		textureMap[zDefaultFileIconIndex] = fileIcon;
+		auto meshIcon = RenderManager::CreateImGuiTexture(AssetsSystem::Load<Texture2D>(paths[eMeshIcon]));
+		icons[2]=meshIcon;
+		textureMap[zDefaultMeshIconIndex] = meshIcon;
 	}
 }
