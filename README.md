@@ -1,14 +1,14 @@
 # Engine_Tutorial
-Learning GameEngine with The Cherno in Youtobe  
+Learning GameEngine  
 ## clone with:  
-```
+```sh
 git clone -b Vulkan https://github.com/zjypls/Engine_Tutorial.git
 ```
-## build with (need vulkanSDK)
-```
+## build 
+Windows and Linux support ( suppose to build with clang ) , need vulkan sdk install  
+you can download sdk at [there](https://vulkan.lunarg.com/) or using package manager on Linux
+```sh
 cmake -B build
-```
-```
 cmake --build build
 ```
 Learning:  
