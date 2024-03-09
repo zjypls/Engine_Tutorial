@@ -373,6 +373,22 @@ namespace Z {
 		instance->PathToUID[path+Z_CONF_EXTENSION]=data.id;
 		instance->UIDToPath[data.id]=path+Z_CONF_EXTENSION;
 		switch(data.importer){
+			case AssetsImporterType::Texture2D:
+				instance->resourceLibrary[data.id]=Tools::LoadTexture2D(path);
+				break;
+			case AssetsImporterType::Mesh:
+				instance->resourceLibrary[data.id]=Tools::LoadMesh(path);
+				break;
+			case AssetsImporterType::Material:
+				break;
+			case AssetsImporterType::SkyBox:
+				instance->resourceLibrary[data.id]=Tools::LoadSkyBox(path);
+				break;
+			case AssetsImporterType::Shader:
+				instance->resourceLibrary[data.id]=Tools::LoadShader(path);
+				break;
+			case AssetsImporterType::None:
+				break;
 		}
 	}
 

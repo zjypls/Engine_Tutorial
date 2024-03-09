@@ -605,6 +605,7 @@ namespace Z {
         	if(const auto&configuration=Project::GetEditorLayoutConfiguration();!configuration.empty()) {
         		this->selfDefLayout=true;
         		selfDefLayoutFilePath=configuration.string();
+				contentBrowser->SetWorkPath(Project::GetProjectRootDir().string());
 				//avoid reload ini file when imgui recording command
 				Application::Get().SubmitFunc([this] {
 					ImGui::LoadIniSettingsFromDisk(selfDefLayoutFilePath.c_str());

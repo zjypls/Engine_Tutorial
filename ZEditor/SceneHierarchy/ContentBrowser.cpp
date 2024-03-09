@@ -6,9 +6,12 @@
 
 namespace Z {
 
+	static const std::string zDefaultFileIconIndex = "Z_DefaultFileIcon";
+	static const std::string zDirectoryIconIndex = "Z_DirectoryIcon";
 	ContentBrowser::ContentBrowser() : currentPath(Project::IsInited()?Project::GetProjectRootDir():"") {
-		loadIcons({ROOT_PATH + "Assets/Icons/DirectoryIcon.png",
-		           ROOT_PATH + "Assets/Icons/FileIcon.png"});
+		loadIcons({"Assets/Icons/DirectoryIcon.png",
+		           "Assets/Icons/FileIcon.png"
+				   });
 	}
 
 	void ContentBrowser::OnImGuiRender() {
@@ -23,6 +26,7 @@ namespace Z {
 		ImGui::Columns(columns, nullptr, false);
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 		if (currentPath != Project::GetProjectRootDir()) {
+			ImGui::ImageButton(icons[0],ImVec2{width, width});
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
 				currentPath = currentPath.has_parent_path() ? currentPath.parent_path() : currentPath;
 			}
@@ -36,8 +40,21 @@ namespace Z {
 				continue;
 			std::string filePath=file.path().string();
 			ImGui::PushID(filePath.c_str());
+			auto texture = icons[0];
 			if(IsFile){
+				if(auto tex= textureMap.find(file.path());tex!=textureMap.end()){
+					texture=tex->second;
+				}else{
+					auto result=AssetsSystem::Load<Texture2D>(filePath);
+					if(result && result->type==AssetsImporterType::Texture2D){
+						texture=RenderManager::CreateImGuiTexture(result);
+						textureMap[file.path()]=texture;
+					}else{
+						texture=icons[1];
+					}
+				}
 			}
+			ImGui::ImageButton(texture, ImVec2(width, width));
 			if (IsFile&&ImGui::BeginDragDropSource()) {
 				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", filePath.c_str(), filePath.size() + 1,
 				                          ImGuiCond_Once);
@@ -58,10 +75,12 @@ namespace Z {
 		ImGui::End();
 	}
 
-	void ContentBrowser::loadIcons(const std::initializer_list<std::string> &paths) {
-		Z_CORE_ASSERT(paths.size() <= iconCount, "Icon size must be 2");
-		int i = 0;
-		for (const auto &path: paths) {
-		}
+	void ContentBrowser::loadIcons(const std::vector<std::string> &paths) {
+		auto dirIcon = RenderManager::CreateImGuiTexture(AssetsSystem::Load<Texture2D>(paths[eDirectoryIcon]));
+		icons[0]=dirIcon;
+		textureMap[zDirectoryIconIndex] = dirIcon;
+		auto fileIcon = RenderManager::CreateImGuiTexture(AssetsSystem::Load<Texture2D>(paths[eFileIcon]));
+		icons[1]=fileIcon;
+		textureMap[zDefaultFileIconIndex] = fileIcon;
 	}
 }
