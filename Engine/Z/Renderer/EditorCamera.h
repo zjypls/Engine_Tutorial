@@ -22,8 +22,8 @@ namespace Z {
 
 	class Z_API EditorCamera: public Camera {
 		float Fov=60.f,aspectRatio=1.f,nearClip=0.1f,farClip=1000.f;
-		glm::vec3 position=glm::vec3{0.f};
-		glm::vec3 focus=glm::vec3{0,0,-1};
+		glm::vec3 position=glm::vec3{0,0,glm::sqrt(3.0f)};
+		glm::vec3 focus=glm::vec3{0,0,0};
 		glm::vec3 up=glm::vec3{0.f,1.f,0.f},right=glm::vec3{-1.f,0.f,0.f};
 		float distance=glm::sqrt(3.f);
 		glm::vec2 viewportSize=glm::vec2{800,800},lastMousePosition=glm::vec2{0.f};
@@ -77,6 +77,7 @@ namespace Z {
 			aspectRatio = width / height;
 			viewportSize = glm::vec2(width, height);
 			projection= glm::perspective(Fov, aspectRatio, nearClip, farClip);
+			projection[1][1] *= -1;
 		}
 
 		void OnUpdate();

@@ -34,12 +34,11 @@ namespace Z {
 
     void EditorLayer::OnAttach() {
         scene = CreateRef<Scene>();
-        editorCamera = EditorCamera(60.f, 1.f, 0.1f, 1000.f);
 		selfDefLayoutStr=ImGui::SaveIniSettingsToMemory();
 		auto [viewWidth,viewHeight]=Utils::GetWindowSizeFromIniConfig(selfDefLayoutStr,"ViewPort");
 		Z_CORE_ASSERT(viewWidth!=0&&viewHeight!=0,"Viewport size not found in config file or illegal value!");
 		viewportSize=glm::vec2(viewWidth,viewHeight);
-		editorCamera.SetAspectRatio((float)viewWidth/viewHeight);
+        editorCamera = EditorCamera(60.f, viewportSize.x/viewportSize.y, 0.1f, 1000.f);
 		RenderManager::SetViewPortSize(viewportSize.x,viewportSize.y);
 
 		sceneHierarchyPlane = CreateScope<SceneHierarchyPlane>();
@@ -86,8 +85,7 @@ namespace Z {
 				state = BackState;
 			switch (state) {
 				case SceneState::Edit: {
-					//TODO:optimize operation logic
-					if (/*IsViewportFocused &&*/ IsViewportHovered) {
+					if (IsViewportFocused || IsViewportHovered) {
 						editorCamera.OnUpdate();
 					}
 					scene->OnEditorUpdate(Time::DeltaTime(), editorCamera);
