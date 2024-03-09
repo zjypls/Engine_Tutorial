@@ -22,7 +22,8 @@ set(Z_INCLUDE_DIR   ${Z_INCLUDE_DIR}
                     ${VK_PATH}/include
                     ${box2DPath}/include
                     ${CMAKE_CURRENT_SOURCE_DIR}
-                    ${yamlPath})
+                    ${yamlPath}/include
+                    ${assimpPath}/include)
 
 
 add_subdirectory(Include/glfw)
@@ -31,6 +32,23 @@ add_subdirectory(Include/box2d)
 add_subdirectory(Include/tinyobjloader)
 add_subdirectory(Include/spdlog)
 
+find_package(assimp QUIET)
+if(NOT assimp_FOUND)
+    set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+    set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
+    set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
+    set(ASSIMP_BUILD_FBX_IMPORTER ON)
+    set(ASSIMP_BUILD_OBJ_IMPORTER ON)
+    set(ASSIMP_BUILD_TESTS OFF)
+    set(ASSIMP_BUILD_ZLIB ON)
+    set(ASSIMP_WARNINGS_AS_ERRORS OFF)
+    set(ASSIMP_BUILD_TESTS OFF)
+    set(ASSIMP_INSTALL OFF)
+    set(ASSIMP_NO_EXPORT ON) 
+    set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
+    set(ASSIMP_BUILD_SAMPLES OFF)
+    add_subdirectory(Include/assimp)
+endif()
 
 file(GLOB_RECURSE src CONFIGURE_DEPENDS Z/*.*
                                         Platform/OpenGL/*.*
@@ -57,7 +75,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${Z_INCLUDE_DIR})
 target_link_directories(${PROJECT_NAME} PUBLIC ${Z_LINK_DIR})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
-        monosgen-2.0 
+        monosgen-2.0 assimp
         glfw yaml box2d tinyobjloader spdlog
         )
 

@@ -16,9 +16,14 @@
 #include "Z/Renderer/RenderManager.h"
 #include "Z/Renderer/RenderResourceTypes.h"
 #include "Z/Utils/ZUtils.h"
+#include "Include/assimp/include/assimp/Importer.hpp"
+#include "Include/assimp/include/assimp/postprocess.h"
+#include "Include/assimp/include/assimp/scene.h"
 
 namespace Z{
 	static GraphicInterface* s_Context=nullptr;
+	template<typename T>
+	using Container=std::vector<T>;
 
 	std::string ImporterTypeToString(Z::AssetsImporterType type){
 		switch(type) {
@@ -183,8 +188,105 @@ namespace Z {
 			return texture;
 		}
 
+		void ProcessMesh(aiMesh* mesh,const aiScene* scene , Container<Vertex>& vertices , Container<VertexBlending>&blending ,Container<BoneData>&bones, std::vector<uint32>& indices){
+			auto vertexNums=vertices.size();
+			vertices.resize(vertexNums+mesh->mNumVertices);
+			for (uint32_t i = 0; i < mesh->mNumVertices; i++) {
+				Vertex vertex{};
+				vertex.position.x = mesh->mVertices[i].x;
+				vertex.position.y = mesh->mVertices[i].y;
+				vertex.position.z = mesh->mVertices[i].z;
+				if (mesh->mTextureCoords[0]) {
+					vertex.uv.x = mesh->mTextureCoords[0][i].x;
+					vertex.uv.y = mesh->mTextureCoords[0][i].y;
+				}
+				else {
+					vertex.uv = { 0.0f,0.0f };
+				}
+				vertex.normal.x = mesh->mNormals[i].x;
+				vertex.normal.y = mesh->mNormals[i].y;
+				vertex.normal.z = mesh->mNormals[i].z;
+				if (mesh->mTangents) {
+					vertex.tangent.x = mesh->mTangents[i].x;
+					vertex.tangent.y = mesh->mTangents[i].y;
+					vertex.tangent.z = mesh->mTangents[i].z;
+				}
+				vertices[vertexNums+i]=vertex;
+			}
+			blending.resize(vertexNums+mesh->mNumVertices);
+			auto boneNums=bones.size();
+			bones.resize(boneNums+mesh->mNumBones);
+			for (unsigned int i = 0; i < mesh->mNumBones; i++) {
+				aiBone* bone = mesh->mBones[i];
+				auto& boneData=bones[boneNums+i];
+				boneData.offsetTransform = glm::make_mat4(&bone->mOffsetMatrix.a1);
+				for (unsigned int j = 0; j < bone->mNumWeights; j++) {
+					aiVertexWeight weight = bone->mWeights[j];
+					auto& vertex = blending[weight.mVertexId+vertexNums];
+					for (int k = 0; k < 4; k++) {
+						if (vertex.boneIndex[k] < 0) {
+							vertex.boneIndex[k] = i;  // bone index
+							vertex.blending[k] = weight.mWeight;  // bone weight
+							break;
+						}
+					}
+				}
+			}
+			for (uint32_t i = 0; i < mesh->mNumFaces; i++) {
+				aiFace face = mesh->mFaces[i];
+				for (uint32_t j = 0; j < face.mNumIndices; j++) {
+					indices.push_back(face.mIndices[j]);
+				}
+			}
+		}
+
+		void ProcessNode(aiNode *node, const aiScene *scene , Container<Vertex>& vertices , Container<VertexBlending>& blending , Container<BoneData>& bones, std::vector<uint32>& indices) {
+			for (uint32_t i = 0; i < node->mNumMeshes; i++) {
+				aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
+				ProcessMesh(mesh, scene, vertices , blending,bones, indices);
+			}
+			for (uint32_t i = 0; i < node->mNumChildren; i++) {
+				ProcessNode(node->mChildren[i], scene,vertices,blending ,bones,indices);
+			}
+		}
+
 		void* LoadMesh(const std::string& path){
+			Assimp::Importer importer;
+			auto scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs|aiProcess_GenNormals);
+			if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+				Z_CORE_ERROR("Assimp error: {0}", importer.GetErrorString());
+				return nullptr;
+			}
 			auto mesh=new Z::MeshRes();
+			mesh->vertexBuffer=new Buffer*[mesh->indicesCount];
+			mesh->vertexMemory=new DeviceMemory*[mesh->indicesCount];
+			Container<Vertex> vertices{};
+			Container<VertexBlending> blending{};
+			Container<BoneData> bones{};
+			std::vector<uint32> indices{};
+			ProcessNode(scene->mRootNode, scene,vertices,blending,bones,indices);
+			BufferInfo vertexBufferInfo{};
+			vertexBufferInfo.properties=MemoryPropertyFlag::DEVICE_LOCAL;
+			vertexBufferInfo.size=sizeof(Vertex)*vertices.size();
+			vertexBufferInfo.usage=BufferUsageFlag::VERTEX_BUFFER;
+			s_Context->CreateBuffer(vertexBufferInfo,mesh->vertexBuffer[0],mesh->vertexMemory[0],vertices.data());
+			vertexBufferInfo.size=sizeof(VertexBlending)*blending.size();
+			s_Context->CreateBuffer(vertexBufferInfo,mesh->vertexBuffer[1],mesh->vertexMemory[1],blending.data());
+			BufferInfo indexBufferInfo{};
+			indexBufferInfo.size=sizeof(uint32)*indices.size();
+			indexBufferInfo.usage=BufferUsageFlag::INDEX_BUFFER;
+			indexBufferInfo.properties=MemoryPropertyFlag::DEVICE_LOCAL;
+			s_Context->CreateBuffer(indexBufferInfo,mesh->indexBuffer,mesh->indexMemory,indices.data());
+			if(bones.size()>0){			
+				BufferInfo boneBufferInfo{};
+				boneBufferInfo.size=sizeof(BoneData)*bones.size();
+				boneBufferInfo.usage=BufferUsageFlag::STORAGE_BUFFER;
+				boneBufferInfo.properties=MemoryPropertyFlag::DEVICE_LOCAL;
+				s_Context->CreateBuffer(boneBufferInfo,mesh->boneBuffer,mesh->boneMemory,bones.data());
+			}
+			mesh->indicesCount=indices.size();
+			mesh->path=path;
+			mesh->type=AssetsImporterType::Mesh;
 			return mesh;
 		}
 
