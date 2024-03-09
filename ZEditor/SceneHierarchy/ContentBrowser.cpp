@@ -43,14 +43,14 @@ namespace Z {
 			ImGui::PushID(filePath.c_str());
 			auto texture = icons[eFileIcon];
 			if(IsFile){
-				if(auto tex= textureMap.find(file.path());tex!=textureMap.end()){
+				if(auto tex= textureMap.find(filePath);tex!=textureMap.end()){
 					texture=tex->second;
 				}else{
 					auto result=AssetsSystem::Load<Texture2D>(filePath);
 					if(result)
 						if(result->type==AssetsImporterType::Texture2D){
 							texture=RenderManager::CreateImGuiTexture(result);
-							textureMap[file.path()]=texture;
+							textureMap[filePath]=texture;
 						}else if(result->type==AssetsImporterType::Mesh){
 							texture=icons[eMeshIcon];
 						}
