@@ -1,26 +1,17 @@
 # Engine_Tutorial
-Learning GameEngine with The Cherno in Youtobe  
+Learning GameEngine
 ## clone 
-```
-git clone --recursive https://github.com/zjypls/Engine_Tutorial.git
-```
-## or clone and init submodule
-```
+```sh
 git clone https://github.com/zjypls/Engine_Tutorial.git
-```
-```
 cd Engine_Tutorial
-```
-```
 git submodule update --init --recursive
 ```
 ## build
-need vulkanSDK  
+Windows and Linux support ( suppose to build with clang ) , need vulkanSDK install 
+
 you can download from [there](https://vulkan.lunarg.com) or install by package manager on Linux 
-```
+```sh
 cmake -B build
-```
-```
 cmake --build build
 ```
 Learning:  
@@ -35,4 +26,3 @@ Learning:
 Editor:
 ![EditorMain](./Assets/ReadMe/Gif/Editor.gif)
 
-notices:can build with msvc or clang(must off ReBuildScriptsCore flags in CMakeLists.txt)
