@@ -439,9 +439,9 @@ namespace Z {
 		}
 		if (ImGui::BeginDragDropTarget()) {
 			if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")) {
-				std::filesystem::path path = (const char *) payload->Data;
-				if (path.extension() == ".zscene") {
-					LoadScene(path);
+				auto dragData = (DragAndDropData *) payload->Data;
+				if (dragData->type == DragType::eScene) {
+					LoadScene(dragData->path);
 					ImGui::PopStyleVar();
 					ImGui::End();
 					ImGui::End();

@@ -9,16 +9,6 @@
 
 namespace Z {
 	class SceneHierarchyPlane {
-		Ref<Scene> context;
-		Entity selectedEntity;
-
-		void DrawEntity(Entity entity);
-
-		void DrawComponents(Entity entity);
-
-		template<typename Ty>
-		void DrawComponent(const std::string &, Entity entity, void (*drawFunc)(Entity,Ty &));
-
 	public:
 		SceneHierarchyPlane() = default;
 
@@ -44,6 +34,18 @@ namespace Z {
 		}
 
 		void OnImGuiRender();
+		ImTextureID whiteTexture;
+	private:
+		Ref<Scene> context;
+		Entity selectedEntity;
+
+		void DrawEntity(Entity entity);
+
+		void DrawComponents(Entity entity);
+
+		template<typename Ty>
+		void DrawComponent(const std::string &, Entity entity, std::function<void(Entity,Ty &)>);
+
 	};
 
 }

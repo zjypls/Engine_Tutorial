@@ -33,8 +33,7 @@ namespace Z{
 			auto& component= scene->registry.emplace<Ty>(handle, std::forward<Args>(args)...);
 			scene->OnComponentAdd<Ty>(*this, component);
 			return component;
-		}
-		else{
+		}else{
 			Z_CORE_WARN("Entity already has component:{0}!", typeid(Ty).name());
 			return GetComponent<Ty>();
 		}
@@ -44,8 +43,7 @@ namespace Z{
 	void Entity::RemoveComponent() {
 		if (HasComponent<Ty>()) {
 			scene->registry.remove<Ty>(handle);
-		}
-		else{
+		}else{
 			Z_CORE_WARN("Entity does not have component:{0}!", typeid(Ty).name());
 		}
 	}

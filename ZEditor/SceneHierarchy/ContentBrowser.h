@@ -9,6 +9,14 @@
 
 
 namespace Z {
+	enum class DragType{
+		eNone,eDirectory,eTexture,eMesh,eScene
+	};
+	struct DragAndDropData{
+		DragType type;
+		char path[256];
+		void* ptr;
+	};
 	class ContentBrowser {
 		static const uint32 iconCount=4;
 	public:

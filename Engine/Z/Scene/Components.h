@@ -38,7 +38,8 @@ namespace Z {
 
 	struct SpriteRendererComponent {
 		glm::vec4 color{1.f};
-
+		std::string path;
+		void* data;
 		SpriteRendererComponent() = default;
 
 		SpriteRendererComponent(const glm::vec4 &color) : color(color) {}

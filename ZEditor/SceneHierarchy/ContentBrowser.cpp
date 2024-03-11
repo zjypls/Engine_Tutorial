@@ -42,25 +42,36 @@ namespace Z {
 			std::string filePath=file.path().string();
 			ImGui::PushID(filePath.c_str());
 			auto texture = icons[eFileIcon];
+			DragType dType=DragType::eNone;
 			if(IsFile){
 				if(auto tex= textureMap.find(filePath);tex!=textureMap.end()){
 					texture=tex->second;
+					dType=DragType::eTexture;
 				}else{
 					auto result=AssetsSystem::Load<Texture2D>(filePath);
 					if(result)
 						if(result->type==AssetsImporterType::Texture2D){
 							texture=RenderManager::CreateImGuiTexture(result);
 							textureMap[filePath]=texture;
+							dType=DragType::eTexture;
 						}else if(result->type==AssetsImporterType::Mesh){
 							texture=icons[eMeshIcon];
+							dType=DragType::eMesh;
 						}
 				} 
 			}else{
 				texture=icons[eDirectoryIcon];
+				dType=DragType::eDirectory;
 			}
 			ImGui::ImageButton(texture, ImVec2(width, width));
 			if (IsFile&&ImGui::BeginDragDropSource()) {
-				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", filePath.c_str(), filePath.size() + 1,
+				DragAndDropData data{};
+				data.type=dType;
+				std::strcpy(data.path,filePath.c_str());
+				if(dType==DragType::eTexture){
+					data.ptr=texture;
+				}
+				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", &data, sizeof(DragAndDropData),
 				                          ImGuiCond_Once);
 				ImGui::EndDragDropSource();
 			}

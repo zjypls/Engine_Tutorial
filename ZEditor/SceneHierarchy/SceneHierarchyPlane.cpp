@@ -10,6 +10,7 @@
 #include "Include/imgui/imgui_internal.h"
 
 #include "SceneHierarchyPlane.h"
+#include "ContentBrowser.h"
 
 namespace Z {
 
@@ -147,30 +148,6 @@ namespace Z {
 	}
 
 
-	template<>
-	void SceneHierarchyPlane::DrawComponent<TagComponent>(const std::string &name, Entity entity,
-	                                                      void (*drawFunc)(Entity entity, TagComponent &)) {
-		auto &component = entity.GetComponent<TagComponent>();
-		drawFunc(entity, component);
-	}
-
-	template<>
-	void SceneHierarchyPlane::DrawComponent<TransformComponent>(const std::string &name, Entity entity,
-	                                                            void (*drawFunc)(Entity entity, TransformComponent &)) {
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
-		ImGui::Separator();
-		bool open = ImGui::TreeNodeEx((void *) typeid(TransformComponent).hash_code(),
-		                              ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed |
-		                              ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_SpanAvailWidth,
-		                              name.c_str());
-		ImGui::PopStyleVar();
-
-		if (open) {
-			auto &component = entity.GetComponent<TransformComponent>();
-			drawFunc(entity, component);
-			ImGui::TreePop();
-		}
-	}
 
 	void SceneHierarchyPlane::DrawComponents(Entity entity) {
 		DrawComponent<TagComponent>("Tag", entity, [](Entity entity, auto &tag) {
@@ -205,12 +182,13 @@ namespace Z {
 			                                       if (ImGui::BeginDragDropTarget()) {
 				                                       if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(
 						                                       "CONTENT_BROWSER_ITEM")) {
-					                                       std::string path = (const char *) payload->Data;
-														   auto pos=path.find_first_of('.');
-														   if(!Tools::IsTexture(path.substr(pos,path.find_last_of('.')-pos)))
+															auto data = (DragAndDropData *) payload->Data;
+														   if(data->type!=DragType::eTexture)
 															   return;
-					                                       Z_CORE_ASSERT(std::filesystem::exists(path),
+					                                       Z_CORE_ASSERT(std::filesystem::exists(data->path),
 					                                                     "Path does not exist!");
+															spriteRenderer.path = data->path;
+															spriteRenderer.data=data->ptr;
 				                                       }
 				                                       ImGui::EndDragDropTarget();
 			                                       }else if(ImGui::IsItemHovered()&&
@@ -219,6 +197,8 @@ namespace Z {
 												   }
 													if(ImGui::BeginPopup("ImageMenuPop")){
 														if(ImGui::MenuItem("Remove Image")){
+															spriteRenderer.path="";
+															spriteRenderer.data=nullptr;
 														}
 														ImGui::EndPopup();
 													}
@@ -231,8 +211,7 @@ namespace Z {
 		                                       });
 		DrawComponent<CameraComponent>("Camera", entity, [](Entity entity, CameraComponent &component) {
 			auto &camera = component.camera;
-			if (ImGui::Checkbox("Primary", &component.primary)) {//Todo:Change logic
-			}
+			ImGui::Checkbox("Primary", &component.primary);
 			const char *projectionTypeStrings[] = {"Perspective", "Orthographic"};
 			int projectionType = (int) camera.GetProjectionType();
 
@@ -458,7 +437,7 @@ namespace Z {
 	}
 
 	template<typename Ty>
-	void SceneHierarchyPlane::DrawComponent(const std::string &name, Entity entity, void (*drawFunc)(Entity, Ty &)) {
+	void SceneHierarchyPlane::DrawComponent(const std::string &name, Entity entity, std::function<void(Entity, Ty &)> drawFunc) {
 		if (entity.HasComponent<Ty>()) {
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 4));
 			auto RegionWidth = ImGui::GetContentRegionAvail().x;
