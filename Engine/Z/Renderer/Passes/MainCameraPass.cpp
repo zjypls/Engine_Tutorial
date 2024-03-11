@@ -72,7 +72,6 @@ namespace Z {
 
         SubpassDependency dependency[_dependency_count]{};
         auto& uiDependency=dependency[_ui_dependency_index];
-        uiDependency.dependencyFlags = DependencyFlags::BY_REGION;
         uiDependency.srcSubpass = SubpassContents::EXTERNAL;
         uiDependency.dstSubpass = SubpassContents::INLINE;
         uiDependency.srcStageMask =PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT;
