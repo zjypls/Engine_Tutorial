@@ -258,8 +258,8 @@ namespace Z {
 				return nullptr;
 			}
 			auto mesh=new Z::MeshRes();
-			mesh->vertexBuffer=new Buffer*[mesh->indicesCount];
-			mesh->vertexMemory=new DeviceMemory*[mesh->indicesCount];
+			mesh->vertexBuffer=new Buffer*[mesh->vertexBufferCount];
+			mesh->vertexMemory=new DeviceMemory*[mesh->vertexBufferCount];
 			Container<Vertex> vertices{};
 			Container<VertexBlending> blending{};
 			Container<BoneData> bones{};
