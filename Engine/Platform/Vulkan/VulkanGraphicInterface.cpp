@@ -500,18 +500,18 @@ namespace Z {
     }
 
     void VulkanGraphicInterface::CreateVmaAllocator() {
-        VmaVulkanFunctions vulkanFunctions    = {};
-        vulkanFunctions.vkGetInstanceProcAddr = &vkGetInstanceProcAddr;
-        vulkanFunctions.vkGetDeviceProcAddr   = &vkGetDeviceProcAddr;
+        // VmaVulkanFunctions vulkanFunctions    = {};
+        // vulkanFunctions.vkGetInstanceProcAddr = &vkGetInstanceProcAddr;
+        // vulkanFunctions.vkGetDeviceProcAddr   = &vkGetDeviceProcAddr;
 
-        VmaAllocatorCreateInfo allocatorCreateInfo = {};
-        allocatorCreateInfo.vulkanApiVersion       = VK_API_VERSION_1_3;
-        allocatorCreateInfo.physicalDevice         = physicalDevice;
-        allocatorCreateInfo.device                 = device;
-        allocatorCreateInfo.instance               = instance;
-        allocatorCreateInfo.pVulkanFunctions       = &vulkanFunctions;
+        // VmaAllocatorCreateInfo allocatorCreateInfo = {};
+        // allocatorCreateInfo.vulkanApiVersion       = VK_API_VERSION_1_3;
+        // allocatorCreateInfo.physicalDevice         = physicalDevice;
+        // allocatorCreateInfo.device                 = device;
+        // allocatorCreateInfo.instance               = instance;
+        // allocatorCreateInfo.pVulkanFunctions       = &vulkanFunctions;
 
-        vmaCreateAllocator(&allocatorCreateInfo, &vmaAllocator);
+        // vmaCreateAllocator(&allocatorCreateInfo, &vmaAllocator);
     }
 
     void VulkanGraphicInterface::ReCreateSwapChain() {

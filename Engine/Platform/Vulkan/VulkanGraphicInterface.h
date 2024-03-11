@@ -6,7 +6,6 @@
 #define ENGINEALL_VULKANGRACPHICINTERFACE_H
 #include <vector>
 #include "vulkan/vulkan.h"
-#include "vma/vk_mem_alloc.h"
 
 #include "Z/Renderer/GraphicInterface.h"
 #include "Platform/Vulkan/VulkanRenderInterface.h"
@@ -129,7 +128,6 @@ namespace Z {
         std::vector<VkSemaphore> imageAvailable,imageRenderFinish;
         uint32 currentFrameIndex=0;
         VkDescriptorPool descriptorPool;
-        VmaAllocator vmaAllocator;
 
         bool enableValidationLayer=true,enableDebugUtils=true;
         std::vector<VkImage> swapchainImages;

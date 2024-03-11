@@ -87,6 +87,10 @@ else ()
                             spirv-cross-glsl spirv-cross-core)
 endif ()
 
+if(NOT USE_VULKAN_SDK)
+    target_link_libraries(${PROJECT_NAME} PUBLIC glslang SPIRV-Tools-opt SPIRV)
+endif()
+
 if(NOT UseVulkan)
     target_link_libraries(${PROJECT_NAME} PRIVATE glad)
 endif ()
@@ -109,7 +113,7 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     target_compile_options(${PROJECT_NAME} PRIVATE /W0)
 endif()
 
-add_definitions(-DZ_ENABLE_PROFILING=1)
+
 target_compile_definitions(${PROJECT_NAME} PUBLIC
         ${PLATFORM_SYMBOL}
         Z_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
