@@ -2,6 +2,8 @@
 cmake-build-*/
 *.exe
 build*
+#build files
+*.sln
 #build libarary except vulkanSDK
 Lib
 !Engine/Include/mono/lib
