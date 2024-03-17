@@ -22,8 +22,7 @@ set(Z_INCLUDE_DIR   ${Z_INCLUDE_DIR}
                     ${VK_PATH}/include
                     ${box2DPath}/include
                     ${CMAKE_CURRENT_SOURCE_DIR}
-                    ${yamlPath}/include
-                    ${assimpPath}/include)
+                    ${yamlPath}/include)
 
 
 add_subdirectory(Include/glfw)
@@ -32,8 +31,9 @@ add_subdirectory(Include/box2d)
 add_subdirectory(Include/tinyobjloader)
 add_subdirectory(Include/spdlog)
 
-find_package(assimp QUIET)
-if(NOT assimp_FOUND)
+# compile error when using system assimp
+# find_package(assimp QUIET)
+# if(NOT assimp_FOUND)
     set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
     set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
     set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
@@ -48,7 +48,9 @@ if(NOT assimp_FOUND)
     set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
     set(ASSIMP_BUILD_SAMPLES OFF)
     add_subdirectory(Include/assimp)
-endif()
+    set(Z_INCLUDE_DIR   ${Z_INCLUDE_DIR}
+                        ${assimpPath}/include)
+# endif()
 
 file(GLOB_RECURSE src CONFIGURE_DEPENDS Z/*.*
                                         Platform/OpenGL/*.*
