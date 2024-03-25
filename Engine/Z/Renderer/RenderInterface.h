@@ -746,6 +746,11 @@ namespace Z {
         return static_cast<ImageUsageFlag>(static_cast<uint32>(a)|static_cast<uint32>(b));
     }
 
+    inline ImageUsageFlag operator|= (ImageUsageFlag& a,ImageUsageFlag b){
+        a = a|b;
+        return a;
+    }
+
     inline MemoryPropertyFlag operator|(MemoryPropertyFlag a,MemoryPropertyFlag b){
         return static_cast<MemoryPropertyFlag>(static_cast<uint32>(a)|static_cast<uint32>(b));
     }

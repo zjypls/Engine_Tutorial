@@ -11,10 +11,12 @@
 #include "Z/Renderer/RenderInterface.h"
 #define VULKAN_IMPL_RESOURCE(type) class Z_API Vulkan##type final : public type{ \
 public:                                                                          \
-    void Set(Vk##type s_##type){m_##type=s_##type;}                              \
-    [[nodiscard]] auto Get() const {return m_##type;}                            \
+    using ResType=Vk##type;                                                      \
+    void Set(ResType s_##type){m_##type=s_##type;}                               \
+    [[nodiscard]] ResType Get() const {return m_##type;}                         \
+    const ResType* GetPtr()const{return &m_##type;}                              \
 private:                                                                         \
-    Vk##type m_##type;                                                           \
+    ResType m_##type;                                                            \
 }                                                                                \
 
 

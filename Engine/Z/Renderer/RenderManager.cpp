@@ -46,9 +46,9 @@ namespace Z {
         m_Context->WaitForFences();
 
         m_Context->ResetCommandPool();
-        m_Context->prepareBeforeRender({});
+        m_Context->prepareBeforeRender(Resize);
         renderPipeline->draw();
-        m_Context->SubmitTask();
+        m_Context->SubmitTask(Resize);
     }
 
     void RenderManager::PushUIContents(ImGuiContent *content) {
@@ -69,6 +69,10 @@ namespace Z {
         ImTextureID id;
         imguiRenderPlatform->CreateTextureForImGui(m_Context->GetDefaultSampler(SamplerType::Linear),view,layout,id);
         return id;
+    }
+
+    void RenderManager::Resize() {
+        renderPipeline->Resize();
     }
 
 } // Z

@@ -51,6 +51,7 @@ namespace Z {
         void clear() override;
         void SetViewPortSize(uint32 width,uint32 height);
         void* GetViewportFrameBufferDescriptor();
+        void Resize()override;
     private:
         void BeginRenderPass();
         void EndRenderPass();

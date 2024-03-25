@@ -277,7 +277,7 @@ namespace Z {
 			indexBufferInfo.usage=BufferUsageFlag::INDEX_BUFFER;
 			indexBufferInfo.properties=MemoryPropertyFlag::DEVICE_LOCAL;
 			s_Context->CreateBuffer(indexBufferInfo,mesh->indexBuffer,mesh->indexMemory,indices.data());
-			if(bones.size()>0){			
+			if(!bones.empty()){
 				BufferInfo boneBufferInfo{};
 				boneBufferInfo.size=sizeof(BoneData)*bones.size();
 				boneBufferInfo.usage=BufferUsageFlag::STORAGE_BUFFER;
@@ -296,7 +296,7 @@ namespace Z {
 				stages.push_back(ShaderStageFlag::VERTEX);
 			if(source.find("Z_FRAGMENT")!=std::string::npos)
 				stages.push_back(ShaderStageFlag::FRAGMENT);
-			if(source.find("Z_GEOMERTY")!=std::string::npos)
+			if(source.find("Z_GEOMETRY")!=std::string::npos)
 				stages.push_back(ShaderStageFlag::GEOMETRY);
 			if(source.find("Z_COMPUTE")!=std::string::npos)
 				stages.push_back(ShaderStageFlag::COMPUTE);

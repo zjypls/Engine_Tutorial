@@ -51,6 +51,7 @@ namespace Z {
         virtual void PostInit(){}
         virtual void draw(){}
         virtual void clear() {}
+        virtual void Resize(){}
 
     protected:
         [[nodiscard]]

@@ -20,7 +20,7 @@ namespace Z {
         void Init(const GraphicSpec&spec)override;
         void Shutdown() override;
         bool prepareBeforeRender(const std::function<void()>&funcCallAfterRecreateSwapChain) override;
-        void SubmitTask() override;
+        void SubmitTask(const std::function<void()>&funcCallAfterRecreateSwapChain) override;
         void WaitForFences() override;
         void DeviceWaiteIdle() override;
         void ResetCommandPool() override;
@@ -106,6 +106,7 @@ namespace Z {
         void CreateVmaAllocator();
         void CreateDefaultSampler();
 
+        void DestroySwapchain();
         void ReCreateSwapChain();
 
         void InitFirstSetLayout();

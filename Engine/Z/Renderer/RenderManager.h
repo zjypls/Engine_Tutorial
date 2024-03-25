@@ -32,6 +32,8 @@ namespace Z {
         
         static ImTextureID CreateImGuiTexture(Texture2D* texture2D){return CreateImGuiTexture(texture2D->image,texture2D->imageView);}
 
+        static void Resize();
+
     private:
         static Ref<GraphicInterface> m_Context;
         static Ref<RenderPipeline> renderPipeline;

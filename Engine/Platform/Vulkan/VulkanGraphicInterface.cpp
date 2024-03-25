@@ -515,6 +515,9 @@ namespace Z {
     }
 
     void VulkanGraphicInterface::ReCreateSwapChain() {
+        DestroySwapchain();
+        CreateSwapchain();
+        CreateSwapchainImageViews();
     }
 
     void VulkanGraphicInterface::InitFirstSetLayout(){
@@ -589,6 +592,7 @@ namespace Z {
         if(VK_SUBOPTIMAL_KHR==acquireRes||VK_ERROR_OUT_OF_DATE_KHR==acquireRes) {
             Z_CORE_WARN("Recreate swapchain !");
             ReCreateSwapChain();
+            funcCallAfterRecreateSwapChain();
             return true;
         }else if(VK_SUCCESS!=acquireRes) {
             Z_CORE_ASSERT(false,"false to acquire next image from swapchain !");
@@ -606,7 +610,7 @@ namespace Z {
         return false;
     }
 
-    void VulkanGraphicInterface::SubmitTask() {
+    void VulkanGraphicInterface::SubmitTask(const std::function<void()>&funcCallAfterRecreateSwapChain) {
         auto res=vkEndCommandBuffer(commandBuffers[currentFrameIndex]);
         VK_CHECK(res,"failed to end command buffer !");
 
@@ -649,6 +653,8 @@ namespace Z {
         if (VK_ERROR_OUT_OF_DATE_KHR == res || VK_SUBOPTIMAL_KHR == res)
         {
             ReCreateSwapChain();
+            funcCallAfterRecreateSwapChain();
+            return;
         }
         else if (VK_SUCCESS != res)
         {
@@ -1447,6 +1453,22 @@ namespace Z {
             return defaultLinearSampler;
         else
             return defaultNearestSampler;
+    }
+
+    void VulkanGraphicInterface::DestroySwapchain() {
+
+        int width=0,height=0;
+        auto windowPtr=(GLFWwindow*)Application::Get().GetWindow().GetNativeWindow();
+        while(width==0||height==0){
+            glfwGetFramebufferSize(windowPtr,&width,&height);
+        }
+        vkQueueWaitIdle(((VulkanQueue*)graphicsQueue)->Get());
+        vkDestroySwapchainKHR(device,swapchain, nullptr);
+        for(const auto&view:swapchainImageViews){
+            vkDestroyImageView(device,view, nullptr);
+        }
+        swapchainImageViews.clear();
+        swapchainImages.clear();
     }
 
 } // Z

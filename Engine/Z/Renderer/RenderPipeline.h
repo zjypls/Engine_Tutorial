@@ -33,6 +33,8 @@ namespace Z {
 
         void* GetViewportFrameBufferDescriptor();
 
+        void Resize();
+
     protected:
         GraphicInterface* Context;
         Ref<RenderPass> mainCameraPass;

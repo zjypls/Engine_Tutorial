@@ -85,4 +85,8 @@ namespace Z {
     void *RenderPipeline::GetViewportFrameBufferDescriptor() {
         return ((MainCameraPass*)mainCameraPass.get())->GetViewportFrameBufferDescriptor();
     }
+
+    void RenderPipeline::Resize() {
+        mainCameraPass->Resize();
+    }
 } // Z

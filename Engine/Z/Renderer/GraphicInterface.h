@@ -23,7 +23,7 @@ namespace Z {
 
         virtual bool prepareBeforeRender(const std::function<void()>&funcCallAfterRecreateSwapChain)=0;
 
-        virtual void SubmitTask()=0;
+        virtual void SubmitTask(const std::function<void()>&funcCallAfterRecreateSwapChain)=0;
 
         virtual void WaitForFences()=0;
 
