@@ -550,8 +550,6 @@ namespace Z {
     }
 
     void VulkanGraphicInterface::Shutdown() {
-        //todo:destroy vulkan context
-
         DestroyDescriptorSetLayout(firstSetLayout);
 
         for(auto view:swapchainImageViews) {
@@ -900,6 +898,12 @@ namespace Z {
             layoutInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
             layoutInfo.setLayoutCount=descriptorLayout.size();
             layoutInfo.pSetLayouts=descriptorLayout.data();
+            if(shaderInfo.pushConstantRange.size>0){
+                layoutInfo.pPushConstantRanges = &shaderInfo.pushConstantRange;
+                layoutInfo.pushConstantRangeCount = 1;
+            }else{
+                layoutInfo.pushConstantRangeCount = 0;
+            }
             VkPipelineLayout layout;
             auto res=vkCreatePipelineLayout(device,&layoutInfo,nullptr,&layout);
             VK_CHECK(res,"failed to create pipeline layout !");
@@ -925,18 +929,23 @@ namespace Z {
             static auto vertexDescription=MeshDescription::GetAttributeDescription();
             static auto vertexBinding=MeshDescription::GetBindingDescription();
             VkPipelineVertexInputStateCreateInfo vertexInputStateInfo{};
-            if(info.pVertexInputState==nullptr){
-                vertexInputStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-                vertexInputStateInfo.vertexAttributeDescriptionCount=vertexDescription.size();
-                vertexInputStateInfo.pVertexAttributeDescriptions=(VkVertexInputAttributeDescription*)vertexDescription.data();
-                vertexInputStateInfo.vertexBindingDescriptionCount=vertexBinding.size();
-                vertexInputStateInfo.pVertexBindingDescriptions=(VkVertexInputBindingDescription*)vertexBinding.data();
-            }else{
-                vertexInputStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-                vertexInputStateInfo.vertexAttributeDescriptionCount=info.pVertexInputState->vertexAttributeDescriptionCount;
-                vertexInputStateInfo.pVertexAttributeDescriptions=(VkVertexInputAttributeDescription*)info.pVertexInputState->pVertexAttributeDescriptions;
-                vertexInputStateInfo.vertexBindingDescriptionCount=info.pVertexInputState->vertexBindingDescriptionCount;
-                vertexInputStateInfo.pVertexBindingDescriptions=(VkVertexInputBindingDescription*)info.pVertexInputState->pVertexBindingDescriptions;
+            vertexInputStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+            vertexInputStateInfo.vertexBindingDescriptionCount=0;
+            vertexInputStateInfo.vertexAttributeDescriptionCount=0;
+            if(shaderInfo.vertexInput){
+                if(info.pVertexInputState==nullptr){
+                    vertexInputStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+                    vertexInputStateInfo.vertexAttributeDescriptionCount=vertexDescription.size();
+                    vertexInputStateInfo.pVertexAttributeDescriptions=(VkVertexInputAttributeDescription*)vertexDescription.data();
+                    vertexInputStateInfo.vertexBindingDescriptionCount=vertexBinding.size();
+                    vertexInputStateInfo.pVertexBindingDescriptions=(VkVertexInputBindingDescription*)vertexBinding.data();
+                }else{
+                    vertexInputStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+                    vertexInputStateInfo.vertexAttributeDescriptionCount=info.pVertexInputState->vertexAttributeDescriptionCount;
+                    vertexInputStateInfo.pVertexAttributeDescriptions=(VkVertexInputAttributeDescription*)info.pVertexInputState->pVertexAttributeDescriptions;
+                    vertexInputStateInfo.vertexBindingDescriptionCount=info.pVertexInputState->vertexBindingDescriptionCount;
+                    vertexInputStateInfo.pVertexBindingDescriptions=(VkVertexInputBindingDescription*)info.pVertexInputState->pVertexBindingDescriptions;
+                }
             }
             VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateInfo{};
             if(info.pInputAssemblyState==nullptr){
@@ -971,18 +980,19 @@ namespace Z {
                 viewportStateInfo.pScissors = (VkRect2D*)info.pViewportState->pScissors;
                 viewportStateInfo.pViewports = (VkViewport*)info.pViewportState->pViewports;
             }
-            VkPipelineColorBlendAttachmentState colorBlendAttachment{};
+            std::vector<VkPipelineColorBlendAttachmentState> colorBlendAttachment{};
             VkPipelineColorBlendStateCreateInfo blendStateInfo{};
             if(info.pColorBlendState==nullptr){
-                colorBlendAttachment.colorWriteMask =
-                        VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |
-                        VK_COLOR_COMPONENT_A_BIT;
-                colorBlendAttachment.blendEnable = VK_FALSE;
+                colorBlendAttachment.resize(shaderInfo.fragmentOutputs.size());
+                for(int i=0;i<shaderInfo.fragmentOutputs.size();++i){
+                    colorBlendAttachment[i].blendEnable=false;
+                    colorBlendAttachment[i].colorWriteMask=VK_COLOR_COMPONENT_R_BIT|VK_COLOR_COMPONENT_G_BIT|VK_COLOR_COMPONENT_B_BIT|VK_COLOR_COMPONENT_A_BIT;
+                }
                 blendStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
                 blendStateInfo.logicOpEnable=VK_FALSE;
                 blendStateInfo.logicOp=VK_LOGIC_OP_COPY;
-                blendStateInfo.attachmentCount=1;
-                blendStateInfo.pAttachments=&colorBlendAttachment;
+                blendStateInfo.attachmentCount=colorBlendAttachment.size();
+                blendStateInfo.pAttachments=colorBlendAttachment.data();
             }else{
                 blendStateInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
                 blendStateInfo.attachmentCount=info.pColorBlendState->attachmentCount;
@@ -1176,6 +1186,11 @@ namespace Z {
         VK_CHECK(res,"failed to allocate descriptor set !");
         descriptorSet=new VulkanDescriptorSet{};
         ((VulkanDescriptorSet*)descriptorSet)->Set(set);
+    }
+
+    void VulkanGraphicInterface::FreeDescriptorSet(DescriptorSet *descriptorSet) {
+        auto set=((VulkanDescriptorSet*)descriptorSet)->Get();
+        vkFreeDescriptorSets(device,descriptorPool,1,&set);
     }
 
     void VulkanGraphicInterface::CreateCubeMap(const ImageInfo &info, Image *&image, DeviceMemory *&memory,
@@ -1450,6 +1465,12 @@ namespace Z {
             return defaultLinearSampler;
         else
             return defaultNearestSampler;
+    }
+
+    void
+    VulkanGraphicInterface::BindDescriptorSet(PipelineBindPoint bindPoint, PipelineLayout *layout, DescriptorSet *set) {
+        vkCmdBindDescriptorSets(commandBuffers[currentFrameIndex],(VkPipelineBindPoint)bindPoint,((VulkanPipelineLayout*)layout)->Get(),
+                                0,1,((VulkanDescriptorSet*)set)->GetPtr(),0,nullptr);
     }
 
     void VulkanGraphicInterface::DestroySwapchain() {

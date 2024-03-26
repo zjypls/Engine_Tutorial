@@ -60,6 +60,8 @@ namespace Z {
         //make info.DescriptorPool empty  to use default pool
         virtual void AllocateDescriptorSet(const DescriptorSetAllocateInfo& info, DescriptorSet* &descriptorSet) = 0;
 
+        virtual void FreeDescriptorSet(DescriptorSet* descriptorSet) = 0;
+
         virtual void WriteDescriptorSets(const WriteDescriptorSet* writes,uint32 writeCount) = 0;
 
         virtual Sampler* GetDefaultSampler(SamplerType samplerType) = 0;
@@ -91,6 +93,8 @@ namespace Z {
         virtual void SetScissor(const Rect2D& scissor)=0;
 
         virtual void BindDescriptorSets(PipelineBindPoint bindPoint,PipelineLayout* layout,uint32 firstSet,const std::vector<DescriptorSet*>& descriptorSets)=0;
+
+        virtual void BindDescriptorSet(PipelineBindPoint bindPoint,PipelineLayout* layout,DescriptorSet* set) = 0;
 
         virtual void PushConstant(PipelineLayout* layout,ShaderStageFlag stageFlags,uint32 offset,uint32 size,const void* data)=0;
 

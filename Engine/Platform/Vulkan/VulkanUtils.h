@@ -84,16 +84,70 @@ namespace Z{
                 file.close();
                 return buffer;
             }
+
+            VkFormat GetFormatFromSPVType(const spirv_cross::SPIRType& type){
+                switch(type.basetype){
+                    case spirv_cross::SPIRType::BaseType::Float:
+                        switch(type.width){
+                            case 8:
+                                switch (type.vecsize)
+                                {
+                                    case 1 : return VK_FORMAT_R8_UNORM;
+                                    case 2 : return VK_FORMAT_R8G8_UNORM;
+                                    case 3 : return VK_FORMAT_R8G8B8_UNORM;
+                                    case 4 : return VK_FORMAT_R8G8B8A8_UNORM;
+                                    default:return VK_FORMAT_UNDEFINED;
+                                }
+                            case 32:
+                                switch (type.vecsize)
+                                {
+                                    case 1 : return VK_FORMAT_R32_SFLOAT;
+                                    case 2 : return VK_FORMAT_R32G32_SFLOAT;
+                                    case 3 : return VK_FORMAT_R32G32B32_SFLOAT;
+                                    case 4 : return VK_FORMAT_R32G32B32A32_SFLOAT;
+                                    default:return VK_FORMAT_UNDEFINED;
+                                }
+                        }
+                    case spirv_cross::SPIRType::BaseType::Int:
+                        switch(type.width){
+                            case 8:
+                                switch(type.vecsize){
+                                    case 1 : return VK_FORMAT_R8_SINT;
+                                    case 2 : return VK_FORMAT_R8G8_SINT;
+                                    case 3 : return VK_FORMAT_R8G8B8_SINT;
+                                    case 4 : return VK_FORMAT_R8G8B8_SINT;
+                                }
+                            case 32 :
+                                switch(type.vecsize){
+                                    case 1 : return VK_FORMAT_R32_SINT;
+                                    case 2 : return VK_FORMAT_R32G32_SINT;
+                                    case 3 : return VK_FORMAT_R32G32B32_SINT;
+                                    case 4 : return VK_FORMAT_R32G32B32A32_SINT;
+                                }
+                        }
+                    default:
+                        Z_CORE_WARN("format drop into default !");
+                        return VK_FORMAT_UNDEFINED;
+                }
+            }
             
         }
 
         struct DescriptorInfo{
             std::vector<VkDescriptorSetLayoutBinding> bindings;
         };
+        struct FragmentOutput{
+            uint32 binding;
+            uint32 size;
+            VkFormat format;
+        };
         struct ShaderSourceCompileInfo{
             std::vector<std::vector<uint32>> irCode;
             std::vector<VkShaderStageFlagBits> stageFlags;
             std::vector<DescriptorInfo> descriptorInfos;
+            std::vector<FragmentOutput> fragmentOutputs;
+            VkPushConstantRange pushConstantRange;
+            bool vertexInput=true;
         };
 
         uint32 FindMemoryType(VkPhysicalDevice device,uint32 typeFilter,VkMemoryPropertyFlags properties){
@@ -178,6 +232,7 @@ namespace Z{
         ShaderSourceCompileInfo ReflectShader(const std::string&sources,const std::vector<ShaderStageFlag> &stages){
             ShaderSourceCompileInfo info;
             info.irCode=Tools::CompileShader(sources,stages);
+            info.pushConstantRange.size=0;
             Z_CORE_ASSERT(info.irCode.size()==stages.size(),"error: shader stage count not match source count !");
             auto &descriptorSets=info.descriptorInfos;
             for(int i=0;i<info.irCode.size();++i){
@@ -223,6 +278,24 @@ namespace Z{
                     binding.stageFlags=static_cast<VkShaderStageFlagBits>(stage);
                     binding.descriptorCount=1;
                     descriptorSets[set].bindings.push_back(binding);
+                }
+                if(ShaderStageFlag::FRAGMENT==stage){
+                    for(auto&output:resources.stage_outputs){
+                        auto& type=compiler.get_type(output.type_id);
+                        FragmentOutput fragOutput;
+                        fragOutput.binding=compiler.get_decoration(output.id,spv::Decoration::DecorationBinding);
+                        fragOutput.size=type.width*type.vecsize;
+                        fragOutput.format=Tools::GetFormatFromSPVType(type);
+                        info.fragmentOutputs.push_back(fragOutput);
+                    }
+                }else if(ShaderStageFlag::VERTEX==stage){
+                    info.vertexInput=!resources.stage_inputs.empty();
+                }
+                for(auto& resource:resources.push_constant_buffers){
+                    auto bufferRange=compiler.get_active_buffer_ranges(resource.id);
+                    info.pushConstantRange.offset=bufferRange[0].offset;
+                    info.pushConstantRange.size=bufferRange[0].range;
+                    info.pushConstantRange.stageFlags=(VkShaderStageFlags)stage;
                 }
             }
             return info;

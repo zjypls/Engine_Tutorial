@@ -28,6 +28,7 @@ namespace Z {
         void EndRenderPass() override;
         void BindPipeline(PipelineBindPoint,Pipeline *pipeline) override;
         void BindDescriptorSets(PipelineBindPoint bindPoint, PipelineLayout *layout, uint32 firstSet, const std::vector<DescriptorSet*>&descriptorSets) override;
+        void BindDescriptorSet(PipelineBindPoint bindPoint,PipelineLayout* layout,DescriptorSet* set)override;
         void PushConstant(PipelineLayout *layout, ShaderStageFlag stage, uint32 offset, uint32 size, const void *data) override;
         void SetViewPort(const Viewport &viewport) override;
         void SetScissor(const Rect2D &scissor) override;
@@ -53,6 +54,7 @@ namespace Z {
                                  GraphicPipelineCreateInfo* createInfo) override;
         void CreateDescriptorSetLayout(const DescriptorSetLayoutCreateInfo &info, DescriptorSetLayout *&descriptorSetLayout) override;
         void AllocateDescriptorSet(const DescriptorSetAllocateInfo &info, DescriptorSet *&descriptorSet) override;
+        void FreeDescriptorSet(DescriptorSet *descriptorSet) override;
         void WriteDescriptorSets(const WriteDescriptorSet *writes,uint32 writeCount) override;
         void MapMemory(DeviceMemory *memory, uint64 offset, uint64 size, void *&data) override;
         void UnMapMemory(DeviceMemory *memory) override;
