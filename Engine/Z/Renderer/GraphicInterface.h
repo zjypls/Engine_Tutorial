@@ -62,6 +62,8 @@ namespace Z {
 
         virtual void FreeDescriptorSet(DescriptorSet* descriptorSet) = 0;
 
+        virtual void FreeDescriptorSet(void* descriptorSet) = 0;
+
         virtual void WriteDescriptorSets(const WriteDescriptorSet* writes,uint32 writeCount) = 0;
 
         virtual Sampler* GetDefaultSampler(SamplerType samplerType) = 0;

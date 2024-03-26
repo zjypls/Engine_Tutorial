@@ -198,6 +198,9 @@ namespace Z {
 
     void MainCameraPass::SetViewPortSize(uint32 width, uint32 height) {
         if(viewPortSize.x==width&&viewPortSize.y==height)return;
+        for(auto& set:viewPortDescriptorSets){
+            Context->FreeDescriptorSet(&set);
+        }
         DestroyViewportFrameBuffer();
         viewPortSize.x=width;
         viewPortSize.y=height;

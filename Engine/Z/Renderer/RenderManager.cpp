@@ -44,9 +44,9 @@ namespace Z {
     void RenderManager::Update(float deltaTime) {
 
         m_Context->WaitForFences();
-
         m_Context->ResetCommandPool();
-        m_Context->prepareBeforeRender(RenderManager::Resize);
+        if(m_Context->prepareBeforeRender(RenderManager::Resize))return;
+
         renderPipeline->draw();
         m_Context->SubmitTask(RenderManager::Resize);
     }

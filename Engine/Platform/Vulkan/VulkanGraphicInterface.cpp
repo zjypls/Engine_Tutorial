@@ -591,6 +591,7 @@ namespace Z {
             Z_CORE_WARN("Recreate swapchain !");
             ReCreateSwapChain();
             funcCallAfterRecreateSwapChain();
+            return true;
         }else if(VK_SUCCESS!=acquireRes) {
             Z_CORE_ASSERT(false,"false to acquire next image from swapchain !");
             return true;
@@ -651,7 +652,6 @@ namespace Z {
         {
             ReCreateSwapChain();
             funcCallAfterRecreateSwapChain();
-            return;
         }
         else if (VK_SUCCESS != res)
         {
@@ -663,7 +663,7 @@ namespace Z {
     }
 
     void VulkanGraphicInterface::WaitForFences() {
-        auto res=vkWaitForFences(device,1,&frameFences[currentFrameIndex],VK_FALSE,UINT64_MAX);
+        auto res=vkWaitForFences(device,1,&frameFences[currentFrameIndex],VK_TRUE,UINT64_MAX);
         VK_CHECK(res,"failed to wait fences !");
     }
 
@@ -673,9 +673,7 @@ namespace Z {
     }
 
     void VulkanGraphicInterface::ResetCommandPool() {
-        auto res=vkResetFences(device,1,&frameFences[currentFrameIndex]);
-        VK_CHECK(res,"failed to reset fence !");
-        res=vkResetCommandPool(device,commandPools[currentFrameIndex],0);
+        auto res=vkResetCommandPool(device,commandPools[currentFrameIndex],0);
         VK_CHECK(res,"failed to reset command pool !");
     }
 
@@ -1481,13 +1479,17 @@ namespace Z {
             glfwPollEvents();
             glfwGetFramebufferSize(windowPtr,&width,&height);
         }
-        vkQueueWaitIdle(((VulkanQueue*)graphicsQueue)->Get());
+        vkDeviceWaitIdle(device);
         for(const auto&view:swapchainImageViews){
             vkDestroyImageView(device,view, nullptr);
         }
         swapchainImageViews.clear();
         swapchainImages.clear();
         vkDestroySwapchainKHR(device,swapchain, nullptr);
+    }
+
+    void VulkanGraphicInterface::FreeDescriptorSet(void *descriptorSet) {
+        vkFreeDescriptorSets(device,descriptorPool,1,(VkDescriptorSet*)descriptorSet);
     }
 
 } // Z

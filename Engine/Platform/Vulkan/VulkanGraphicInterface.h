@@ -55,6 +55,7 @@ namespace Z {
         void CreateDescriptorSetLayout(const DescriptorSetLayoutCreateInfo &info, DescriptorSetLayout *&descriptorSetLayout) override;
         void AllocateDescriptorSet(const DescriptorSetAllocateInfo &info, DescriptorSet *&descriptorSet) override;
         void FreeDescriptorSet(DescriptorSet *descriptorSet) override;
+        void FreeDescriptorSet(void* descriptorSet)override;
         void WriteDescriptorSets(const WriteDescriptorSet *writes,uint32 writeCount) override;
         void MapMemory(DeviceMemory *memory, uint64 offset, uint64 size, void *&data) override;
         void UnMapMemory(DeviceMemory *memory) override;
