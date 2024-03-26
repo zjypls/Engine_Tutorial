@@ -23,8 +23,8 @@ namespace Z{
         }
     };
     struct VertexBlending{
-        int32 boneIndex[maxBoneBlending];
-        float blending[maxBoneBlending];
+        int32 boneIndex[maxBoneBlending]{-1,-1,-1,-1};
+        float blending[maxBoneBlending]{0,0,0,0};
         bool operator==(const VertexBlending& a) const{
             for(int i=0;i<maxBoneBlending;i++){
                 if(a.boneIndex[i]!=boneIndex[i]||a.blending[i]!=blending[i]){

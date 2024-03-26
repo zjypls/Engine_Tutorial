@@ -593,7 +593,6 @@ namespace Z {
             Z_CORE_WARN("Recreate swapchain !");
             ReCreateSwapChain();
             funcCallAfterRecreateSwapChain();
-            return true;
         }else if(VK_SUCCESS!=acquireRes) {
             Z_CORE_ASSERT(false,"false to acquire next image from swapchain !");
             return true;
@@ -614,7 +613,7 @@ namespace Z {
         auto res=vkEndCommandBuffer(commandBuffers[currentFrameIndex]);
         VK_CHECK(res,"failed to end command buffer !");
 
-        VkPipelineStageFlags waitStages[1] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+        static VkPipelineStageFlags waitStages[1] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
         VkSubmitInfo         submit_info   = {};
         submit_info.sType                  = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submit_info.waitSemaphoreCount     = 1;
@@ -1089,7 +1088,6 @@ namespace Z {
     std::vector<Z::Framebuffer *> VulkanGraphicInterface::CreateDefaultFrameBuffers(
         RenderPassInterface *renderPassInterface) {
         std::vector<Z::Framebuffer*> result(swapchainImageViews.size());
-        swapchainFrameBuffers.resize(swapchainImageViews.size());
         VkFramebufferCreateInfo createInfo{};
         createInfo.sType=VK_INFO(FRAMEBUFFER,CREATE);
         createInfo.height=swapchainExtent.height;
@@ -1099,7 +1097,7 @@ namespace Z {
         createInfo.renderPass=((VulkanRenderPass*)renderPassInterface)->Get();
         createInfo.flags=0;
         createInfo.pNext=nullptr;
-        for(int i=0;i<swapchainImageViews.size();++i) {
+        for(int i=0;i<result.size();++i) {
             VkFramebuffer buffer{};
             createInfo.pAttachments=&swapchainImageViews[i];
             auto res=vkCreateFramebuffer(device,&createInfo,nullptr,&buffer);
@@ -1107,9 +1105,8 @@ namespace Z {
             auto framebuffer=new VulkanFramebuffer{};
             framebuffer->Set(buffer);
             result[i]=framebuffer;
-            swapchainFrameBuffers[i]=buffer;
         }
-        return result;
+        return std::move(result);
     }
 
     void VulkanGraphicInterface::DestroyFrameBuffer(Z::Framebuffer *framebuffer) {
@@ -1460,15 +1457,16 @@ namespace Z {
         int width=0,height=0;
         auto windowPtr=(GLFWwindow*)Application::Get().GetWindow().GetNativeWindow();
         while(width==0||height==0){
+            glfwPollEvents();
             glfwGetFramebufferSize(windowPtr,&width,&height);
         }
         vkQueueWaitIdle(((VulkanQueue*)graphicsQueue)->Get());
-        vkDestroySwapchainKHR(device,swapchain, nullptr);
         for(const auto&view:swapchainImageViews){
             vkDestroyImageView(device,view, nullptr);
         }
         swapchainImageViews.clear();
         swapchainImages.clear();
+        vkDestroySwapchainKHR(device,swapchain, nullptr);
     }
 
 } // Z

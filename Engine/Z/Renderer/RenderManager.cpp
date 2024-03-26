@@ -46,9 +46,9 @@ namespace Z {
         m_Context->WaitForFences();
 
         m_Context->ResetCommandPool();
-        m_Context->prepareBeforeRender(Resize);
+        m_Context->prepareBeforeRender(RenderManager::Resize);
         renderPipeline->draw();
-        m_Context->SubmitTask(Resize);
+        m_Context->SubmitTask(RenderManager::Resize);
     }
 
     void RenderManager::PushUIContents(ImGuiContent *content) {
