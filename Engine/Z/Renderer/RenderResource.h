@@ -33,9 +33,9 @@ namespace Z
         // upload data to buffer
         // copy ( (byte*)destination + desOffset, (byte*)data + inputOffset , inputSize )
         static void UpLoadData(void* data , uint64 inputSize = sizeof(InputData) , uint64 inputOffset=0 , uint64 desOffset = 0);
-        static RenderResource* GetInstance(){return instance.get();}
+        static Ref<RenderResource> GetInstance(){return instance;}
         static RenderResourceData* GetCurrentRenderResourceData(){return &instance->renderResourceData[instance->graphicContext->GetCurrentFrameIndex()];}
-        static const auto& GetRenderReourceData(){return instance->renderResourceData;}
+        static const auto& GetRenderResourceData(){return instance->renderResourceData;}
         static DescriptorSetLayout* GetFirstLayout(){return instance->firstLayout;}
         static DescriptorSet* GetFirstDescriptorSet(uint32 index){return instance->firstDescriptorSets[index];}
 

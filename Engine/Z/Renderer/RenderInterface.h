@@ -1040,6 +1040,16 @@ namespace Z {
         uint64                       codeSize;
         const uint32*                pCode;
     };
+    struct DescriptorSetBindingInfo{
+        uint32             binding;
+        DescriptorType     type;
+        std::string        name;
+    };
+    struct DescriptorSetInfo{
+        std::vector<DescriptorSetBindingInfo> bindnings;
+        uint32                                set;
+        ShaderStageFlag                       stage;
+    };
     struct DescriptorSetLayoutBinding {
         uint32             binding;
         DescriptorType     descriptorType;

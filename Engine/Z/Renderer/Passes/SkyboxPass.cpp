@@ -75,7 +75,7 @@ namespace Z {
     }
 
     void SkyboxPass::InitDescriptorSets(SkyboxPassInitInfo *initInfo) {
-        auto renderResourceData = RenderResource::GetRenderReourceData();
+        auto renderResourceData = RenderResource::GetRenderResourceData();
         descriptorSets.resize(initInfo->frameBufferCount);
         uint32 descriptorSize = descriptors.size();
         for (int i = 0; i < initInfo->frameBufferCount; i++) {

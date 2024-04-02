@@ -61,7 +61,7 @@ namespace Z{
                     shaderc::CompileOptions options;
                     options.SetTargetEnvironment(shaderc_target_env_vulkan,shaderc_env_version_vulkan_1_0);
                     options.AddMacroDefinition(GetShaderStageMacroName(stages[i]));
-                    options.SetOptimizationLevel(shaderc_optimization_level_performance);
+                    //options.SetOptimizationLevel(shaderc_optimization_level_performance);
                     auto stage= ShaderStageToShaderc(stages[i]);
                     auto result=compiler.CompileGlslToSpv(sources,stage,"shader",options);
                     if(result.GetCompilationStatus()!=shaderc_compilation_status_success){
@@ -135,6 +135,7 @@ namespace Z{
 
         struct DescriptorInfo{
             std::vector<VkDescriptorSetLayoutBinding> bindings;
+            std::vector<std::string> bindingNames;
         };
         struct FragmentOutput{
             uint32 binding;
@@ -256,6 +257,7 @@ namespace Z{
                     binding.stageFlags=static_cast<VkShaderStageFlagBits>(stage);
                     binding.descriptorCount=1;
                     descriptorSets[set].bindings.push_back(binding);
+                    descriptorSets[set].bindingNames.push_back(resource.name);
                 }
                 for(auto &resource:resources.storage_buffers){
                     auto set=compiler.get_decoration(resource.id,spv::DecorationDescriptorSet);
@@ -267,6 +269,7 @@ namespace Z{
                     binding.stageFlags=static_cast<VkShaderStageFlagBits>(stage);
                     binding.descriptorCount=1;
                     descriptorSets[set].bindings.push_back(binding);
+                    descriptorSets[set].bindingNames.push_back(resource.name);
                 }
                 for(auto &resource:resources.sampled_images){
                     auto set=compiler.get_decoration(resource.id,spv::DecorationDescriptorSet);
@@ -278,6 +281,7 @@ namespace Z{
                     binding.stageFlags=static_cast<VkShaderStageFlagBits>(stage);
                     binding.descriptorCount=1;
                     descriptorSets[set].bindings.push_back(binding);
+                    descriptorSets[set].bindingNames.push_back(resource.name);
                 }
                 if(ShaderStageFlag::FRAGMENT==stage){
                     for(auto&output:resources.stage_outputs){

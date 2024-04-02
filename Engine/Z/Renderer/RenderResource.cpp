@@ -38,7 +38,7 @@ namespace Z
 
     void RenderResource::InitRenderData() {
         BufferInfo bufferInfo{};
-        bufferInfo.size=sizeof(glm::mat4)*2;
+        bufferInfo.size=sizeof(InputData);
         bufferInfo.usage=BufferUsageFlag::UNIFORM_BUFFER;
         bufferInfo.properties=MemoryPropertyFlag::HOST_VISIBLE|MemoryPropertyFlag::HOST_COHERENT;
         for(auto&data:renderResourceData){

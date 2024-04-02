@@ -108,20 +108,21 @@ namespace Z {
 		}
 
 		static const std::set<std::string> TextureSheets{".png",".jpg",".jpeg",".bmp"};
-		static const std::set<std::string> MeshSheets{".obj",".fbx"};
+		static const std::set<std::string> MeshSheets{".obj",".fbx",".dae",".pmx"};
 
 		Z::AssetsImporterType ExtensionGetType(const std::string&extension){
 			if(TextureSheets.find(extension)!=TextureSheets.end())
 				return Z::AssetsImporterType::Texture2D;
 			else if(MeshSheets.find(extension)!=MeshSheets.end())
 				return Z::AssetsImporterType::Mesh;
-			else if(extension.compare(".glsl")==0)
+			else if(extension==".glsl")
 				return Z::AssetsImporterType::Shader;
-			Z_CORE_ASSERT(false,"Unknow extension type : {0}",extension);
+			Z_CORE_ASSERT(false,"Unknown extension type : {0}",extension);
 			return Z::AssetsImporterType::None;
 		}
 
 		void* LoadSkyBox(const std::string& directory){
+            // to be optimized
 			const std::vector path{
 				directory+"/right.jpg",
 				directory+"/left.jpg",
@@ -351,7 +352,7 @@ namespace Z {
 
 	}
 
-	static const std::set<std::string> registerTypes{".png",".jpg",".jpeg",".bmp",".obj",".fbx"};
+	static const std::set<std::string> registerTypes{".png",".jpg",".jpeg",".bmp",".obj",".fbx",".dae"};
 	inline bool IsRegistered(const std::string& extension){
 		#if __cplusplus>=202002L
 			return registerTypes.contains(extension);
@@ -368,6 +369,7 @@ namespace Z {
 		instance=CreateScope<AssetsSystem>();
 		instance->Context=RenderManager::GetInstance();
 		Z::s_Context=instance->Context.get();
+		InitInnerAssets();
 	}
 
 
@@ -410,6 +412,43 @@ namespace Z {
 		if(ptr)
 			instance->resourceLibrary[metaData.id]=ptr;
 		return ptr;
+	}
+
+	void AssetsSystem::InitInnerAssets(){
+		ImageInfo imageInfo{};
+		imageInfo.extent.width=1;
+		imageInfo.extent.height=1;
+		imageInfo.extent.depth=1;
+		imageInfo.arrayLayers=1;
+		imageInfo.format=Format::R8G8B8A8_UNORM;
+		imageInfo.initialLayout=ImageLayout::UNDEFINED;
+		imageInfo.tilling=ImageTiling::OPTIMAL;
+		imageInfo.usageFlag=ImageUsageFlag::SAMPLED|ImageUsageFlag::TRANSFER_DST;
+		imageInfo.mipMapLevels=1;
+		imageInfo.memoryPropertyFlag=MemoryPropertyFlag::DEVICE_LOCAL;
+		imageInfo.sampleCount=SampleCountFlagBits::e1_BIT;
+
+		Texture2D* whiteTexture=new Texture2D;
+		uint8 whitePixel[]={255,255,255,255};
+		instance->Context->CreateImage(imageInfo,whiteTexture->image,whiteTexture->memory,whiteTexture->imageView,whitePixel);
+		
+		const std::string whitePath=":/Inner/whiteTexture";
+		whiteTexture->path=whitePath;
+		zGUID whiteID{};
+		instance->PathToUID[whitePath]=whiteID;
+		instance->UIDToPath[whiteID]=whitePath;
+		instance->resourceLibrary[whiteID]=whiteTexture;
+
+		Texture2D* blackTexture=new Texture2D;
+		uint8 blackPixel[]={0,0,0,0};
+		instance->Context->CreateImage(imageInfo,blackTexture->image,blackTexture->memory,blackTexture->imageView,blackPixel);
+
+		zGUID blackID{};
+		const std::string blackPath=":/Inner/blackTexture";
+		blackTexture->path=blackPath;
+		instance->PathToUID[blackPath]=blackID;
+		instance->UIDToPath[blackID]=blackPath;
+		instance->resourceLibrary[blackID]=blackTexture;
 	}
 
 	void AssetsSystem::InitWithProject(const std::filesystem::path &projectPath) {

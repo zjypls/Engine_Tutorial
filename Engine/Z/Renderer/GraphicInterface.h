@@ -51,7 +51,7 @@ namespace Z {
 
         virtual void CreateGraphicPipeline(const GraphicPipelineCreateInfo& createInfo, Pipeline*&graphicPipeline) = 0;
 
-        virtual void CreateGraphicPipeline(const std::string&shaderSources,const std::vector<Z::ShaderStageFlag>&stageFlags,Pipeline*&graphicPipeline,
+        virtual std::vector<DescriptorSetInfo> CreateGraphicPipeline(const std::string&shaderSources,const std::vector<Z::ShaderStageFlag>&stageFlags,Pipeline*&graphicPipeline,
                         RenderPassInterface* renderPassInterface,std::vector<DescriptorSetLayout*>&descriptorSetLayout,
                         PipelineLayout*&pipelineLayout , GraphicPipelineCreateInfo* createInfo=nullptr) = 0;
 
@@ -108,7 +108,7 @@ namespace Z {
 
         virtual void DrawIndexed(uint32 indexCount,uint32 instanceCount,uint32 firstIndex,uint32 vertexOffset,uint32 firstInstance)=0;
 
-        virtual void MapMemory(DeviceMemory* memory, uint64 size, uint64 offset, void*& data)=0;
+        virtual void MapMemory(DeviceMemory* memory, uint64 offset, uint64 size, void*& data)=0;
 
         virtual void UnMapMemory(DeviceMemory* memory)=0;
 

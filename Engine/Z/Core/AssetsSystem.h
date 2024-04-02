@@ -23,7 +23,7 @@ namespace Z {
 		AssetsImporterType type;
 	};
 	struct Texture2D {
-		AssetsImporterType type;
+		AssetsImporterType type=AssetsImporterType::Texture2D;
 		std::string path;
 		Image* image;
 		ImageView* imageView;
@@ -31,7 +31,7 @@ namespace Z {
 	};
 
 	struct MeshRes{
-		AssetsImporterType type;
+		AssetsImporterType type=AssetsImporterType::Mesh;
 		std::string path;
 		Buffer** vertexBuffer;
 		Buffer* indexBuffer;
@@ -45,7 +45,7 @@ namespace Z {
 
 
 	struct Skybox {
-		AssetsImporterType type;
+		AssetsImporterType type=AssetsImporterType::SkyBox;
 		std::string path;
 		Image* image;
 		ImageView* imageView;
@@ -58,7 +58,7 @@ namespace Z {
 	};
 
 	struct ShaderRes {
-		AssetsImporterType type;
+		AssetsImporterType type=AssetsImporterType::Shader;
 		std::string path;
 		std::string source;
 		std::vector<ShaderStageFlag> stages;
@@ -87,6 +87,7 @@ namespace Z {
 		static void LoadWithMetaData(const MetaData &data, const std::string &path);
 
 		static void* LoadAsset(const std::filesystem::path &path);
+		static void InitInnerAssets();
 
 	public:
 		inline static bool IsExisting(const std::string &path) {
