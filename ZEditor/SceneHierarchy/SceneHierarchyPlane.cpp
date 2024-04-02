@@ -13,7 +13,7 @@
 #include "ContentBrowser.h"
 
 namespace Z {
-
+	ImTextureID SceneHierarchyPlane::whiteTexture,SceneHierarchyPlane::blackTexture;
 	namespace Tools {
 
 		template<class T>
@@ -212,7 +212,7 @@ namespace Z {
 		DrawComponent<CameraComponent>("Camera", entity, [](Entity entity, CameraComponent &component) {
 			auto &camera = component.camera;
 			ImGui::Checkbox("Primary", &component.primary);
-			const char *projectionTypeStrings[] = {"Perspective", "Orthographic"};
+			static const char *projectionTypeStrings[] = {"Perspective", "Orthographic"};
 			int projectionType = (int) camera.GetProjectionType();
 
 			if (ImGui::Combo("Projection", &projectionType, projectionTypeStrings, 2)) {

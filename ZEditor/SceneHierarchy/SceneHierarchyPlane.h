@@ -34,10 +34,22 @@ namespace Z {
 		}
 
 		void OnImGuiRender();
-		ImTextureID whiteTexture;
+		static auto GetWhiteTexture(){
+			if(whiteTexture)return whiteTexture;
+			whiteTexture= RenderManager::CreateImGuiTexture(AssetsSystem::Load<Texture2D>(":/Inner/whiteTexture"));
+			return whiteTexture;
+		}
+		static auto GetBlackTexture(){
+			if(whiteTexture)return blackTexture;
+			blackTexture= RenderManager::CreateImGuiTexture(AssetsSystem::Load<Texture2D>(":/Inner/blackTexture"));
+			return blackTexture;
+		}
+		auto& GetTextureMap(){return descriptorSetTextureMap;}
 	private:
+		static ImTextureID whiteTexture,blackTexture;
 		Ref<Scene> context;
 		Entity selectedEntity;
+		std::unordered_map<zGUID,std::unordered_map<std::string,ImTextureID>> descriptorSetTextureMap;
 
 		void DrawEntity(Entity entity);
 

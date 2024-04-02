@@ -877,11 +877,12 @@ namespace Z {
         ((VulkanPipeline*)graphicPipeline)->Set(pipeline);
     }
 
-    void VulkanGraphicInterface::CreateGraphicPipeline(const std::string &shaderSources,
+    std::vector<DescriptorSetInfo> VulkanGraphicInterface::CreateGraphicPipeline(const std::string &shaderSources,
         const std::vector<Z::ShaderStageFlag> &stageFlags, Pipeline *&graphicPipeline,
         RenderPassInterface *renderPassInterface,std::vector<DescriptorSetLayout*>& descriptorSetLayout,PipelineLayout*& pipelineLayout,
         GraphicPipelineCreateInfo* createInfo) {
             GraphicPipelineCreateInfo info{};
+            std::vector<DescriptorSetInfo> setInfos;
             if(createInfo!=nullptr)
                 info=*createInfo;
             auto shaderInfo=VulkanUtils::ReflectShader(shaderSources,stageFlags);
@@ -891,6 +892,22 @@ namespace Z {
             for(int i=0;i<descriptorLayout.size();++i){
                 descriptorSetLayout[i]=new VulkanDescriptorSetLayout{};
                 ((VulkanDescriptorSetLayout*)descriptorSetLayout[i])->Set(descriptorLayout[i]);
+            }
+            for(int i=0;i<shaderInfo.descriptorInfos.size();++i){
+                const auto& lInfo=shaderInfo.descriptorInfos[i];
+                const auto& bindings=lInfo.bindings;
+                const auto& names = lInfo.bindingNames;
+                setInfos.emplace_back();
+                auto&back=setInfos.back();
+                
+                back.set=i;
+                back.bindnings.resize(bindings.size());
+                for(int j=0;j<bindings.size();++j){
+                    auto & bind=back.bindnings[j];
+                    bind.binding=bindings[j].binding;
+                    bind.name=names[j];
+                    bind.type=(DescriptorType)bindings[j].descriptorType;
+                }
             }
             VkPipelineLayoutCreateInfo layoutInfo{};
             layoutInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -1087,6 +1104,7 @@ namespace Z {
             for(auto module:modules) {
                 vkDestroyShaderModule(device,module,nullptr);
             }
+            return setInfos;
     }
 
     void VulkanGraphicInterface::DestroyRenderPass(RenderPassInterface *renderPassInterface) {
