@@ -903,9 +903,9 @@ namespace Z {
                 auto&back=setInfos.back();
                 
                 back.set=i;
-                back.bindnings.resize(bindings.size());
+                back.bindings.resize(bindings.size());
                 for(int j=0;j<bindings.size();++j){
-                    auto & bind=back.bindnings[j];
+                    auto & bind=back.bindings[j];
                     bind.binding=bindings[j].binding;
                     bind.name=names[j];
                     bind.type=(DescriptorType)bindings[j].descriptorType;

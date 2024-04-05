@@ -307,8 +307,8 @@ namespace Z{
 
         std::vector<VkDescriptorSetLayout> CreateDescriptorSetLayout(VkDevice device,const std::vector<DescriptorInfo>& info){
             VkDescriptorSetLayoutCreateInfo createInfo{};
-            for(int i=1;i<info.size();++i){
             std::vector<VkDescriptorSetLayout> layouts;
+            for(int i=1;i<info.size();++i){
                 createInfo.sType=VK_INFO(DESCRIPTOR_SET_LAYOUT,CREATE);
                 createInfo.bindingCount=info[i].bindings.size();
                 createInfo.pBindings=info[i].bindings.data();
