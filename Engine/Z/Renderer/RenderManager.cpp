@@ -13,6 +13,8 @@ namespace Z {
     Ref<GraphicInterface> RenderManager::m_Context= nullptr;
     Ref<RenderPipeline> RenderManager::renderPipeline=nullptr;
     Ref<ImGuiRendererPlatform> RenderManager::imguiRenderPlatform=nullptr;
+    std::vector<std::function<void()>> RenderManager::FuncQueue;
+	std::mutex RenderManager::QueueMutex;
     void RenderManager::Init() {
         Z_CORE_ASSERT(m_Context == nullptr,"Already Inited !");
         m_Context= CreateRef<VulkanGraphicInterface>();
@@ -45,6 +47,7 @@ namespace Z {
 
         m_Context->WaitForFences();
         m_Context->ResetCommandPool();
+        ExecuteTaskQueue();
         if(m_Context->prepareBeforeRender(RenderManager::Resize))return;
 
         renderPipeline->draw();
@@ -73,6 +76,14 @@ namespace Z {
 
     void RenderManager::Resize() {
         renderPipeline->Resize();
+    }
+
+    void RenderManager::ExecuteTaskQueue(){
+        if(FuncQueue.empty())return;
+        m_Context->DeviceWaiteIdle();
+        for(const auto& task:FuncQueue)
+            task();
+        FuncQueue.clear();
     }
 
 } // Z

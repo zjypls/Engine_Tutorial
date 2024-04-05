@@ -159,34 +159,34 @@ namespace Z {
 	}
 
 	void Scene::OnEditorUpdate(float deltaTime, EditorCamera &camera) {
-		//TODO:This should be optimized
-		Render2D();
-		Render3D();
+//		//TODO:This should be optimized
+//		Render2D();
+//		Render3D();
 	}
 
 	void Scene::OnSimulateUpdate(float deltaTime, EditorCamera &camera) {
-		if (!Paused||FrameStepCount-->0)
-			OnPhysics2DUpdate(deltaTime);
-		Render2D();
-		Render3D();
+//		if (!Paused||FrameStepCount-->0)
+//			OnPhysics2DUpdate(deltaTime);
+//		Render2D();
+//		Render3D();
 	}
 
 	void Scene::OnPreviewUpdate(float deltaTime, Camera &camera, glm::mat4 transform) {
-		Render2D();
-		Render3D();
+//		Render2D();
+//		Render3D();
 	}
 
 	void Scene::OnUpdate(float deltaTime) {
-		Entity mainCamera = {};
-		if (!Paused ||FrameStepCount-->0) {
-			NativeScriptUpdate(deltaTime);
-			ScriptUpdate(deltaTime);
-			OnPhysics2DUpdate(deltaTime);
-		}
-		mainCamera = GetMainCamera();
-		if (!mainCamera)return;
-		Render2D();
-		Render3D();
+//		Entity mainCamera = {};
+//		if (!Paused ||FrameStepCount-->0) {
+//			NativeScriptUpdate(deltaTime);
+//			ScriptUpdate(deltaTime);
+//			OnPhysics2DUpdate(deltaTime);
+//		}
+//		mainCamera = GetMainCamera();
+//		if (!mainCamera)return;
+//		Render2D();
+//		Render3D();
 	}
 
 

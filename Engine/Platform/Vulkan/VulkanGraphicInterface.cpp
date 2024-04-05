@@ -219,12 +219,14 @@ namespace Z {
     }
 
     void VulkanGraphicInterface::CreateInstance(){
+        #ifdef Z_DEBUG
         if(!VulkanUtils::checkLayerEnable(validationLayers).empty() ||
             !VulkanUtils::checkExtensionEnable({VK_EXT_DEBUG_UTILS_EXTENSION_NAME}).empty()){
             Z_CORE_WARN("Validation layer or debug utils extension is not available !");
             enableDebugUtils= false;
             enableValidationLayer= false;
         }
+        #endif
 
         VkApplicationInfo applicationInfo{};
         applicationInfo.sType=VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -520,7 +522,7 @@ namespace Z {
         CreateSwapchainImageViews();
     }
 
-    void VulkanGraphicInterface::InitFirstSetLayout(){
+    void VulkanGraphicInterface::InitInnerSetLayout(){
         DescriptorSetLayoutCreateInfo layoutInfo{};
         layoutInfo.bindingCount=1;
         DescriptorSetLayoutBinding bindingInfo{};
@@ -546,7 +548,7 @@ namespace Z {
         CreateSwapchainImageViews();
         CreateVmaAllocator();
         CreateDefaultSampler();
-        InitFirstSetLayout();
+        InitInnerSetLayout();
     }
 
     void VulkanGraphicInterface::Shutdown() {
@@ -909,21 +911,23 @@ namespace Z {
                     bind.type=(DescriptorType)bindings[j].descriptorType;
                 }
             }
-            VkPipelineLayoutCreateInfo layoutInfo{};
-            layoutInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-            layoutInfo.setLayoutCount=descriptorLayout.size();
-            layoutInfo.pSetLayouts=descriptorLayout.data();
-            if(shaderInfo.pushConstantRange.size>0){
-                layoutInfo.pPushConstantRanges = &shaderInfo.pushConstantRange;
-                layoutInfo.pushConstantRangeCount = 1;
-            }else{
-                layoutInfo.pushConstantRangeCount = 0;
+            if(!pipelineLayout){
+                VkPipelineLayoutCreateInfo layoutInfo{};
+                layoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+                layoutInfo.setLayoutCount = descriptorLayout.size();
+                layoutInfo.pSetLayouts = descriptorLayout.data();
+                if (shaderInfo.pushConstantRange.size > 0) {
+                    layoutInfo.pPushConstantRanges = &shaderInfo.pushConstantRange;
+                    layoutInfo.pushConstantRangeCount = 1;
+                } else {
+                    layoutInfo.pushConstantRangeCount = 0;
+                }
+                VkPipelineLayout layout;
+                auto res = vkCreatePipelineLayout(device, &layoutInfo, nullptr, &layout);
+                VK_CHECK(res, "failed to create pipeline layout !");
+                pipelineLayout = new VulkanPipelineLayout{};
+                ((VulkanPipelineLayout *) pipelineLayout)->Set(layout);
             }
-            VkPipelineLayout layout;
-            auto res=vkCreatePipelineLayout(device,&layoutInfo,nullptr,&layout);
-            VK_CHECK(res,"failed to create pipeline layout !");
-            pipelineLayout=new VulkanPipelineLayout{};
-            ((VulkanPipelineLayout*)pipelineLayout)->Set(layout);
 
             std::vector<VkPipelineShaderStageCreateInfo> stages(shaderInfo.irCode.size());
             std::vector<VkShaderModule> modules(shaderInfo.irCode.size());
@@ -933,7 +937,7 @@ namespace Z {
                 moduleInfo.pCode=shaderInfo.irCode[i].data();
                 moduleInfo.codeSize=shaderInfo.irCode[i].size()*4;
                 VkShaderModule module;
-                res=vkCreateShaderModule(device,&moduleInfo,nullptr,&module);
+                auto res=vkCreateShaderModule(device,&moduleInfo,nullptr,&module);
                 VK_CHECK(res,"failed to create shader module !");
                 modules[i]=module;
                 stages[i].sType=VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -1091,13 +1095,13 @@ namespace Z {
             pipelineInfo.pDepthStencilState=&depthStencilStateInfo;
             pipelineInfo.pColorBlendState=&blendStateInfo;
             pipelineInfo.pDynamicState=&dynamicStateInfo;
-            pipelineInfo.layout=layout;
+            pipelineInfo.layout=((VulkanPipelineLayout*)pipelineLayout)->Get();
             pipelineInfo.renderPass=((VulkanRenderPass*)renderPassInterface)->Get();
             pipelineInfo.subpass=info.subpass<0?0:info.subpass;
             pipelineInfo.basePipelineHandle=VK_NULL_HANDLE;
             pipelineInfo.basePipelineIndex=-1;
             VkPipeline pipeline;
-            res=vkCreateGraphicsPipelines(device,VK_NULL_HANDLE,1,&pipelineInfo,nullptr,&pipeline);
+            auto res=vkCreateGraphicsPipelines(device,VK_NULL_HANDLE,1,&pipelineInfo,nullptr,&pipeline);
             VK_CHECK(res,"failed to create graphic pipeline !");
             graphicPipeline=new VulkanPipeline{};
             ((VulkanPipeline*)graphicPipeline)->Set(pipeline);
@@ -1508,6 +1512,28 @@ namespace Z {
 
     void VulkanGraphicInterface::FreeDescriptorSet(void *descriptorSet) {
         vkFreeDescriptorSets(device,descriptorPool,1,(VkDescriptorSet*)descriptorSet);
+    }
+
+    void VulkanGraphicInterface::CreatePipelineLayout(const PipelineLayoutCreateInfo &info, PipelineLayout *&layout) {
+
+        std::vector<VkDescriptorSetLayout> setLayouts;
+        setLayouts.resize(info.setLayoutCount);
+        for(int i=0;i<info.setLayoutCount;++i){
+            setLayouts[i]=((VulkanDescriptorSetLayout*)info.pSetLayouts[i])->Get();
+        }
+
+        VkPipelineLayoutCreateInfo createInfo{};
+        createInfo.sType=VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        createInfo.pushConstantRangeCount=info.pushConstantRangeCount;
+        createInfo.pPushConstantRanges=(VkPushConstantRange*)info.pPushConstantRanges;
+        createInfo.pSetLayouts=setLayouts.data();
+        createInfo.setLayoutCount=info.setLayoutCount;
+
+        VkPipelineLayout pipelineLayout;
+        auto res= vkCreatePipelineLayout(device,&createInfo, nullptr,&pipelineLayout);
+        VK_CHECK(res,"failed to create pipeline layout !");
+        layout=new VulkanPipelineLayout;
+        ((VulkanPipelineLayout*)layout)->Set(pipelineLayout);
     }
 
 } // Z

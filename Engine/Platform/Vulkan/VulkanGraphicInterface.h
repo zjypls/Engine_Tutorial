@@ -11,6 +11,11 @@
 #include "Platform/Vulkan/VulkanRenderInterface.h"
 
 namespace Z {
+    #ifdef Z_DEBUG
+        constexpr bool enableVulkanDebug=true;
+    #else
+        constexpr bool enableVulkanDebug=false;
+    #endif
     constexpr uint32 maxVertexBlendCount=128,maxMaterialCount=128;
     constexpr VkSampleCountFlagBits defaultSampleFlag=VK_SAMPLE_COUNT_1_BIT;
 
@@ -47,6 +52,7 @@ namespace Z {
         void CreateBuffer(const BufferInfo& info,Buffer*& buffer,DeviceMemory*& memory,void* data)override;
         void CreateShaderModule(const ShaderModuleCreateInfo &moduleInfo, ShaderModule *&module) override;
         void CreateRenderPass(const RenderPassCreateInfo &info, RenderPassInterface *&renderPassInterface) override;
+        void CreatePipelineLayout(const PipelineLayoutCreateInfo& info,PipelineLayout*& layout) override;
         void CreateGraphicPipeline(const GraphicPipelineCreateInfo &createInfo, Pipeline *&graphicPipeline) override;
         std::vector<DescriptorSetInfo> CreateGraphicPipeline(const std::string &shaderSources, const std::vector<Z::ShaderStageFlag> &stageFlags,
                                  Pipeline *&graphicPipeline, RenderPassInterface *renderPassInterface,
@@ -112,7 +118,7 @@ namespace Z {
         void DestroySwapchain();
         void ReCreateSwapChain();
 
-        void InitFirstSetLayout();
+        void InitInnerSetLayout();
 
         uint32 maxFlightFrames=0;
         VkInstance instance;
@@ -133,7 +139,7 @@ namespace Z {
         uint32 currentFrameIndex=0;
         VkDescriptorPool descriptorPool;
 
-        bool enableValidationLayer=true,enableDebugUtils=true;
+        bool enableValidationLayer=enableVulkanDebug,enableDebugUtils=enableVulkanDebug;
         std::vector<VkImage> swapchainImages;
         std::vector<VkImageView> swapchainImageViews;
         std::vector<VkFramebuffer> swapchainFrameBuffers;

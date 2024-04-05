@@ -22,6 +22,12 @@
 
 namespace Z{
 	static GraphicInterface* s_Context=nullptr;
+    const std::unordered_map<std::string,std::string> AssetsSystem::easyNameMap{
+            {"diffuse",AssetsSystem::DefaultDiffusePath},
+            {"normal",AssetsSystem::DefaultNormalTexture},
+            {"emission",AssetsSystem::DefaultEmissionTexture},
+            {"specular",AssetsSystem::DefaultSpecularTexture}
+    };
 	template<typename T>
 	using Container=std::vector<T>;
 
@@ -224,7 +230,7 @@ namespace Z {
 				for (unsigned int j = 0; j < bone->mNumWeights; j++) {
 					aiVertexWeight weight = bone->mWeights[j];
 					auto& vertex = blending[weight.mVertexId+vertexNums];
-					for (int k = 0; k < 4; k++) {
+					for (int k = 0; k < 4; ++k) {
 						if (vertex.boneIndex[k] < 0) {
 							vertex.boneIndex[k] = i;  // bone index
 							vertex.blending[k] = weight.mWeight;  // bone weight
@@ -282,8 +288,8 @@ namespace Z {
 				BufferInfo boneBufferInfo{};
 				boneBufferInfo.size=sizeof(BoneData)*bones.size();
 				boneBufferInfo.usage=BufferUsageFlag::STORAGE_BUFFER;
-				boneBufferInfo.properties=MemoryPropertyFlag::DEVICE_LOCAL;
 				s_Context->CreateBuffer(boneBufferInfo,mesh->boneBuffer,mesh->boneMemory,bones.data());
+				boneBufferInfo.properties=MemoryPropertyFlag::HOST_VISIBLE|MemoryPropertyFlag::HOST_COHERENT;
 			}
 			mesh->indicesCount=indices.size();
 			mesh->path=path;
@@ -428,28 +434,69 @@ namespace Z {
 		imageInfo.memoryPropertyFlag=MemoryPropertyFlag::DEVICE_LOCAL;
 		imageInfo.sampleCount=SampleCountFlagBits::e1_BIT;
 
-		Texture2D* whiteTexture=new Texture2D;
+		auto whiteTexture=new Texture2D;
 		uint8 whitePixel[]={255,255,255,255};
 		instance->Context->CreateImage(imageInfo,whiteTexture->image,whiteTexture->memory,whiteTexture->imageView,whitePixel);
-		
-		const std::string whitePath=":/Inner/whiteTexture";
-		whiteTexture->path=whitePath;
+
+		whiteTexture->path=DefaultWhiteTexture;
 		zGUID whiteID{};
-		instance->PathToUID[whitePath]=whiteID;
-		instance->UIDToPath[whiteID]=whitePath;
+		instance->PathToUID[DefaultWhiteTexture]=whiteID;
+		instance->UIDToPath[whiteID]=DefaultWhiteTexture;
 		instance->resourceLibrary[whiteID]=whiteTexture;
 
-		Texture2D* blackTexture=new Texture2D;
+		auto blackTexture=new Texture2D;
 		uint8 blackPixel[]={0,0,0,0};
 		instance->Context->CreateImage(imageInfo,blackTexture->image,blackTexture->memory,blackTexture->imageView,blackPixel);
 
 		zGUID blackID{};
-		const std::string blackPath=":/Inner/blackTexture";
-		blackTexture->path=blackPath;
-		instance->PathToUID[blackPath]=blackID;
-		instance->UIDToPath[blackID]=blackPath;
+		blackTexture->path=DefaultBlackTexture;
+		instance->PathToUID[DefaultBlackTexture]=blackID;
+		instance->UIDToPath[blackID]=DefaultBlackTexture;
 		instance->resourceLibrary[blackID]=blackTexture;
-	}
+
+        auto defaultDiffuse=new Texture2D;
+        uint8 diffusePixel[]{255,255,255,255};
+        instance->Context->CreateImage(imageInfo,defaultDiffuse->image,defaultDiffuse->memory,defaultDiffuse->imageView,diffusePixel);
+
+        zGUID diffuseID{};
+        defaultDiffuse->path=DefaultDiffusePath;
+        instance->PathToUID[DefaultDiffusePath]=diffuseID;
+        instance->UIDToPath[diffuseID]=DefaultDiffusePath;
+        instance->resourceLibrary[diffuseID]=defaultDiffuse;
+
+        auto defaultNormal=new Texture2D;
+        uint8 normalPixel[]={255/2,255/2,255,255};
+        instance->Context->CreateImage(imageInfo,defaultNormal->image,defaultNormal->memory,defaultNormal->imageView,normalPixel);
+
+        zGUID normalID{};
+        defaultNormal->path=DefaultNormalTexture;
+        instance->PathToUID[DefaultNormalTexture]=normalID;
+        instance->UIDToPath[normalID]=DefaultNormalTexture;
+        instance->resourceLibrary[normalID]=defaultNormal;
+
+
+        auto defaultEmission=new Texture2D;
+        uint8 emissionPixel[]={0,0,0,255};
+        instance->Context->CreateImage(imageInfo,defaultEmission->image,defaultEmission->memory,defaultEmission->imageView,emissionPixel);
+
+        zGUID emissionID{};
+        defaultEmission->path=DefaultEmissionTexture;
+        instance->PathToUID[DefaultEmissionTexture]=emissionID;
+        instance->UIDToPath[emissionID]=DefaultEmissionTexture;
+        instance->resourceLibrary[emissionID]=defaultEmission;
+
+
+        auto defaultSpecular=new Texture2D;
+        uint8 specularPixel[]={0,0,0,255};
+        instance->Context->CreateImage(imageInfo,defaultSpecular->image,defaultSpecular->memory,defaultSpecular->imageView,specularPixel);
+
+        zGUID specularID{};
+        defaultSpecular->path=DefaultSpecularTexture;
+        instance->PathToUID[DefaultSpecularTexture]=specularID;
+        instance->UIDToPath[specularID]=DefaultSpecularTexture;
+        instance->resourceLibrary[specularID]=defaultSpecular;
+
+    }
 
 	void AssetsSystem::InitWithProject(const std::filesystem::path &projectPath) {
 		Z_CORE_ASSERT(instance,"Need call PreInit() before InitWithProject!!!");

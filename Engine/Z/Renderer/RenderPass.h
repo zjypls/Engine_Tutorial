@@ -38,7 +38,7 @@ namespace Z {
         struct Descriptor
         {
             DescriptorSetLayout*            layout;
-            std::vector<DescriptorSet*>     descriptorSet;
+            //DescriptorSet*                  descriptorSet;
         };
 
         struct RenderPipelineBase
@@ -52,6 +52,7 @@ namespace Z {
         virtual void draw(){}
         virtual void clear() {}
         virtual void Resize(){}
+        auto& GetPassSetInfo(){return setInfos;}
 
     protected:
         [[nodiscard]]
@@ -59,6 +60,7 @@ namespace Z {
         GraphicInterface* Context=nullptr;
         std::vector<Descriptor>         descriptors{};
         std::vector<std::vector<DescriptorSet*>> descriptorSets{};
+        std::vector<DescriptorSetInfo> setInfos;
         std::vector<RenderPipelineBase> renderPipelines{};
         Framebuffer                     framebuffer{};
 

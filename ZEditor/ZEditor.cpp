@@ -41,7 +41,7 @@ namespace Z {
         editorCamera = EditorCamera(60.f, viewportSize.x/viewportSize.y, 0.1f, 1000.f);
 		RenderManager::SetViewPortSize(viewportSize.x,viewportSize.y);
 
-		sceneHierarchyPlane = CreateScope<SceneHierarchyPlane>();
+		sceneHierarchyPlane = CreateScope<SceneHierarchyPlane>(scene);
 		contentBrowser = CreateScope<ContentBrowser>();
 		auto playImage=AssetsSystem::Load<Texture2D>("Assets/Icons/PlayButton.png");
 		auto pauseImage=AssetsSystem::Load<Texture2D>("Assets/Icons/PauseButton.png");
@@ -430,14 +430,14 @@ namespace Z {
 
 		if ((viewportSize != *(glm::vec2 *) &viewSize)) {
             //avoid resize when frame haven't shown to viewport yet
-			Application::Get().SubmitFunc([this, viewSize]() {
+			RenderManager::SubmitResourceUpdateTask([this, viewSize]() {
 				this->viewportSize = glm::vec2{viewSize.x, viewSize.y};
 				this->scene->OnViewportResize(viewportSize.x, viewportSize.y);
 				this->editorCamera.SetViewportSize(viewportSize.x, viewportSize.y);
 				RenderManager::SetViewPortSize(viewSize.x,viewSize.y);
 			});
 		}
-		if (ImGui::BeginDragDropTarget()) {
+		if (false && ImGui::BeginDragDropTarget()) {
 			if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")) {
 				auto dragData = (DragAndDropData *) payload->Data;
 				if (dragData->type == DragType::eScene) {
@@ -483,7 +483,7 @@ namespace Z {
 			auto &selectTransform = selectedEntity.GetComponent<TransformComponent>();
 			cameraProj = editorCamera.GetProjectionMatrix();
 			// fix the up axis
-			// vulkan is right handed, but the gizmo is left handed
+			// vulkan is right-hand, but the gizmo is left-hand
 			cameraProj[1][1]*=-1;
 			goModel = selectTransform.GetTransform();
 			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProj),

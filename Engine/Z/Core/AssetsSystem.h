@@ -78,6 +78,7 @@ namespace Z {
 		std::unordered_map<zGUID, void*> resourceLibrary{};
 		std::unordered_map<zGUID, std::string> UIDToPath{};
 		std::unordered_map<std::string, zGUID> PathToUID{};
+        const static std::unordered_map<std::string,std::string> easyNameMap;
 
 		std::filesystem::path ProjectPath;
 		Ref<GraphicInterface> Context;
@@ -90,6 +91,15 @@ namespace Z {
 		static void InitInnerAssets();
 
 	public:
+
+        static constexpr const char* DefaultWhiteTexture=":/Inner/whiteTexture";
+        static constexpr const char* DefaultBlackTexture=":/Inner/blackTexture";
+        static constexpr const char* DefaultDiffusePath=":/Inner/defaultDiffuseTexture";
+        static constexpr const char* DefaultNormalTexture=":/Inner/defaultNormalTexture";
+        static constexpr const char* DefaultEmissionTexture=":/Inner/defaultEmissionTexture";
+        static constexpr const char* DefaultSpecularTexture=":/Inner/defaultSpecularTexture";
+
+
 		inline static bool IsExisting(const std::string &path) {
 			#if __cplusplus >= 202002L
 			return instance->PathToUID.contains(path);
@@ -112,6 +122,9 @@ namespace Z {
 		//Init Path with Source dir and create instance
 		static void PreInit();
 		static void Destroy();
+        static Texture2D* GetDefaultTexture(const std::string& easyName){
+            return Load<Texture2D>(easyNameMap.at(easyName));
+        }
 
 
 		template<class Ty>

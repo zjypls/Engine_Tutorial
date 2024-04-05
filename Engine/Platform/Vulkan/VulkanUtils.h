@@ -286,7 +286,7 @@ namespace Z{
                 if(ShaderStageFlag::FRAGMENT==stage){
                     for(auto&output:resources.stage_outputs){
                         auto& type=compiler.get_type(output.type_id);
-                        FragmentOutput fragOutput;
+                        FragmentOutput fragOutput{};
                         fragOutput.binding=compiler.get_decoration(output.id,spv::Decoration::DecorationBinding);
                         fragOutput.size=type.width*type.vecsize;
                         fragOutput.format=Tools::GetFormatFromSPVType(type);
@@ -307,17 +307,17 @@ namespace Z{
 
         std::vector<VkDescriptorSetLayout> CreateDescriptorSetLayout(VkDevice device,const std::vector<DescriptorInfo>& info){
             VkDescriptorSetLayoutCreateInfo createInfo{};
-            std::vector<VkDescriptorSetLayout> layout;
             for(int i=1;i<info.size();++i){
+            std::vector<VkDescriptorSetLayout> layouts;
                 createInfo.sType=VK_INFO(DESCRIPTOR_SET_LAYOUT,CREATE);
                 createInfo.bindingCount=info[i].bindings.size();
                 createInfo.pBindings=info[i].bindings.data();
-                VkDescriptorSetLayout layout_;
-                auto res= vkCreateDescriptorSetLayout(device,&createInfo, nullptr,&layout_);
+                VkDescriptorSetLayout layout;
+                auto res= vkCreateDescriptorSetLayout(device,&createInfo, nullptr,&layout);
                 VK_CHECK(res,"failed to create descriptor set layout !");
-                layout.push_back(layout_);
+                layouts.push_back(layout);
             }
-            return layout;
+            return layouts;
         }
 
         QueueFamilyIndices findQueueFamily(VkPhysicalDevice device,VkSurfaceKHR surface){

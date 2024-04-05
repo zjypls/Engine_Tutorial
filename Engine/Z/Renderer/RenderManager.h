@@ -16,6 +16,13 @@ namespace Z {
 
     class Z_API RenderManager final{
     public:
+        // label for default set bind
+        enum InnerDescriptorSet {
+            CameraDataTransformSet=0,
+            WorldLightDataSet,
+            BoneNodeTransformSet,
+            MaterialTextureSet
+        };
         static void Init();
         static void DeviceSynchronize();
         static void Shutdown();
@@ -34,10 +41,22 @@ namespace Z {
 
         static void Resize();
 
+        // submit a task for update graphic resources after gpu render task finished
+        // to avoid update resources when it is using that cause vulkan error
+        static void SubmitResourceUpdateTask(const std::function<void()>&func){
+            std::scoped_lock<std::mutex> lock(QueueMutex);
+            FuncQueue.push_back(func);
+        }
+
     private:
+
+        static void ExecuteTaskQueue();
+
         static Ref<GraphicInterface> m_Context;
         static Ref<RenderPipeline> renderPipeline;
         static Ref<ImGuiRendererPlatform> imguiRenderPlatform;
+        static std::vector<std::function<void()>> FuncQueue;
+		static std::mutex QueueMutex;
     };
 
 } // Z

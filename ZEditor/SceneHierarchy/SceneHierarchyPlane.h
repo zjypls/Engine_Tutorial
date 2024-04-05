@@ -10,9 +10,11 @@
 namespace Z {
 	class SceneHierarchyPlane {
 	public:
-		SceneHierarchyPlane() = default;
-
-		SceneHierarchyPlane(const Ref<Scene> &context) : context(context) {}
+		SceneHierarchyPlane(const Ref<Scene> &context) : context(context) {
+			InitDefaultTextureMap();
+            whiteTexture= RenderManager::CreateImGuiTexture(AssetsSystem::Load<Texture2D>(AssetsSystem::DefaultWhiteTexture));
+            blackTexture= RenderManager::CreateImGuiTexture(AssetsSystem::Load<Texture2D>(AssetsSystem::DefaultBlackTexture));
+		}
 
         [[deprecated("Should Use SetContext !!!")]]
 		inline void SetScene(const Ref<Scene> &context) {
@@ -34,19 +36,18 @@ namespace Z {
 		}
 
 		void OnImGuiRender();
-		static auto GetWhiteTexture(){
-			if(whiteTexture)return whiteTexture;
-			whiteTexture= RenderManager::CreateImGuiTexture(AssetsSystem::Load<Texture2D>(":/Inner/whiteTexture"));
-			return whiteTexture;
-		}
-		static auto GetBlackTexture(){
-			if(whiteTexture)return blackTexture;
-			blackTexture= RenderManager::CreateImGuiTexture(AssetsSystem::Load<Texture2D>(":/Inner/blackTexture"));
-			return blackTexture;
-		}
+		static auto GetWhiteTexture(){return whiteTexture;}
+		static auto GetBlackTexture(){return blackTexture;}
 		auto& GetTextureMap(){return descriptorSetTextureMap;}
+
+		auto GetDefaultTexture(const std::string&name){
+			auto it=defaultTextureMap.find(name);
+			Z_CORE_ASSERT(it!=defaultTextureMap.end(),"error texture name !");
+			return it->second;
+		}
 	private:
 		static ImTextureID whiteTexture,blackTexture;
+		std::unordered_map<std::string,ImTextureID> defaultTextureMap;
 		Ref<Scene> context;
 		Entity selectedEntity;
 		std::unordered_map<zGUID,std::unordered_map<std::string,ImTextureID>> descriptorSetTextureMap;
@@ -54,6 +55,8 @@ namespace Z {
 		void DrawEntity(Entity entity);
 
 		void DrawComponents(Entity entity);
+
+		void InitDefaultTextureMap();
 
 		template<typename Ty>
 		void DrawComponent(const std::string &, Entity entity, std::function<void(Entity,Ty &)>);

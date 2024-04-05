@@ -1017,6 +1017,17 @@ namespace Z {
         uint32                             dynamicStateCount;
         const DynamicState*                pDynamicStates;
     } ;
+    struct PushConstantRange {
+        ShaderStageFlag    stageFlags;
+        uint32             offset;
+        uint32             size;
+    };
+    struct PipelineLayoutCreateInfo {
+        uint32                        setLayoutCount;
+        DescriptorSetLayout**         pSetLayouts;
+        uint32                        pushConstantRangeCount;
+        const PushConstantRange*      pPushConstantRanges;
+    } ;
     struct GraphicPipelineCreateInfo{
         const void*                                      pNext;
         uint32                                           stageCount;
@@ -1046,7 +1057,7 @@ namespace Z {
         std::string        name;
     };
     struct DescriptorSetInfo{
-        std::vector<DescriptorSetBindingInfo> bindnings;
+        std::vector<DescriptorSetBindingInfo> bindings;
         uint32                                set;
         ShaderStageFlag                       stage;
     };

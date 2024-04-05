@@ -436,6 +436,17 @@ namespace Z {
 		});
 	}
 
+	void SceneHierarchyPlane::InitDefaultTextureMap(){
+		auto diffuse=AssetsSystem::Load<Texture2D>(AssetsSystem::DefaultDiffusePath);
+        auto normal=AssetsSystem::Load<Texture2D>(AssetsSystem::DefaultNormalTexture);
+        auto emission=AssetsSystem::Load<Texture2D>(AssetsSystem::DefaultEmissionTexture);
+        auto specular=AssetsSystem::Load<Texture2D>(AssetsSystem::DefaultSpecularTexture);
+        defaultTextureMap["diffuse"]=RenderManager::CreateImGuiTexture(diffuse);
+        defaultTextureMap["normal"]=RenderManager::CreateImGuiTexture(normal);
+        defaultTextureMap["emission"]=RenderManager::CreateImGuiTexture(emission);
+        defaultTextureMap["specular"]=RenderManager::CreateImGuiTexture(specular);
+	}
+
 	template<typename Ty>
 	void SceneHierarchyPlane::DrawComponent(const std::string &name, Entity entity, std::function<void(Entity, Ty &)> drawFunc) {
 		if (entity.HasComponent<Ty>()) {
