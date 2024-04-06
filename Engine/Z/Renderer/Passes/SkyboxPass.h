@@ -12,7 +12,7 @@ namespace Z {
     struct SkyboxPassInitInfo : RenderPassInitInfo {
         RenderPassInterface* renderpass;
         RenderPass::Framebuffer *framebuffer;
-        Buffer **mvpMatrixBuffer;
+        Buffer *mvpMatrixBuffer;
         uint32 width;
         uint32 height;
         uint32 frameBufferCount;
@@ -24,6 +24,7 @@ namespace Z {
         void clear() override;
         void SetViewportSize(uint32 width,uint32 height){framebuffer.width=width;framebuffer.height=height;}
     protected:
+        void InitPipelineLayout();
         void InitPipeline();
         void InitDescriptorSets(SkyboxPassInitInfo* initInfo);
         RenderPass::Framebuffer* viewportFramebuffer;

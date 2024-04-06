@@ -9,6 +9,7 @@
 #include "Include/glm/glm.hpp"
 
 #include "Z/Core/Core.h"
+#include "Z/Scene/Scene.h"
 #include "Z/Renderer/GraphicInterface.h"
 namespace Z
 {
@@ -19,37 +20,62 @@ namespace Z
     // manage runtime render resource used by scene
     class Z_API RenderResource{
     public:
-        struct RenderResourceData{
+        struct CameraRenderData{
             Buffer* mvpMatrixBuffer;
             DeviceMemory* mvpMatrixBufferMemory;
+            Buffer* modelTransBuffer;
+            DeviceMemory* modelTransBufferMemory;
         };
-        struct InputData{
+        struct CameraTransformData{
             glm::mat4 view;
             glm::mat4 proj;
+        };
+        struct GoData{
+            glm::mat4 modelTrans;
+            int32 goIndex;
+        };
+        struct WorldLightRenderData{
+            Buffer* lightBuffer;
+            DeviceMemory* bufferMemory;
+        };
+        struct WorldLightData{
+            glm::vec4 radiance;
+            glm::vec4 position;
         };
         static void Init(RenderResourceInitInfo* info);
         static void clear() ;
         // upload data to buffer
         // copy ( (byte*)destination + desOffset, (byte*)data + inputOffset , inputSize )
-        static void UpLoadData(void* data , uint64 inputSize = sizeof(InputData) , uint64 inputOffset=0 , uint64 desOffset = 0);
+        static void UpLoadData(void* data , uint64 inputSize = sizeof(CameraTransformData) , uint64 inputOffset=0 , uint64 dstOffset = 0);
+        static void UpdateLightData(void*data,uint64 inputSize = sizeof(WorldLightData) , uint64 inputOffset = 0 , uint64 dstOffset =0);
         static Ref<RenderResource> GetInstance(){return instance;}
-        static RenderResourceData* GetCurrentRenderResourceData(){return &instance->renderResourceData[instance->graphicContext->GetCurrentFrameIndex()];}
-        static const auto& GetRenderResourceData(){return instance->renderResourceData;}
-        static DescriptorSetLayout* GetFirstLayout(){return instance->firstLayout;}
-        static DescriptorSet* GetFirstDescriptorSet(uint32 index){return instance->firstDescriptorSets[index];}
+        static auto& GetCameraRenderData(){return instance->cameraRenderData;}
+        static auto& GetInnerSetLayouts(){return instance->innerSetLayouts;}
+        static DescriptorSet* GetInnerDescriptorSet(uint32 index){return instance->innerDescriptorSets[index];}
+        static auto& GetInnerDescriptorSets(){return instance->innerDescriptorSets;}
+
+        static void Update(float deltaTime);
 
     private:
+        static const uint16 maxTransMat=100;
+        static const uint64 goDataBufferSize= sizeof(GoData) * maxTransMat;
         static Ref<RenderResource> instance;
         
         void InitRenderData();
         void InitSetLayout();
+        void clearSceneResources(); 
 
-        uint32 maxFlightFrame=0;
+        Ref<Scene> context=nullptr;
+
         GraphicInterface* graphicContext;
-        std::vector<RenderResourceData> renderResourceData;
+
+        CameraRenderData cameraRenderData;
+        WorldLightRenderData lightRenderData;
         // set layout in bind 0
-        DescriptorSetLayout* firstLayout;
-        std::vector<DescriptorSet*> firstDescriptorSets;
+        std::vector<DescriptorSetLayout*> innerSetLayouts;
+        DescriptorSetLayout* boneDataLayout;
+        std::vector<DescriptorSet*> innerDescriptorSets;
+        GoData goDataBuffer[maxTransMat];
     };
 
 } // namespace Z

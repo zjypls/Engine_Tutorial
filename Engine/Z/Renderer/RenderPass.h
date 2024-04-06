@@ -52,6 +52,7 @@ namespace Z {
         virtual void draw(){}
         virtual void clear() {}
         virtual void Resize(){}
+        DescriptorSetLayout* GetSetLayout(uint32 set){return descriptors[set].layout;}
         auto& GetPassSetInfo(){return setInfos;}
 
     protected:
@@ -59,7 +60,7 @@ namespace Z {
         RenderPassInterface* GetRenderPass()const{return framebuffer.renderPass;}
         GraphicInterface* Context=nullptr;
         std::vector<Descriptor>         descriptors{};
-        std::vector<std::vector<DescriptorSet*>> descriptorSets{};
+        std::vector<DescriptorSet*> descriptorSets{};
         std::vector<DescriptorSetInfo> setInfos;
         std::vector<RenderPipelineBase> renderPipelines{};
         Framebuffer                     framebuffer{};

@@ -93,7 +93,7 @@ namespace Z {
         uint32 GetMaxFramesInFlight() override {return maxFlightFrames;}
 
         auto GetCurrentCommandBuffer(){return commandBuffers[currentFrameIndex];}
-        DescriptorSetLayout* GetFirstDescriptorSetLayout()override{return firstSetLayout;}
+        std::vector<DescriptorSetLayout*>& GetInnerDescriptorSetLayout()override{return innerSetLayouts;}
 
         VkCommandBuffer BeginOnceSubmit();
         void EndOnceSubmit(VkCommandBuffer buffer);
@@ -149,7 +149,7 @@ namespace Z {
         VkRect2D scissor;
 
         Sampler *defaultLinearSampler,*defaultNearestSampler;
-        DescriptorSetLayout* firstSetLayout;
+        std::vector<DescriptorSetLayout*> innerSetLayouts;
 
         const std::vector<const char *> validationLayers {"VK_LAYER_KHRONOS_validation"};
     };

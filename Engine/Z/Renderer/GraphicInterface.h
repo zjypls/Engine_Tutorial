@@ -120,7 +120,7 @@ namespace Z {
 
         virtual uint32 GetMaxFramesInFlight()=0;
 
-        virtual DescriptorSetLayout* GetFirstDescriptorSetLayout()=0;
+        virtual std::vector<DescriptorSetLayout*>& GetInnerDescriptorSetLayout()=0;
     };
 
 } // Z

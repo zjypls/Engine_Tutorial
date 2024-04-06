@@ -77,7 +77,7 @@ namespace Z {
 		static glm::mat4 data[2]{};
 		data[0]=editorCamera.GetViewMatrix();
 		data[1]=editorCamera.GetProjectionMatrix();
-		RenderResource::UpLoadData(data,sizeof(glm::mat4)*2,0,offsetof(RenderResource::InputData,view));
+		RenderResource::UpLoadData(data,sizeof(glm::mat4)*2,0,offsetof(RenderResource::CameraTransformData, view));
 
 		{
 			SceneState state = sceneState;

@@ -16,6 +16,8 @@ namespace Z {
         viewportFramebuffer = ((SkyboxPassInitInfo *) info)->framebuffer;
         viewportFrameBufferCount = ((SkyboxPassInitInfo *) info)->frameBufferCount;
         Context = info->graphicInterface;
+        renderPipelines.resize(1);
+        InitPipelineLayout();
         InitPipeline();
         InitDescriptorSets((SkyboxPassInitInfo *) info);
     }
@@ -25,7 +27,7 @@ namespace Z {
         for (auto & renderPipeline : renderPipelines) {
             Context->BindPipeline(PipelineBindPoint::GRAPHICS, renderPipeline.pipeline);
             Context->BindDescriptorSets(PipelineBindPoint::GRAPHICS, renderPipeline.layout, 0,
-                                        descriptorSets[currentFrameIndex]);
+                                        descriptorSets);
             Context->Draw(36, 1, 0, 0);
         }
     }
@@ -37,14 +39,11 @@ namespace Z {
             delete pipeline.pipeline;
             delete pipeline.layout;
         }
-        for(int i=1;i<descriptors.size();++i){
-            Context->DestroyDescriptorSetLayout(descriptors[i].layout);
-            delete descriptors[i].layout;
-        }
+        Context->DestroyDescriptorSetLayout(descriptors[1].layout);
+        delete descriptors[1].layout;
     }
 
     void SkyboxPass::InitPipeline() {
-        renderPipelines.resize(1);
         auto skyboxShader=AssetsSystem::Load<ShaderRes>("Assets/Shaders/SkyBox.glsl");
         GraphicPipelineCreateInfo pipelineCreateInfo{};
         PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo{};
@@ -68,41 +67,54 @@ namespace Z {
         Context->CreateGraphicPipeline(skyboxShader->source, skyboxShader->stages,
                                        renderPipelines[0].pipeline, framebuffer.renderPass, layouts,
                                        renderPipelines[0].layout,&pipelineCreateInfo);
-        descriptors.resize(layouts.size());
-        for(int i=0;i<layouts.size();i++){
-            descriptors[i].layout=layouts[i];
-        }
     }
 
     void SkyboxPass::InitDescriptorSets(SkyboxPassInitInfo *initInfo) {
-        auto renderResourceData = RenderResource::GetRenderResourceData();
-        descriptorSets.resize(initInfo->frameBufferCount);
-        uint32 descriptorSize = descriptors.size();
-        for (int i = 0; i < initInfo->frameBufferCount; i++) {
-            descriptorSets[i].resize(descriptorSize);
-            for (int j = 0; j < descriptorSize; j++) {
-                DescriptorSetAllocateInfo allocateInfo{};
-                allocateInfo.descriptorSetCount = 1;
-                allocateInfo.pSetLayouts = descriptors[j].layout;
-                Context->AllocateDescriptorSet(allocateInfo, descriptorSets[i][j]);
-            }
-        }
+        descriptorSets.resize(2);
+        descriptorSets[0] = RenderResource::GetInnerDescriptorSet(0);
+        DescriptorSetAllocateInfo allocateInfo{};
+        allocateInfo.pSetLayouts=descriptors[1].layout;
+        allocateInfo.descriptorSetCount=1;
+        Context->AllocateDescriptorSet(allocateInfo,descriptorSets[1]);
         //get default skybox
         std::string base_path= "Assets/Textures/skybox/defaultSkybox/";
         auto skybox=AssetsSystem::Load<Skybox>(base_path+"lake/defaultSkybox.zConf");
         DescriptorImageInfo imageViewInfo{};
         imageViewInfo.imageView = skybox->imageView;
         imageViewInfo.imageLayout = ImageLayout::SHADER_READ_ONLY_OPTIMAL;
-        for (int i = 0; i < initInfo->frameBufferCount; i++) {
-            descriptorSets[i][0] = RenderResource::GetFirstDescriptorSet(i);
-            WriteDescriptorSet writeDescriptorSet[1]{};
-            writeDescriptorSet[0].dstSet = descriptorSets[i][1];
-            writeDescriptorSet[0].dstBinding = 0;
-            writeDescriptorSet[0].dstArrayElement = 0;
-            writeDescriptorSet[0].descriptorType = DescriptorType::COMBINED_IMAGE_SAMPLER;
-            writeDescriptorSet[0].descriptorCount = 1;
-            writeDescriptorSet[0].pImageInfo = &imageViewInfo;
-            Context->WriteDescriptorSets(writeDescriptorSet, 1);
-        }
+
+        WriteDescriptorSet writeDescriptorSet[1]{};
+        writeDescriptorSet[0].dstSet = descriptorSets[1];
+        writeDescriptorSet[0].dstBinding = 0;
+        writeDescriptorSet[0].dstArrayElement = 0;
+        writeDescriptorSet[0].descriptorType = DescriptorType::COMBINED_IMAGE_SAMPLER;
+        writeDescriptorSet[0].descriptorCount = 1;
+        writeDescriptorSet[0].pImageInfo = &imageViewInfo;
+        Context->WriteDescriptorSets(writeDescriptorSet, 1);
+
+    }
+
+    void SkyboxPass::InitPipelineLayout() {
+        descriptors.resize(2);
+        descriptors[0].layout=RenderResource::GetInnerSetLayouts()[0];
+        DescriptorSetLayoutBinding binding{};
+        binding.descriptorType=DescriptorType::COMBINED_IMAGE_SAMPLER;
+        binding.binding=0;
+        binding.descriptorCount=1;
+        binding.stageFlags=ShaderStageFlag::FRAGMENT;
+        binding.pImmutableSamplers=Context->GetDefaultSampler(SamplerType::Linear);
+
+        DescriptorSetLayoutCreateInfo setLayoutInfo{};
+        setLayoutInfo.pBindings=&binding;
+        setLayoutInfo.bindingCount=1;
+        Context->CreateDescriptorSetLayout(setLayoutInfo,descriptors[1].layout);
+        std::vector setLayouts{descriptors[0].layout,descriptors[1].layout};
+
+        PipelineLayoutCreateInfo layoutCreateInfo{};
+        layoutCreateInfo.setLayoutCount=setLayouts.size();
+        layoutCreateInfo.pSetLayouts=setLayouts.data();
+        layoutCreateInfo.pushConstantRangeCount=0;
+
+        Context->CreatePipelineLayout(layoutCreateInfo,renderPipelines[0].layout);
     }
 } // Z

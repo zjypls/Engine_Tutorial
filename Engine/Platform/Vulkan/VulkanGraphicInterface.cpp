@@ -523,15 +523,36 @@ namespace Z {
     }
 
     void VulkanGraphicInterface::InitInnerSetLayout(){
+
+        innerSetLayouts.resize(2);
+
+        DescriptorSetLayoutBinding bindingInfo[2]{};
+        bindingInfo[0].binding=0;
+        bindingInfo[0].descriptorCount=1;
+        bindingInfo[0].descriptorType=DescriptorType::UNIFORM_BUFFER;
+        bindingInfo[0].stageFlags=ShaderStageFlag::VERTEX;
+        bindingInfo[1].binding=1;
+        bindingInfo[1].descriptorCount=1;
+        bindingInfo[1].descriptorType=DescriptorType::STORAGE_BUFFER;
+        bindingInfo[1].stageFlags=ShaderStageFlag::VERTEX;
+
         DescriptorSetLayoutCreateInfo layoutInfo{};
-        layoutInfo.bindingCount=1;
-        DescriptorSetLayoutBinding bindingInfo{};
-        bindingInfo.binding=0;
-        bindingInfo.descriptorCount=1;
-        bindingInfo.descriptorType=DescriptorType::UNIFORM_BUFFER;
-        bindingInfo.stageFlags=ShaderStageFlag::VERTEX;
-        layoutInfo.pBindings=&bindingInfo;
-        CreateDescriptorSetLayout(layoutInfo,firstSetLayout);
+        layoutInfo.bindingCount=2;
+        layoutInfo.pBindings=bindingInfo;
+        
+        CreateDescriptorSetLayout(layoutInfo, innerSetLayouts[0]);
+
+        DescriptorSetLayoutBinding lightDataSetBindingInfo{};
+        lightDataSetBindingInfo.binding=0;
+        lightDataSetBindingInfo.descriptorType=DescriptorType::UNIFORM_BUFFER;
+        lightDataSetBindingInfo.descriptorCount=1;
+        lightDataSetBindingInfo.stageFlags=ShaderStageFlag::FRAGMENT;
+
+        DescriptorSetLayoutCreateInfo lightDataSetInfo{};
+        lightDataSetInfo.bindingCount=1;
+        lightDataSetInfo.pBindings=&lightDataSetBindingInfo;
+
+        CreateDescriptorSetLayout(lightDataSetInfo,innerSetLayouts[1]);
     }
 
     void VulkanGraphicInterface::Init(const GraphicSpec &spec) {
@@ -552,7 +573,10 @@ namespace Z {
     }
 
     void VulkanGraphicInterface::Shutdown() {
-        DestroyDescriptorSetLayout(firstSetLayout);
+
+        for(auto& layout:innerSetLayouts){
+            DestroyDescriptorSetLayout(layout);
+        }
 
         for(auto view:swapchainImageViews) {
             vkDestroyImageView(device,view,nullptr);
@@ -889,7 +913,10 @@ namespace Z {
                 info=*createInfo;
             auto shaderInfo=VulkanUtils::ReflectShader(shaderSources,stageFlags);
             auto descriptorLayout=VulkanUtils::CreateDescriptorSetLayout(device,shaderInfo.descriptorInfos);
-            descriptorLayout.insert(descriptorLayout.begin(),((VulkanDescriptorSetLayout*)firstSetLayout)->Get());
+            //descriptorLayout.insert(descriptorLayout.begin(),((VulkanDescriptorSetLayout*)innerSetLayouts)->Get());
+            for(int i=0;i<innerSetLayouts.size();++i){
+                descriptorLayout.insert(descriptorLayout.begin()+i,((VulkanDescriptorSetLayout*)innerSetLayouts[i])->Get());
+            }
             descriptorSetLayout.resize(descriptorLayout.size());
             for(int i=0;i<descriptorLayout.size();++i){
                 descriptorSetLayout[i]=new VulkanDescriptorSetLayout{};

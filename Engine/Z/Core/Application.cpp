@@ -53,7 +53,7 @@ namespace Z {
 					layer->OnUpdate();
 				}
 			}
-
+            RenderResource::Update(Time::DeltaTime());
 			RenderManager::Update(Time::DeltaTime());
 
 			for (auto &func: FuncQueue) {
