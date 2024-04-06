@@ -45,5 +45,6 @@ mono_crash*
 *.sh
 #local tempCache dir
 tempCache
-#local note files
+#local config files and directories
 local_*
+.VSCodeCounter
