@@ -19,6 +19,8 @@
 namespace Z{
     namespace VulkanUtils{
 
+        const std::string ShaderIncludePath=Z_SOURCE_DIR"/Assets/Shaders/Common/";
+
         namespace Tools{
             shaderc_shader_kind ShaderStageToShaderc(ShaderStageFlag stage){
                 switch(stage){
@@ -53,28 +55,21 @@ namespace Z{
                 }
             }
 
-            std::vector<std::vector<uint32>> CompileShader(const std::string& sources,const std::vector<ShaderStageFlag> &stages){
-                Z_CORE_ASSERT(stages.size()>0,"error: no shader stage !");
-                std::vector<std::vector<uint32>> results;
-                for(int i=0;i<stages.size();++i){
-                    shaderc::Compiler compiler;
-                    shaderc::CompileOptions options;
-                    options.SetTargetEnvironment(shaderc_target_env_vulkan,shaderc_env_version_vulkan_1_0);
-                    options.AddMacroDefinition(GetShaderStageMacroName(stages[i]));
-                    //options.SetOptimizationLevel(shaderc_optimization_level_performance);
-                    auto stage= ShaderStageToShaderc(stages[i]);
-                    auto result=compiler.CompileGlslToSpv(sources,stage,"shader",options);
-                    if(result.GetCompilationStatus()!=shaderc_compilation_status_success){
-                        Z_CORE_ERROR("error: failed to compile shader !");
-                        Z_CORE_ERROR(result.GetErrorMessage());
-                        continue;
-                    }
-                    results.push_back({result.begin(),result.end()});
-                }
-                return results;
+            std::string ReadFileString(const std::string&path){
+                std::ifstream file(path,std::ios::ate|std::ios::binary);
+                Z_CORE_ASSERT(file.is_open(),"error: failed to open file !");
+                size_t size=static_cast<size_t>(file.tellg());
+                std::string buffer{};
+                buffer.resize(size);
+                file.seekg(0);
+                file.read(buffer.data(),size);
+                file.close();
+                return buffer;
             }
 
             std::vector<uint32> ReadFile(const std::string& path){
+                auto res=ReadFileString(path);
+                return {res.begin(),res.end()};
                 std::ifstream file(path,std::ios::ate|std::ios::binary);
                 Z_CORE_ASSERT(file.is_open(),"error: failed to open file !");
                 size_t size=static_cast<size_t>(file.tellg());
@@ -83,6 +78,68 @@ namespace Z{
                 file.read(reinterpret_cast<char*>(buffer.data()),size);
                 file.close();
                 return buffer;
+            }
+
+            class MyIncluder : public shaderc::CompileOptions::IncluderInterface {
+            public:
+                shaderc_include_result* GetInclude(const char* requested_source,
+                                                            shaderc_include_type type,
+                                                            const char* requesting_source,
+                                                            size_t include_depth) override {
+
+                    const std::string name = std::string(requested_source);
+                    const std::string contents = ReadFileString( ShaderIncludePath+name);
+
+                    auto container = new std::array<std::string, 2>;
+                    (*container)[0] = name;
+                    (*container)[1] = contents;
+
+                    auto data = new shaderc_include_result;
+
+                    data->user_data = container;
+
+                    data->source_name = (*container)[0].data();
+                    data->source_name_length = (*container)[0].size();
+
+                    data->content = (*container)[1].data();
+                    data->content_length = (*container)[1].size();
+
+                    return data;
+                }
+
+                void ReleaseInclude(shaderc_include_result* include_response) override {
+                    delete static_cast<std::array<std::string, 2>*>(include_response->user_data);
+                    delete include_response;
+                }
+            };
+            
+
+            std::vector<std::vector<uint32>> CompileShader(const std::string& sources,const std::vector<ShaderStageFlag> &stages){
+                Z_CORE_ASSERT(!stages.empty(),"error: no shader stage !");
+                std::vector<std::vector<uint32>> results;
+
+                for(auto stage : stages){
+                    shaderc::Compiler compiler;
+                    shaderc::CompileOptions options;
+                    options.SetTargetEnvironment(shaderc_target_env_vulkan,shaderc_env_version_vulkan_1_0);
+                    options.AddMacroDefinition(GetShaderStageMacroName(stage));
+                    options.SetIncluder(std::make_unique<MyIncluder>());
+                    //options.SetOptimizationLevel(shaderc_optimization_level_performance);
+                    auto shaderStage= ShaderStageToShaderc(stage);
+                    shaderc::PreprocessedSourceCompilationResult preprocessResult=compiler.PreprocessGlsl(sources,shaderStage,"shader",options);
+                    auto status=preprocessResult.GetCompilationStatus();
+                    Z_CORE_ASSERT(status==shaderc_compilation_status_success,preprocessResult.GetErrorMessage());
+                    std::string preprocessRes{preprocessResult.begin()};
+                    //Z_CORE_INFO(preprocessRes);
+                    auto result=compiler.CompileGlslToSpv(preprocessRes,shaderStage,"shader",options);
+                    if(result.GetCompilationStatus()!=shaderc_compilation_status_success){
+                        Z_CORE_ERROR("error: failed to compile shader !");
+                        Z_CORE_ERROR(result.GetErrorMessage());
+                        continue;
+                    }
+                    results.emplace_back(result.begin(),result.end());
+                }
+                return results;
             }
 
             VkFormat GetFormatFromSPVType(const spirv_cross::SPIRType& type){
