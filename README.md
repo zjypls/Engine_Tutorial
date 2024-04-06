@@ -5,7 +5,7 @@ Learning GameEngine
 git clone -b Vulkan https://github.com/zjypls/Engine_Tutorial.git
 ```
 ## build 
-Windows and Linux support ( suppose to build with clang ) , need vulkan sdk install  
+Windows and Linux support , need vulkan sdk install  
 you can download sdk at [there](https://vulkan.lunarg.com/) or using package manager on Linux
 ```sh
 cmake -B build
@@ -18,4 +18,3 @@ Learning:
 >
 >[Games 104 On Github](https://github.com/BoomingTech/Piccolo)
 >
-notices:can build with msvc or clang(must off ReBuildScriptsCore flags in CMakeLists.txt)
