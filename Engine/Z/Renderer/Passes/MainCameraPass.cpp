@@ -288,7 +288,6 @@ namespace Z {
     void MainCameraPass::Resize() {
         for(auto buffer:swapchainFrameBuffers) {
             Context->DestroyFrameBuffer(buffer);
-            delete buffer;
         }
         swapchainFrameBuffers.clear();
         swapchainFrameBuffers=Context->CreateDefaultFrameBuffers(framebuffer.renderPass);
