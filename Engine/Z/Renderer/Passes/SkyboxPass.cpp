@@ -16,6 +16,7 @@ namespace Z {
         viewportFramebuffer = ((SkyboxPassInitInfo *) info)->framebuffer;
         viewportFrameBufferCount = ((SkyboxPassInitInfo *) info)->frameBufferCount;
         Context = info->graphicInterface;
+        skyboxView=((SkyboxPassInitInfo*)info)->skyboxView;
         renderPipelines.resize(1);
         InitPipelineLayout();
         InitPipeline();
@@ -75,8 +76,6 @@ namespace Z {
         Context->AllocateDescriptorSet(allocateInfo,descriptorSets[1]);
         auto view=skyboxView;
         //get default skybox
-        std::string base_path= "Assets/Textures/skybox/defaultSkybox/";
-        auto skybox=AssetsSystem::Load<Skybox>(base_path+"lake/defaultSkybox.zConf");
         if(!view){
             std::string base_path = "Assets/Textures/skybox/defaultSkybox/";
             auto skybox = AssetsSystem::Load<Skybox>(base_path + "lake/defaultSkybox.zConf");

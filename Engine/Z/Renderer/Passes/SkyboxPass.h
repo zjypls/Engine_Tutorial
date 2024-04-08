@@ -16,6 +16,7 @@ namespace Z {
         uint32 width;
         uint32 height;
         uint32 frameBufferCount;
+        ImageView* skyboxView= nullptr;
     };
     class Z_API SkyboxPass : public RenderPass {
     public:

@@ -6,6 +6,7 @@
 #define RENDERPIPELINE_H
 
 #include "Z/Core/Core.h"
+#include "Z/Core/AssetsSystem.h"
 #include "Z/ImGui/ImGuiContent.h"
 
 #include "Z/Renderer/RenderPass.h"
@@ -40,6 +41,8 @@ namespace Z {
         Ref<RenderPass> mainCameraPass;
         Ref<RenderPass> uiPass;
         Ref<RenderPass> skyboxPass;
+        Ref<RenderPass> convertTool;
+        Texture2D* skybox;
     };
 
 } // Z

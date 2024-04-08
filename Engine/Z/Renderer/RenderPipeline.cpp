@@ -3,11 +3,13 @@
 //
 
 #include "Z/Renderer/GraphicInterface.h"
+#include "Z/Renderer/RenderManager.h"
 #include "Z/Renderer/RenderPipeline.h"
 #include "Z/Utils/ZUtils.h"
 #include "Z/Renderer/Passes/UIPass.h"
 #include "Z/Renderer/Passes/MainCameraPass.h"
 #include "Z/Renderer/Passes/SkyboxPass.h"
+#include "Z/Renderer/Passes/ConvertCubePass.h"
 
 namespace Z {
     void RenderPipeline::Init(RenderPipelineInitInfo *initInfo) {
@@ -26,6 +28,14 @@ namespace Z {
         uiPass->Init(&passInfo);
         mainCameraPass->PostInit();
 
+        auto toolInitInfo = ConvertCubePassInitInfo{};
+        toolInitInfo.graphicInterface=Context;
+        convertTool= CreateRef<ConvertCubePass>();
+        convertTool->Init(&toolInitInfo);
+        ((ConvertCubePass*)convertTool.get())->SetArgs("Assets/Textures/skybox/defaultSkybox/dusk/dusk_4K.hdr");
+        convertTool->draw();
+        skybox=((ConvertCubePass*)convertTool.get())->GetSkybox();
+
         auto skyboxPassInitInfo=SkyboxPassInitInfo{};
         skyboxPassInitInfo.renderpass=mainCameraPassPtr->viewportRenderPass;
         skyboxPassInitInfo.frameBufferCount=Context->GetMaxFramesInFlight();
@@ -33,6 +43,7 @@ namespace Z {
         skyboxPassInitInfo.width=mainCameraPassPtr->viewPortSize.x;
         skyboxPassInitInfo.height=mainCameraPassPtr->viewPortSize.y;
         skyboxPassInitInfo.graphicInterface=Context;
+        skyboxPassInitInfo.skyboxView=skybox->imageView;
         skyboxPass=CreateRef<SkyboxPass>();
         skyboxPass->Init(&skyboxPassInitInfo);
 
@@ -72,6 +83,9 @@ namespace Z {
     }
 
     void RenderPipeline::clear() {
+        Context->DestroyImage(skybox->image,skybox->memory,skybox->imageView);
+        delete skybox;
+        convertTool->clear();
         skyboxPass->clear();
         uiPass->clear();
         mainCameraPass->clear();
