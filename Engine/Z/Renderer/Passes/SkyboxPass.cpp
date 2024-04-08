@@ -36,11 +36,8 @@ namespace Z {
         for(auto &pipeline:renderPipelines){
             Context->DestroyPipeline(pipeline.pipeline);
             Context->DestroyPipelineLayout(pipeline.layout);
-            delete pipeline.pipeline;
-            delete pipeline.layout;
         }
         Context->DestroyDescriptorSetLayout(descriptors[1].layout);
-        delete descriptors[1].layout;
     }
 
     void SkyboxPass::InitPipeline() {
@@ -76,11 +73,17 @@ namespace Z {
         allocateInfo.pSetLayouts=descriptors[1].layout;
         allocateInfo.descriptorSetCount=1;
         Context->AllocateDescriptorSet(allocateInfo,descriptorSets[1]);
+        auto view=skyboxView;
         //get default skybox
         std::string base_path= "Assets/Textures/skybox/defaultSkybox/";
         auto skybox=AssetsSystem::Load<Skybox>(base_path+"lake/defaultSkybox.zConf");
+        if(!view){
+            std::string base_path = "Assets/Textures/skybox/defaultSkybox/";
+            auto skybox = AssetsSystem::Load<Skybox>(base_path + "lake/defaultSkybox.zConf");
+            view=skybox->imageView;
+        }
         DescriptorImageInfo imageViewInfo{};
-        imageViewInfo.imageView = skybox->imageView;
+        imageViewInfo.imageView = view;
         imageViewInfo.imageLayout = ImageLayout::SHADER_READ_ONLY_OPTIMAL;
 
         WriteDescriptorSet writeDescriptorSet[1]{};

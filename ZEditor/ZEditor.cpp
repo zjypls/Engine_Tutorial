@@ -483,7 +483,7 @@ namespace Z {
 			auto &selectTransform = selectedEntity.GetComponent<TransformComponent>();
 			cameraProj = editorCamera.GetProjectionMatrix();
 			// fix the up axis
-			// vulkan is right-hand, but the gizmo is left-hand
+			// vulkan is left-hand, but the gizmo is right-hand
 			cameraProj[1][1]*=-1;
 			goModel = selectTransform.GetTransform();
 			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProj),

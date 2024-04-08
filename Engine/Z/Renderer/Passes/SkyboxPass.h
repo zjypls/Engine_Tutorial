@@ -29,6 +29,7 @@ namespace Z {
         void InitDescriptorSets(SkyboxPassInitInfo* initInfo);
         RenderPass::Framebuffer* viewportFramebuffer;
         uint32 viewportFrameBufferCount;
+        ImageView* skyboxView= nullptr;
     };
 
 } // Z

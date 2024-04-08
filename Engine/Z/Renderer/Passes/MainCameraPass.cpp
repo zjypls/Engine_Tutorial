@@ -28,13 +28,10 @@ namespace Z {
         RenderPass::clear();
         DestroyViewportFrameBuffer();
         Context->DestroyRenderPass(viewportRenderPass);
-        delete viewportRenderPass;
         for(auto buffer:swapchainFrameBuffers) {
             Context->DestroyFrameBuffer(buffer);
-            delete buffer;
         }
         Context->DestroyRenderPass(framebuffer.renderPass);
-        delete framebuffer.renderPass;
     }
 
     void MainCameraPass::InitRenderPass() {
@@ -187,12 +184,8 @@ namespace Z {
         for(const auto& buffer:viewportFrameBuffer) {
             for(auto view:buffer.attachments){
                 Context->DestroyImage(view.image,view.memory, view.view);
-                delete view.image;
-                delete view.view;
-                delete view.memory;
             }
             Context->DestroyFrameBuffer(buffer.framebuffer);
-            delete buffer.framebuffer;
         }
     }
 

@@ -25,6 +25,8 @@ namespace Z {
 	struct Texture2D {
 		AssetsImporterType type=AssetsImporterType::Texture2D;
 		std::string path;
+        uint32 width;
+        uint32 height;
 		Image* image;
 		ImageView* imageView;
 		DeviceMemory* memory;

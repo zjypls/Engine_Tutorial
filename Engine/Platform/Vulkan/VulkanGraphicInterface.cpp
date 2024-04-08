@@ -703,7 +703,7 @@ namespace Z {
         VK_CHECK(res,"failed to reset command pool !");
     }
 
-    void VulkanGraphicInterface::BeginRenderPass(const RenderPassBeginInfo &info) {
+    void VulkanGraphicInterface::BeginRenderPass(VkCommandBuffer buffer, const Z::RenderPassBeginInfo &info) {
         VkRenderPassBeginInfo beginInfo{};
         beginInfo.sType=VK_INFO(RENDER_PASS,BEGIN);
         beginInfo.framebuffer=((VulkanFramebuffer*)info.framebuffer)->Get();
@@ -711,19 +711,22 @@ namespace Z {
         //beginInfo.renderArea.extent=swapchainExtent;
         beginInfo.renderPass=((VulkanRenderPass*)info.renderPass)->Get();
         //Todo:fix :
-        //mark: info.pClearValues is a stack array , it work well in debug mode with no optimize 
+        //mark: info.pClearValues is a stack array , it work well in debug mode with no optimize
         // but in release mode with optimize , it will have a undefined value
         // this caused validation layer to report a error :
         // vkCmdBeginRenderPass(): pClearValues[1].depth must be between 0 and 1.
         beginInfo.clearValueCount=info.clearValueCount;
         beginInfo.pClearValues=(VkClearValue*)info.pClearValues;
 
-        vkCmdBeginRenderPass(commandBuffers[currentFrameIndex],&beginInfo,VK_SUBPASS_CONTENTS_INLINE);
-
+        vkCmdBeginRenderPass(buffer,&beginInfo,VK_SUBPASS_CONTENTS_INLINE);
     }
 
     void VulkanGraphicInterface::EndRenderPass() {
         vkCmdEndRenderPass(commandBuffers[currentFrameIndex]);
+    }
+
+    void VulkanGraphicInterface::EndRenderPass(CommandBuffer* buffer) {
+        vkCmdEndRenderPass(((VulkanCommandBuffer*)buffer)->Get());
     }
 
     void VulkanGraphicInterface::CreateRenderPass(const RenderPassCreateInfo &info, RenderPassInterface *&renderPassInterface) {
@@ -906,17 +909,18 @@ namespace Z {
     std::vector<DescriptorSetInfo> VulkanGraphicInterface::CreateGraphicPipeline(const std::string &shaderSources,
         const std::vector<Z::ShaderStageFlag> &stageFlags, Pipeline *&graphicPipeline,
         RenderPassInterface *renderPassInterface,std::vector<DescriptorSetLayout*>& descriptorSetLayout,PipelineLayout*& pipelineLayout,
-        GraphicPipelineCreateInfo* createInfo) {
+        GraphicPipelineCreateInfo* createInfo,bool insertInnerSetLayout) {
             GraphicPipelineCreateInfo info{};
             std::vector<DescriptorSetInfo> setInfos;
             if(createInfo!=nullptr)
                 info=*createInfo;
             auto shaderInfo=VulkanUtils::ReflectShader(shaderSources,stageFlags);
-            auto descriptorLayout=VulkanUtils::CreateDescriptorSetLayout(device,shaderInfo.descriptorInfos);
+            auto descriptorLayout=VulkanUtils::CreateDescriptorSetLayout(device,shaderInfo.descriptorInfos,insertInnerSetLayout?2:0);
             //descriptorLayout.insert(descriptorLayout.begin(),((VulkanDescriptorSetLayout*)innerSetLayouts)->Get());
-            for(int i=0;i<innerSetLayouts.size();++i){
-                descriptorLayout.insert(descriptorLayout.begin()+i,((VulkanDescriptorSetLayout*)innerSetLayouts[i])->Get());
-            }
+            if(insertInnerSetLayout)
+                for(int i=0;i<innerSetLayouts.size();++i){
+                    descriptorLayout.insert(descriptorLayout.begin()+i,((VulkanDescriptorSetLayout*)innerSetLayouts[i])->Get());
+                }
             descriptorSetLayout.resize(descriptorLayout.size());
             for(int i=0;i<descriptorLayout.size();++i){
                 descriptorSetLayout[i]=new VulkanDescriptorSetLayout{};
@@ -1140,6 +1144,7 @@ namespace Z {
 
     void VulkanGraphicInterface::DestroyRenderPass(RenderPassInterface *renderPassInterface) {
         vkDestroyRenderPass(device,((VulkanRenderPass*)renderPassInterface)->Get(),nullptr);
+        delete renderPassInterface;
     }
 
     std::vector<Z::Framebuffer *> VulkanGraphicInterface::CreateDefaultFrameBuffers(
@@ -1168,30 +1173,45 @@ namespace Z {
 
     void VulkanGraphicInterface::DestroyFrameBuffer(Z::Framebuffer *framebuffer) {
         vkDestroyFramebuffer(device,((VulkanFramebuffer*)framebuffer)->Get(),nullptr);
+        delete framebuffer;
     }
 
     void VulkanGraphicInterface::DestroyPipeline(Pipeline *pipeline) {
         vkDestroyPipeline(device,((VulkanPipeline*)pipeline)->Get(),nullptr);
+        delete pipeline;
     }
 
     void VulkanGraphicInterface::DestroyPipelineLayout(PipelineLayout *pipelineLayout) {
         vkDestroyPipelineLayout(device,((VulkanPipelineLayout*)pipelineLayout)->Get(),nullptr);
+        delete pipelineLayout;
     }
 
     void VulkanGraphicInterface::DestroyImage(Image * image , DeviceMemory* memory , ImageView* view) {
-        if(view!=nullptr)
-            vkDestroyImageView(device,((VulkanImageView*)view)->Get(),nullptr);
+        if(view!=nullptr) {
+            vkDestroyImageView(device, ((VulkanImageView *) view)->Get(), nullptr);
+            delete view;
+        }
         vkFreeMemory(device,((VulkanDeviceMemory*)memory)->Get(),nullptr);
+        delete memory;
         vkDestroyImage(device,((VulkanImage*)image)->Get(),nullptr);
+        delete image;
+    }
+
+    void VulkanGraphicInterface::DestroyImageView(ImageView* view){
+        vkDestroyImageView(device,((VulkanImageView*)view)->Get(), nullptr);
+        delete view;
     }
 
     void VulkanGraphicInterface::DestroyBuffer(Buffer *buffer, DeviceMemory *memory) {
         vkFreeMemory(device,((VulkanDeviceMemory*)memory)->Get(),nullptr);
+        delete memory;
         vkDestroyBuffer(device,((VulkanBuffer*)buffer)->Get(),nullptr);
+        delete buffer;
     }
 
     void VulkanGraphicInterface::DestroyDescriptorSetLayout(DescriptorSetLayout *descriptorSetLayout) {
         vkDestroyDescriptorSetLayout(device,((VulkanDescriptorSetLayout*)descriptorSetLayout)->Get(),nullptr);
+        delete descriptorSetLayout;
     }
 
     void VulkanGraphicInterface::CreateDescriptorSetLayout(const DescriptorSetLayoutCreateInfo &info,
@@ -1236,8 +1256,8 @@ namespace Z {
     }
 
     void VulkanGraphicInterface::FreeDescriptorSet(DescriptorSet *descriptorSet) {
-        auto set=((VulkanDescriptorSet*)descriptorSet)->Get();
-        vkFreeDescriptorSets(device,descriptorPool,1,&set);
+        vkFreeDescriptorSets(device,descriptorPool,1,((VulkanDescriptorSet*)descriptorSet)->GetPtr());
+        delete descriptorSet;
     }
 
     void VulkanGraphicInterface::CreateCubeMap(const ImageInfo &info, Image *&image, DeviceMemory *&memory,
@@ -1447,6 +1467,11 @@ namespace Z {
         vkCmdBindPipeline(commandBuffers[currentFrameIndex],(VkPipelineBindPoint)bindPoint,((VulkanPipeline*)pipeline)->Get());
     }
 
+    void VulkanGraphicInterface::BindPipeline(Z::CommandBuffer *buffer, Z::PipelineBindPoint bindPoint,
+                                              Z::Pipeline *pipeline) {
+        vkCmdBindPipeline(((VulkanCommandBuffer*)buffer)->Get(),(VkPipelineBindPoint)bindPoint,((VulkanPipeline*)pipeline)->Get());
+    }
+
     void VulkanGraphicInterface::DrawIndexed(uint32 indexCount, uint32 instanceCount,
                                              uint32 firstIndex, uint32 vertexOffset, uint32 firstInstance) {
         vkCmdDrawIndexed(commandBuffers[currentFrameIndex],indexCount,instanceCount,firstIndex,vertexOffset,firstInstance);
@@ -1463,29 +1488,49 @@ namespace Z {
 
     }
 
+    void VulkanGraphicInterface::BindDescriptorSets(Z::CommandBuffer *buffer, Z::PipelineBindPoint bindPoint,
+                                                    Z::PipelineLayout *layout, Z::uint32 firstSet,
+                                                    const std::vector<DescriptorSet *> &descriptorSets) {
+        std::vector<VkDescriptorSet> sets(descriptorSets.size());
+        for(int i=0;i<descriptorSets.size();++i) {
+            sets[i]=((VulkanDescriptorSet*)(descriptorSets[i]))->Get();
+        }
+        vkCmdBindDescriptorSets(((VulkanCommandBuffer*)buffer)->Get(),(VkPipelineBindPoint)bindPoint,((VulkanPipelineLayout*)layout)->Get(),firstSet,descriptorSets.size(),sets.data(),0,nullptr);
+
+    }
+
     void VulkanGraphicInterface::PushConstant(PipelineLayout *layout, ShaderStageFlag stageFlags, uint32 offset,
                                               uint32 size, const void *data) {
         vkCmdPushConstants(commandBuffers[currentFrameIndex],((VulkanPipelineLayout*)layout)->Get(),(VkShaderStageFlags)stageFlags,offset,size,data);
     }
 
+    void VulkanGraphicInterface::PushConstant(CommandBuffer* buffer,PipelineLayout *layout, ShaderStageFlag stageFlags, uint32 offset,
+                                              uint32 size, const void *data) {
+        vkCmdPushConstants(((VulkanCommandBuffer*)buffer)->Get(),((VulkanPipelineLayout*)layout)->Get(),(VkShaderStageFlags)stageFlags,offset,size,data);
+    }
+
     void VulkanGraphicInterface::SetViewPort(const Z::Viewport &viewport) {
         VkViewport vkViewport{};
-        vkViewport.x=viewport.x;
-        vkViewport.y=viewport.y;
-        vkViewport.width=viewport.width;
-        vkViewport.height=viewport.height;
-        vkViewport.minDepth=viewport.minDepth;
-        vkViewport.maxDepth=viewport.maxDepth;
+        vkViewport=*((VkViewport*)&viewport);
         vkCmdSetViewport(commandBuffers[currentFrameIndex],0,1,&vkViewport);
+    }
+
+    void VulkanGraphicInterface::SetViewPort(Z::CommandBuffer *buffer, const Z::Viewport &viewport) {
+        VkViewport vkViewport{};
+        vkViewport=*((VkViewport*)&viewport);
+        vkCmdSetViewport(((VulkanCommandBuffer*)buffer)->Get(),0,1,&vkViewport);
     }
 
     void VulkanGraphicInterface::SetScissor(const Z::Rect2D &scissor) {
         VkRect2D vkScissor{};
-        vkScissor.extent.width=scissor.extent.width;
-        vkScissor.extent.height=scissor.extent.height;
-        vkScissor.offset.x=scissor.offset.x;
-        vkScissor.offset.y=scissor.offset.y;
+        vkScissor=*((VkRect2D*)&scissor);
         vkCmdSetScissor(commandBuffers[currentFrameIndex],0,1,&vkScissor);
+    }
+
+    void VulkanGraphicInterface::SetScissor(Z::CommandBuffer *buffer, const Z::Rect2D &scissor) {
+        VkRect2D vkScissor{};
+        vkScissor=*((VkRect2D*)&scissor);
+        vkCmdSetScissor(((VulkanCommandBuffer*)buffer)->Get(),0,1,&vkScissor);
     }
 
     void VulkanGraphicInterface::BindVertexBuffer(Buffer ** buffers,uint32 firstBinding,uint32 bindingCount,uint32 offset){
@@ -1505,6 +1550,11 @@ namespace Z {
     void
     VulkanGraphicInterface::Draw(uint32 vertexCount, uint32 instanceCount, uint32 firstVertex, uint32 firstInstance) {
         vkCmdDraw(commandBuffers[currentFrameIndex],vertexCount,instanceCount,firstVertex,firstInstance);
+    }
+
+    void
+    VulkanGraphicInterface::Draw(CommandBuffer* buffer,uint32 vertexCount, uint32 instanceCount, uint32 firstVertex, uint32 firstInstance) {
+        vkCmdDraw(((VulkanCommandBuffer*)buffer)->Get(),vertexCount,instanceCount,firstVertex,firstInstance);
     }
 
     Sampler *VulkanGraphicInterface::GetDefaultSampler(SamplerType samplerType) {
@@ -1561,6 +1611,86 @@ namespace Z {
         VK_CHECK(res,"failed to create pipeline layout !");
         layout=new VulkanPipelineLayout;
         ((VulkanPipelineLayout*)layout)->Set(pipelineLayout);
+    }
+
+    void VulkanGraphicInterface::CreateFence(const FenceCreateInfo &info, Fence *&fence) {
+        VkFence vkFence{};
+        VkFenceCreateInfo createInfo{};
+        createInfo.sType=VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        createInfo.flags=(VkFenceCreateFlags)info.flags;
+
+        auto res = vkCreateFence(device,&createInfo, nullptr,&vkFence);
+        VK_CHECK(res,"failed to create fence !");
+        fence=new VulkanFence;
+        ((VulkanFence*)fence)->Set(vkFence);
+    }
+
+    void VulkanGraphicInterface::CreateSemaphore(const SemaphoreCreateInfo &info, Semaphore *&semaphore) {
+        VkSemaphoreCreateInfo createInfo{};
+        createInfo.sType=VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO;
+        VkSemaphore vkSemaphore;
+        auto res = vkCreateSemaphore(device,&createInfo, nullptr,&vkSemaphore);
+        VK_CHECK(res,"failed to create semaphore !");
+        semaphore=new VulkanSemaphore;
+        ((VulkanSemaphore*)semaphore)->Set(vkSemaphore);
+    }
+
+    void VulkanGraphicInterface::DestroyFence(Fence *fence) {
+        vkDestroyFence(device,((VulkanFence*)fence)->Get(), nullptr);
+        delete fence;
+    }
+
+    void VulkanGraphicInterface::DestroySemaphore(Semaphore *semaphore) {
+        vkDestroySemaphore(device,((VulkanSemaphore*)semaphore)->Get(), nullptr);
+        delete semaphore;
+    }
+
+    void VulkanGraphicInterface::WaitForFences(Fence *fence) {
+        auto res = vkWaitForFences(device,1,((VulkanFence*)fence)->GetPtr(),VK_FALSE,UINT64_MAX);
+        VK_CHECK(res,"failed to wait fences !");
+    }
+
+    void VulkanGraphicInterface::AllocateCommandBuffer(const CommandBufferAllocateInfo &info,
+                                                       CommandBuffer *&commandBuffer) {
+        VkCommandBufferAllocateInfo  allocateInfo{};
+        allocateInfo.sType=VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocateInfo.commandBufferCount=1;
+        allocateInfo.commandPool=transientCommandPool;
+        allocateInfo.level=(VkCommandBufferLevel)info.level;
+        VkCommandBuffer buffer;
+        auto res = vkAllocateCommandBuffers(device,&allocateInfo,&buffer);
+        VK_CHECK(res,"failed to allocate command buffer !");
+        commandBuffer = new VulkanCommandBuffer;
+        ((VulkanCommandBuffer*)commandBuffer)->Set(buffer);
+    }
+
+    void VulkanGraphicInterface::FreeCommandBuffer(Z::CommandBuffer *buffer) {
+        vkFreeCommandBuffers(device,transientCommandPool,1,((VulkanCommandBuffer*)buffer)->GetPtr());
+        delete buffer;
+    }
+
+    void VulkanGraphicInterface::BeginCommandBuffer(const Z::CommandBufferBeginInfo &info, Z::CommandBuffer *buffer) {
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType=VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags=(VkCommandBufferUsageFlagBits)info.flags;
+        beginInfo.pInheritanceInfo= nullptr;
+        vkBeginCommandBuffer(((VulkanCommandBuffer*)buffer)->Get(),&beginInfo);
+    }
+
+    void VulkanGraphicInterface::EndCommandBuffer(CommandBuffer *buffer) {
+        vkEndCommandBuffer(((VulkanCommandBuffer*)buffer)->Get());
+    }
+
+    CommandBuffer *VulkanGraphicInterface::BeginOnceCommandSubmit() {
+        auto buffer = BeginOnceSubmit();
+        CommandBuffer* res = new VulkanCommandBuffer;
+        ((VulkanCommandBuffer*)res)->Set(buffer);
+        return res;
+    }
+
+    void VulkanGraphicInterface::EndOnceSubmit(CommandBuffer *buffer) {
+        EndOnceSubmit(((VulkanCommandBuffer*)buffer)->Get());
+        delete buffer;
     }
 
 } // Z

@@ -37,6 +37,8 @@ namespace Z {
     VULKAN_IMPL_RESOURCE(Pipeline);
     VULKAN_IMPL_RESOURCE(DescriptorSetLayout);
     VULKAN_IMPL_RESOURCE(Sampler);
+    VULKAN_IMPL_RESOURCE(Fence);
+    VULKAN_IMPL_RESOURCE(Semaphore);
 
     class VulkanRenderPass:public RenderPassInterface {
     public:

@@ -27,6 +27,8 @@ namespace Z {
     class Pipeline{};
     class RenderPassInterface{};
     class Sampler{};
+    class Fence{};
+    class Semaphore{};
 
 
     struct ImageInfo;
@@ -697,6 +699,47 @@ namespace Z {
         MAX_ENUM = 0x7FFFFFFF
     } ;
 
+    enum class FenceCreateFlags {
+        SIGNALED = 0x00000001,
+        MAX_ENUM = 0x7FFFFFFF
+    } ;
+
+    enum class CommandBufferLevel {
+        PRIMARY = 0,
+        SECONDARY = 1,
+        MAX_ENUM = 0x7FFFFFFF
+    } ;
+
+    enum class CommandBufferUsageFlags {
+        ONE_TIME_SUBMIT = 0x00000001,
+        RENDER_PASS_CONTINUE = 0x00000002,
+        SIMULTANEOUS_USE = 0x00000004,
+        MAX_ENUM = 0x7FFFFFFF
+    } ;
+
+    enum class QueryControlFlags {
+        PRECISE = 0x00000001,
+        MAX_ENUM = 0x7FFFFFFF
+    } ;
+
+    enum class QueryPipelineStatisticFlags {
+        INPUT_ASSEMBLY_VERTICES = 0x00000001,
+        INPUT_ASSEMBLY_PRIMITIVES = 0x00000002,
+        VERTEX_SHADER_INVOCATIONS = 0x00000004,
+        GEOMETRY_SHADER_INVOCATIONS = 0x00000008,
+        GEOMETRY_SHADER_PRIMITIVES = 0x00000010,
+        CLIPPING_INVOCATIONS = 0x00000020,
+        CLIPPING_PRIMITIVES = 0x00000040,
+        FRAGMENT_SHADER_INVOCATIONS = 0x00000080,
+        TESSELLATION_CONTROL_SHADER_PATCHES = 0x00000100,
+        TESSELLATION_EVALUATION_SHADER_INVOCATIONS = 0x00000200,
+        COMPUTE_SHADER_INVOCATIONS = 0x00000400,
+        TASK_SHADER_INVOCATIONS = 0x00000800,
+        MESH_SHADER_INVOCATIONS = 0x00001000,
+        CLUSTER_CULLING_SHADER_INVOCATIONS_BIT_HUAWEI = 0x00002000,
+        MAX_ENUM = 0x7FFFFFFF
+    } ;
+
     //operator overloading for binary operation |
     inline DynamicState operator|(DynamicState a,DynamicState b){
         return static_cast<DynamicState>(static_cast<uint32>(a)|static_cast<uint32>(b));
@@ -846,6 +889,13 @@ namespace Z {
         uint32         attachment;
         ImageLayout    layout;
     };
+    struct SemaphoreCreateInfo {
+        const void*               pNext;
+    };
+    struct FenceCreateInfo {
+        const void*           pNext;
+        FenceCreateFlags      flags;
+    } ;
     struct AttachmentDescription {
         Format                        format;
         SampleCountFlagBits           samples;
@@ -1100,6 +1150,26 @@ namespace Z {
         const DescriptorBufferInfo*    pBufferInfo;
         const BufferView*              pTexelBufferView;
     };
+    struct CommandBufferAllocateInfo {
+        const void*           pNext;
+        CommandPool           commandPool;
+        CommandBufferLevel    level;
+        uint32                commandBufferCount;
+    } ;
+    struct CommandBufferInheritanceInfo {
+        const void*                           pNext;
+        RenderPassInterface*                  renderPass;
+        uint32_t                              subpass;
+        Framebuffer*                          framebuffer;
+        bool                                  occlusionQueryEnable;
+        QueryControlFlags                     queryFlags;
+        QueryPipelineStatisticFlags           pipelineStatistics;
+    } ;
+    struct CommandBufferBeginInfo {
+        const void*                            pNext;
+        CommandBufferUsageFlags                flags;
+        const CommandBufferInheritanceInfo*    pInheritanceInfo;
+    } ;
 }
 
 #endif //ENGINEALL_RENDERINTERFACE_H

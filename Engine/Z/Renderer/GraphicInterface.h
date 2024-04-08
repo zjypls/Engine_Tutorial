@@ -27,6 +27,8 @@ namespace Z {
 
         virtual void WaitForFences()=0;
 
+        virtual void WaitForFences(Fence* fence) = 0;
+
         virtual void DeviceWaiteIdle()=0;
 
         virtual void ResetCommandPool()=0;
@@ -55,12 +57,28 @@ namespace Z {
 
         virtual std::vector<DescriptorSetInfo> CreateGraphicPipeline(const std::string&shaderSources,const std::vector<Z::ShaderStageFlag>&stageFlags,Pipeline*&graphicPipeline,
                         RenderPassInterface* renderPassInterface,std::vector<DescriptorSetLayout*>&descriptorSetLayout,
-                        PipelineLayout*&pipelineLayout , GraphicPipelineCreateInfo* createInfo=nullptr) = 0;
+                        PipelineLayout*&pipelineLayout , GraphicPipelineCreateInfo* createInfo=nullptr , bool insertInnerSetLayout = true) = 0;
 
         virtual void CreateDescriptorSetLayout(const DescriptorSetLayoutCreateInfo& info, DescriptorSetLayout* &descriptorSetLayout) = 0;
 
+        virtual void CreateFence(const FenceCreateInfo& info,Fence*& fence) = 0;
+
+        virtual void CreateSemaphore(const SemaphoreCreateInfo& info,Semaphore* &semaphore) = 0;
+
         //make info.DescriptorPool empty  to use default pool
         virtual void AllocateDescriptorSet(const DescriptorSetAllocateInfo& info, DescriptorSet* &descriptorSet) = 0;
+
+        virtual void AllocateCommandBuffer(const CommandBufferAllocateInfo& info , CommandBuffer*& commandBuffer) = 0;
+
+        virtual void FreeCommandBuffer(CommandBuffer* commandBuffer) = 0;
+
+        virtual void BeginCommandBuffer(const CommandBufferBeginInfo& beginInfo,CommandBuffer* buffer) = 0;
+
+        virtual void EndCommandBuffer(CommandBuffer* buffer) = 0;
+
+        virtual CommandBuffer* BeginOnceCommandSubmit() = 0;
+
+        virtual void EndOnceSubmit(CommandBuffer* buffer) = 0;
 
         virtual void FreeDescriptorSet(DescriptorSet* descriptorSet) = 0;
 
@@ -78,6 +96,8 @@ namespace Z {
 
         virtual void DestroyImage(Image* image, DeviceMemory* memory , ImageView* view = nullptr) = 0;
 
+        virtual void DestroyImageView(ImageView* view) = 0;
+
         virtual void DestroyBuffer(Buffer* buffer, DeviceMemory* memory) = 0;
 
         virtual void DestroyPipeline(Pipeline* pipeline)=0;
@@ -86,27 +106,47 @@ namespace Z {
 
         virtual void DestroyDescriptorSetLayout(DescriptorSetLayout* descriptorSetLayout)=0;
 
+        virtual void DestroyFence(Fence* fence) = 0;
+
+        virtual void DestroySemaphore(Semaphore* semaphore) = 0;
+
         virtual void BeginRenderPass(const RenderPassBeginInfo&info)=0;
+
+        virtual void BeginRenderPass(CommandBuffer* commandBuffer ,const RenderPassBeginInfo&info)=0;
 
         virtual void EndRenderPass()=0;
 
+        virtual void EndRenderPass(CommandBuffer* buffer)=0;
+
         virtual void BindPipeline(PipelineBindPoint bindPoint,Pipeline* pipeline)=0;
+
+        virtual void BindPipeline(CommandBuffer* buffer , PipelineBindPoint bindPoint, Pipeline* pipeline) = 0;
 
         virtual void SetViewPort(const Viewport& viewPort)=0;
 
+        virtual void SetViewPort(CommandBuffer* buffer,const Viewport& viewport) = 0;
+
         virtual void SetScissor(const Rect2D& scissor)=0;
 
+        virtual void SetScissor(CommandBuffer* buffer, const Rect2D& scissor) = 0;
+
         virtual void BindDescriptorSets(PipelineBindPoint bindPoint,PipelineLayout* layout,uint32 firstSet,const std::vector<DescriptorSet*>& descriptorSets)=0;
+
+        virtual void BindDescriptorSets(CommandBuffer* buffer,PipelineBindPoint bindPoint,PipelineLayout* layout,uint32 firstSet,const std::vector<DescriptorSet*>& descriptorSets)=0;
 
         virtual void BindDescriptorSet(PipelineBindPoint bindPoint,PipelineLayout* layout,DescriptorSet* set) = 0;
 
         virtual void PushConstant(PipelineLayout* layout,ShaderStageFlag stageFlags,uint32 offset,uint32 size,const void* data)=0;
+
+        virtual void PushConstant(CommandBuffer* buffer,PipelineLayout* layout,ShaderStageFlag stageFlags,uint32 offset,uint32 size,const void* data)=0;
 
         virtual void BindVertexBuffer(Buffer** buffer,uint32 firstBinding,uint32 bindingCount,uint32 offset=0)=0;
 
         virtual void BindIndexBuffer(Buffer* buffer,uint32 offset=0, IndexType indexType = IndexType::UINT32)=0;
 
         virtual void Draw(uint32 vertexCount,uint32 instanceCount,uint32 firstVertex,uint32 firstInstance)=0;
+
+        virtual void Draw(CommandBuffer* buffer,uint32 vertexCount,uint32 instanceCount,uint32 firstVertex,uint32 firstInstance)=0;
 
         virtual void DrawIndexed(uint32 indexCount,uint32 instanceCount,uint32 firstIndex,uint32 vertexOffset,uint32 firstInstance)=0;
 

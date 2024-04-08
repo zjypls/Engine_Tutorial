@@ -26,12 +26,6 @@ namespace Z
         context->DestroyBuffer(data.mvpMatrixBuffer,data.mvpMatrixBufferMemory);
         context->DestroyBuffer(data.modelTransBuffer,data.modelTransBufferMemory);
         context->DestroyBuffer(instance->lightRenderData.lightBuffer,instance->lightRenderData.bufferMemory);
-        delete data.mvpMatrixBuffer;
-        delete data.modelTransBuffer;
-        delete data.mvpMatrixBufferMemory;
-        delete data.modelTransBufferMemory;
-        delete instance->lightRenderData.lightBuffer;
-        delete instance->lightRenderData.bufferMemory;
         instance->clearSceneResources();
         context->DestroyDescriptorSetLayout(instance->boneDataLayout);
 

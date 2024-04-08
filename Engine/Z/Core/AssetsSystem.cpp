@@ -113,7 +113,7 @@ namespace Z {
 			Z_CORE_WARN("UID:{0},Type:{1},write to {2}!",id,typeSTR,pathOut);
 		}
 
-		static const std::set<std::string> TextureSheets{".png",".jpg",".jpeg",".bmp"};
+		static const std::set<std::string> TextureSheets{".png",".jpg",".jpeg",".bmp",".hdr"};
 		static const std::set<std::string> MeshSheets{".obj",".fbx",".dae",".pmx"};
 
 		Z::AssetsImporterType ExtensionGetType(const std::string&extension){
@@ -172,14 +172,23 @@ namespace Z {
 
 		void* LoadTexture2D(const std::string&path){
 			int width,height,format;
-			auto pixelData=stbi_load(path.c_str(),&width,&height,&format,STBI_rgb_alpha);
+            void* pixelData;
+            auto extension = path.substr(path.rfind('.'));
+            Z::Format imageFormat=Z::Format::R8G8B8A8_UNORM;
+            // to be improved
+            if(extension==".hdr") {
+                pixelData = stbi_loadf(path.c_str(), &width, &height, &format, STBI_rgb_alpha);
+                imageFormat=Z::Format::R32G32B32A32_SFLOAT;
+            }
+            else
+                pixelData=stbi_load(path.c_str(),&width,&height,&format,STBI_rgb_alpha);
 			if(!pixelData){
 				Z_CORE_ERROR("Failed to load image: path: {0} , message : {1}",path,stbi_failure_reason());
 				return nullptr;
 			}
 			auto texture=new Z::Texture2D();
 			Z::ImageInfo imageInfo{};
-			imageInfo.format=Z::Format::R8G8B8A8_UNORM;
+			imageInfo.format=imageFormat;
 			imageInfo.extent={static_cast<uint32>(width),static_cast<uint32>(height),1};
 			imageInfo.usageFlag=Z::ImageUsageFlag::SAMPLED|Z::ImageUsageFlag::TRANSFER_DST;
 			imageInfo.memoryPropertyFlag=Z::MemoryPropertyFlag::DEVICE_LOCAL;
@@ -192,6 +201,8 @@ namespace Z {
 			stbi_image_free(pixelData);
 			texture->path=path;
 			texture->type=AssetsImporterType::Texture2D;
+            texture->width=width;
+            texture->height=height;
 			return texture;
 		}
 
@@ -322,18 +333,12 @@ namespace Z {
 		void DestroySkyBox(void*skybox){
 			auto sky=static_cast<Z::Skybox*>(skybox);
 			s_Context->DestroyImage(sky->image,sky->memory,sky->imageView);
-			delete sky->image;
-			delete sky->imageView;
-			delete sky->memory;
 			delete sky;
 		}
 
 		void DestroyTexture2D(void*texture){
 			auto tex=static_cast<Z::Texture2D*>(texture);
 			s_Context->DestroyImage(tex->image,tex->memory,tex->imageView);
-			delete tex->image;
-			delete tex->imageView;
-			delete tex->memory;
 			delete tex;
 		}
 
@@ -345,13 +350,7 @@ namespace Z {
 			s_Context->DestroyBuffer(m->indexBuffer,m->indexMemory);
 			if(m->boneBuffer!=nullptr){
 				s_Context->DestroyBuffer(m->boneBuffer,m->boneMemory);
-				delete m->boneBuffer;
-				delete m->boneMemory;
 			}
-			delete[] m->vertexBuffer;
-			delete[] m->vertexMemory;
-			delete m->indexBuffer;
-			delete m->indexMemory;
 			delete m;
 		}
 

@@ -27,19 +27,28 @@ namespace Z {
         bool prepareBeforeRender(const std::function<void()>&funcCallAfterRecreateSwapChain) override;
         void SubmitTask(const std::function<void()>&funcCallAfterRecreateSwapChain) override;
         void WaitForFences() override;
+        void WaitForFences(Fence* fence) override;
         void DeviceWaiteIdle() override;
         void ResetCommandPool() override;
-        void BeginRenderPass(const RenderPassBeginInfo &info) override;
+        void BeginRenderPass(const RenderPassBeginInfo &info) override{ BeginRenderPass(commandBuffers[currentFrameIndex],info);}
+        void BeginRenderPass(CommandBuffer* commandBuffer ,const RenderPassBeginInfo &info) override{ BeginRenderPass(((VulkanCommandBuffer*)commandBuffer)->Get(),info);}
         void EndRenderPass() override;
+        void EndRenderPass(CommandBuffer* buffer) override;
         void BindPipeline(PipelineBindPoint,Pipeline *pipeline) override;
+        void BindPipeline(CommandBuffer* buffer , PipelineBindPoint bindPoint , Pipeline* pipeline)override;
         void BindDescriptorSets(PipelineBindPoint bindPoint, PipelineLayout *layout, uint32 firstSet, const std::vector<DescriptorSet*>&descriptorSets) override;
+        void BindDescriptorSets(CommandBuffer* buffer,PipelineBindPoint bindPoint, PipelineLayout *layout, uint32 firstSet, const std::vector<DescriptorSet*>&descriptorSets) override;
         void BindDescriptorSet(PipelineBindPoint bindPoint,PipelineLayout* layout,DescriptorSet* set)override;
         void PushConstant(PipelineLayout *layout, ShaderStageFlag stage, uint32 offset, uint32 size, const void *data) override;
+        void PushConstant(CommandBuffer* buffer,PipelineLayout *layout, ShaderStageFlag stage, uint32 offset, uint32 size, const void *data) override;
         void SetViewPort(const Viewport &viewport) override;
+        void SetViewPort(CommandBuffer* buffer , const Viewport& viewport)override;
         void SetScissor(const Rect2D &scissor) override;
+        void SetScissor(CommandBuffer* buffer , const Rect2D& scissor)override;
         void BindVertexBuffer(Buffer** buffers,uint32 firstBinding,uint32 bindingCount,uint32 offset) override;
         void BindIndexBuffer(Buffer* buffer,uint32 offset,IndexType indexType) override;
         void Draw(uint32 vertexCount, uint32 instanceCount, uint32 firstVertex, uint32 firstInstance) override;
+        void Draw(CommandBuffer* buffer,uint32 vertexCount, uint32 instanceCount, uint32 firstVertex, uint32 firstInstance) override;
         void DrawIndexed(uint32 indexCount, uint32 instanceCount, uint32 firstIndex, uint32 vertexOffset, uint32 firstInstance) override;
 
         //Resource create interface
@@ -57,9 +66,17 @@ namespace Z {
         std::vector<DescriptorSetInfo> CreateGraphicPipeline(const std::string &shaderSources, const std::vector<Z::ShaderStageFlag> &stageFlags,
                                  Pipeline *&graphicPipeline, RenderPassInterface *renderPassInterface,
                                  std::vector<DescriptorSetLayout*>&descriptorSetLayout,PipelineLayout*&pipelineLayout,
-                                 GraphicPipelineCreateInfo* createInfo) override;
+                                 GraphicPipelineCreateInfo* createInfo , bool insertInnerSetLayout) override;
         void CreateDescriptorSetLayout(const DescriptorSetLayoutCreateInfo &info, DescriptorSetLayout *&descriptorSetLayout) override;
+        void CreateFence(const FenceCreateInfo& info , Fence * &fence) override;
+        void CreateSemaphore(const SemaphoreCreateInfo& info , Semaphore *& semaphore) override ;
         void AllocateDescriptorSet(const DescriptorSetAllocateInfo &info, DescriptorSet *&descriptorSet) override;
+        void AllocateCommandBuffer(const CommandBufferAllocateInfo& info , CommandBuffer*& commandBuffer) override;
+        void FreeCommandBuffer(CommandBuffer* buffer) override;
+        void BeginCommandBuffer(const CommandBufferBeginInfo& info , CommandBuffer* buffer)override;
+        void EndCommandBuffer(CommandBuffer* buffer) override;
+        CommandBuffer* BeginOnceCommandSubmit()override;
+        void EndOnceSubmit(CommandBuffer* buffer)override;
         void FreeDescriptorSet(DescriptorSet *descriptorSet) override;
         void FreeDescriptorSet(void* descriptorSet)override;
         void WriteDescriptorSets(const WriteDescriptorSet *writes,uint32 writeCount) override;
@@ -73,6 +90,8 @@ namespace Z {
 
         void DestroyImage(Image *image, DeviceMemory *memory, ImageView *view) override;
 
+        void DestroyImageView(ImageView* view)override;
+
         void DestroyBuffer(Buffer *buffer, DeviceMemory *memory) override;
 
         void DestroyPipeline(Pipeline *pipeline) override;
@@ -80,6 +99,9 @@ namespace Z {
         void DestroyPipelineLayout(PipelineLayout *pipelineLayout) override;
 
         void DestroyDescriptorSetLayout(DescriptorSetLayout *descriptorSetLayout) override;
+
+        void DestroyFence(Fence* fence) override;
+        void DestroySemaphore(Semaphore* semaphore) override;
 
 
         auto GetInstance(){return instance;}
@@ -119,6 +141,8 @@ namespace Z {
         void ReCreateSwapChain();
 
         void InitInnerSetLayout();
+
+        static void BeginRenderPass(VkCommandBuffer buffer,const RenderPassBeginInfo& info);
 
         uint32 maxFlightFrames=0;
         VkInstance instance;

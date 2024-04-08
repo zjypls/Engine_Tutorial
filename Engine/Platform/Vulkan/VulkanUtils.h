@@ -362,10 +362,10 @@ namespace Z{
             return info;
         }
 
-        std::vector<VkDescriptorSetLayout> CreateDescriptorSetLayout(VkDevice device,const std::vector<DescriptorInfo>& info){
+        std::vector<VkDescriptorSetLayout> CreateDescriptorSetLayout(VkDevice device,const std::vector<DescriptorInfo>& info,uint32 innerSetCount=2){
             VkDescriptorSetLayoutCreateInfo createInfo{};
             std::vector<VkDescriptorSetLayout> layouts;
-            for(int i=2;i<info.size();++i){
+            for(int i=innerSetCount;i<info.size();++i){
                 createInfo.sType=VK_INFO(DESCRIPTOR_SET_LAYOUT,CREATE);
                 createInfo.bindingCount=info[i].bindings.size();
                 createInfo.pBindings=info[i].bindings.data();
