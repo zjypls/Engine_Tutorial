@@ -19,7 +19,7 @@
 namespace Z{
     namespace VulkanUtils{
 
-        const std::string ShaderIncludePath=Z_SOURCE_DIR"/Assets/Shaders/Common/";
+        const std::string ShaderIncludePath=Z_SOURCE_DIR"/Assets/Shaders/include/";
 
         namespace Tools{
             shaderc_shader_kind ShaderStageToShaderc(ShaderStageFlag stage){

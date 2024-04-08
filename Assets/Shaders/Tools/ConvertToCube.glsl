@@ -1,6 +1,6 @@
 #version 450 core
 
-
+#include "commonVal.glsl"
 #ifdef Z_VERTEX
 
 layout(push_constant) uniform TransIndex{
@@ -48,7 +48,7 @@ layout(location =0)in vec3 pos;
 
 layout(binding = 1)uniform sampler2D sourceTexture;
 
-const vec2 invAtan = vec2(0.1591, 0.3183);
+const vec2 invAtan = vec2(1/dPI, 1/PI);
 vec2 SampleSphericalMap(vec3 v)
 {
     vec2 uv = vec2(atan(v.z, v.x), asin(-v.y));
