@@ -208,7 +208,8 @@ namespace Z {
 			return texture;
 		}
 
-		void ProcessMesh(aiMesh* mesh,const aiScene* scene , Container<Vertex>& vertices , Container<VertexBlending>&blending ,Container<BoneData>&bones, std::vector<uint32>& indices){
+		void ProcessMesh(aiMesh* mesh,const aiScene* scene , Container<Vertex>& vertices , Container<VertexBlending>&blending ,
+                         std::map<std::string,BoneInfo>&bones, std::vector<uint32>& indices){
 			auto vertexNums=vertices.size();
 			vertices.resize(vertexNums+mesh->mNumVertices);
 			for (uint32_t i = 0; i < mesh->mNumVertices; i++) {
@@ -235,17 +236,26 @@ namespace Z {
 			}
 			blending.resize(vertexNums+mesh->mNumVertices);
 			auto boneNums=bones.size();
-			bones.resize(boneNums+mesh->mNumBones);
+            int32 index=0;
 			for (unsigned int i = 0; i < mesh->mNumBones; i++) {
 				aiBone* bone = mesh->mBones[i];
-				auto& boneData=bones[boneNums+i];
-				boneData.offsetTransform = glm::make_mat4(&bone->mOffsetMatrix.a1);
+                std::string boneName = bone->mName.C_Str();
+                auto id=boneNums + index;
+                if(bones.find(boneName)==bones.end()){
+                    BoneInfo boneInfo{};
+                    boneInfo.id=index+boneNums;
+                    boneInfo.offset= AssimpMatrixToGLM(bone->mOffsetMatrix);
+                    bones[boneName]=boneInfo;
+                    ++index;
+                }else{
+                    id=bones[boneName].id;
+                }
 				for (unsigned int j = 0; j < bone->mNumWeights; j++) {
 					aiVertexWeight weight = bone->mWeights[j];
 					auto& vertex = blending[weight.mVertexId+vertexNums];
 					for (int k = 0; k < 4; ++k) {
 						if (vertex.boneIndex[k] < 0) {
-							vertex.boneIndex[k] = i;  // bone index
+							vertex.boneIndex[k] = id;  // bone index
 							vertex.blending[k] = weight.mWeight;  // bone weight
 							break;
 						}
@@ -260,7 +270,8 @@ namespace Z {
 			}
 		}
 
-		void ProcessNode(aiNode *node, const aiScene *scene , Container<Vertex>& vertices , Container<VertexBlending>& blending , Container<BoneData>& bones, std::vector<uint32>& indices) {
+		void ProcessNode(aiNode *node, const aiScene *scene , Container<Vertex>& vertices , Container<VertexBlending>& blending ,
+                         std::map<std::string,BoneInfo>& bones, std::vector<uint32>& indices) {
 			for (uint32_t i = 0; i < node->mNumMeshes; i++) {
 				aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
 				ProcessMesh(mesh, scene, vertices , blending,bones, indices);
@@ -272,7 +283,8 @@ namespace Z {
 
 		void* LoadMesh(const std::string& path){
 			Assimp::Importer importer;
-			auto scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs|aiProcess_GenNormals);
+			auto scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs|
+                                        aiProcess_GenNormals|aiProcess_CalcTangentSpace);
 			if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 				Z_CORE_ERROR("Assimp error: {0}", importer.GetErrorString());
 				return nullptr;
@@ -282,9 +294,9 @@ namespace Z {
 			mesh->vertexMemory=new DeviceMemory*[mesh->vertexBufferCount];
 			Container<Vertex> vertices{};
 			Container<VertexBlending> blending{};
-			Container<BoneData> bones{};
+            std::map<std::string,BoneInfo> boneMap;
 			std::vector<uint32> indices{};
-			ProcessNode(scene->mRootNode, scene,vertices,blending,bones,indices);
+			ProcessNode(scene->mRootNode, scene,vertices,blending,boneMap,indices);
 			BufferInfo vertexBufferInfo{};
 			vertexBufferInfo.properties=MemoryPropertyFlag::DEVICE_LOCAL;
 			vertexBufferInfo.size=sizeof(Vertex)*vertices.size();
@@ -297,12 +309,14 @@ namespace Z {
 			indexBufferInfo.usage=BufferUsageFlag::INDEX_BUFFER;
 			indexBufferInfo.properties=MemoryPropertyFlag::DEVICE_LOCAL;
 			s_Context->CreateBuffer(indexBufferInfo,mesh->indexBuffer,mesh->indexMemory,indices.data());
-			if(!bones.empty()){
+			if(!boneMap.empty()){
+                mesh->animator=new Animator(scene,boneMap);
+                mesh->animator->Update(0);
 				BufferInfo boneBufferInfo{};
-				boneBufferInfo.size=sizeof(BoneData)*bones.size();
+				boneBufferInfo.size=sizeof(glm::mat4)*boneMap.size();
 				boneBufferInfo.usage=BufferUsageFlag::STORAGE_BUFFER;
-				s_Context->CreateBuffer(boneBufferInfo,mesh->boneBuffer,mesh->boneMemory,bones.data());
 				boneBufferInfo.properties=MemoryPropertyFlag::HOST_VISIBLE|MemoryPropertyFlag::HOST_COHERENT;
+				s_Context->CreateBuffer(boneBufferInfo,mesh->boneBuffer,mesh->boneMemory,mesh->animator->GetMatrices().data());
 			}
 			mesh->indicesCount=indices.size();
 			mesh->path=path;
@@ -352,6 +366,8 @@ namespace Z {
 			s_Context->DestroyBuffer(m->indexBuffer,m->indexMemory);
 			if(m->boneBuffer!=nullptr){
 				s_Context->DestroyBuffer(m->boneBuffer,m->boneMemory);
+                m->animator->Clear();
+                delete m->animator;
 			}
 			delete m;
 		}

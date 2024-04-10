@@ -543,15 +543,19 @@ namespace Z {
         
         CreateDescriptorSetLayout(layoutInfo, innerSetLayouts[0]);
 
-        DescriptorSetLayoutBinding lightDataSetBindingInfo{};
-        lightDataSetBindingInfo.binding=0;
-        lightDataSetBindingInfo.descriptorType=DescriptorType::UNIFORM_BUFFER;
-        lightDataSetBindingInfo.descriptorCount=1;
-        lightDataSetBindingInfo.stageFlags=ShaderStageFlag::FRAGMENT;
+        DescriptorSetLayoutBinding lightDataSetBindingInfo[2]{};
+        lightDataSetBindingInfo[0].binding=0;
+        lightDataSetBindingInfo[0].descriptorType=DescriptorType::UNIFORM_BUFFER;
+        lightDataSetBindingInfo[0].descriptorCount=1;
+        lightDataSetBindingInfo[0].stageFlags=ShaderStageFlag::FRAGMENT;
+        lightDataSetBindingInfo[1].binding=1;
+        lightDataSetBindingInfo[1].descriptorType=DescriptorType::COMBINED_IMAGE_SAMPLER;
+        lightDataSetBindingInfo[1].descriptorCount=1;
+        lightDataSetBindingInfo[1].stageFlags=ShaderStageFlag::FRAGMENT;
 
         DescriptorSetLayoutCreateInfo lightDataSetInfo{};
-        lightDataSetInfo.bindingCount=1;
-        lightDataSetInfo.pBindings=&lightDataSetBindingInfo;
+        lightDataSetInfo.bindingCount=2;
+        lightDataSetInfo.pBindings=lightDataSetBindingInfo;
 
         CreateDescriptorSetLayout(lightDataSetInfo,innerSetLayouts[1]);
     }
@@ -1464,6 +1468,34 @@ namespace Z {
         vkCmdCopyImageToBuffer(commandBuffer,((VulkanImage*)image)->Get(),(VkImageLayout)layout,((VulkanBuffer*)buffer)->Get(),
                                1,&copy);
         EndOnceSubmit(commandBuffer);
+    }
+
+    void VulkanGraphicInterface::SetImageLayout(Image* image , ImageLayout oldLayout , ImageLayout newLayout ,
+                                        PipelineStageFlags srcStage , PipelineStageFlags dstStage ,
+                                        bool useInnerRenderCommandBuffer , CommandBuffer* buffer ,
+                                        int baseLayer , int layerCount  , int baseMip  , int mipLevels , ImageAspectFlag aspectFlag ) {
+        bool onceSubmit = buffer== nullptr && !useInnerRenderCommandBuffer ;
+        VkCommandBuffer vkCommandBuffer;
+        if(useInnerRenderCommandBuffer)
+            vkCommandBuffer=commandBuffers[currentFrameIndex];
+        else if(onceSubmit){
+            vkCommandBuffer=BeginOnceSubmit();
+        }else{
+            vkCommandBuffer=((VulkanCommandBuffer*)buffer)->Get();
+        }
+        VkImageSubresourceRange subresourceRange{};
+        subresourceRange.aspectMask=(VkImageAspectFlags)aspectFlag;
+        subresourceRange.baseMipLevel=baseMip;
+        subresourceRange.levelCount=mipLevels;
+        subresourceRange.layerCount=layerCount;
+        subresourceRange.baseArrayLayer=baseLayer;
+        VulkanUtils::setImageLayout(vkCommandBuffer,((VulkanImage*)image)->Get(),
+                                    (VkImageLayout)oldLayout,(VkImageLayout)newLayout,subresourceRange,
+                                    (VkPipelineStageFlags)srcStage,(VkPipelineStageFlags)dstStage);
+        if(onceSubmit)
+            EndOnceSubmit(vkCommandBuffer);
+        else if(!useInnerRenderCommandBuffer)
+            EndOnceSubmit(buffer);
     }
 
     void VulkanGraphicInterface::CreateDefaultSampler() {

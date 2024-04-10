@@ -164,6 +164,12 @@ namespace Z {
                                        ImageAspectFlag aspectFlag = ImageAspectFlag::COLOR,
                                        uint32 baseLayer=0,uint32 layerCount=1,uint32 baseLevel = 0) = 0;
 
+        virtual void SetImageLayout( Image* image , ImageLayout oldLayout , ImageLayout newLayout ,
+                                     PipelineStageFlags srcStage,PipelineStageFlags dstStage ,
+                                     bool useCurrentRenderCommandBuffer = true , CommandBuffer* buffer = nullptr ,
+                                     int baseLayer = 0 , int layerCount = 1 , int baseMip = 0 , int mipLevels = 1 ,
+                                     ImageAspectFlag aspectFlag = ImageAspectFlag::COLOR) = 0;
+
         virtual void PipelineBarrier(PipelineStageFlags srcStageMask,PipelineStageFlags dstStageMask,DependencyFlags dependencyFlags,
                 uint32 memoryBarrierCount,const zMemoryBarrier* pMemoryBarriers,
                 uint32_t bufferMemoryBarrierCount,const BufferMemoryBarrier* pBufferMemoryBarriers,

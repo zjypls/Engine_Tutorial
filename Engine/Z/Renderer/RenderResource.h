@@ -29,10 +29,11 @@ namespace Z
         struct CameraTransformData{
             glm::mat4 view;
             glm::mat4 proj;
+            glm::vec3 cameraPos;
         };
         struct GoData{
             glm::mat4 modelTrans;
-            int32 goIndex;
+            glm::ivec4 goIndex;
         };
         struct WorldLightRenderData{
             Buffer* lightBuffer;

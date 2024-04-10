@@ -88,6 +88,11 @@ namespace Z {
         void CopyImageToBuffer(Image* image,Buffer* buffer,ImageLayout layout , const Rect2D& rect ,
                                 ImageAspectFlag aspectFlag,
                                 uint32 baseLayer ,uint32 layerCount , uint32 baseLevel ) override;
+        void SetImageLayout(Image* image , ImageLayout oldLayout , ImageLayout newLayout ,
+                                    PipelineStageFlags srcStage , PipelineStageFlags dstStage ,
+                                    bool useRenderCommandBuffer ,CommandBuffer* buffer ,
+                                    int baseLayer , int layerCount  , int baseMip  , int mipLevels ,
+                                    ImageAspectFlag aspectFlag ) override;
         void PipelineBarrier(PipelineStageFlags srcStageMask,PipelineStageFlags dstStageMask,DependencyFlags dependencyFlags,
                                     uint32 memoryBarrierCount,const zMemoryBarrier* pMemoryBarriers,
                                     uint32_t bufferMemoryBarrierCount,const BufferMemoryBarrier* pBufferMemoryBarriers,

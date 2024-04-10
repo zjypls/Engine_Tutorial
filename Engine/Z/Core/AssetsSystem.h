@@ -13,6 +13,7 @@
 #include "Z/Core/Log.h"
 #include "Z/Core/zGUID.h"
 #include "Z/Renderer/GraphicInterface.h"
+#include "Z/Renderer/Animation.h"
 
 
 namespace Z {
@@ -41,6 +42,7 @@ namespace Z {
 		DeviceMemory* indexMemory;
 		Buffer* boneBuffer;
 		DeviceMemory* boneMemory;
+        Animator* animator;
 		const uint32 vertexBufferCount=2;
 		uint32 indicesCount;
 	};

@@ -74,10 +74,11 @@ namespace Z {
 	void EditorLayer::OnUpdate() {
 
 		ScriptEngine::CheckLoad(scene);
-		static glm::mat4 data[2]{};
-		data[0]=editorCamera.GetViewMatrix();
-		data[1]=editorCamera.GetProjectionMatrix();
-		RenderResource::UpLoadData(data,sizeof(glm::mat4)*2,0,offsetof(RenderResource::CameraTransformData, view));
+        static RenderResource::CameraTransformData cameraData;
+        cameraData.view=editorCamera.GetViewMatrix();
+        cameraData.proj=editorCamera.GetProjectionMatrix();
+        cameraData.cameraPos=editorCamera.GetPosition();
+		RenderResource::UpLoadData(&cameraData);
 
 		{
 			SceneState state = sceneState;
@@ -386,6 +387,7 @@ namespace Z {
 		ImGui::Text("Current Frame Time: %.2f ms", dt);
 		ImGui::End();
 		ImGui::Begin("Settings");
+        ImGui::Text("Build Version : %s",BUILD_VERSION);
 		ImGui::Checkbox("Editor Visualize Collider", &EditorVisualizeCollider);
 		ImGui::Checkbox("RunTime Visualize Collider", &RunTimeVisualizeCollider);
 		ImGui::Text("Collider ActiveColor:");
@@ -394,7 +396,6 @@ namespace Z {
 		ImGui::DragFloat4("##Collider InActiveColor", glm::value_ptr(InactiveColor), 0.01f, 0.0f, 1.0f);
 		ImGui::Text("StepFrameCount:");
 		ImGui::DragInt("##StepFrameCount", &stepFrames, 1, 1, 100);
-        ImGui::Text("Build Version : %s",BUILD_VERSION);
 		ImGui::End();
 	}
 
@@ -421,7 +422,7 @@ namespace Z {
 			auto WinSize = ImGui::GetWindowSize();
 			auto MaxSize = WinSize + offset;
 			auto McursorPos = MaxSize - cursorPos;
-			CursorPos = glm::vec2{cursorPos.x - offset.x, McursorPos.y};
+			CursorPos = glm::vec2{cursorPos.x - offset.x,WinSize.y - McursorPos.y};
 		}
 		
         auto viewId=ImTextureID(RenderManager::GetViewportFrameBufferDescriptor());
