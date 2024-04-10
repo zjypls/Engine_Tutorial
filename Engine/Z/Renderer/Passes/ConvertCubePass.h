@@ -13,37 +13,40 @@
 namespace Z {
 
     struct ConvertCubePassInitInfo:public RenderPassInitInfo{
+        std::string toolShaderPath;
     };
 
-    class ConvertCubePass :public RenderPass{
+    class Z_API ConvertCubePass :public RenderPass{
     public:
-        void Init(RenderPassInitInfo* info)override;
+        virtual void Init(RenderPassInitInfo* info)override;
         void clear()override;
         void draw()override;
 
-        void SetArgs(const std::string& path);
+        virtual void SetArgs(const std::string& path);
 
-        Texture2D* GetSkybox(){
+        Texture2D* GetResult(){
             auto res = new Texture2D;
             res->image=cubeImage;
             res->imageView=cubeView;
             res->memory=cubeMemory;
+            res->width=width;
+            res->height=height;
+            res->path=sourcePath;
             return res;
         }
 
-    private:
-        void InitBuffer();
-        void InitRenderPass();
-        void InitFrameBuffer();
-        void InitPipeline();
-        void InitDescriptorSets();
-
-        void UpdateSourceImageSet();
-
-        void clearFrameBuffer();
+    protected:
+        virtual void InitBuffer();
+        virtual void InitRenderPass();
+        virtual void InitFrameBuffer();
+        virtual void InitPipeline();
+        virtual void InitDescriptorSets();
+        virtual void UpdateSourceImageSet();
+        virtual void clearFrameBuffer();
         
 
         uint32 width=0,height=0;
+        std::string shaderPath;
         std::string sourcePath;
         Image* cubeImage,*sourceImage;
         DeviceMemory* cubeMemory,*sourceImageMemory;

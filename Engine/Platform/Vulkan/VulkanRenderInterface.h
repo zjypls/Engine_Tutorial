@@ -49,15 +49,6 @@ namespace Z {
     };
 
 
-
-    struct QueueFamilyIndices
-    {
-        std::optional<uint32> graphics;
-        std::optional<uint32> present;
-        std::optional<uint32> compute;
-
-        bool isComplete() { return graphics.has_value() && present.has_value() && compute.has_value();}
-    };
     struct SwapChainSupportDetails
     {
         VkSurfaceCapabilitiesKHR        capabilities;

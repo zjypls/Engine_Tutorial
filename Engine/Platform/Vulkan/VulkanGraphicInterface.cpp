@@ -1,7 +1,7 @@
 //
 // Created by z on 24-1-18.
 //
-
+#include "vulkan/vk_enum_string_helper.h"
 #include "Z/Core/Application.h"
 #include "Z/Renderer/RenderResourceTypes.h"
 
@@ -214,7 +214,8 @@ namespace Z {
         submitInfo.pCommandBuffers=&buffer;
         auto queue=((VulkanQueue*)graphicsQueue)->Get();
         vkQueueSubmit(queue,1,&submitInfo,VK_NULL_HANDLE);
-        vkQueueWaitIdle(queue);
+        auto res = vkQueueWaitIdle(queue);
+        VK_CHECK(res, string_VkResult(res));
         vkFreeCommandBuffers(device,transientCommandPool,1,&buffer);
     }
 
@@ -678,6 +679,7 @@ namespace Z {
         {
             ReCreateSwapChain();
             funcCallAfterRecreateSwapChain();
+            return;
         }
         else if (VK_SUCCESS != res)
         {
@@ -1430,6 +1432,40 @@ namespace Z {
         vkUnmapMemory(device,((VulkanDeviceMemory*)memory)->Get());
     }
 
+    void VulkanGraphicInterface::CopyImageToBuffer(Z::Image *image, Z::Buffer *buffer, Z::ImageLayout layout,
+                                                   const Z::Rect2D &rect, ImageAspectFlag aspectFlag,
+                                                   uint32 baseLayer , uint32 layerCount,
+                                                   uint32 baseLevel) {
+        VkBufferImageCopy copy{};
+        copy.imageSubresource.layerCount=layerCount;
+        copy.imageSubresource.baseArrayLayer=baseLayer;
+        copy.imageSubresource.mipLevel=baseLevel;
+        copy.imageSubresource.aspectMask = (VkImageAspectFlags)aspectFlag;
+        copy.bufferImageHeight=rect.extent.height;
+        copy.bufferRowLength=0;
+        copy.imageExtent={rect.extent.width,rect.extent.height,1};
+        copy.imageOffset={rect.offset.x,rect.offset.y,0};
+        auto commandBuffer = BeginOnceSubmit();
+
+        ImageMemoryBarrier barrier{};
+        barrier.subresourceRange={ImageAspectFlag::COLOR,baseLevel,1,baseLayer,layerCount};
+        barrier.srcAccessMask = AccessFlags::COLOR_ATTACHMENT_WRITE;
+        barrier.dstAccessMask = AccessFlags::TRANSFER_READ;
+        barrier.srcQueueFamilyIndex=familyIndices.graphics.value();
+        barrier.dstQueueFamilyIndex=familyIndices.graphics.value();
+        barrier.image=image;
+        barrier.newLayout=ImageLayout::TRANSFER_SRC_OPTIMAL;
+        barrier.oldLayout=ImageLayout::TRANSFER_SRC_OPTIMAL;
+
+        PipelineBarrier(commandBuffer,PipelineStageFlags::ALL_COMMANDS,PipelineStageFlags::TRANSFER,
+                        DependencyFlags::BY_REGION,0,nullptr,0, nullptr,
+                        1,&barrier);
+
+        vkCmdCopyImageToBuffer(commandBuffer,((VulkanImage*)image)->Get(),(VkImageLayout)layout,((VulkanBuffer*)buffer)->Get(),
+                               1,&copy);
+        EndOnceSubmit(commandBuffer);
+    }
+
     void VulkanGraphicInterface::CreateDefaultSampler() {
         VkSamplerCreateInfo samplerInfo{};
         samplerInfo.sType=VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -1475,6 +1511,11 @@ namespace Z {
     void VulkanGraphicInterface::DrawIndexed(uint32 indexCount, uint32 instanceCount,
                                              uint32 firstIndex, uint32 vertexOffset, uint32 firstInstance) {
         vkCmdDrawIndexed(commandBuffers[currentFrameIndex],indexCount,instanceCount,firstIndex,vertexOffset,firstInstance);
+    }
+
+    void VulkanGraphicInterface::DrawIndexed(CommandBuffer* commandBuffer,uint32 indexCount, uint32 instanceCount,
+                                             uint32 firstIndex, uint32 vertexOffset, uint32 firstInstance) {
+        vkCmdDrawIndexed(((VulkanCommandBuffer*)commandBuffer)->Get(),indexCount,instanceCount,firstIndex,vertexOffset,firstInstance);
     }
 
     void
@@ -1543,8 +1584,22 @@ namespace Z {
         vkCmdBindVertexBuffers(commandBuffers[currentFrameIndex],firstBinding,bindingCount,vkBuffers.data(),offsets.data());
     }
 
+    void VulkanGraphicInterface::BindVertexBuffer(CommandBuffer* commandBuffer,Buffer ** buffers,uint32 firstBinding,uint32 bindingCount,uint32 offset){
+        std::vector<VkBuffer> vkBuffers(bindingCount);
+        std::vector<VkDeviceSize> offsets(bindingCount);
+        for(int i=0;i<bindingCount;++i) {
+            vkBuffers[i]=((VulkanBuffer*)buffers[i])->Get();
+            offsets[i]=offset;
+        }
+        vkCmdBindVertexBuffers(((VulkanCommandBuffer*)commandBuffer)->Get(),firstBinding,bindingCount,vkBuffers.data(),offsets.data());
+    }
+
     void VulkanGraphicInterface::BindIndexBuffer(Buffer *buffer,uint32 offset,IndexType indexType){
         vkCmdBindIndexBuffer(commandBuffers[currentFrameIndex],((VulkanBuffer*)buffer)->Get(),offset,(VkIndexType)indexType);
+    }
+
+    void VulkanGraphicInterface::BindIndexBuffer(CommandBuffer* commandBuffer,Buffer *buffer,uint32 offset,IndexType indexType){
+        vkCmdBindIndexBuffer(((VulkanCommandBuffer*)commandBuffer)->Get(),((VulkanBuffer*)buffer)->Get(),offset,(VkIndexType)indexType);
     }
 
     void
@@ -1691,6 +1746,55 @@ namespace Z {
     void VulkanGraphicInterface::EndOnceSubmit(CommandBuffer *buffer) {
         EndOnceSubmit(((VulkanCommandBuffer*)buffer)->Get());
         delete buffer;
+    }
+
+    void VulkanGraphicInterface::PipelineBarrier(VkCommandBuffer buffer, PipelineStageFlags srcStageMask,
+                                                 PipelineStageFlags dstStageMask, DependencyFlags dependencyFlags,
+                                                 uint32 memoryBarrierCount, const zMemoryBarrier *pMemoryBarriers,
+                                                 uint32_t bufferMemoryBarrierCount,
+                                                 const BufferMemoryBarrier *pBufferMemoryBarriers,
+                                                 uint32_t imageMemoryBarrierCount, const ImageMemoryBarrier *pImageBarrier) {
+        std::vector<VkBufferMemoryBarrier> bufferMemoryBarriers(bufferMemoryBarrierCount);
+        std::vector<VkImageMemoryBarrier> imageMemoryBarriers(imageMemoryBarrierCount);
+        std::vector<VkMemoryBarrier> memoryBarriers(memoryBarrierCount);
+
+        for(int i=0;i<bufferMemoryBarrierCount;++i){
+            auto& barrier = bufferMemoryBarriers[i];
+            auto& srcBarrier=pBufferMemoryBarriers[i];
+            barrier.buffer=((VulkanBuffer*)srcBarrier.buffer)->Get();
+            barrier.sType=VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+            barrier.size=srcBarrier.size;
+            barrier.offset=srcBarrier.offset;
+            barrier.dstAccessMask=(VkAccessFlags)srcBarrier.dstAccessMask;
+            barrier.srcAccessMask=(VkAccessFlags)srcBarrier.srcAccessMask;
+            barrier.dstQueueFamilyIndex=srcBarrier.dstQueueFamilyIndex;
+            barrier.srcQueueFamilyIndex=srcBarrier.srcQueueFamilyIndex;
+            barrier.pNext= nullptr;
+        }
+        for(int i=0;i<imageMemoryBarrierCount;++i){
+            auto& barrier = imageMemoryBarriers[i];
+            auto& srcBarrier = pImageBarrier[i];
+            barrier.sType=VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            barrier.subresourceRange=*(VkImageSubresourceRange*)&srcBarrier.subresourceRange;
+            barrier.srcAccessMask=(VkAccessFlags)srcBarrier.srcAccessMask;
+            barrier.dstAccessMask=(VkAccessFlags)srcBarrier.dstAccessMask;
+            barrier.srcQueueFamilyIndex=srcBarrier.srcQueueFamilyIndex;
+            barrier.dstQueueFamilyIndex=srcBarrier.dstQueueFamilyIndex;
+            barrier.image=((VulkanImage*)srcBarrier.image)->Get();
+            barrier.newLayout=(VkImageLayout)srcBarrier.newLayout;
+            barrier.oldLayout=(VkImageLayout)srcBarrier.oldLayout;
+        }
+        for(int i=0;i<memoryBarrierCount;++i){
+            auto& barrier = memoryBarriers[i];
+            auto& srcBarrier = pMemoryBarriers[i];
+            barrier.sType=VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            barrier.srcAccessMask=(VkAccessFlags)srcBarrier.srcAccessMask;
+            barrier.dstAccessMask=(VkAccessFlags)srcBarrier.dstAccessMask;
+        }
+        vkCmdPipelineBarrier(buffer,(VkPipelineStageFlags)srcStageMask,(VkPipelineStageFlags)dstStageMask,(VkDependencyFlags)dependencyFlags,
+                             memoryBarrierCount,memoryBarriers.data(),
+                             bufferMemoryBarrierCount,bufferMemoryBarriers.data(),
+                             imageMemoryBarrierCount,imageMemoryBarriers.data());
     }
 
 } // Z

@@ -100,6 +100,8 @@ namespace Z {
         static constexpr const char* DefaultNormalTexture=":/Inner/defaultNormalTexture";
         static constexpr const char* DefaultEmissionTexture=":/Inner/defaultEmissionTexture";
         static constexpr const char* DefaultSpecularTexture=":/Inner/defaultSpecularTexture";
+        static constexpr const char* DefaultMetallicTexture=":/Inner/defaultMetallicTexture";
+        static constexpr const char* DefaultRoughnessTexture=":/Inner/defaultRoughnessTexture";
 
 
 		inline static bool IsExisting(const std::string &path) {

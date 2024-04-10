@@ -41,6 +41,8 @@ namespace Z {
 
         static void Resize();
 
+        static glm::uvec2 GetViewportSize(){return renderPipeline->GetViewportSize();}
+
         // submit a task for update graphic resources after gpu render task finished
         // to avoid update resources when it is using that cause vulkan error
         static void SubmitResourceUpdateTask(const std::function<void()>&func){

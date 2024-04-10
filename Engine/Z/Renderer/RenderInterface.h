@@ -50,6 +50,7 @@ namespace Z {
 
 
     using ResourceSize=uint64;
+    using DeviceSize = ResourceSize;
 
 
     //same value as vulkan define
@@ -835,6 +836,14 @@ namespace Z {
         float    minDepth;
         float    maxDepth;
     } ;
+    struct QueueFamilyIndices
+    {
+        std::optional<uint32> graphics;
+        std::optional<uint32> present;
+        std::optional<uint32> compute;
+
+        bool isComplete() { return graphics.has_value() && present.has_value() && compute.has_value();}
+    };
     struct ImageInfo {
         uint32              arrayLayers,mipMapLevels;
         Extent3D            extent;
@@ -1169,6 +1178,32 @@ namespace Z {
         const void*                            pNext;
         CommandBufferUsageFlags                flags;
         const CommandBufferInheritanceInfo*    pInheritanceInfo;
+    } ;
+    struct zMemoryBarrier {
+        const void*      pNext;
+        AccessFlags      srcAccessMask;
+        AccessFlags      dstAccessMask;
+    } ;
+    struct BufferMemoryBarrier {
+        const void*       pNext;
+        AccessFlags       srcAccessMask;
+        AccessFlags       dstAccessMask;
+        uint32            srcQueueFamilyIndex;
+        uint32            dstQueueFamilyIndex;
+        Buffer*           buffer;
+        DeviceSize        offset;
+        DeviceSize        size;
+    } ;
+    struct ImageMemoryBarrier {
+        const void*              pNext;
+        AccessFlags              srcAccessMask;
+        AccessFlags              dstAccessMask;
+        ImageLayout              oldLayout;
+        ImageLayout              newLayout;
+        uint32                   srcQueueFamilyIndex;
+        uint32                   dstQueueFamilyIndex;
+        Image*                   image;
+        ImageSubresourceRange    subresourceRange;
     } ;
 }
 

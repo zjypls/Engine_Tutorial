@@ -26,7 +26,9 @@ namespace Z{
             {"diffuse",AssetsSystem::DefaultDiffusePath},
             {"normal",AssetsSystem::DefaultNormalTexture},
             {"emission",AssetsSystem::DefaultEmissionTexture},
-            {"specular",AssetsSystem::DefaultSpecularTexture}
+            {"specular",AssetsSystem::DefaultSpecularTexture},
+            {"metallic",AssetsSystem::DefaultMetallicTexture},
+            {"roughness",AssetsSystem::DefaultRoughnessTexture}
     };
 	template<typename T>
 	using Container=std::vector<T>;
@@ -494,6 +496,28 @@ namespace Z {
         instance->PathToUID[DefaultSpecularTexture]=specularID;
         instance->UIDToPath[specularID]=DefaultSpecularTexture;
         instance->resourceLibrary[specularID]=defaultSpecular;
+
+		auto defaultMetallic = new Texture2D;
+		uint8 metallicPixel[]={0};
+		imageInfo.format=Format::R8_UNORM;
+		instance->Context->CreateImage(imageInfo,defaultMetallic->image,defaultMetallic->memory,defaultMetallic->imageView,metallicPixel);
+
+		zGUID metallicID{};
+		defaultMetallic->path=DefaultMetallicTexture;
+		instance->PathToUID[DefaultMetallicTexture]=metallicID;
+		instance->UIDToPath[metallicID]=DefaultMetallicTexture;
+		instance->resourceLibrary[metallicID]=defaultMetallic;
+
+
+		auto defaultRoughness = new Texture2D;
+		uint8 roughnessPixel[]={0};
+		instance->Context->CreateImage(imageInfo,defaultRoughness->image,defaultRoughness->memory,defaultRoughness->imageView,roughnessPixel);
+
+		zGUID roughnessID{};
+		defaultRoughness->path=DefaultRoughnessTexture;
+		instance->PathToUID[DefaultRoughnessTexture]=roughnessID;
+		instance->UIDToPath[roughnessID]=DefaultRoughnessTexture;
+		instance->resourceLibrary[roughnessID]=defaultRoughness;
 
     }
 

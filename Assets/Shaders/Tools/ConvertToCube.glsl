@@ -51,7 +51,7 @@ layout(binding = 1)uniform sampler2D sourceTexture;
 const vec2 invAtan = vec2(1/dPI, 1/PI);
 vec2 SampleSphericalMap(vec3 v)
 {
-    vec2 uv = vec2(atan(v.z, v.x), asin(-v.y));
+    vec2 uv = vec2(atan(v.z, v.x), asin(-v.y));//fix the y positive axis direction
     uv *= invAtan;
     uv += 0.5;
     return uv;
@@ -60,9 +60,9 @@ vec2 SampleSphericalMap(vec3 v)
 void main()
 {
     vec2 uv = SampleSphericalMap(normalize(pos));
-    vec3 color = texture(sourceTexture, uv).rgb;
+    vec4 color = texture(sourceTexture, uv);
 
-    frag = vec4(color, 1.0);
+    frag = vec4(pow(color.xyz,vec3(1.0f/2.2f)), 1.0);
 }
 
 #endif

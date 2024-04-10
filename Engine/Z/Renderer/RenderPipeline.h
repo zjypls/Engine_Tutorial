@@ -36,6 +36,8 @@ namespace Z {
 
         void Resize();
 
+        glm::uvec2 GetViewportSize();
+
     protected:
         GraphicInterface* Context;
         Ref<RenderPass> mainCameraPass;

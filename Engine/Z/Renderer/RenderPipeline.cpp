@@ -30,11 +30,13 @@ namespace Z {
 
         auto toolInitInfo = ConvertCubePassInitInfo{};
         toolInitInfo.graphicInterface=Context;
+        toolInitInfo.toolShaderPath="Assets/Shaders/Tools/ConvertToCube.glsl";
         convertTool= CreateRef<ConvertCubePass>();
         convertTool->Init(&toolInitInfo);
         ((ConvertCubePass*)convertTool.get())->SetArgs("Assets/Textures/skybox/defaultSkybox/dusk/dusk_4K.hdr");
         convertTool->draw();
-        skybox=((ConvertCubePass*)convertTool.get())->GetSkybox();
+        skybox= ((ConvertCubePass *) convertTool.get())->GetResult();
+
 
         auto skyboxPassInitInfo=SkyboxPassInitInfo{};
         skyboxPassInitInfo.renderpass=mainCameraPassPtr->viewportRenderPass;
@@ -83,6 +85,7 @@ namespace Z {
     }
 
     void RenderPipeline::clear() {
+        Z_CORE_WARN("render pipeline clear !");
         Context->DestroyImage(skybox->image,skybox->memory,skybox->imageView);
         delete skybox;
         convertTool->clear();
@@ -102,5 +105,9 @@ namespace Z {
 
     void RenderPipeline::Resize() {
         mainCameraPass->Resize();
+    }
+
+    glm::uvec2 RenderPipeline::GetViewportSize() {
+        return ((MainCameraPass*)mainCameraPass.get())->viewPortSize;
     }
 } // Z

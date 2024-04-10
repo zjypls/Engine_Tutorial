@@ -7,7 +7,10 @@
 
 namespace Z {
     void ConvertCubePass::Init(RenderPassInitInfo *info) {
+        auto toolInfo=(ConvertCubePassInitInfo*)info;
+        Z_CORE_ASSERT(!toolInfo->toolShaderPath.empty(),"Init shader with empty path !");
         Context=info->graphicInterface;
+        shaderPath=toolInfo->toolShaderPath;
         InitBuffer();
         InitRenderPass();
         InitPipeline();
@@ -58,38 +61,11 @@ namespace Z {
         renderPassCreateInfo.pSubpasses=&subpassDescription;
 
         Context->CreateRenderPass(renderPassCreateInfo,framebuffer.renderPass);
-
-
-
-//
-//        DescriptorSetLayoutBinding bindings[2];
-//        bindings[0].binding=0;
-//        bindings[0].stageFlags=ShaderStageFlag::VERTEX;
-//        bindings[0].descriptorCount=1;
-//        bindings[0].descriptorType=DescriptorType::STORAGE_BUFFER;
-//        bindings[1].binding=1;
-//        bindings[1].stageFlags=ShaderStageFlag::FRAGMENT;
-//        bindings[1].descriptorCount=1;
-//        bindings[1].descriptorType=DescriptorType::COMBINED_IMAGE_SAMPLER;
-//
-//        DescriptorSetLayoutCreateInfo layoutCreateInfo{};
-//        layoutCreateInfo.bindingCount=2;
-//        layoutCreateInfo.pBindings=bindings;
-//
-//        Context->CreateDescriptorSetLayout(layoutCreateInfo,descriptors[0].layout);
-//
-//        PipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
-//        pipelineLayoutCreateInfo.pushConstantRangeCount=0;
-//        pipelineLayoutCreateInfo.pSetLayouts=&descriptors[0].layout;
-//        pipelineLayoutCreateInfo.setLayoutCount=1;
-//        pipelineLayoutCreateInfo.pPushConstantRanges= nullptr;
-//
-//        Context->CreatePipelineLayout(pipelineLayoutCreateInfo,renderPipelines[0].layout);
     }
 
     void ConvertCubePass::InitPipeline() {
         renderPipelines.resize(1);
-        auto shaderRes = AssetsSystem::Load<ShaderRes>("Assets/Shaders/Tools/ConvertToCube.glsl");
+        auto shaderRes = AssetsSystem::Load<ShaderRes>(shaderPath);
         std::vector<DescriptorSetLayout*> layouts;
         Context->CreateGraphicPipeline(shaderRes->source,shaderRes->stages,renderPipelines[0].pipeline,framebuffer.renderPass,
                                        layouts,renderPipelines[0].layout,nullptr, false);

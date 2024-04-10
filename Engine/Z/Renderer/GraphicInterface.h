@@ -144,21 +144,43 @@ namespace Z {
 
         virtual void BindIndexBuffer(Buffer* buffer,uint32 offset=0, IndexType indexType = IndexType::UINT32)=0;
 
+        virtual void BindVertexBuffer(CommandBuffer* commandBuffer,Buffer** buffer,uint32 firstBinding,uint32 bindingCount,uint32 offset=0)=0;
+
+        virtual void BindIndexBuffer(CommandBuffer* commandBuffer,Buffer* buffer,uint32 offset=0, IndexType indexType = IndexType::UINT32)=0;
+
         virtual void Draw(uint32 vertexCount,uint32 instanceCount,uint32 firstVertex,uint32 firstInstance)=0;
 
         virtual void Draw(CommandBuffer* buffer,uint32 vertexCount,uint32 instanceCount,uint32 firstVertex,uint32 firstInstance)=0;
 
         virtual void DrawIndexed(uint32 indexCount,uint32 instanceCount,uint32 firstIndex,uint32 vertexOffset,uint32 firstInstance)=0;
 
+        virtual void DrawIndexed(CommandBuffer* commandBuffer,uint32 indexCount,uint32 instanceCount,uint32 firstIndex,uint32 vertexOffset,uint32 firstInstance)=0;
+
         virtual void MapMemory(DeviceMemory* memory, uint64 offset, uint64 size, void*& data)=0;
 
         virtual void UnMapMemory(DeviceMemory* memory)=0;
+
+        virtual void CopyImageToBuffer(Image* image,Buffer* buffer , ImageLayout layout , const Rect2D& rect ,
+                                       ImageAspectFlag aspectFlag = ImageAspectFlag::COLOR,
+                                       uint32 baseLayer=0,uint32 layerCount=1,uint32 baseLevel = 0) = 0;
+
+        virtual void PipelineBarrier(PipelineStageFlags srcStageMask,PipelineStageFlags dstStageMask,DependencyFlags dependencyFlags,
+                uint32 memoryBarrierCount,const zMemoryBarrier* pMemoryBarriers,
+                uint32_t bufferMemoryBarrierCount,const BufferMemoryBarrier* pBufferMemoryBarriers,
+                uint32_t imageMemoryBarrierCount,const ImageMemoryBarrier* barrier) = 0;
+
+        virtual void PipelineBarrier(CommandBuffer* buffer,PipelineStageFlags srcStageMask,PipelineStageFlags dstStageMask,DependencyFlags dependencyFlags,
+                                     uint32 memoryBarrierCount,const zMemoryBarrier* pMemoryBarriers,
+                                     uint32_t bufferMemoryBarrierCount,const BufferMemoryBarrier* pBufferMemoryBarriers,
+                                     uint32_t imageMemoryBarrierCount,const ImageMemoryBarrier* barrier) = 0;
 
         virtual const SwapChainInfo& GetSwapChainInfo()=0;
 
         virtual uint32 GetCurrentFrameIndex()=0;
 
         virtual uint32 GetMaxFramesInFlight()=0;
+
+        virtual QueueFamilyIndices& GetQueueFamilyIndices() = 0;
 
         virtual std::vector<DescriptorSetLayout*>& GetInnerDescriptorSetLayout()=0;
     };

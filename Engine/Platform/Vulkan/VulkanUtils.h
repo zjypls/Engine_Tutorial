@@ -70,14 +70,6 @@ namespace Z{
             std::vector<uint32> ReadFile(const std::string& path){
                 auto res=ReadFileString(path);
                 return {res.begin(),res.end()};
-                std::ifstream file(path,std::ios::ate|std::ios::binary);
-                Z_CORE_ASSERT(file.is_open(),"error: failed to open file !");
-                size_t size=static_cast<size_t>(file.tellg());
-                std::vector<uint32> buffer(size/sizeof(uint32));
-                file.seekg(0);
-                file.read(reinterpret_cast<char*>(buffer.data()),size);
-                file.close();
-                return buffer;
             }
 
             class MyIncluder : public shaderc::CompileOptions::IncluderInterface {
@@ -265,6 +257,10 @@ namespace Z{
                     return 3;
                 case VK_FORMAT_R8G8B8_SINT:
                     return 3;
+                case VK_FORMAT_R8_SINT:
+                case VK_FORMAT_R8_SNORM:
+                case VK_FORMAT_R8_UNORM:
+                    return 1;
                 default:
                     Z_CORE_ERROR("error: unknown format !");
                     return 0;

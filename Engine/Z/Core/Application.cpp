@@ -48,13 +48,13 @@ namespace Z {
 	void Application::Run() {
 		while (Running) {
 			Time::Update();
+            RenderResource::Update(Time::DeltaTime());
+            RenderManager::Update(Time::DeltaTime());
 			if (!MinSize) {
 				for (Layer *layer: LayerStack) {
 					layer->OnUpdate();
 				}
 			}
-            RenderResource::Update(Time::DeltaTime());
-			RenderManager::Update(Time::DeltaTime());
 
 			for (auto &func: FuncQueue) {
 				func();

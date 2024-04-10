@@ -47,9 +47,12 @@ namespace Z {
         void SetScissor(CommandBuffer* buffer , const Rect2D& scissor)override;
         void BindVertexBuffer(Buffer** buffers,uint32 firstBinding,uint32 bindingCount,uint32 offset) override;
         void BindIndexBuffer(Buffer* buffer,uint32 offset,IndexType indexType) override;
+        void BindVertexBuffer(CommandBuffer* commandBuffer,Buffer** buffers,uint32 firstBinding,uint32 bindingCount,uint32 offset) override;
+        void BindIndexBuffer(CommandBuffer* commandBuffer,Buffer* buffer,uint32 offset,IndexType indexType) override;
         void Draw(uint32 vertexCount, uint32 instanceCount, uint32 firstVertex, uint32 firstInstance) override;
         void Draw(CommandBuffer* buffer,uint32 vertexCount, uint32 instanceCount, uint32 firstVertex, uint32 firstInstance) override;
         void DrawIndexed(uint32 indexCount, uint32 instanceCount, uint32 firstIndex, uint32 vertexOffset, uint32 firstInstance) override;
+        void DrawIndexed(CommandBuffer* commandBuffer,uint32 indexCount, uint32 instanceCount, uint32 firstIndex, uint32 vertexOffset, uint32 firstInstance) override;
 
         //Resource create interface
         void CreateImage(const ImageInfo& info,Image*& image,DeviceMemory*& memory)override;
@@ -82,6 +85,23 @@ namespace Z {
         void WriteDescriptorSets(const WriteDescriptorSet *writes,uint32 writeCount) override;
         void MapMemory(DeviceMemory *memory, uint64 offset, uint64 size, void *&data) override;
         void UnMapMemory(DeviceMemory *memory) override;
+        void CopyImageToBuffer(Image* image,Buffer* buffer,ImageLayout layout , const Rect2D& rect ,
+                                ImageAspectFlag aspectFlag,
+                                uint32 baseLayer ,uint32 layerCount , uint32 baseLevel ) override;
+        void PipelineBarrier(PipelineStageFlags srcStageMask,PipelineStageFlags dstStageMask,DependencyFlags dependencyFlags,
+                                    uint32 memoryBarrierCount,const zMemoryBarrier* pMemoryBarriers,
+                                    uint32_t bufferMemoryBarrierCount,const BufferMemoryBarrier* pBufferMemoryBarriers,
+                                    uint32_t imageMemoryBarrierCount,const ImageMemoryBarrier* barrier) override{
+            PipelineBarrier(commandBuffers[currentFrameIndex],srcStageMask,dstStageMask,dependencyFlags,memoryBarrierCount,pMemoryBarriers,bufferMemoryBarrierCount,pBufferMemoryBarriers,
+                            imageMemoryBarrierCount,barrier);
+        }
+        void PipelineBarrier(CommandBuffer* buffer,PipelineStageFlags srcStageMask,PipelineStageFlags dstStageMask,DependencyFlags dependencyFlags,
+                             uint32 memoryBarrierCount,const zMemoryBarrier* pMemoryBarriers,
+                             uint32_t bufferMemoryBarrierCount,const BufferMemoryBarrier* pBufferMemoryBarriers,
+                             uint32_t imageMemoryBarrierCount,const ImageMemoryBarrier* barrier) override{
+            PipelineBarrier(((VulkanCommandBuffer*)buffer)->Get(),srcStageMask,dstStageMask,dependencyFlags,memoryBarrierCount,pMemoryBarriers,bufferMemoryBarrierCount,pBufferMemoryBarriers,
+                            imageMemoryBarrierCount,barrier);
+        }
         Sampler* GetDefaultSampler(SamplerType samplerType) override;
         void DestroyRenderPass(RenderPassInterface *renderPassInterface) override;
         std::vector<Z::Framebuffer*> CreateDefaultFrameBuffers(RenderPassInterface *renderPassInterface) override;
@@ -109,7 +129,7 @@ namespace Z {
         auto GetDevice(){return device;}
         auto GetDescriptorPool(){return descriptorPool;}
         auto GetGraphicQueue(){return graphicsQueue;}
-        auto GetQueueFamily(){return familyIndices;}
+        QueueFamilyIndices& GetQueueFamilyIndices() override{return familyIndices;}
         const SwapChainInfo& GetSwapChainInfo()override{return swapChainInfo;}
         uint32 GetCurrentFrameIndex() override{return currentFrameIndex;}
         uint32 GetMaxFramesInFlight() override {return maxFlightFrames;}
@@ -121,7 +141,10 @@ namespace Z {
         void EndOnceSubmit(VkCommandBuffer buffer);
     private:
 
-
+        void PipelineBarrier(VkCommandBuffer buffer,PipelineStageFlags srcStageMask,PipelineStageFlags dstStageMask,DependencyFlags dependencyFlags,
+                             uint32 memoryBarrierCount,const zMemoryBarrier* pMemoryBarriers,
+                             uint32_t bufferMemoryBarrierCount,const BufferMemoryBarrier* pBufferMemoryBarriers,
+                             uint32_t imageMemoryBarrierCount,const ImageMemoryBarrier* barrier) ;
         void CreateInstance();
         void initializeDebugMessenger();
         void CreateWindowSurface();

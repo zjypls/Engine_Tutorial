@@ -49,8 +49,7 @@ layout(location=0)in InData data;
 layout(set=1,binding =0 )uniform samplerCube skybox;
 
 void main(){
-    vec4 skyColor=texture(skybox,data.dir);
-    color=vec4(skyColor.xyz,1);//vec4(texture(skybox,data.dir).rgb,1);
+    color=vec4(texture(skybox,data.dir).rgb,1);
     index=-1;
 }
 #endif
