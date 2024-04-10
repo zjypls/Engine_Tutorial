@@ -36,6 +36,10 @@ namespace Z {
         scene = CreateRef<Scene>();
 
 		RenderResource::RegisterContext(scene);
+
+		auto sphere=scene->CreateEntity("sphere");
+		sphere.AddComponent<MeshFilterComponent>("Assets/Basic/Models/sphere.obj");
+		sphere.AddComponent<MeshRendererComponent>("Assets/Shaders/PBR-noVertexBlending.glsl");
 		RenderResource::UpdateAllData();
 
 		selfDefLayoutStr=ImGui::SaveIniSettingsToMemory();
