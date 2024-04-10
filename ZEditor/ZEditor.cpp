@@ -34,6 +34,10 @@ namespace Z {
 
     void EditorLayer::OnAttach() {
         scene = CreateRef<Scene>();
+
+		RenderResource::RegisterContext(scene);
+		RenderResource::UpdateAllData();
+
 		selfDefLayoutStr=ImGui::SaveIniSettingsToMemory();
 		auto [viewWidth,viewHeight]=Utils::GetWindowSizeFromIniConfig(selfDefLayoutStr,"ViewPort");
 		Z_CORE_ASSERT(viewWidth!=0&&viewHeight!=0,"Viewport size not found in config file or illegal value!");
@@ -60,6 +64,9 @@ namespace Z {
 		//Todo:change this to a better way
 		ScriptEngine::LoadAssembly("bin/scripts.dll");
 		ScriptEngine::RegisterFileWatch();
+
+        RenderResource::WorldLightData data{{1,1,0,1},{0,1,1,1}};
+        RenderResource::UpdateLightData(&data);
 
 		RenderManager::PushUIContents(this);
 	}
@@ -106,12 +113,17 @@ namespace Z {
 			}
 			OnDebugShow();
 		}
+        static bool releaseRightMouseButton = true;
+        if(!Input::IsMouseButtonPressed(MouseCode::ButtonLeft))releaseRightMouseButton=true;
 		if (selectedEntity = sceneHierarchyPlane->GetSelectedEntity();
 				(sceneState == SceneState::Edit && IsViewportFocused && IsViewportHovered && !ImGuizmo::IsOver()) &&
 				((selectedEntity && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) ||
 				 (!selectedEntity && Input::IsMouseButtonPressed(MouseCode::ButtonLeft)))) {
-            int value=-1;
-			selectedEntity = sceneHierarchyPlane->SetSelectedEntity(value);
+            if(releaseRightMouseButton)
+                RenderManager::PickGO(CursorPos.x,CursorPos.y,[&](int id){
+                selectedEntity=sceneHierarchyPlane->SetSelectedEntity(id);
+                releaseRightMouseButton= false;
+            });
 		}
 		if ((sceneState != SceneState::Play) && selectedEntity && selectedEntity.HasComponent<CameraComponent>()) {
 			scene->OnPreviewUpdate(Time::DeltaTime(), selectedEntity.GetComponent<CameraComponent>().camera,
@@ -388,6 +400,13 @@ namespace Z {
 		ImGui::End();
 		ImGui::Begin("Settings");
         ImGui::Text("Build Version : %s",BUILD_VERSION);
+        static RenderResource::WorldLightData worldLightData{{1,1,1,1},{1,1,1,1}};
+        static bool change =false;
+        ImGui::Text("world light radiance:");
+        change = ImGui::DragFloat4("##world_light_radiance",(float*)&worldLightData);
+        ImGui::Text("world light position:");
+        change |= ImGui::DragFloat4("##world_light_position",(float*)&worldLightData.position);
+        if(change) RenderResource::UpdateLightData(&worldLightData);
 		ImGui::Checkbox("Editor Visualize Collider", &EditorVisualizeCollider);
 		ImGui::Checkbox("RunTime Visualize Collider", &RunTimeVisualizeCollider);
 		ImGui::Text("Collider ActiveColor:");
@@ -495,6 +514,7 @@ namespace Z {
 			if (ImGuizmo::IsUsing()) {
 				static glm::quat BefRotation;
 				static glm::vec3 BefTranslation, BefScale;
+				auto id=selectedEntity.GetComponent<IDComponent>();
 				if (SavePreTrans == 1) {
 					//Save transform
 					BefRotation = selectTransform.rotation;
@@ -506,6 +526,7 @@ namespace Z {
 					selectTransform.translation = BefTranslation;
 					selectTransform.rotation = glm::eulerAngles(BefRotation);
 					selectTransform.scale = BefScale;
+					RenderResource::UpdateModelTransform(selectTransform.GetTransform(),id.ID);
 					SavePreTrans = -1;
 				} else if (SavePreTrans == 0) {
 					//decompose and apply transform with transform gizmos
@@ -516,6 +537,7 @@ namespace Z {
 					selectTransform.translation = translation;
 					selectTransform.rotation = (glm::eulerAngles(rotation));
 					selectTransform.scale = scale;
+					RenderResource::UpdateModelTransform(selectTransform.GetTransform(),id.ID);
 				}
 			}else if (SavePreTrans!=1) {
 				//Set gizmos enable
@@ -622,7 +644,13 @@ namespace Z {
         if(Project::Init(path)){
             AssetsSystem::InitWithProject(Project::GetProjectRootDir());
             LoadScene(Project::GetProjectRootDir()/Project::GetStartScene());
-            contentBrowser->SetWorkPath(Project::GetProjectRootDir().string());
+			
+
+            Application::Get().SubmitFunc([&]{
+                RenderResource::RegisterContext(scene);
+                RenderResource::UpdateAllData();
+                contentBrowser->SetWorkPath(Project::GetProjectRootDir().string());
+            });
         	if(const auto&configuration=Project::GetEditorLayoutConfiguration();!configuration.empty()) {
         		this->selfDefLayout=true;
         		selfDefLayoutFilePath=configuration.string();

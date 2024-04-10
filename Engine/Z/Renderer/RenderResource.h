@@ -54,8 +54,25 @@ namespace Z
         static auto& GetInnerSetLayouts(){return instance->innerSetLayouts;}
         static DescriptorSet* GetInnerDescriptorSet(uint32 index){return instance->innerDescriptorSets[index];}
         static auto& GetInnerDescriptorSets(){return instance->innerDescriptorSets;}
+        static void UpdateModelTransform(const glm::mat4& data,zGUID id);
+
+        static void RegisterContext(Ref<Scene> context){
+            instance->clearSceneResources();
+            instance->context=context;
+            instance->UpdateAllData();
+        }
+        static auto GetContext(){return instance->context;}
+        static auto& GetGOIndexMap(){return instance->goIndexMap;}
+        static auto& GetMaterialMap(){return instance->materialMeshMap;}
+        static auto& GetGODescriptorMap(){return instance->goDescriptorSetMap;}
+
+        static void UpdateAllData();
 
         static void Update(float deltaTime);
+
+        static void RemoveMesh(zGUID id,const std::string& meshPath,const std::string& matPath);
+
+        static void SetIrradianceMap(ImageView* view);
 
     private:
         static const uint16 maxTransMat=100;
@@ -72,10 +89,14 @@ namespace Z
 
         CameraRenderData cameraRenderData;
         WorldLightRenderData lightRenderData;
-        // set layout in bind 0
+        // inner set layout
         std::vector<DescriptorSetLayout*> innerSetLayouts;
         DescriptorSetLayout* boneDataLayout;
         std::vector<DescriptorSet*> innerDescriptorSets;
+
+        std::unordered_map<zGUID,uint32> goIndexMap;
+        std::unordered_map<std::string,std::unordered_map<zGUID,std::string>> materialMeshMap;
+        std::unordered_map<zGUID,std::vector<DescriptorSet*>> goDescriptorSetMap;
         GoData goDataBuffer[maxTransMat];
     };
 

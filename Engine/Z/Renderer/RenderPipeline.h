@@ -38,12 +38,19 @@ namespace Z {
 
         glm::uvec2 GetViewportSize();
 
+        Ref<RenderPass> LoadPass(const std::string& path);
+
+        int PickGO(int x, int y);
+
+        Ref<RenderPass> genShader;
     protected:
         GraphicInterface* Context;
         Ref<RenderPass> mainCameraPass;
         Ref<RenderPass> uiPass;
         Ref<RenderPass> skyboxPass;
         Ref<RenderPass> convertTool;
+        Ref<RenderPass> pickPass;
+        std::unordered_map<std::string,Ref<RenderPass>> generalPassMap;
         Texture2D* skybox;
     };
 

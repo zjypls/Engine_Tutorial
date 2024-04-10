@@ -124,13 +124,167 @@ namespace Z
         graphicContext->WriteDescriptorSets(&lightSetWrite,1);
     }
 
+    void RenderResource::UpdateModelTransform(const glm::mat4 &data, zGUID id) {
+        auto it=instance->goIndexMap.find(id);
+        if(it==instance->goIndexMap.end())return;
+        instance->goDataBuffer[it->second].modelTrans=data;
+    }
+
+    void RenderResource::UpdateAllData() {
+        int index=0;
+        instance->context->GetComponentView<MeshFilterComponent>().each([&](auto id,auto& meshFilter){
+            Entity entity(id,instance->context.get());
+            if(!entity.HasComponent<MeshRendererComponent>())return;
+            const auto& uidComponent=entity.GetComponent<IDComponent>();
+            const auto& meshRenderer= entity.GetComponent<MeshRendererComponent>();
+            auto pass = RenderManager::GetPass(meshRenderer.materialPath);
+            Z_CORE_ASSERT(pass,"Unknown error when loading render pass !");
+
+            instance->materialMeshMap[meshRenderer.materialPath][uidComponent.ID]=meshFilter.meshPath;
+            instance->goIndexMap[uidComponent.ID]=index;
+            auto transform=entity.GetComponent<TransformComponent>();
+            instance->goDataBuffer[index].modelTrans=transform.GetTransform();
+            instance->goDataBuffer[index].goIndex.x=(uint32)id;
+            ++index;
+            auto meshRes=AssetsSystem::Load<MeshRes>(meshFilter.meshPath);
+            auto destVec=instance->goDescriptorSetMap.find(uidComponent.ID);
+            int offset=1;
+            if(meshRes->animator && (!(destVec!=instance->goDescriptorSetMap.end() && !destVec->second.empty()) ||
+                destVec->second[RenderManager::BoneNodeTransformSet-RenderManager::WorldLightDataSet-1]==nullptr)){
+                DescriptorSet* set;
+                DescriptorSetAllocateInfo allocateInfo{};
+                allocateInfo.descriptorPool=nullptr;
+                allocateInfo.descriptorSetCount=1;
+                allocateInfo.pSetLayouts=instance->boneDataLayout;
+                instance->graphicContext->AllocateDescriptorSet(allocateInfo,set);
+                auto bufferSize=meshRes->animator->GetMatrices().size()*sizeof(glm::mat4);
+                DescriptorBufferInfo bufferInfo{};
+                bufferInfo.buffer=meshRes->boneBuffer;
+                bufferInfo.offset=0;
+                bufferInfo.range=bufferSize;
+
+                WriteDescriptorSet writeSet{};
+                writeSet.descriptorCount=1;
+                writeSet.dstBinding=0;
+                writeSet.dstArrayElement=0;
+                writeSet.descriptorType=DescriptorType::STORAGE_BUFFER;
+                writeSet.dstSet=set;
+                writeSet.pBufferInfo=&bufferInfo;
+
+                instance->graphicContext->WriteDescriptorSets(&writeSet,1);
+                if(destVec==instance->goDescriptorSetMap.end()||destVec->second.empty())
+                    instance->goDescriptorSetMap[uidComponent.ID].push_back(set);
+                else
+                    destVec->second[RenderManager::BoneNodeTransformSet-RenderManager::WorldLightDataSet-1]=set;
+                offset=0;
+            }
+
+            destVec=instance->goDescriptorSetMap.find(uidComponent.ID);
+            if(destVec!=instance->goDescriptorSetMap.end()&&destVec->second.size()>=RenderManager::MaterialTextureSet-1-offset)return;
+
+            DescriptorSetAllocateInfo allocateInfo{};
+            allocateInfo.pSetLayouts=pass->GetSetLayout(RenderManager::MaterialTextureSet-offset);
+            allocateInfo.descriptorPool= nullptr;
+            allocateInfo.descriptorSetCount=1;
+
+            DescriptorSet* set;
+            instance->graphicContext->AllocateDescriptorSet(allocateInfo,set);
+            const auto sampler=instance->graphicContext->GetDefaultSampler(SamplerType::Linear);
+
+            auto& setInfo = pass->GetPassSetInfo()[RenderManager::MaterialTextureSet-offset];
+
+            for(int i=0;i<setInfo.bindings.size();++i){
+                DescriptorImageInfo imageInfo{};
+                imageInfo.imageView=AssetsSystem::GetDefaultTexture(setInfo.bindings[i].name)->imageView;
+                imageInfo.imageLayout=ImageLayout::SHADER_READ_ONLY_OPTIMAL;
+                imageInfo.sampler=sampler;
+                WriteDescriptorSet writeDescriptorSet{};
+                writeDescriptorSet.dstBinding=i;
+                writeDescriptorSet.dstSet=set;
+                writeDescriptorSet.descriptorType=DescriptorType::COMBINED_IMAGE_SAMPLER;
+                writeDescriptorSet.descriptorCount=1;
+                writeDescriptorSet.pImageInfo=&imageInfo;
+                writeDescriptorSet.pBufferInfo= nullptr;
+                writeDescriptorSet.pTexelBufferView= nullptr;
+                writeDescriptorSet.dstArrayElement=0;
+                instance->graphicContext->WriteDescriptorSets(&writeDescriptorSet,1);
+            }
+            instance->goDescriptorSetMap[uidComponent.ID].push_back(set);
+        });
+    }
 
     void RenderResource::Update(float deltaTime){
 
+        void* data= nullptr;
+        instance->graphicContext->MapMemory(instance->cameraRenderData.modelTransBufferMemory, 0, goDataBufferSize, data);
+        Z_CORE_ASSERT(data,"failed to map memory ! ");
+        std::memcpy(data, instance->goDataBuffer, goDataBufferSize);
+        instance->graphicContext->UnMapMemory(instance->cameraRenderData.modelTransBufferMemory);
+
+        for(auto&[key,val]:instance->materialMeshMap){
+            for(auto&[id,path]:val){
+                auto mesh=AssetsSystem::Load<MeshRes>(path);
+                if(mesh->animator){
+                    auto bufferSize=mesh->animator->GetMatrices().size()*sizeof(glm::mat4);
+                    void* data= nullptr;
+                    instance->graphicContext->MapMemory(mesh->boneMemory,0,bufferSize,data);
+                    Z_CORE_ASSERT(data,"failed to map memory ! ");
+                    std::memcpy(data,mesh->animator->GetMatrices().data(),bufferSize);
+                    instance->graphicContext->UnMapMemory(mesh->boneMemory);
+                }
+            }
+        }
     }
 
     void RenderResource::clearSceneResources() {
+        graphicContext->DeviceWaiteIdle();
+        for(auto&[key,val]:goDescriptorSetMap){
+            for(auto&set:val){
+                graphicContext->FreeDescriptorSet(set);
+            }
+            val.clear();
+        }
+        goDescriptorSetMap.clear();
+        for(auto&[key,val]:materialMeshMap){
+            val.clear();
+        }
+        materialMeshMap.clear();
+    }
 
+    void RenderResource::UpdateLightData(void *data, uint64 inputSize, uint64 inputOffset, uint64 dstOffset) {
+        Z_CORE_ASSERT(inputSize>0,"illegal data size !");
+        void *dataptr= nullptr;
+        instance->graphicContext->MapMemory(instance->lightRenderData.bufferMemory,0,sizeof(WorldLightData),dataptr);
+        Z_CORE_ASSERT(dataptr,"failed to map memory !");
+        std::memcpy(((uint8*)dataptr)+dstOffset,((uint8*)data)+inputOffset,inputSize);
+        instance->graphicContext->UnMapMemory(instance->lightRenderData.bufferMemory);
+    }
+
+    void RenderResource::RemoveMesh(zGUID id, const std::string &meshPath,const std::string& matPath) {
+        auto &boneSet = instance->goDescriptorSetMap.at(id)[RenderManager::BoneNodeTransformSet -
+                                                            RenderManager::WorldLightDataSet - 1];
+        instance->graphicContext->FreeDescriptorSet(boneSet);
+        delete boneSet;
+        boneSet = nullptr;
+        instance->materialMeshMap[matPath].erase(id);
+    }
+
+    void RenderResource::SetIrradianceMap(ImageView *view) {
+
+        DescriptorImageInfo imageInfo{};
+        imageInfo.imageView=view;
+        imageInfo.sampler=instance->graphicContext->GetDefaultSampler(SamplerType::Linear);
+        imageInfo.imageLayout=ImageLayout::SHADER_READ_ONLY_OPTIMAL;
+
+        WriteDescriptorSet writeDescriptorSet{};
+        writeDescriptorSet.descriptorCount=1;
+        writeDescriptorSet.dstSet=instance->innerDescriptorSets[1];
+        writeDescriptorSet.descriptorType=DescriptorType::COMBINED_IMAGE_SAMPLER;
+        writeDescriptorSet.dstArrayElement=0;
+        writeDescriptorSet.pImageInfo=&imageInfo;
+        writeDescriptorSet.dstBinding=1;
+
+        instance->graphicContext->WriteDescriptorSets(&writeDescriptorSet,1);
     }
 
 } // namespace Z

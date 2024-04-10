@@ -175,6 +175,9 @@ namespace Z {
 			changed |= MyDrawVec("Rotation", rotation);
 			transform.rotation = glm::radians(rotation);
 			changed |= MyDrawVec("Scale", transform.scale, glm::vec3{1.f});
+			if(changed){
+				RenderResource::UpdateModelTransform(transform.GetTransform(),entity.GetUID());
+			}
 		});
 		DrawComponent<SpriteRendererComponent>("SpriteRenderer", entity,
 		                                       [](Entity entity, SpriteRendererComponent &spriteRenderer) {
@@ -427,12 +430,122 @@ namespace Z {
 		DrawComponent<MeshFilterComponent>("MeshFilter", entity, [](Entity entity, MeshFilterComponent&component){
 			ImGui::Text("Model:");
 			ImGui::SameLine();
-            ImGui::Text(component.meshPath.c_str());
+			ImGui::Button(component.meshPath.empty()?"no model set":component.meshPath.c_str());
+			if(ImGui::BeginDragDropTarget()){
+				if(auto data=ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
+					auto dragData=(DragAndDropData*)data->Data;
+					if(dragData->type==DragType::eMesh){
+						std::string beforePath=component.meshPath;
+                        component.meshPath = dragData->path;
+                        std::string path=dragData->path;
+						if(!entity.HasComponent<MeshRendererComponent>())return;
+						auto id=entity.GetUID();
+						auto matPath=entity.GetComponent<MeshRendererComponent>().materialPath;
+						
+                        RenderManager::SubmitResourceUpdateTask([id,matPath,beforePath]{
+                            if (!beforePath.empty()) 
+                                RenderResource::RemoveMesh(id, beforePath,matPath);
+                            RenderResource::UpdateAllData();
+                        });
+					}
+				}
+			}
 		});
-		DrawComponent<MeshRendererComponent>("MeshRenderer",entity,[](Entity entity,MeshRendererComponent& component){
+		DrawComponent<MeshRendererComponent>("MeshRenderer",entity,[this](Entity entity,MeshRendererComponent& component){
 			ImGui::Text("Material:");
 			ImGui::SameLine();
 			ImGui::Text(component.materialPath.c_str());
+
+			const auto& pass=RenderManager::GetPass(component.materialPath);
+			if(!pass)return;
+			auto guid=entity.GetComponent<IDComponent>();
+			const auto& passSetInfo=pass->GetPassSetInfo();
+			auto& texMap=this->GetTextureMap();
+			auto& goDescriptorMap=RenderResource::GetGODescriptorMap();
+			auto gContext=RenderManager::GetInstance();
+			for(int i=2;i<passSetInfo.size();++i){
+				for(const auto&binding:passSetInfo[i].bindings){
+					if(DescriptorType::COMBINED_IMAGE_SAMPLER==binding.type){
+						auto tex= GetDefaultTexture(binding.name);
+                        std::unordered_map<zGUID,std::unordered_map<std::string,ImTextureID>>::iterator it;
+						std::unordered_map<std::string,ImTextureID>::iterator texIt;
+						
+						if(it=texMap.find(guid.ID);it!=texMap.end()){
+							if(texIt=it->second.find(binding.name);texIt!=it->second.end())
+								tex=texIt->second;
+						}
+						ImGui::Text("%s",binding.name.c_str());
+						ImGui::Image(tex,{100,100});
+						if (it!=texMap.end() && texIt!=it->second.end() && ImGui::IsItemHovered() &&
+							ImGui::IsMouseClicked(ImGuiMouseButton_::ImGuiMouseButton_Right)){
+                            ImGui::OpenPopup(binding.name.c_str());
+						}else if(ImGui::BeginDragDropTarget()){
+							auto data=ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM");
+							if(!data)continue;
+							auto dragData=(DragAndDropData*)data->Data;
+							if(dragData->path==component.materialPath)continue;
+							if(dragData->type==DragType::eTexture){
+								texMap[guid.ID][binding.name]=dragData->ptr;
+
+								DescriptorSet* set;
+								if(auto it=goDescriptorMap.find(guid.ID);it==goDescriptorMap.end()||it->second.size()<=i-2){
+									DescriptorSetAllocateInfo allocateInfo{};
+									allocateInfo.descriptorPool=nullptr;
+									allocateInfo.descriptorSetCount=1;
+									allocateInfo.pSetLayouts=pass->GetSetLayout(i);
+									gContext->AllocateDescriptorSet(allocateInfo,set);
+									goDescriptorMap[guid.ID].push_back(set);
+								}else{
+									set=it->second[i-2];
+								}
+                                auto imageRes = AssetsSystem::Load<Texture2D>(dragData->path);
+                                // avoid update set when it is using
+                                RenderManager::SubmitResourceUpdateTask([imageRes,gContext,binding,set]{
+                                    DescriptorImageInfo imageInfo{};
+                                    imageInfo.imageLayout = ImageLayout::SHADER_READ_ONLY_OPTIMAL;
+                                    imageInfo.imageView = imageRes->imageView;
+                                    imageInfo.sampler = gContext->GetDefaultSampler(SamplerType::Linear);
+
+                                    WriteDescriptorSet writeSet{};
+                                    writeSet.descriptorCount = 1;
+                                    writeSet.descriptorType = DescriptorType::COMBINED_IMAGE_SAMPLER;
+                                    writeSet.dstArrayElement = 0;
+                                    writeSet.dstSet = set;
+                                    writeSet.dstBinding = binding.binding;
+                                    writeSet.pImageInfo = &imageInfo;
+
+                                    gContext->WriteDescriptorSets(&writeSet, 1);
+                                });
+							}
+						}
+                        if(ImGui::BeginPopup(binding.name.c_str())){
+                            if (ImGui::MenuItem("Remove Image")) {
+                                it->second.erase(binding.name);
+								auto set=goDescriptorMap[guid.ID].back();
+                                RenderManager::SubmitResourceUpdateTask([set,gContext,binding]{
+                                    DescriptorImageInfo imageInfo{};
+                                    imageInfo.imageLayout = ImageLayout::SHADER_READ_ONLY_OPTIMAL;
+                                    imageInfo.imageView = AssetsSystem::GetDefaultTexture(binding.name)->imageView;
+                                    imageInfo.sampler = gContext->GetDefaultSampler(SamplerType::Linear);
+
+                                    WriteDescriptorSet writeSet{};
+                                    writeSet.descriptorCount = 1;
+                                    writeSet.descriptorType = DescriptorType::COMBINED_IMAGE_SAMPLER;
+                                    writeSet.dstArrayElement = 0;
+                                    writeSet.dstSet = set;
+                                    writeSet.dstBinding = binding.binding;
+                                    writeSet.pImageInfo = &imageInfo;
+
+                                    gContext->WriteDescriptorSets(&writeSet, 1);
+                                });
+                            }
+                            ImGui::EndPopup();
+                        }
+
+					}
+				}
+			}
+
 		});
 	}
 
@@ -441,10 +554,14 @@ namespace Z {
         auto normal=AssetsSystem::Load<Texture2D>(AssetsSystem::DefaultNormalTexture);
         auto emission=AssetsSystem::Load<Texture2D>(AssetsSystem::DefaultEmissionTexture);
         auto specular=AssetsSystem::Load<Texture2D>(AssetsSystem::DefaultSpecularTexture);
+		auto roughness = AssetsSystem::Load<Texture2D>(AssetsSystem::DefaultRoughnessTexture);
+		auto metallic=AssetsSystem::Load<Texture2D>(AssetsSystem::DefaultMetallicTexture);
         defaultTextureMap["diffuse"]=RenderManager::CreateImGuiTexture(diffuse);
         defaultTextureMap["normal"]=RenderManager::CreateImGuiTexture(normal);
         defaultTextureMap["emission"]=RenderManager::CreateImGuiTexture(emission);
         defaultTextureMap["specular"]=RenderManager::CreateImGuiTexture(specular);
+        defaultTextureMap["metallic"]=RenderManager::CreateImGuiTexture(metallic);
+        defaultTextureMap["roughness"]=RenderManager::CreateImGuiTexture(roughness);
 	}
 
 	template<typename Ty>

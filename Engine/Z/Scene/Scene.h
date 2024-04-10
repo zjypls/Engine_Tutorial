@@ -35,6 +35,7 @@ namespace Z {
 		void OnScriptStart();
 		void OnScriptStop();
 		void OnPhysics2DUpdate(float deltaTime);
+        void UpdateAnimators(float deltaTime);
 
 
 	public:

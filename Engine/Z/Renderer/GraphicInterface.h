@@ -63,6 +63,7 @@ namespace Z {
 
         virtual void CreateFence(const FenceCreateInfo& info,Fence*& fence) = 0;
 
+        // avoid crash with the macro CreateSemaphore defined on Windows
         virtual void zCreateSemaphore(const SemaphoreCreateInfo& info, Semaphore* &semaphore) = 0;
 
         //make info.DescriptorPool empty  to use default pool

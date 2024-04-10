@@ -5,11 +5,15 @@
 #include "Z/Renderer/GraphicInterface.h"
 #include "Z/Renderer/RenderManager.h"
 #include "Z/Renderer/RenderPipeline.h"
+#include "Z/Renderer/RenderResource.h"
 #include "Z/Utils/ZUtils.h"
 #include "Z/Renderer/Passes/UIPass.h"
 #include "Z/Renderer/Passes/MainCameraPass.h"
 #include "Z/Renderer/Passes/SkyboxPass.h"
+#include "Z/Renderer/Passes/GeneralPass.h"
 #include "Z/Renderer/Passes/ConvertCubePass.h"
+#include "Z/Renderer/Passes/GenIrradiancePass.h"
+#include "Z/Renderer/Passes/PickPass.h"
 
 namespace Z {
     void RenderPipeline::Init(RenderPipelineInitInfo *initInfo) {
@@ -37,6 +41,16 @@ namespace Z {
         convertTool->draw();
         skybox= ((ConvertCubePass *) convertTool.get())->GetResult();
 
+        auto genInitInfo = ConvertCubePassInitInfo{};
+        genInitInfo.graphicInterface=Context;
+        genInitInfo.toolShaderPath="Assets/Shaders/Tools/genIrradiance.glsl";
+        genShader = CreateRef<GenIrradiancePass>();
+        genShader->Init(&genInitInfo);
+        ((GenIrradiancePass*)genShader.get())->SetSourceImage(skybox);
+        genShader->draw();
+        //skybox=((GenIrradiancePass*)genShader.get())->GetResult();
+        //to be improved
+        RenderResource::SetIrradianceMap(((GenIrradiancePass*)genShader.get())->GetResult()->imageView);
 
         auto skyboxPassInitInfo=SkyboxPassInitInfo{};
         skyboxPassInitInfo.renderpass=mainCameraPassPtr->viewportRenderPass;
@@ -48,6 +62,20 @@ namespace Z {
         skyboxPassInitInfo.skyboxView=skybox->imageView;
         skyboxPass=CreateRef<SkyboxPass>();
         skyboxPass->Init(&skyboxPassInitInfo);
+
+        auto generalPassInitinfo=GeneralPassInitInfo{};
+        generalPassInitinfo.graphicInterface=Context;
+        generalPassInitinfo.renderpass=mainCameraPassPtr->viewportRenderPass;
+        generalPassInitinfo.shaderPath="Assets/Shaders/PBR.glsl";
+        auto pbrPass=CreateRef<GeneralPass>();
+        pbrPass->Init(&generalPassInitinfo);
+        generalPassMap[generalPassInitinfo.shaderPath]=pbrPass;
+
+        auto pickPassInitInfo = PickPassInitInfo{};
+        pickPassInitInfo.graphicInterface=Context;
+        pickPass= CreateRef<PickPass>();
+        pickPass->Init(&pickPassInitInfo);
+
 
     }
 
@@ -75,6 +103,10 @@ namespace Z {
         Context->BeginRenderPass(renderPassBeginInfo);
 
         skyboxPass->draw();
+
+        for(auto&[path,pass]:generalPassMap){
+            pass->draw();
+        }
         
         Context->EndRenderPass();
         ((MainCameraPass*)mainCameraPass.get())->draw(uiPass);
@@ -88,7 +120,17 @@ namespace Z {
         Z_CORE_WARN("render pipeline clear !");
         Context->DestroyImage(skybox->image,skybox->memory,skybox->imageView);
         delete skybox;
+        auto irMap = ((GenIrradiancePass*)genShader.get())->GetResult();
+        Context->DestroyImage(irMap->image,irMap->memory,irMap->imageView);
+        delete irMap;
+        for(auto&[key,val]:generalPassMap){
+            val->clear();
+            val=nullptr;
+        }
+        generalPassMap.clear();
         convertTool->clear();
+        genShader->clear();
+        pickPass->clear();
         skyboxPass->clear();
         uiPass->clear();
         mainCameraPass->clear();
@@ -97,6 +139,7 @@ namespace Z {
     void RenderPipeline::SetViewPortSize(uint32 width, uint32 height) {
         ((MainCameraPass*)mainCameraPass.get())->SetViewPortSize(width,height);
         ((SkyboxPass*)skyboxPass.get())->SetViewportSize(width,height);
+        ((PickPass*)pickPass.get())->SetViewportSize(width,height);
     }
 
     void *RenderPipeline::GetViewportFrameBufferDescriptor() {
@@ -107,7 +150,27 @@ namespace Z {
         mainCameraPass->Resize();
     }
 
+    Ref<RenderPass> RenderPipeline::LoadPass(const std::string &path) {
+        try{
+            auto pass=CreateRef<GeneralPass>();
+            GeneralPassInitInfo info{};
+            info.shaderPath=path;
+            info.graphicInterface=Context;
+            info.renderpass=((MainCameraPass*)mainCameraPass.get())->viewportRenderPass;
+            pass->Init(&info);
+            generalPassMap[path]=pass;
+            return pass;
+        }catch(...){
+            return nullptr;
+        }
+    }
+
     glm::uvec2 RenderPipeline::GetViewportSize() {
         return ((MainCameraPass*)mainCameraPass.get())->viewPortSize;
+    }
+
+    int RenderPipeline::PickGO(int x, int y) {
+        pickPass->draw();
+        return ((PickPass*)pickPass.get())->GetPickValue(x,y);
     }
 } // Z

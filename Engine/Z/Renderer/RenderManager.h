@@ -43,6 +43,18 @@ namespace Z {
 
         static glm::uvec2 GetViewportSize(){return renderPipeline->GetViewportSize();}
 
+        static void PickGO(int  x, int y,const std::function<void(int)>& func){
+            SubmitResourceUpdateTask([x,y,func]{
+                func(renderPipeline->PickGO(x,y));
+            });
+        }
+
+        static Ref<RenderPass> GetPass(const std::string& path){
+            const auto& generalPassMap=renderPipeline->generalPassMap;
+            auto passIt=generalPassMap.find(path);
+            if(passIt!=generalPassMap.end())return passIt->second;
+            return renderPipeline->LoadPass(path);
+        }
         // submit a task for update graphic resources after gpu render task finished
         // to avoid update resources when it is using that cause vulkan error
         static void SubmitResourceUpdateTask(const std::function<void()>&func){

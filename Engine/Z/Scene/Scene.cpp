@@ -9,6 +9,7 @@
 #include "Include/box2d/include/box2d/b2_circle_shape.h"
 #include "Include/box2d/include/box2d/b2_collision.h"
 
+#include "Z/Core/AssetsSystem.h"
 #include "Z/Scene/Scene.h"
 #include "Z/Scene/ScriptEntity.h"
 #include "Z/Script/ScriptEngine.h"
@@ -162,6 +163,7 @@ namespace Z {
 //		//TODO:This should be optimized
 //		Render2D();
 //		Render3D();
+        UpdateAnimators(deltaTime);
 	}
 
 	void Scene::OnSimulateUpdate(float deltaTime, EditorCamera &camera) {
@@ -319,5 +321,13 @@ namespace Z {
 			}
 		});
 	}
+
+    void Scene::UpdateAnimators(float deltaTime) {
+        registry.view<MeshFilterComponent>().each([&](auto id,auto&filter){
+			if(filter.meshPath.empty())return;
+            auto mesh=AssetsSystem::Load<MeshRes>(filter.meshPath);
+            if(mesh->animator)mesh->animator->Update(deltaTime);
+        });
+    }
 
 }
