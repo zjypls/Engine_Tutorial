@@ -1625,7 +1625,7 @@ namespace Z {
         ((VulkanFence*)fence)->Set(vkFence);
     }
 
-    void VulkanGraphicInterface::CreateSemaphore(const SemaphoreCreateInfo &info, Semaphore *&semaphore) {
+    void VulkanGraphicInterface::zCreateSemaphore(const SemaphoreCreateInfo &info, Semaphore *&semaphore) {
         VkSemaphoreCreateInfo createInfo{};
         createInfo.sType=VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO;
         VkSemaphore vkSemaphore;

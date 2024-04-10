@@ -69,7 +69,7 @@ namespace Z {
                                  GraphicPipelineCreateInfo* createInfo , bool insertInnerSetLayout) override;
         void CreateDescriptorSetLayout(const DescriptorSetLayoutCreateInfo &info, DescriptorSetLayout *&descriptorSetLayout) override;
         void CreateFence(const FenceCreateInfo& info , Fence * &fence) override;
-        void CreateSemaphore(const SemaphoreCreateInfo& info , Semaphore *& semaphore) override ;
+        void zCreateSemaphore(const SemaphoreCreateInfo& info , Semaphore *& semaphore) override ;
         void AllocateDescriptorSet(const DescriptorSetAllocateInfo &info, DescriptorSet *&descriptorSet) override;
         void AllocateCommandBuffer(const CommandBufferAllocateInfo& info , CommandBuffer*& commandBuffer) override;
         void FreeCommandBuffer(CommandBuffer* buffer) override;

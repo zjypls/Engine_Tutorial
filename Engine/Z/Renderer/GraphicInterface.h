@@ -63,7 +63,7 @@ namespace Z {
 
         virtual void CreateFence(const FenceCreateInfo& info,Fence*& fence) = 0;
 
-        virtual void CreateSemaphore(const SemaphoreCreateInfo& info,Semaphore* &semaphore) = 0;
+        virtual void zCreateSemaphore(const SemaphoreCreateInfo& info, Semaphore* &semaphore) = 0;
 
         //make info.DescriptorPool empty  to use default pool
         virtual void AllocateDescriptorSet(const DescriptorSetAllocateInfo& info, DescriptorSet* &descriptorSet) = 0;
