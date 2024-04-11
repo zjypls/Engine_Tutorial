@@ -8,6 +8,7 @@ git clone https://github.com/zjypls/Engine_Tutorial.git
 Windows and Linux support , need vulkan sdk install  
 you can download sdk at [there](https://vulkan.lunarg.com/) or using package manager on Linux
 ```sh
+cd Engine_Tutorial
 cmake -B build
 cmake --build build
 ```
