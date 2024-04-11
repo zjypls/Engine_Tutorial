@@ -2,7 +2,7 @@
 Learning GameEngine  
 ## clone with:  
 ```sh
-git clone -b Vulkan https://github.com/zjypls/Engine_Tutorial.git
+git clone https://github.com/zjypls/Engine_Tutorial.git
 ```
 ## build 
 Windows and Linux support , need vulkan sdk install  
