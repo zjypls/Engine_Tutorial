@@ -42,7 +42,7 @@ void main(){
 
 #ifdef Z_FRAGMENT
 
-layout(location =0) out vec4 frag;
+layout(location =0) out vec4 fragOutput;
 
 layout(location =0)in vec3 pos;
 
@@ -62,7 +62,7 @@ void main()
     vec2 uv = SampleSphericalMap(normalize(pos));
     vec4 color = texture(sourceTexture, uv);
 
-    frag = vec4(pow(color.xyz,vec3(1.0f/2.2f)), 1.0);
+    fragOutput = vec4(pow(color.xyz,vec3(1.0f/2.2f)), 1.0);
 }
 
 #endif

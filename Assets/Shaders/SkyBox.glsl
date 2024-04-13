@@ -45,11 +45,12 @@ layout(location=1)out int index;
 struct InData{
     vec3 dir;
 };
-layout(location=0)in InData data;
+layout(location=0)in InData cameraData;
 layout(set=1,binding =0 )uniform samplerCube skybox;
 
 void main(){
-    color=vec4(texture(skybox,data.dir).rgb,1);
+    vec3 skyboxColor = texture(skybox,cameraData.dir).rgb;
+    color=vec4(skyboxColor,1);
     index=-1;
 }
 #endif

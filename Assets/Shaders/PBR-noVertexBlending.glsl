@@ -79,7 +79,7 @@ vec3 GetNormal(){
 }
 
 void main(){
-    vec3 normal = fragIn.normal;
+    vec3 normalVal = fragIn.normal;
     vec3 base = texture(diffuse,fragIn.uv).xyz;
     vec3 LightDir = normalize(lightData.position.xyz-fragIn.pos);
     vec3 ViewDir = normalize(fragIn.cameraPos-fragIn.pos);
@@ -93,16 +93,16 @@ void main(){
 
     float dist = length(lightData.position.xyz-fragIn.pos);
 
-    vec3 radiance = lightData.radiance.xyz/dist;
+    vec3 radiance = lightData.radiance.xyz/(dist*dist);
 
-    float NDF = DistributionGGX(normal,halfVL,rough);
-    float G = GeometrySmith(normal,ViewDir,LightDir,rough);
+    float NDF = DistributionGGX(normalVal,halfVL,rough);
+    float G = GeometrySmith(normalVal,ViewDir,LightDir,rough);
 
     vec3 F = fresnelSchlick(max(dot(halfVL,ViewDir),0.0f),F0);
 
     vec3 numerator = NDF*G*F;
 
-    float denominator = 4*max(dot(normal,ViewDir),0) * max(dot(normal,LightDir),0) + 0.0001;
+    float denominator = 4*max(dot(normalVal,ViewDir),0) * max(dot(normalVal,LightDir),0) + 0.0001;
 
     vec3 specular = numerator/denominator;
 
@@ -110,26 +110,23 @@ void main(){
 
     vec3 kD = (vec3(1)-kS)*(1-metal);
 
-    float NdotL = max(dot(normal,LightDir),0);
+    float NdotL = max(dot(normalVal,LightDir),0);
 
     vec3 spCol = (kD*base/PI + specular)*radiance*NdotL;
 
-    vec3 akS = fresnelSchlick(max(dot(normal,ViewDir),0),F0);
+    vec3 akS = fresnelSchlick(max(dot(normalVal,ViewDir),0),F0);
 
     vec3 akD=(1-akS)*(1-metal);
 
-    vec3 abIr = texture(bakedIrradianceMap,normal).rgb;
+    vec3 abIr = texture(bakedIrradianceMap,normalVal).rgb;
 
     vec3 abDiff = abIr*base ;
-    vec3 ambient = (akD*abDiff);
-
+    vec3 ambient = abDiff;
 
 
 
     vec3 fCol=ambient+spCol;
 
-    fCol = fCol/(fCol+vec3(1));
-    fCol=pow(fCol,vec3(1.0f/2.2f));
 
     color =vec4(fCol,1);
     goIndex=index;

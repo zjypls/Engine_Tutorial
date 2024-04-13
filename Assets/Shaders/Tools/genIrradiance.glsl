@@ -50,53 +50,31 @@ layout(binding = 1)uniform samplerCube sourceTexture;
 
 void main()
 {
-    // vec3 normal = normalize(pos);
+    vec3 normal = normalize(pos);
 
-    // vec3 irradiance = vec3(0.0);
+    vec3 irradiance = vec3(0.0);
 
-    // vec3 up    = vec3(0.0, 1.0, 0.0);
-    // vec3 right = normalize(cross(up, normal));
-    // up         = normalize(cross(normal, right));
+    vec3 up    = vec3(0.0, 1.0, 0.0);
+    vec3 right = normalize(cross(up, normal));
+    up         = normalize(cross(normal, right));
 
-    // float sampleDelta = 0.025;
-    // float nrSamples = 0.0;
-    // for(float phi = 0.0; phi < 2.0 * PI; phi += sampleDelta)
-    // {
-    //     for(float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta)
-    //     {
-    //         // spherical to cartesian (in tangent space)
-    //         vec3 tangentSample = vec3(sin(theta) * cos(phi),  sin(theta) * sin(phi), cos(theta));
-    //         // tangent space to world
-    //         vec3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * normal;
+    float sampleDelta = PI / 45.0f;
+    float nrSamples = 0.0;
+    for(float phi = 0.0; phi < 2.0 * PI; phi += sampleDelta)
+    {
+        for(float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta)
+        {
+            // spherical to cartesian (in tangent space)
+            vec3 tangentSample = vec3(sin(theta) * cos(phi),  sin(theta) * sin(phi), cos(theta));
+            // tangent space to world
+            vec3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * normal;
 
-    //         irradiance += texture(sourceTexture,sampleVec).rgb * cos(theta) * sin(theta);
-    //         nrSamples++;
-    //     }
-    // }
-    // irradiance = PI * irradiance * (1.0 / float(nrSamples));
-    // frag=vec4(irradiance,1);
-
-    vec3 N = normalize(pos);
-	vec3 up = vec3(0.0, 1.0, 0.0);
-	vec3 right = normalize(cross(up, N));
-	up = cross(N, right);
-
-	const float TWO_PI = PI * 2.0;
-	const float HALF_PI = PI * 0.5;
-
-	vec3 color = vec3(0.0);
-	uint sampleCount = 0u;
-    const float deltaPhi = PI / 45.0f;;
-    const float deltaTheta = PI / 64.0f;
-	for (float phi = 0.0; phi < TWO_PI; phi += deltaPhi) {
-		for (float theta = 0.0; theta < HALF_PI; theta += deltaTheta) {
-			vec3 tempVec = cos(phi) * right + sin(phi) * up;
-			vec3 sampleVector = cos(theta) * N + sin(theta) * tempVec;
-			color += texture(sourceTexture, sampleVector).rgb * cos(theta) * sin(theta);
-			sampleCount++;
-		}
-	}
-	frag = vec4(PI * color / float(sampleCount), 1.0);
+            irradiance += texture(sourceTexture,sampleVec).rgb * cos(theta) * sin(theta);
+            nrSamples++;
+        }
+    }
+    irradiance = PI * irradiance * (1.0 / float(nrSamples));
+    frag=vec4(irradiance,1);
 }
 
 #endif
