@@ -69,7 +69,7 @@ namespace Z {
 		ScriptEngine::LoadAssembly("bin/scripts.dll");
 		ScriptEngine::RegisterFileWatch();
 
-        RenderResource::WorldLightData data{{1,1,0,1},{0,1,1,1}};
+        RenderResource::WorldLightData data{{1,1,1,1},{1,1,1,1}};
         RenderResource::UpdateLightData(&data);
 
 		RenderManager::PushUIContents(this);
