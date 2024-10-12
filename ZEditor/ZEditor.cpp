@@ -114,6 +114,8 @@ namespace Z {
 					scene->OnSimulateUpdate(Time::DeltaTime(), editorCamera);
 					break;
 				}
+                default:
+                    break;
 			}
 			OnDebugShow();
 		}
@@ -193,7 +195,7 @@ namespace Z {
 		ImGui::BeginDisabled(!scene||scene->empty());
 		float size = ImGui::GetWindowHeight() - 4;
 		ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x / 2 - ImGui::GetWindowHeight());
-		if (ImGui::ImageButton(toolButtons[0], ImVec2{size, size}, ImVec2{0, 1},
+		if (ImGui::ImageButton("##ToolButtonZero",toolButtons[0], ImVec2{size, size}, ImVec2{0, 1},
 		                       ImVec2{1, 0})) {
 			if (sceneState == SceneState::Edit) {
 				OnPlay();
@@ -204,7 +206,7 @@ namespace Z {
 			}
 		}
 		ImGui::SameLine();
-		if (ImGui::ImageButton(toolButtons[1], ImVec2{size, size}, ImVec2{0, 1},
+		if (ImGui::ImageButton("##ToolButtonOne",toolButtons[1], ImVec2{size, size}, ImVec2{0, 1},
 		                       ImVec2{1, 0})) {
 			if (sceneState == SceneState::Edit) {
 				OnSimulate();
@@ -224,7 +226,7 @@ namespace Z {
 		ImGui::EndDisabled();
 		ImGui::SameLine();
 		ImGui::BeginDisabled(sceneState == SceneState::Edit);
-		if (ImGui::ImageButton(toolButtons[2], ImVec2{size, size}, ImVec2{0, 1},
+		if (ImGui::ImageButton("##ToolButtonTwo",toolButtons[2], ImVec2{size, size}, ImVec2{0, 1},
 		                       ImVec2{1, 0})) {
 			if (sceneState == SceneState::Pause) {
 				scene->SetPaused(true);
@@ -562,15 +564,16 @@ namespace Z {
 				if (control) LoadProjects();
 				break;
 			case Key::S:
-				if (control)
-					if (shift) {
-						if (WorkPath.empty()) {
-							WorkPath = "Untitled.zscene";
-							Z_CORE_WARN("WorkPath is empty,Save to {0}", WorkPath.string());
-						}
-						InnerSave(WorkPath.string());
-					} else
-						SaveHotKey();
+				if (control) {
+                    if (shift) {
+                        if (WorkPath.empty()) {
+                            WorkPath = "Untitled.zscene";
+                            Z_CORE_WARN("WorkPath is empty,Save to {0}", WorkPath.string());
+                        }
+                        InnerSave(WorkPath.string());
+                    } else
+                        SaveHotKey();
+                }
 				break;
 			case Key::Q:
 				if (IsViewportFocused && IsViewportHovered && !RightMouseClicked)
@@ -591,9 +594,11 @@ namespace Z {
 			case Key::D:
 				if (sceneState == SceneState::Edit)
 					if (auto et = sceneHierarchyPlane->GetSelectedEntity();shift && et) {
-						scene->InstantiateEntity(et);
+                        (void)scene->InstantiateEntity(et);
 					}
 				break;
+            default:
+                break;
 		}
 		return false;
 	}

@@ -27,7 +27,7 @@ namespace Z {
 		ImGui::Columns(columns, nullptr, false);
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 		if (currentPath != Project::GetProjectRootDir()) {
-			ImGui::ImageButton(icons[0],ImVec2{width, width});
+			ImGui::ImageButton("##iconZero",icons[0],ImVec2{width, width});
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
 				currentPath = currentPath.has_parent_path() ? currentPath.parent_path() : currentPath;
 			}
@@ -63,7 +63,8 @@ namespace Z {
 				texture=icons[eDirectoryIcon];
 				dType=DragType::eDirectory;
 			}
-			ImGui::ImageButton(texture, ImVec2(width, width));
+            const std::string idImGuiString = "##" + file.path().string();
+			ImGui::ImageButton(idImGuiString.c_str(),texture, ImVec2(width, width));
 			if (IsFile&&ImGui::BeginDragDropSource()) {
 				DragAndDropData data{};
 				data.type=dType;
