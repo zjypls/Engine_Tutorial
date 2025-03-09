@@ -449,6 +449,7 @@ namespace Z {
                         });
 					}
 				}
+                ImGui::EndDragDropTarget();
 			}
 		});
 		DrawComponent<MeshRendererComponent>("MeshRenderer",entity,[this](Entity entity,MeshRendererComponent& component){
@@ -481,9 +482,15 @@ namespace Z {
                             ImGui::OpenPopup(binding.name.c_str());
 						}else if(ImGui::BeginDragDropTarget()){
 							auto data=ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM");
-							if(!data)continue;
+							if(!data){
+                                ImGui::EndDragDropTarget();
+                                continue;
+                            }
 							auto dragData=(DragAndDropData*)data->Data;
-							if(dragData->path==component.materialPath)continue;
+							if(dragData->path==component.materialPath) {
+                                ImGui::EndDragDropTarget();
+                                continue;
+                            }
 							if(dragData->type==DragType::eTexture){
 								texMap[guid.ID][binding.name]=dragData->ptr;
 
@@ -517,6 +524,7 @@ namespace Z {
                                     gContext->WriteDescriptorSets(&writeSet, 1);
                                 });
 							}
+                            ImGui::EndDragDropTarget();
 						}
                         if(ImGui::BeginPopup(binding.name.c_str())){
                             if (ImGui::MenuItem("Remove Image")) {

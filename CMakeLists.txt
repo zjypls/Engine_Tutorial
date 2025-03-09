@@ -16,6 +16,7 @@ set(ReBuildScriptsCore OFF)
 set(UseVulkan ON)
 #disable all warnings
 set(DisableWarnings ON)
+option(CHECK_VKSYSLIB "check if vulkan system libraries is availabe" OFF)
 
 set(gladPath ${CMAKE_SOURCE_DIR}/Engine/Include/glad)
 set(GLFWPath ${CMAKE_SOURCE_DIR}/Engine/Include/glfw)
@@ -45,7 +46,7 @@ find_package(spirv_cross_glsl QUIET)
 find_package(SPIRV-Headers QUIET)
 find_package(glslang QUIET)
 
-if(NOT ( Vulkan_FOUND AND SPIRV-Tools_FOUND AND spirv_cross_core_FOUND AND SPIRV-Headers_FOUND AND spirv_cross_glsl_FOUND AND glslang_FOUND ) )
+if((NOT CHECK_VKSYSLIB) OR ( NOT ( Vulkan_FOUND AND SPIRV-Tools_FOUND AND spirv_cross_core_FOUND AND SPIRV-Headers_FOUND AND spirv_cross_glsl_FOUND AND glslang_FOUND ) ) )
     message("Library missing ! Looking for Vulkan SDK install")
     if (DEFINED ENV{VULKAN_SDK})
         set(VK_PATH $ENV{VULKAN_SDK})

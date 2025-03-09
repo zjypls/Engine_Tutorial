@@ -42,6 +42,8 @@ namespace Z {
     }
 
     void GeneralPass::SetupPipeline() {
+        if(materialPath.empty())
+            return;
         renderPipelines.resize(1);
         auto shaderRes= AssetsSystem::Load<ShaderRes>(materialPath);
         std::vector<DescriptorSetLayout*> layouts;
