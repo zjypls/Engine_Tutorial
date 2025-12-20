@@ -38,13 +38,16 @@ set(GLFW_BUILD_TESTS OFF)
 set(GLFW_BUILD_DOCS OFF)
 set(GLFW_INSTALL OFF)
 
-
-find_package(Vulkan QUIET)
-find_package(SPIRV-Tools QUIET)
-find_package(spirv_cross_core QUIET)
-find_package(spirv_cross_glsl QUIET)
-find_package(SPIRV-Headers QUIET)
-find_package(glslang QUIET)
+# if this some libraries find success, may caused runtime error
+# because it use some libraries from system, and some other libraries from vulkan sdk
+if (CHECK_VKSYSLIB)
+    find_package(Vulkan QUIET)
+    find_package(SPIRV-Tools QUIET)
+    find_package(spirv_cross_core QUIET)
+    find_package(spirv_cross_glsl QUIET)
+    find_package(SPIRV-Headers QUIET)
+    find_package(glslang QUIET)
+endif ()
 
 if((NOT CHECK_VKSYSLIB) OR ( NOT ( Vulkan_FOUND AND SPIRV-Tools_FOUND AND spirv_cross_core_FOUND AND SPIRV-Headers_FOUND AND spirv_cross_glsl_FOUND AND glslang_FOUND ) ) )
     message("Library missing ! Looking for Vulkan SDK install")
