@@ -123,10 +123,14 @@ message("Set Rebuild Scripts : ${ReBuildScriptsCore}")
 message("Build Type : ${Z_BUILD_TYPE}")
 
 
+if (NOT CHECK_VKSYSLIB)
+    list(APPEND CMAKE_INSTALL_RPATH "${VK_PATH}/lib;${VK_PATH}/bin")
+endif()
+list(APPEND CMAKE_INSTALL_RPATH "${monoPath}/lib;${CMAKE_SOURCE_DIR}/Lib/${Z_BUILD_TYPE}")
 add_subdirectory(Engine)
 
 add_subdirectory(ZEditor)
-set_target_properties(ZEditor PROPERTIES INSTALL_RPATH "${monoPath}/lib;${CMAKE_SOURCE_DIR}/Lib/${Z_BUILD_TYPE}")
+
 if (ReBuildScriptsCore)
     add_subdirectory(Projects/Test001/Assets/scripts)
 endif ()
