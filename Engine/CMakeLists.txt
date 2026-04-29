@@ -26,7 +26,7 @@ set(Z_INCLUDE_DIR   ${Z_INCLUDE_DIR}
 
 
 add_subdirectory(Include/glfw)
-add_subdirectory(Include/yaml-cpp)
+#add_subdirectory(Include/yaml-cpp)
 add_subdirectory(Include/box2d)
 add_subdirectory(Include/tinyobjloader)
 add_subdirectory(Include/spdlog)

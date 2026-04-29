@@ -1168,7 +1168,7 @@ namespace Z {
     struct CommandBufferInheritanceInfo {
         const void*                           pNext;
         RenderPassInterface*                  renderPass;
-        uint32_t                              subpass;
+        uint32                                subpass;
         Framebuffer*                          framebuffer;
         bool                                  occlusionQueryEnable;
         QueryControlFlags                     queryFlags;

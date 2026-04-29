@@ -173,13 +173,13 @@ namespace Z {
 
         virtual void PipelineBarrier(PipelineStageFlags srcStageMask,PipelineStageFlags dstStageMask,DependencyFlags dependencyFlags,
                 uint32 memoryBarrierCount,const zMemoryBarrier* pMemoryBarriers,
-                uint32_t bufferMemoryBarrierCount,const BufferMemoryBarrier* pBufferMemoryBarriers,
-                uint32_t imageMemoryBarrierCount,const ImageMemoryBarrier* barrier) = 0;
+                uint32 bufferMemoryBarrierCount,const BufferMemoryBarrier* pBufferMemoryBarriers,
+                uint32 imageMemoryBarrierCount,const ImageMemoryBarrier* barrier) = 0;
 
         virtual void PipelineBarrier(CommandBuffer* buffer,PipelineStageFlags srcStageMask,PipelineStageFlags dstStageMask,DependencyFlags dependencyFlags,
                                      uint32 memoryBarrierCount,const zMemoryBarrier* pMemoryBarriers,
-                                     uint32_t bufferMemoryBarrierCount,const BufferMemoryBarrier* pBufferMemoryBarriers,
-                                     uint32_t imageMemoryBarrierCount,const ImageMemoryBarrier* barrier) = 0;
+                                     uint32 bufferMemoryBarrierCount,const BufferMemoryBarrier* pBufferMemoryBarriers,
+                                     uint32 imageMemoryBarrierCount,const ImageMemoryBarrier* barrier) = 0;
 
         virtual const SwapChainInfo& GetSwapChainInfo()=0;
 
