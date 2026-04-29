@@ -37,6 +37,10 @@ set(GLFW_BUILD_EXAMPLES OFF)
 set(GLFW_BUILD_TESTS OFF)
 set(GLFW_BUILD_DOCS OFF)
 set(GLFW_INSTALL OFF)
+set(YAML_CPP_BUILD_TOOLS OFF)
+set(YAML_CPP_BUILD_TESTS OFF)
+set(YAML_CPP_BUILD_EXAMPLES OFF)
+set(YAML_CPP_INSTALL OFF)
 
 # if this some libraries find success, may caused runtime error
 # because it use some libraries from system, and some other libraries from vulkan sdk

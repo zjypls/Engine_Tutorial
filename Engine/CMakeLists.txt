@@ -26,7 +26,7 @@ set(Z_INCLUDE_DIR   ${Z_INCLUDE_DIR}
 
 
 add_subdirectory(Include/glfw)
-#add_subdirectory(Include/yaml-cpp)
+add_subdirectory(Include/yaml-cpp)
 add_subdirectory(Include/box2d)
 add_subdirectory(Include/tinyobjloader)
 add_subdirectory(Include/spdlog)
@@ -79,7 +79,7 @@ target_link_directories(${PROJECT_NAME} PUBLIC ${Z_LINK_DIR})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
         monosgen-2.0 assimp
-        glfw yaml box2d tinyobjloader spdlog
+        glfw yaml-cpp box2d tinyobjloader spdlog
         )
 
 if(${Z_BUILD_TYPE} MATCHES Debug AND CMAKE_HOST_WIN32)
