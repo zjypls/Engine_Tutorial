@@ -360,7 +360,7 @@ namespace Z {
             poolInfo.sType=VK_INFO(COMMAND_POOL,CREATE);
             poolInfo.flags=VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
             poolInfo.queueFamilyIndex=familyIndices.graphics.value();
-            auto res= vkCreateCommandPool(device,&poolInfo, nullptr,&pool);
+            res= vkCreateCommandPool(device,&poolInfo, nullptr,&pool);
             VK_CHECK(res,"failed to create command pool !");
         }
     }
@@ -485,6 +485,7 @@ namespace Z {
         swapchainImages.resize(swapchainImageCount);
         vkGetSwapchainImagesKHR(device,swapchain,&swapchainImageCount,swapchainImages.data());
         maxFlightFrames=swapchainImageCount;
+        Z_CORE_INFO("swapchain create success ! image count : {}",swapchainImageCount);
         swapchainExtent=extent;
         swapchainFormat=swapchainformat.format;
         scissor={0,0,extent};
@@ -521,6 +522,8 @@ namespace Z {
         DestroySwapchain();
         CreateSwapchain();
         CreateSwapchainImageViews();
+        CreateFramebufferImageAndView();
+        CreateSyncSignals();
     }
 
     void VulkanGraphicInterface::InitInnerSetLayout(){
@@ -575,6 +578,8 @@ namespace Z {
         CreateVmaAllocator();
         CreateDefaultSampler();
         InitInnerSetLayout();
+
+        Z_CORE_INFO("VulkanGraphicInterface::Init success !");
     }
 
     void VulkanGraphicInterface::Shutdown() {
@@ -618,10 +623,12 @@ namespace Z {
         auto acquireRes=vkAcquireNextImageKHR(device,swapchain,UINT64_MAX,imageAvailable[currentFrameIndex],
             VK_NULL_HANDLE,&currentSwapChainImageIndex);
 
+        auto res = vkResetFences(device, 1, &frameFences[currentFrameIndex]);
         if(VK_SUBOPTIMAL_KHR==acquireRes||VK_ERROR_OUT_OF_DATE_KHR==acquireRes) {
             Z_CORE_WARN("Recreate swapchain !");
             ReCreateSwapChain();
             funcCallAfterRecreateSwapChain();
+            currentFrameIndex = 0;
             return true;
         }else if(VK_SUCCESS!=acquireRes) {
             Z_CORE_ASSERT(false,"false to acquire next image from swapchain !");
@@ -632,7 +639,7 @@ namespace Z {
         beginInfo.sType=VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags=0;
 
-        auto res=vkBeginCommandBuffer(commandBuffers[currentFrameIndex],&beginInfo);
+        res=vkBeginCommandBuffer(commandBuffers[currentFrameIndex],&beginInfo);
 
         VK_CHECK(res,"failed to begin command buffer !");
 
@@ -652,9 +659,8 @@ namespace Z {
         submit_info.commandBufferCount     = 1;
         submit_info.pCommandBuffers        = &commandBuffers[currentFrameIndex];
         submit_info.signalSemaphoreCount = 1;
-        submit_info.pSignalSemaphores = &imageRenderFinish[currentFrameIndex];
+        submit_info.pSignalSemaphores = &imageRenderFinish[currentSwapChainImageIndex];
 
-        res = vkResetFences(device, 1, &frameFences[currentFrameIndex]);
 
         if (VK_SUCCESS != res)
         {
@@ -673,7 +679,7 @@ namespace Z {
         VkPresentInfoKHR present_info   = {};
         present_info.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         present_info.waitSemaphoreCount = 1;
-        present_info.pWaitSemaphores    = &imageRenderFinish[currentFrameIndex];
+        present_info.pWaitSemaphores    = &imageRenderFinish[currentSwapChainImageIndex];
         present_info.swapchainCount     = 1;
         present_info.pSwapchains        = &swapchain;
         present_info.pImageIndices      = &currentSwapChainImageIndex;
@@ -683,6 +689,8 @@ namespace Z {
         {
             ReCreateSwapChain();
             funcCallAfterRecreateSwapChain();
+            currentFrameIndex = 0;
+            Z_CORE_WARN("Recreate swapchain when present!");
             return;
         }
         else if (VK_SUCCESS != res)
@@ -741,33 +749,35 @@ namespace Z {
         std::vector<VkAttachmentDescription> descriptions(info.attachmentCount);
         int index=0;
         if(info.pAttachments!=nullptr)
-        for(auto&description:descriptions) {
-            auto&attachment=info.pAttachments[index];
-            description.format=(VkFormat)attachment.format;
-            description.initialLayout=(VkImageLayout)attachment.initialLayout;
-            description.finalLayout=(VkImageLayout)attachment.finalLayout;
-            description.loadOp=(VkAttachmentLoadOp)attachment.loadOp;
-            description.storeOp=(VkAttachmentStoreOp)attachment.storeOp;
-            description.stencilLoadOp=(VkAttachmentLoadOp)attachment.stencilLoadOp;
-            description.stencilStoreOp=(VkAttachmentStoreOp)attachment.stencilStoreOp;
-            description.samples=(VkSampleCountFlagBits)attachment.samples;
-            ++index;
-        }
+            for(auto&description:descriptions) {
+                auto&attachment=info.pAttachments[index];
+                description.format=(VkFormat)attachment.format;
+                description.initialLayout=(VkImageLayout)attachment.initialLayout;
+                description.finalLayout=(VkImageLayout)attachment.finalLayout;
+                description.loadOp=(VkAttachmentLoadOp)attachment.loadOp;
+                description.storeOp=(VkAttachmentStoreOp)attachment.storeOp;
+                description.stencilLoadOp=(VkAttachmentLoadOp)attachment.stencilLoadOp;
+                description.stencilStoreOp=(VkAttachmentStoreOp)attachment.stencilStoreOp;
+                description.samples=(VkSampleCountFlagBits)attachment.samples;
+                ++index;
+            }
         index=0;
+
         std::vector<VkSubpassDependency> dependencies(info.dependencyCount);
         if(info.pDependencies!=nullptr)
-        for(auto&dependency:dependencies) {
-            const auto&dep=info.pDependencies[index];
-            dependency.dstSubpass=(uint32)dep.dstSubpass;
-            dependency.srcSubpass=(uint32)dep.srcSubpass;
-            dependency.dstAccessMask=(VkAccessFlags)dep.dstAccessMask;
-            dependency.srcAccessMask=(VkAccessFlags)dep.srcAccessMask;
-            dependency.dstStageMask=(VkPipelineStageFlags)dep.dstStageMask;
-            dependency.srcStageMask=(VkPipelineStageFlags)dep.srcStageMask;
-            dependency.dependencyFlags=(VkDependencyFlags)dep.dependencyFlags;
-            ++index;
-        }
+            for(auto&dependency:dependencies) {
+                const auto&dep=info.pDependencies[index];
+                dependency.dstSubpass=(uint32)dep.dstSubpass;
+                dependency.srcSubpass=(uint32)dep.srcSubpass;
+                dependency.dstAccessMask=(VkAccessFlags)dep.dstAccessMask;
+                dependency.srcAccessMask=(VkAccessFlags)dep.srcAccessMask;
+                dependency.dstStageMask=(VkPipelineStageFlags)dep.dstStageMask;
+                dependency.srcStageMask=(VkPipelineStageFlags)dep.srcStageMask;
+                dependency.dependencyFlags=(VkDependencyFlags)dep.dependencyFlags;
+                ++index;
+            }
         index=0;
+
         std::vector<VkSubpassDescription> subpasses(info.subpassCount);
         std::vector<std::vector<VkAttachmentReference>> attachmentsReferences(info.subpassCount);
         std::vector<std::vector<VkAttachmentReference>> inputReferences(info.subpassCount);
@@ -1666,6 +1676,12 @@ namespace Z {
             glfwGetFramebufferSize(windowPtr,&width,&height);
         }
         vkDeviceWaitIdle(device);
+
+        for(int i=0;i<maxFlightFrames;++i) {
+            vkDestroyFence(device,frameFences[i],nullptr);
+            vkDestroySemaphore(device,imageRenderFinish[i],nullptr);
+            vkDestroySemaphore(device,imageAvailable[i],nullptr);
+        }
         for(const auto&view:swapchainImageViews){
             vkDestroyImageView(device,view, nullptr);
         }
